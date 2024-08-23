@@ -1,0 +1,45 @@
+fail_fast: true
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      # Invalid file checks
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-symlinks
+      - id: check-toml
+
+      # File quality checks
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+      # Git checks
+      - id: check-merge-conflict
+
+      # Python checks
+      - id: name-tests-test
+
+      # JSON files
+      - id: pretty-format-json
+        args: [--autofix]
+
+      - id: check-json
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.1.0
+    hooks:
+      - id: codespell
+
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.12.1
+    hooks:
+      - id: black
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.1.9
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [--fix, --ignore, UP007]
+        exclude: samples
