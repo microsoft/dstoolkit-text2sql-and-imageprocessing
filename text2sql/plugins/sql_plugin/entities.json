@@ -1,0 +1,200 @@
+{
+  "tables": [],
+  "views": [
+    {
+      "columns": [
+        {
+          "definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
+          "name": "ProductCategoryID",
+          "type": "INT"
+        },
+        {
+          "definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
+          "name": "ParentProductCategoryName",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
+          "name": "ProductCategoryName",
+          "type": "NVARCHAR(50)"
+        }
+      ],
+      "description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
+      "entity": "vGetAllCategories",
+      "selector": "Use this view to retrieve information about product categories and subcategories. It is useful for scenarios where product categorization is required, such as generating reports based on product categories or filtering products by category.",
+      "view_name": "Get All Categories"
+    },
+    {
+      "columns": [
+        {
+          "definition": "A unique identifier for each product. This ID is used to distinguish individual products.",
+          "name": "ProductID",
+          "type": "INT"
+        },
+        {
+          "definition": "The name of the product. This provides a brief and identifiable name for each product.",
+          "name": "Name",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The model name associated with the product. This indicates the specific model type or version of the product.",
+          "name": "ProductModel",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The culture or language code for the product description. This is used to localize the product description, such as 'en' for English or 'fr' for French.",
+          "name": "Culture",
+          "sample_values": [
+            "en",
+            "fr",
+            "es",
+            "de"
+          ],
+          "type": "NVARCHAR(6)"
+        },
+        {
+          "definition": "A detailed description of the product. This text provides additional information about the product, which can vary based on the culture or language.",
+          "name": "Description",
+          "type": "NVARCHAR(400)"
+        }
+      ],
+      "description": "This view provides detailed information about products, including their names, associated product models, descriptions, and the specific culture or language of the description. It is useful for understanding product details and translating product descriptions for different cultures.",
+      "entity": "vProductAndDescription",
+      "selector": "Use this view when you need comprehensive details about products, including their descriptions in different languages. This view is particularly useful for multilingual product catalogs or when creating localized content.",
+      "view_name": "Product and Description"
+    },
+    {
+      "columns": [
+        {
+          "definition": "A unique identifier for each product model. This ID is used to distinguish different product models.",
+          "name": "ProductModelID",
+          "type": "INT"
+        },
+        {
+          "definition": "The name of the product model, providing a recognizable title for each model.",
+          "name": "Name",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "A brief summary of the product model, highlighting key features and characteristics.",
+          "name": "Summary",
+          "type": "NVARCHAR(MAX)"
+        },
+        {
+          "definition": "The name of the manufacturer of the product model.",
+          "name": "Manufacturer",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "Copyright information related to the product model, indicating the legal ownership of the product design and content.",
+          "name": "Copyright",
+          "type": "NVARCHAR(30)"
+        },
+        {
+          "definition": "The URL for the product model, providing a link to more information or to purchase the product.",
+          "name": "ProductURL",
+          "type": "NVARCHAR(256)"
+        },
+        {
+          "definition": "The duration of the warranty period for the product model, specifying how long the warranty is valid.",
+          "name": "WarrantyPeriod",
+          "type": "NVARCHAR(30)"
+        },
+        {
+          "definition": "A description of the warranty provided for the product model, detailing what is covered under the warranty.",
+          "name": "WarrantyDescription",
+          "type": "NVARCHAR(255)"
+        },
+        {
+          "definition": "The number of years the warranty is valid for the product model.",
+          "name": "NoOfYears",
+          "type": "INT"
+        },
+        {
+          "definition": "A description of the maintenance requirements and recommendations for the product model.",
+          "name": "MaintenanceDescription",
+          "type": "NVARCHAR(MAX)"
+        },
+        {
+          "definition": "Details about the type of wheels used in the product model.",
+          "name": "Wheel",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "Information about the saddle of the product model, such as material and design.",
+          "name": "Saddle",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "Details regarding the pedal design and specifications of the product model.",
+          "name": "Pedal",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "Description of the bike frame used in the product model, including material and type.",
+          "name": "BikeFrame",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "Information about the crankset of the product model, specifying its design and features.",
+          "name": "Crankset",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The angle at which the product model is photographed, providing a visual perspective of the product.",
+          "name": "PictureAngle",
+          "type": "NVARCHAR(20)"
+        },
+        {
+          "definition": "The size of the product model's picture, specifying dimensions or resolution.",
+          "name": "PictureSize",
+          "type": "NVARCHAR(20)"
+        },
+        {
+          "definition": "An identifier linking to the product photo, which provides a visual representation of the product model.",
+          "name": "ProductPhotoID",
+          "type": "INT"
+        },
+        {
+          "definition": "The material used in the construction of the product model, indicating durability and quality.",
+          "name": "Material",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The color of the product model, providing information about the appearance of the product.",
+          "name": "Color",
+          "type": "NVARCHAR(15)"
+        },
+        {
+          "definition": "A code representing the product line to which the model belongs, categorizing the product within a broader product range.",
+          "name": "ProductLine",
+          "type": "NVARCHAR(2)"
+        },
+        {
+          "definition": "The style of the product model, indicating design and aesthetic aspects.",
+          "name": "Style",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "A description of the target rider's experience level for which the product model is designed, such as beginner, intermediate, or expert.",
+          "name": "RiderExperience",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "A unique identifier (GUID) for each row, used to ensure row-level uniqueness and for replication purposes.",
+          "name": "rowguid",
+          "type": "UNIQUEIDENTIFIER"
+        },
+        {
+          "definition": "The date and time when the product model information was last modified, indicating the currency of the data.",
+          "name": "ModifiedDate",
+          "type": "DATETIME"
+        }
+      ],
+      "description": "This view provides detailed catalog information about product models, including descriptions, manufacturing details, warranty information, and specifications related to product design and features. It is useful for generating comprehensive product catalogs and providing detailed product information to customers.",
+      "entity": "vProductModelCatalogDescription",
+      "selector": "Use this view when you need to retrieve detailed product model descriptions, manufacturing information, and specifications. It is particularly useful for creating product catalogs, detailing product features, and providing warranty information.",
+      "view_name": "Product Model Catalog Description"
+    }
+  ]
+}
