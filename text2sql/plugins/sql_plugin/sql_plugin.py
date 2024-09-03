@@ -43,7 +43,7 @@ class SQLPlugin:
                 entity_object = table.copy()
 
                 entity_object["entity_name"] = entity_object["table_name"]
-                del entity_object["table_"]
+                del entity_object["table_name"]
                 entity = entity_object["entity"]
                 entity_object["select_from_entity"] = f"{self.database}.{entity}"
                 self.entities[entity_object["entity_name"].lower()] = entity_object
