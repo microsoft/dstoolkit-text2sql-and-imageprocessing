@@ -1,5 +1,204 @@
 {
-  "tables": [],
+  "tables": [
+    {
+      "columns": [
+        {
+          "definition": "A unique identifier for each sales order ticket. This ID is auto-generated and serves as the primary key for the SalesOrderTicket table.",
+          "name": "SalesOrderID",
+          "type": "INT"
+        },
+        {
+          "definition": "The date and time when the sales order was created. This is used to track when the order was initiated.",
+          "name": "OrderDate",
+          "type": "DATETIME"
+        },
+        {
+          "definition": "The date by which the order is expected to be fulfilled or delivered. It helps in managing delivery timelines.",
+          "name": "DueDate",
+          "type": "DATETIME"
+        },
+        {
+          "definition": "The date when the order was shipped to the customer. This is used for tracking shipping and fulfillment status.",
+          "name": "ShipDate",
+          "type": "DATETIME"
+        },
+        {
+          "allowed_values": [
+            1,
+            2,
+            3
+          ],
+          "definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
+          "name": "Status",
+          "type": "TINYINT"
+        },
+        {
+          "definition": "The total amount due for the order, including all line items, taxes, and shipping charges.",
+          "name": "TotalDue",
+          "type": "MONEY"
+        },
+        {
+          "definition": "The date and time when the sales order ticket record was last modified. This is used for tracking updates and changes to the order.",
+          "name": "ModifiedDate",
+          "type": "DATETIME"
+        }
+      ],
+      "description": "This table stores detailed information about sales order tickets, including the order details, customer information, order status, and timestamps. It is used to manage and track sales orders throughout the order lifecycle, from creation to fulfillment.",
+      "entity": "SalesOrderTicket",
+      "selector": "Use this table to retrieve or store information related to individual sales order tickets. This is applicable when processing sales orders, managing customer transactions, or tracking order fulfillment status.",
+      "table_name": "Sales Order Ticket"
+    },
+    {
+      "columns": [
+        {
+          "definition": "A unique identifier for each sales order. This ID is auto-generated and serves as the primary key for the SalesOrderHeader table.",
+          "name": "SalesOrderID",
+          "type": "INT"
+        },
+        {
+          "definition": "The date and time when the sales order was created. This field is used to track when the order was initiated.",
+          "name": "OrderDate",
+          "type": "DATETIME"
+        },
+        {
+          "definition": "The date by which the order is expected to be fulfilled or delivered. It helps in managing delivery timelines.",
+          "name": "DueDate",
+          "type": "DATETIME"
+        },
+        {
+          "definition": "The date when the order was shipped to the customer. This is used for tracking shipping and fulfillment status.",
+          "name": "ShipDate",
+          "type": "DATETIME"
+        },
+        {
+          "allowed_values": [
+            1,
+            2,
+            3
+          ],
+          "definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
+          "name": "Status",
+          "type": "TINYINT"
+        },
+        {
+          "allowed_values": [
+            "True",
+            "False"
+          ],
+          "definition": "Indicates whether the order was placed online.",
+          "name": "OnlineOrderFlag",
+          "type": "BIT"
+        },
+        {
+          "definition": "A unique order number assigned to the sales order. This is used for tracking and identification purposes.",
+          "name": "SalesOrderNumber",
+          "type": "NVARCHAR(25)"
+        },
+        {
+          "definition": "The purchase order number provided by the customer. This field links the sales order to the customer's purchase order.",
+          "name": "PurchaseOrderNumber",
+          "type": "NVARCHAR(25)"
+        },
+        {
+          "definition": "The account number of the customer placing the order. This helps link the order to the customer's account.",
+          "name": "AccountNumber",
+          "type": "NVARCHAR(15)"
+        },
+        {
+          "definition": "A foreign key that links to the Customer table, representing the customer who placed the order.",
+          "name": "CustomerID",
+          "type": "INT"
+        },
+        {
+          "definition": "A foreign key that links to the Address table, representing the shipping address for the order.",
+          "name": "ShipToAddressID",
+          "type": "INT"
+        },
+        {
+          "definition": "A foreign key that links to the Address table, representing the billing address for the order.",
+          "name": "BillToAddressID",
+          "type": "INT"
+        },
+        {
+          "definition": "The shipping method used for the order (e.g., UPS, FedEx). This field helps track shipping preferences.",
+          "name": "ShipMethod",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The total cost of the order before taxes and shipping charges. This field is used to calculate the final total. The currency is pound sterling (GBP).",
+          "name": "SubTotal",
+          "type": "MONEY"
+        },
+        {
+          "definition": "The tax amount applied to the order. This is calculated based on the order subtotal and applicable tax rates. The currency is pound sterling (GBP).",
+          "name": "TaxAmt",
+          "type": "MONEY"
+        },
+        {
+          "definition": "The shipping charge applied to the order. This field represents the cost of shipping the order to the customer. The currency is pound sterling (GBP).",
+          "name": "Freight",
+          "type": "MONEY"
+        },
+        {
+          "definition": "The total amount due for the order, including all line items, taxes, and shipping charges. The currency is pound sterling (GBP).",
+          "name": "TotalDue",
+          "type": "MONEY"
+        },
+        {
+          "definition": "Any additional comments or notes related to the sales order. This field can include special instructions or remarks.",
+          "name": "Comment",
+          "type": "NVARCHAR(255)"
+        },
+        {
+          "definition": "The date and time when the sales order header record was last modified. This is used for tracking updates and changes to the order.",
+          "name": "ModifiedDate",
+          "type": "DATETIME"
+        }
+      ],
+      "description": "This table contains high-level information about sales orders, including order dates, customer details, shipping information, and order status. It is used to manage and track sales orders from initiation to fulfillment.",
+      "entity": "SalesOrderHeader",
+      "selector": "Use this table to retrieve or store information related to the overall details of a sales order. It is applicable when you need to track order status, manage order dates, or relate orders to customers and shipping information.",
+      "table_name": "Sales Order Header"
+    },
+    {
+      "columns": [
+        {
+          "definition": "A unique identifier for each address. This ID is auto-generated and serves as the primary key for the Address table.",
+          "name": "AddressID",
+          "type": "INT"
+        },
+        {
+          "definition": "The city in which the address is located. This is used to specify the city for the address.",
+          "name": "City",
+          "type": "NVARCHAR(30)"
+        },
+        {
+          "definition": "The state or province in which the address is located. This is used to specify the state or province for the address.",
+          "name": "StateProvince",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The country or region in which the address is located. This is used to specify the country or region for the address.",
+          "name": "CountryRegion",
+          "type": "NVARCHAR(50)"
+        },
+        {
+          "definition": "The postal code associated with the address. This is used to specify the postal code for the address, which helps in geographical sorting and shipping.",
+          "name": "PostalCode",
+          "type": "NVARCHAR(15)"
+        },
+        {
+          "definition": "The date and time when the address record was last modified. This is used for tracking updates and changes to the address information.",
+          "name": "ModifiedDate",
+          "type": "DATETIME"
+        }
+      ],
+      "description": "This table stores address information for customers, including street addresses, city, state, postal code, and country/region. It is used to maintain contact and shipping information for orders, as well as to manage customer locations.",
+      "entity": "Address",
+      "selector": "Use this table to retrieve or store address details for customers, shipping locations, or billing addresses. It is applicable in scenarios where location information is required, such as shipping orders, verifying customer addresses, or managing geographical data.",
+      "table_name": "Address"
+    }
+  ],
   "views": [
     {
       "columns": [
@@ -179,11 +378,6 @@
           "definition": "A description of the target rider's experience level for which the product model is designed, such as beginner, intermediate, or expert.",
           "name": "RiderExperience",
           "type": "NVARCHAR(50)"
-        },
-        {
-          "definition": "A unique identifier (GUID) for each row, used to ensure row-level uniqueness and for replication purposes.",
-          "name": "rowguid",
-          "type": "UNIQUEIDENTIFIER"
         },
         {
           "definition": "The date and time when the product model information was last modified, indicating the currency of the data.",
