@@ -15,6 +15,7 @@ class SQLPlugin:
         Args:
         ----
             database (str): The name of the database to connect to.
+            target_engine (str): The target database engine to run the queries against. Default is 'SQL Server'.
         """
         self.entities = {}
         self.database = database
@@ -23,10 +24,11 @@ class SQLPlugin:
         self.load_entities()
 
     def load_entities(self):
-        """Load the views from the JSON file."""
+        """Load the views from the JSON file and formats into common memory dictionary."""
         with open("./plugins/sql_plugin/entities.json", "r", encoding="utf-8") as file:
             entities = json.load(file)
 
+            # Load views
             for view in entities["views"]:
                 entity_object = view.copy()
 
@@ -36,6 +38,7 @@ class SQLPlugin:
                 entity_object["select_from_entity"] = f"{self.database}.{entity}"
                 self.entities[entity_object["entity_name"].lower()] = entity_object
 
+            # Load tables
             for table in entities["tables"]:
                 entity_object = table.copy()
 
@@ -45,8 +48,12 @@ class SQLPlugin:
                 entity_object["select_from_entity"] = f"{self.database}.{entity}"
                 self.entities[entity_object["entity_name"].lower()] = entity_object
 
-    def system_prompt(self):
-        """Get the schemas for the database"""
+    def system_prompt(self) -> str:
+        """Get the schemas for the database entities and provide a system prompt for the user.
+
+        Returns:
+            str: The system prompt for the user.
+        """
 
         entity_descriptions = []
         for entity in self.entities.values():
