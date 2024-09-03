@@ -10,7 +10,7 @@ template: |
 
   The response to the user must meet the requirements in RESPONSE OUTPUT REQUIREMENTS.
   IMPORTANT INFORMATION contains useful information that you can use to aid your knowledge.
-  CONVERSATION HISTORY contains the last 3 question and answer pairs in the conversation in JSON format. Do not use this information to answer the question, but to provide context on what was asked previously.
+  CONVERSATION HISTORY contains the previous question and answer pairs in the conversation in JSON format. Do not use this information to answer the question, but to provide context on what was asked previously.
 
   [IMPORTANT INFORMATION]
 
@@ -104,3 +104,14 @@ input_variables:
     is_required: true
 output_variable:
   description: The chatbot response formatted in JSON as defined in the FINAL ANSWER OUTPUT REQUIREMENTS.
+execution_settings:
+  chat:
+    function_choice_behavior:
+      type: auto
+      maximum_auto_invoke_attempts: 5
+      filters:
+        excluded_plugins:
+          - ChatBot
+    response_format:
+      type: json_object
+    temperature: 0.5

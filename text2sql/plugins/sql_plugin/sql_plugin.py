@@ -49,7 +49,7 @@ class SQLPlugin:
         """Get the schemas for the database"""
 
         entity_descriptions = []
-        for entity in self.entities:
+        for entity in self.entities.values():
             entity_string = "     [BEGIN ENTITY = '{}']\n                 Name='{}'\n                 Description='{} {}'\n             [END ENTITY = '{}']".format(
                 entity["entity_name"].upper(),
                 entity["entity_name"],
