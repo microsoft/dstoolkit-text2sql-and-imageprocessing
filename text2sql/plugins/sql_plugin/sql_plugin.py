@@ -51,11 +51,11 @@ class SQLPlugin:
         entity_descriptions = []
         for entity in self.entities:
             entity_string = "     [BEGIN ENTITY = '{}']\n                 Name='{}'\n                 Description='{} {}'\n             [END ENTITY = '{}']".format(
-                entity["view_name"].upper(),
-                entity["view_name"],
+                entity["entity_name"].upper(),
+                entity["entity_name"],
                 entity["description"],
                 entity["selector"],
-                entity["view_name"].upper(),
+                entity["entity_name"].upper(),
             )
             entity_descriptions.append(entity_string)
 
@@ -81,12 +81,12 @@ class SQLPlugin:
         If you don't know how the value is formatted in a column, run a query against the column to get the unique values that might match your query.
         Some columns returned from 'GetEntitySchema()' may have the properties 'allowed_values' or 'sample_values'. Use these values to determine the possible values that can be used in the SQL query.
 
-        The source title to cite is the 'view_name' property and the source reference is the SQL query."""
+        The source title to cite is the 'entity_name' property. The source reference is the SQL query used. The source chunk is the result of the SQL query used to answer the user query in Markdown table format. e.g. {{ 'title': "vProductAndDescription", 'chunk': '| ProductID | Name              | ProductModel | Culture | Description                      |\n|-----------|-------------------|--------------|---------|----------------------------------|\n| 101       | Mountain Bike     | MT-100       | en      | A durable bike for mountain use. |\n| 102       | Road Bike         | RB-200       | en      | Lightweight bike for road use.   |\n| 103       | Hybrid Bike       | HB-300       | fr      | Vélo hybride pour usage mixte.   |\n', 'reference': 'SELECT ProductID, Name, ProductModel, Culture, Description FROM vProductAndDescription WHERE Culture = \"en\";' }}"""
 
         return system_prompt
 
     @kernel_function(
-        description="Get the detailed schema of a view or table in the Snowflake Database. Use the entity and the column returned to formulate a SQL query. The view name or table name must be one of the ENTITY NAMES defined in the [ENTITIES LIST]. Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.",
+        description="Get the detailed schema of an entity in the Database. Use the entity and the column returned to formulate a SQL query. The view name or table name must be one of the ENTITY NAMES defined in the [ENTITIES LIST]. Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.",
         name="GetEntitySchema",
     )
     async def get_entity_schema(
@@ -121,7 +121,7 @@ class SQLPlugin:
     )
     async def run_sql_query(
         self, sql_query: Annotated[str, "The SQL query to run against the DB"]
-    ) -> list[dict]:
+    ) -> str:
         """Sends an SQL Query to the SQL Databases and returns to the result.
 
         Args:
@@ -129,7 +129,7 @@ class SQLPlugin:
             sql_query (str): The query to run against the DB.
 
         Returns:
-            list: The results of the query run against the DB in dictionary format."""
+            str: The JSON representation of the query results."""
 
         logging.info("Executing SQL Query")
         logging.debug("SQL Query: %s", sql_query)

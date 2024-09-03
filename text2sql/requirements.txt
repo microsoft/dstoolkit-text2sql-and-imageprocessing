@@ -1,0 +1,5 @@
+semantic-kernel==1.4.0
+azure-search
+azure-search-documents==11.6.0b3
+aioodbc
+azure-identity
