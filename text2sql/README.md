@@ -6,6 +6,12 @@ The implementation is written for [Semantic Kernel](https://github.com/microsoft
 
 The sample provided works with Azure SQL Server, although it has been easily adapted to other SQL sources such as Snowflake.
 
+## High Level Workflow
+
+The following diagram shows a workflow for how the Text2SQL plugin would be incorporated into a RAG application. Using the plugins available, alongside the [Function Calling](https://platform.openai.com/docs/guides/function-calling) capabilities of LLMs, the LLM can do [Chain of Thought](https://learn.microsoft.com/en-us/dotnet/ai/conceptual/chain-of-thought-prompting) reasoning to determine the steps needed to answer the question. This allows the LLM to recognise intent and therefore pick appropriate data sources based on the intent of the question.
+
+![High level workflow for a plugin driven RAG application](./images/Plugin%20Based%20RAG%20Flow.png "High Level Workflow")
+
 ## Why Text2SQL instead of indexing the database contents?
 
 Generating SQL queries and executing them to provide context for the RAG application provided several benefits in the use case this was designed for.
