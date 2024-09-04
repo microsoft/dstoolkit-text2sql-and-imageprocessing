@@ -9,7 +9,7 @@ import logging
 class SQLPlugin:
     """A plugin that allows for the execution of SQL queries against a SQL Database."""
 
-    def __init__(self, database: str, target_engine: str = "SQL Server"):
+    def __init__(self, database: str, target_engine: str = "Microsoft TSQL Server"):
         """Initialize the SQL Plugin.
 
         Args:
@@ -48,7 +48,7 @@ class SQLPlugin:
                 entity_object["select_from_entity"] = f"{self.database}.{entity}"
                 self.entities[entity_object["entity_name"].lower()] = entity_object
 
-    def system_prompt(self) -> str:
+    def system_prompt(self, engine_specific_rules: str | None = None) -> str:
         """Get the schemas for the database entities and provide a system prompt for the user.
 
         Returns:
@@ -68,6 +68,9 @@ class SQLPlugin:
 
         entity_descriptions = "\n\n        ".join(entity_descriptions)
 
+        if engine_specific_rules:
+            engine_specific_rules = f"\n        The following {self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"
+
         system_prompt = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query. Use the 'RunSQLQuery()' function to run the SQL query against the database.
 
         You must always examine the provided {self.target_engine} entity descriptions to determine if they can answer the question.
@@ -79,7 +82,7 @@ class SQLPlugin:
         Output corresponding text values in the answer for columns where there is an ID. For example, if the column is 'ProductID', output the corresponding 'ProductModel' in the response. Do not include the ID in the response.
         If a user is asking for a comparison, always compare the relevant values in the database.
 
-        The target database engine is {self.target_engine}, SQL queries must be able compatible to run on {self.target_engine}.
+        The target database engine is {self.target_engine}, SQL queries must be able compatible to run on {self.target_engine}. {engine_specific_rules}
         Always generate the SQL query based on the GetEntitySchema() function output, do not use the chat history data to generate the SQL query.
         Do not use any other entities and columns in your SQL query, other than those defined above. Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.
         You must only provide SELECT SQL queries.

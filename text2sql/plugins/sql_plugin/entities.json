@@ -44,9 +44,9 @@
         }
       ],
       "description": "This table stores detailed information about sales order tickets, including the order details, customer information, order status, and timestamps. It is used to manage and track sales orders throughout the order lifecycle, from creation to fulfillment.",
-      "entity": "SalesOrderTicket",
+      "entity": "SalesOrderDetail",
       "selector": "Use this table to retrieve or store information related to individual sales order tickets. This is applicable when processing sales orders, managing customer transactions, or tracking order fulfillment status.",
-      "table_name": "Sales Order Ticket"
+      "table_name": "Sales Order Detail"
     },
     {
       "columns": [
