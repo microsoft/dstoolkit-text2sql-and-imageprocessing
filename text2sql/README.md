@@ -36,6 +36,7 @@ Using Auto-Function calling capabilities, the LLM is able to retrieve from the p
 
 - `./rag_with_text_2_sql.ipynb` provides example of how to utilise the Text2SQL plugin to query the database.
 - `./rag_with_ai_searchandtext_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
+    - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
 
 ## SQL Plugin
 
@@ -90,6 +91,22 @@ A full data dictionary must be built for all the views / tables you which to exp
 ### sql_plugin.py
 
 The `./plugins/sql_plugin/sql_plugin.py` contains 3 key methods to power the Text2SQL engine.
+
+#### system_prompt()
+
+This method takes the loaded `entities.json` file and generates a system prompt based on it. Here, the **entity_name**, **description** and **selector** are used to build a list of available entities for the LLM to select.
+
+This is then inserted into a pre-made Text2SQL generation prompt that already contains optimised and working instructions for the LLM. This system prompt for the plugin is added to the main prompt file at runtime.
+
+The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
+
+#### get_entity_schema()
+
+This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to fetch the full schema definitions for a given entity. This returns a JSON string of the chosen entity which allows the LLM to understand the column definitions and their associated metadata. This can be called in parallel for multiple entities.
+
+#### run_sql_query()
+
+This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
 
 ## Sample Usage
 
