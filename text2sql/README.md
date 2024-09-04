@@ -45,8 +45,102 @@ Using Auto-Function calling capabilities, the LLM is able to retrieve from the p
 
 To power the knowledge of the LLM, a data dictionary containing all the SQL views / table metadata is used. Whilst the LLM could query the database at runtime to find out the schemas for the database, storing them in a text file reduces the overall latency of the system and allows the metadata for each table to be adjusted in a form of prompt engineering.
 
+The data dictionary is stored in `./plugins/sql_plugin/entities.json`. Below is a sample entry for a view / table that we which to expose to the LLM. The Microsoft SQL Server [Adventure Works Database](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16) is used as an sample.
+
+```json
+{
+    "view_name": "Get All Categories",
+    "entity": "vGetAllCategories",
+    "description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
+    "selector": "Use this view to retrieve information about product categories and subcategories. It is useful for scenarios where product categorization is required, such as generating reports based on product categories or filtering products by category.",
+    "columns": [
+        {
+            "definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
+            "name": "ProductCategoryID",
+            "type": "INT"
+        },
+        {
+            "definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
+            "name": "ParentProductCategoryName",
+            "type": "NVARCHAR(50)"
+        },
+        {
+            "definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
+            "name": "ProductCategoryName",
+            "type": "NVARCHAR(50)"
+        }
+    ]
+}
+```
+
+#### Property Definitions
+- **view_name** or **table_name** is a human readable name for the entity.
+- **entity** is the actual name for the entity that is used in the SQL query.
+- **description** provides a comprehensive description of what information the entity contains.
+- **selector** provides reasoning to the LLM of in which scenarios it should select this entity.
+- **columns** contains a list of the columns exposed for querying. Each column contains:
+    - **definition** a short definition of what information the column contains. Here you can add extra metadata to **prompt engineer** the LLM to select the right columns or interpret the data in the column correctly.
+    - **name** is the actual column name.
+    - **type** is the datatype for the column.
+    - **sample_values (optional)** is a list of sample values that are in the column. This is useful for instructing the LLM of what format the data may be in.
+    - **allowed_values (optional)** is a list of absolute allowed values for the column. This instructs the LLM only to use these values if filtering against this column.
+
+A full data dictionary must be built for all the views / tables you which to expose to the LLM. The metadata provide directly influences the accuracy of the Text2SQL component.
+
 ### sql_plugin.py
 
 The `./plugins/sql_plugin/sql_plugin.py` contains 3 key methods to power the Text2SQL engine.
 
+## Sample Usage
+
+### What is the top performing product by quantity of units sold?
+
+#### SQL Query Generated
+
+*SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC*
+
+#### JSON Result
+
+```json
+{
+    "answer": "The top-performing product by quantity of units sold is the **Classic Vest, S** from the **Classic Vest** product model, with a total of 87 units sold [1][2].",
+    "sources": [
+        {
+            "title": "Sales Order Detail",
+            "chunk": "| ProductID | TotalUnitsSold |\n|-----------|----------------|\n| 864       | 87             |\n",
+            "reference": "SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC;"
+        },
+        {
+            "title": "Product and Description",
+            "chunk": "| Name           | ProductModel  |\n|----------------|---------------|\n| Classic Vest, S| Classic Vest  |\n",
+            "reference": "SELECT Name, ProductModel FROM SalesLT.vProductAndDescription WHERE ProductID = 864;"
+        }
+    ]
+}
+```
+
+The **answer** and **sources** properties can be rendered to the user to visualize the results. Markdown support is useful for complex answer outputs and explaining the source of the information.
+
+#### Rendered Output
+
+The top-performing product by quantity of units sold is the **Classic Vest, S** from the **Classic Vest** product model, with a total of 87 units sold [1][2].
+
+#### Rendered Sources
+
+| ProductID | TotalUnitsSold |
+|-----------|----------------|
+| 864       | 87             |
+
+| Name           | ProductModel  |
+|----------------|---------------|
+| Classic Vest, S| Classic Vest  |
+
 ## Tips for good Text2SQL performance.
+
+- Pre-assemble views to avoid the LLM having to make complex joins between multiple tables
+- Give all columns and views / tables good names that are descriptive.
+- Spend time providing good descriptions in the metadata for all entities and columns e.g.
+    - If a column contains a value in a given currency, give the currency information in the metadata.
+    - Clearly state in the **selector** what sorts of questions a given view / table can provide answers for.
+- Use common codes for columns that need filtering e.g.
+    - A  country can have multiple text representations e.g. United Kingdom or UK. Use ISO codes for countries, instead of text descriptions to increase the likelihood of correct and valid SQL queries.
