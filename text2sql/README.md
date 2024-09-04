@@ -161,3 +161,13 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
     - Clearly state in the **selector** what sorts of questions a given view / table can provide answers for.
 - Use common codes for columns that need filtering e.g.
     - A  country can have multiple text representations e.g. United Kingdom or UK. Use ISO codes for countries, instead of text descriptions to increase the likelihood of correct and valid SQL queries.
+
+## Production Considerations
+
+Below are some of the considerations that should be made before using this plugin in production:
+
+- Despite prompting to only produce **SELECT** statements, there is a danger that dangerous SQL statements could be generated.
+    - Consider adding validation of the SQL query before it is executed to check it is only performing actions that you allow.
+    - Consider limiting the permissions of the identity or connection string to only allow access to certain tables or perform certain query types.
+- If possible, run the queries under the identity of the end user so that any row or column level security is applied to the data.
+- Consider data masking for sensitive columns that you do not wish to be exposed.
