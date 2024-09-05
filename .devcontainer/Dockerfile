@@ -13,7 +13,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy the requirements file into the container
-COPY requirements.txt .
+COPY requirements-dev.txt .
 
 # Install Python dependencies
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-dev.txt

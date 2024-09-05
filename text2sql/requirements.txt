@@ -1,0 +1,6 @@
+semantic-kernel==1.8.2
+azure-search
+azure-search-documents==11.6.0b4
+aioodbc
+azure-identity
+python-dotenv

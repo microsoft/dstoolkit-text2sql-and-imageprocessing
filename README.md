@@ -1,14 +1,11 @@
-# Project
+# Text2SQL and Image Processing in AI Search
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+This repo provides sample code for improving RAG applications with rich data sources.
 
-As the maintainer of this project, please make a few updates:
+- `./text2sql` contains an Multi-Shot implementation for Text2SQL generation and querying which can be used to answer questions backed by a database as a knowledge base.
+- `./ai_search_with_adi` contains code for linking Azure Document Intelligence with AI Search to process complex documents with charts and images, and uses multi-modal models to interpret and understand these.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+The above components have been successfully used on production RAG projects to increase the quality of responses. The code provided in this repo is a sample of the implementation and should be adjusted before being used in production.
 
 ## Contributing
 
@@ -26,8 +23,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
