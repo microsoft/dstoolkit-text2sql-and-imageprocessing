@@ -1,0 +1,26 @@
+# DO NOT include azure-functions-worker in this file
+# The Python Worker is managed by Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+python-dotenv
+azure-functions
+openai
+azure-storage-blob
+pandas
+azure-identity
+openpyxl
+regex
+nltk==3.8.1
+bs4
+azure-search
+azure-search-documents
+azure-ai-documentintelligence
+azure-ai-textanalytics
+azure-ai-vision-imageanalysis
+PyMuPDF
+pillow
+torch
+aiohttp
+spacy==3.7.5
+transformers
+scikit-learn
+en-core-web-md @ https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1.tar.gz
