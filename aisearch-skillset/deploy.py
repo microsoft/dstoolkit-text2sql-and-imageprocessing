@@ -30,19 +30,6 @@ def main(args):
             rebuild=args.rebuild, 
             enable_page_by_chunking=args.enable_page_chunking
         )
-    elif args.indexer_type == "summary":
-        # Deploy the summarises index
-        index_config = SummaryDocumentAISearch(
-            endpoint=endpoint, 
-            credential=credential, 
-            suffix=args.suffix,
-            rebuild=args.rebuild,  
-            enable_page_by_chunking=args.enable_page_chunking
-        )
-    elif args.indexer_type == "glossary":
-        # Deploy business glossary index
-        index_config = BusinessGlossaryAISearch(endpoint, credential)
-
     index_config.deploy()
 
     if args.rebuild:

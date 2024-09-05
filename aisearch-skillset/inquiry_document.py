@@ -63,14 +63,14 @@ class InquiryDocumentAISearch(AISearch):
                 name="Title", type=SearchFieldDataType.String, filterable=True
             ),
             SearchableField(
-                name="DealId",
+                name="ID1",
                 type=SearchFieldDataType.String,
                 sortable=True,
                 filterable=True,
                 facetable=True,
             ),
             SearchableField(
-                name="OracleId",
+                name="ID2",
                 type=SearchFieldDataType.String,
                 sortable=True,
                 filterable=True,
@@ -212,12 +212,12 @@ class InquiryDocumentAISearch(AISearch):
                             source="/document/Title"
                         ),
                         InputFieldMappingEntry(
-                            name="DealId", 
-                            source="/document/DealId"
+                            name="ID1", 
+                            source="/document/ID1"
                         ),
                         InputFieldMappingEntry(
-                            name="OracleId", 
-                            source="/document/OracleId"
+                            name="ID2", 
+                            source="/document/ID2"
                         ),
                         InputFieldMappingEntry(
                             name="SourceUrl", 
@@ -302,9 +302,9 @@ class InquiryDocumentAISearch(AISearch):
                 FieldMapping(
                     source_field_name="metadata_storage_name", target_field_name="Title"
                 ),
-                FieldMapping(source_field_name="Deal_ID", target_field_name="DealId"),
+                FieldMapping(source_field_name="ID1", target_field_name="ID1"),
                 FieldMapping(
-                    source_field_name="Oracle_ID", target_field_name="OracleId"
+                    source_field_name="ID2", target_field_name="ID2"
                 ),
                 FieldMapping(
                     source_field_name="SharePointUrl", target_field_name="SourceUrl"
