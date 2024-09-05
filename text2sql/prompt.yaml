@@ -10,7 +10,7 @@ template: |
 
   The response to the user must meet the requirements in RESPONSE OUTPUT REQUIREMENTS.
   IMPORTANT INFORMATION contains useful information that you can use to aid your knowledge.
-  CONVERSATION HISTORY contains the previous question and answer pairs in the conversation in JSON format. Do not use this information to answer the question, but to provide context on what was asked previously.
+  CHAT HISTORY contains the previous question and answer pairs in the conversation in JSON format. Do not use this information to answer the question, but to provide context on what was asked previously.
 
   [IMPORTANT INFORMATION]
 
@@ -38,7 +38,7 @@ template: |
 
       3. Information Sources:
         Use only information from the provided functions and specified important information.
-        Do not use any external sources or the conversation history for constructing the response.
+        Do not use any external sources or the chat history for constructing the response.
         In case of conflicting information, prioritize data from the SQL Database as the primary source of truth.
 
       4. Calculations:
@@ -82,22 +82,14 @@ template: |
     [END SOURCES PROPERTY REQUIREMENTS]
 
   [END RESPONSE OUTPUT REQUIREMENTS]
-
-  [CONVERSATION HISTORY]
-
-    {{$chat_history}}
-
-  [END CONVERSATION HISTORY]
   </message>
+  {{$chat_history}}
   <message role="user">{{$user_input}}</message>
 description: Chatbot
 name: ChatBot
 input_variables:
   - name: user_input
     description: The user input
-    is_required: true
-  - name: chat_history
-    description: The history of the conversation for the last 3 messages
     is_required: true
   - name: important_information
     description: Useful information for the chatbot
