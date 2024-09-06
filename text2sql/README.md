@@ -177,3 +177,10 @@ Below are some of the considerations that should be made before using this plugi
     - Consider limiting the permissions of the identity or connection string to only allow access to certain tables or perform certain query types.
 - If possible, run the queries under the identity of the end user so that any row or column level security is applied to the data.
 - Consider data masking for sensitive columns that you do not wish to be exposed.
+
+## Possible Improvements
+
+Below are some possible improvements that could be made to the Text2SQL approach:
+
+- Storing the entity names / definitions / selectors in a vector database and using a vector search to obtain the most relevant entities.
+    - Due to the small number of tokens that this approaches uses, this approach was not considered but if the number of tables is significantly larger, this approach may provide benefits in selecting the most appropriate tables (untested).
