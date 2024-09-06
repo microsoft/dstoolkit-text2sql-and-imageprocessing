@@ -109,14 +109,14 @@ If `chunk_by_page` header is `True` (recommended):
                     {
                         "page_number": 1,
                         "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1">
+                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1>"
                         ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 1>"
                     },
                     {
                         "page_number": 2,
                         "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 2">
+                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 2>"
                         ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 2>"
                     }
@@ -130,14 +130,14 @@ If `chunk_by_page` header is `True` (recommended):
                     {
                         "page_number": 1,
                         "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1">
+                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1>"
                         ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 2>"
                     },
                     {
                         "page_number": 2,
                         "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1">
+                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1>"
                         ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 2>"
                     }
@@ -158,7 +158,7 @@ If `chunk_by_page` header is `False`:
             "data": {
                 "extracted_content": {
                     "sections": [
-                        "<LIST OF DETECTED HEADINGS AND SECTIONS FOR THE ENTIRE DOCUMENT">
+                        "<LIST OF DETECTED HEADINGS AND SECTIONS FOR THE ENTIRE DOCUMENT>"
                     ],
                     "content": "<CLEANED MARKDOWN CONTENT FOR THE ENTIRE DOCUMENT>"
                 }
@@ -169,7 +169,7 @@ If `chunk_by_page` header is `False`:
             "data": {
                 "extracted_content": {
                     "sections": [
-                        "<LIST OF DETECTED HEADINGS AND SECTIONS FOR THE ENTIRE DOCUMENT">
+                        "<LIST OF DETECTED HEADINGS AND SECTIONS FOR THE ENTIRE DOCUMENT>"
                     ],
                     "content": "<CLEANED MARKDOWN CONTENT FOR THE ENTIRE DOCUMENT>"
                 }
