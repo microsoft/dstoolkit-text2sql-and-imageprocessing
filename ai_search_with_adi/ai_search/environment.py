@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 """Module providing environment definition"""
 import os
 from dotenv import find_dotenv, load_dotenv

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 
@@ -10,12 +13,14 @@ class PendingIndexTriggerBody(BaseModel):
     """Body model"""
 
     indexer: str = Field(..., description="The indexer to trigger")
-    deal_id: Optional[int] = Field(None, description="The deal ID")
+    ## this field can be defined based on your id field
+    id_field: Optional[int] = Field(None, description="The ID field")
     blob_storage_url: str = Field(..., description="The URL to the blob storage")
-    deal_name: Optional[str] = Field(
-        None, description="The text name for the integer deal ID"
+    ## this field can be defined based on your id field
+    id_name: Optional[str] = Field(
+        None, description="The text name for the integer ID field"
     )
-    business_unit: Optional[str] = Field(None, description="The business unit")
+    additional_field: Optional[str] = Field(None, description="Description of additional_field")
 
     __config__ = ConfigDict(extra="ignore")
 

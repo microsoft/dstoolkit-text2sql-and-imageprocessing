@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import base64
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.documentintelligence.aio import DocumentIntelligenceClient
@@ -13,7 +16,7 @@ import logging
 from common.storage_account import StorageAccountHelper
 import concurrent.futures
 import json
-
+from openai import AzureOpenAI
 
 def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
     """
@@ -131,36 +134,77 @@ def update_figure_description(md_content, img_description, idx):
     return new_md_content
 
 
-async def understand_image_with_vlm(image_base64):
+async def understand_image_with_gptv(image_base64, caption):
     """
-    Sends a base64-encoded image to a VLM (Vision Language Model) endpoint for financial analysis.
+    Generates a description for an image using the GPT-4V model.
 
-    Args:
-        image_base64 (str): The base64-encoded string representation of the image.
+    Parameters:
+    - image_base64 (str): image file.
+    - caption (str): The caption for the image.
 
     Returns:
-        str: The response from the VLM, which is either a financial analysis or a statement indicating the image is not useful.
+    - img_description (str): The generated description for the image.
     """
-    # prompt = "Describe the image ONLY IF it is useful for financial analysis. Otherwise, say 'NOT USEFUL IMAGE' and NOTHING ELSE. "
-    prompt = "Perform financial analysis of the image ONLY IF the image is of graph, chart, flowchart or table. Otherwise, say 'NOT USEFUL IMAGE' and NOTHING ELSE. "
-    headers = {"Content-Type": "application/json"}
-    data = {"prompt": prompt, "image": image_base64}
-    vlm_endpoint = os.environ["AIServices__VLM__Endpoint"]
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            vlm_endpoint, headers=headers, json=data, timeout=30
-        ) as response:
-            response_data = await response.json()
-            response_text = response_data["response"].split("</s>")[0]
 
-    if (
-        "not useful for financial analysis" in response_text
-        or "NOT USEFUL IMAGE" in response_text
-    ):
-        return "Irrelevant Image"
+    MAX_TOKENS = 2000
+    api_key = os.environ["AzureAI_GPT4V_Key"]
+    api_version = os.environ["AzureAI__GPT4V_Version"]
+    deployment_name = os.environ["AzureAI__GPT4V_Deployment"]
+    api_base = os.environ["AzureAI__GPT4V_APIbase"]
+
+
+    client = AzureOpenAI(
+        api_key=api_key,  
+        api_version=api_version,
+        base_url=f"{api_base}/openai/deployments/{deployment_name}"
+    )
+
+    # We send both image caption and the image body to GPTv for better understanding
+    if caption != "":
+        response = client.chat.completions.create(
+                model=deployment_name,
+                messages=[
+                    { "role": "system", "content": "You are a helpful assistant." },
+                    { "role": "user", "content": [  
+                        { 
+                            "type": "text", 
+                            "text": f"Describe this image (note: it has image caption: {caption}):" 
+                        },
+                        { 
+                            "type": "image_base64",
+                            "image_base64": {
+                                "image": image_base64
+                            }
+                        }
+                    ] } 
+                ],
+                max_tokens=MAX_TOKENS
+            )
+
     else:
-        return response_text
+        response = client.chat.completions.create(
+            model=deployment_name,
+            messages=[
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": [  
+                    { 
+                        "type": "text", 
+                        "text": "Describe this image:" 
+                    },
+                    { 
+                        "type": "image_base64",
+                        "image_base64": {
+                            "image": image_base64
+                        }
+                    }
+                ] } 
+            ],
+            max_tokens=MAX_TOKENS
+        )
 
+    img_description = response.choices[0].message.content
+    
+    return img_description
 
 def pil_image_to_base64(image, image_format="JPEG"):
     """
@@ -219,7 +263,7 @@ async def process_figures_from_extracted_content(
 
                 image_base64 = pil_image_to_base64(cropped_image)
 
-                img_description += await understand_image_with_vlm(image_base64)
+                img_description += await understand_image_with_gptv(image_base64)
                 logging.info(f"\tDescription of figure {idx}: {img_description}")
 
         markdown_content = update_figure_description(
@@ -386,45 +430,30 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
 
         try:
             if chunk_by_page:
+                cleaned_result = []
                 markdown_content,page_no = create_page_wise_content(result)
+                tasks = [
+                    process_figures_from_extracted_content(
+                        temp_file_path, page_content, result.figures, page_number=idx
+                    )
+                    for idx, page_content in enumerate(markdown_content)
+                ]
+                content_with_figures = await asyncio.gather(*tasks)
+                with concurrent.futures.ProcessPoolExecutor() as executor:
+                    futures = {
+                        executor.submit(
+                            clean_adi_markdown, page_content, False
+                        ): page_content
+                        for page_content in content_with_figures
+                    }
+                    for future in concurrent.futures.as_completed(futures):
+                        cleaned_result.append(future.result())
+
             else:
                 markdown_content = result.content
-
-            # Remove this line when VLM is ready
-            content_with_figures = markdown_content
-
-            # if chunk_by_page:
-            #     tasks = [
-            #         process_figures_from_extracted_content(
-            #             temp_file_path, page_content, result.figures, page_number=idx
-            #         )
-            #         for idx, page_content in enumerate(markdown_content)
-            #     ]
-            #     content_with_figures = await asyncio.gather(*tasks)
-            # else:
-            #     content_with_figures = await process_figures_from_extracted_content(
-            #         temp_file_path, markdown_content, result.figures
-            #     )
-
-            # Remove remove_irrelevant_figures=True when VLM is ready
-            if chunk_by_page:
-                cleaned_result = []
-                with concurrent.futures.ProcessPoolExecutor() as executor:
-                    results = executor.map(clean_adi_markdown,content_with_figures, page_no,[False] * len(content_with_figures))
-                
-                for cleaned_content in results:
-                    cleaned_result.append(cleaned_content)
-                    
-                # with concurrent.futures.ProcessPoolExecutor() as executor:
-                #     futures = {
-                #         executor.submit(
-                #             clean_adi_markdown, page_content, False
-                #         ): page_content
-                #         for page_content in content_with_figures
-                #     }
-                #     for future in concurrent.futures.as_completed(futures):
-                #         cleaned_result.append(future.result())
-            else:
+                content_with_figures = await process_figures_from_extracted_content(
+                    temp_file_path, markdown_content, result.figures
+                )
                 cleaned_result = clean_adi_markdown(
                     content_with_figures, page_no=-1,remove_irrelevant_figures=False
                 )

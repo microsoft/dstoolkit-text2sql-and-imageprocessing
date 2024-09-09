@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime, timezone
 from typing import Optional, List
@@ -11,12 +14,12 @@ class PendingIndexCompletionBody(BaseModel):
     """Body model"""
 
     indexer: str = Field(..., description="The indexer to trigger")
-    deal_id: Optional[int] = Field(None, description="The deal ID")
+    id_field: Optional[int] = Field(None, description="The ID field")
     blob_storage_url: Optional[str] = Field(
         ..., description="The URL to the blob storage"
     )
-    deal_name: Optional[str] = Field(
-        None, description="The text name for the integer deal ID"
+    id_name: Optional[str] = Field(
+        None, description="The text name for the integer ID field"
     )
     business_unit: Optional[str] = Field(None, description="The business unit")
     indexer_start_time: Optional[datetime] = Field(

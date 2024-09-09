@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime, timezone

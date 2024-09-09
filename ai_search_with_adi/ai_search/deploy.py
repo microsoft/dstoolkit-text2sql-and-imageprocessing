@@ -1,35 +1,45 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import argparse
-from environment import get_search_endpoint, get_managed_identity_id, get_search_key,get_key_vault_url
+from ai_search_with_adi.ai_search.environment import (
+    get_search_endpoint,
+    get_managed_identity_id,
+    get_search_key,
+    get_key_vault_url,
+)
 from azure.core.credentials import AzureKeyCredential
-from azure.identity import DefaultAzureCredential,ManagedIdentityCredential,EnvironmentCredential
+from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from inquiry_document import InquiryDocumentAISearch
-
 
 def main(args):
     endpoint = get_search_endpoint()
 
     try:
-        credential = DefaultAzureCredential(managed_identity_client_id =get_managed_identity_id())
+        credential = DefaultAzureCredential(
+            managed_identity_client_id=get_managed_identity_id()
+        )
         # initializing key vault client
         client = SecretClient(vault_url=get_key_vault_url(), credential=credential)
         print("Using managed identity credential")
     except Exception as e:
         print(e)
-        credential = (
-            AzureKeyCredential(get_search_key(client=client))
-        )
+        credential = AzureKeyCredential(get_search_key(client=client))
         print("Using Azure Key credential")
 
     if args.indexer_type == "inquiry":
         # Deploy the inquiry index
         index_config = InquiryDocumentAISearch(
-            endpoint=endpoint, 
-            credential=credential, 
+            endpoint=endpoint,
+            credential=credential,
             suffix=args.suffix,
-            rebuild=args.rebuild, 
-            enable_page_by_chunking=args.enable_page_chunking
+            rebuild=args.rebuild,
+            enable_page_by_chunking=args.enable_page_chunking,
         )
+    else:
+        raise ValueError("Invalid Indexer Type")
+
     index_config.deploy()
 
     if args.rebuild:
@@ -42,7 +52,7 @@ if __name__ == "__main__":
         "--indexer_type",
         type=str,
         required=True,
-        help="Type of Indexer want to deploy. inquiry/summary/glossary",
+        help="Type of Indexer want to deploy.",
     )
     parser.add_argument(
         "--rebuild",

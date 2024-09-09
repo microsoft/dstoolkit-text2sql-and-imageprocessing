@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from azure.search.documents.indexes.aio import SearchIndexerClient, SearchIndexClient
 from azure.search.documents.aio import SearchClient
 from azure.search.documents.indexes.models import SynonymMap
@@ -75,7 +78,7 @@ class AISearchHelper:
                 logging.error("Unable to run indexer %s", e)
 
     async def search_index(
-        self, index_name, semantic_config, search_text, deal_id=None
+        self, index_name, semantic_config, search_text, filter_field=None
     ):
         """Search the index using the provided search text."""
         async with AsyncAzureOpenAI(
@@ -98,8 +101,8 @@ class AISearchHelper:
             fields="ChunkEmbedding",
         )
 
-        if deal_id:
-            filter_expression = f"DealId eq '{deal_id}'"
+        if filter_field:
+            filter_expression = f"filter_field eq '{filter_field}'"
         else:
             filter_expression = None
 

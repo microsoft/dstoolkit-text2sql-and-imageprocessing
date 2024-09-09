@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime, timezone
 from enum import Enum
@@ -15,8 +18,6 @@ class TaskEnum(Enum):
 
     PENDING_INDEX_COMPLETION = "pending_index_completion"
     PENDING_INDEX_TRIGGER = "pending_index_trigger"
-    PENDING_SUMMARY_GENERATION = "pending_summary_generation"
-
 
 class Header(BaseModel):
     """Header model"""

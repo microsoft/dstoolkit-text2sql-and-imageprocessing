@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from azure.search.documents.indexes.models import (
     SearchFieldDataType,
     SearchField,
@@ -11,7 +14,6 @@ from azure.search.documents.indexes.models import (
     FieldMapping,
     IndexingParameters,
     IndexingParametersConfiguration,
-    BlobIndexerImageAction,
     SearchIndexerIndexProjections,
     SearchIndexerIndexProjectionSelector,
     SearchIndexerIndexProjectionsParameters,
@@ -19,10 +21,9 @@ from azure.search.documents.indexes.models import (
     SimpleField,
     BlobIndexerDataToExtract,
     IndexerExecutionEnvironment,
-    BlobIndexerPDFTextRotationAlgorithm,
 )
 from ai_search import AISearch
-from environment import (
+from ai_search_with_adi.ai_search.environment import (
     get_search_embedding_model_dimensions,
     IndexerType,
 )
@@ -47,9 +48,33 @@ class InquiryDocumentAISearch(AISearch):
         else:
             self.enable_page_by_chunking = False
 
-        # explicitly setting it to false no matter what output comes in
-        # might be removed later
-        # self.enable_page_by_chunking = False
+    @property
+    def index_name(self):
+        """Get the index name for the indexer. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
+        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-index{self.suffix}"
+
+    @property
+    def vector_search_profile_name(self):
+        """Get the vector search profile name for the indexer. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
+        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-compass-vector-search-profile{self.suffix}"
+
+    @property
+    def vectorizer_name(self):
+        """Get the vectorizer name. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
+        return (
+            f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-compass-vectorizer{self.suffix}"
+        )
+
+    @property
+    def algorithm_name(self):
+        """Gtt the algorithm name. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
+
+        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-hnsw-algorithm{self.suffix}"
+
+    @property
+    def semantic_config_name(self):
+        """Get the semantic config name for the indexer. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
+        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-semantic-config{self.suffix}"
 
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for inquiry document.
@@ -60,42 +85,42 @@ class InquiryDocumentAISearch(AISearch):
         fields = [
             SimpleField(name="Id", type=SearchFieldDataType.String, filterable=True),
             SearchableField(
-                name="Title", type=SearchFieldDataType.String, filterable=True
+                name="Field1", type=SearchFieldDataType.String, filterable=True
             ),
             SearchableField(
-                name="ID1",
+                name="Field2",
                 type=SearchFieldDataType.String,
                 sortable=True,
                 filterable=True,
                 facetable=True,
             ),
             SearchableField(
-                name="ID2",
+                name="Field3",
                 type=SearchFieldDataType.String,
                 sortable=True,
                 filterable=True,
                 facetable=True,
             ),
             SearchableField(
-                name="ChunkId",
+                name="Field4",
                 type=SearchFieldDataType.String,
                 key=True,
-                analyzer_name="keyword",
+                analyzer_name="a1",
             ),
             SearchableField(
-                name="Chunk",
+                name="Field5",
                 type=SearchFieldDataType.String,
                 sortable=False,
                 filterable=False,
                 facetable=False,
             ),
             SearchableField(
-                name="Section",
+                name="Field6",
                 type=SearchFieldDataType.String,
                 collection=True,
             ),
             SearchField(
-                name="ChunkEmbedding",
+                name="EmbeddingField",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                 vector_search_dimensions=get_search_embedding_model_dimensions(
                     self.indexer_type
@@ -103,17 +128,17 @@ class InquiryDocumentAISearch(AISearch):
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             SearchableField(
-                name="Keywords", type=SearchFieldDataType.String, collection=True
+                name="Field7", type=SearchFieldDataType.String, collection=True
             ),
             SearchableField(
-                name="SourceUrl",
+                name="Field8",
                 type=SearchFieldDataType.String,
                 sortable=True,
                 filterable=True,
                 facetable=True,
             ),
             SearchableField(
-                name="AdditionalMetadata",
+                name="Field9",
                 type=SearchFieldDataType.String,
                 sortable=True,
                 filterable=True,
@@ -125,7 +150,7 @@ class InquiryDocumentAISearch(AISearch):
             fields.extend(
                 [
                     SearchableField(
-                        name="PageNumber",
+                        name="Field10",
                         type=SearchFieldDataType.Int64,
                         sortable=True,
                         filterable=True,
@@ -145,13 +170,13 @@ class InquiryDocumentAISearch(AISearch):
         semantic_config = SemanticConfiguration(
             name=self.semantic_config_name,
             prioritized_fields=SemanticPrioritizedFields(
-                title_field=SemanticField(field_name="Title"),
-                content_fields=[SemanticField(field_name="Chunk")],
+                title_field=SemanticField(field_name="Field1"),
+                content_fields=[SemanticField(field_name="Field2")],
                 keywords_fields=[
-                    SemanticField(field_name="Keywords"),
-                    SemanticField(field_name="Section"),
-                    ],
-                ),
+                    SemanticField(field_name="Field3"),
+                    SemanticField(field_name="Field4"),
+                ],
+            ),
         )
 
         semantic_search = SemanticSearch(configurations=[semantic_config])
@@ -163,13 +188,16 @@ class InquiryDocumentAISearch(AISearch):
 
         adi_skill = self.get_adi_skill(self.enable_page_by_chunking)
 
+
         text_split_skill = self.get_text_split_skill(
             "/document", "/document/extracted_content/content"
         )
 
+
         pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
-             "/document/pages/*", "/document/pages/*", self.enable_page_by_chunking
+            "/document/pages/*", "/document/pages/*", self.enable_page_by_chunking
         )
+
 
         key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
             "/document/pages/*", "/document/pages/*/cleaned_chunk"
@@ -199,60 +227,44 @@ class InquiryDocumentAISearch(AISearch):
 
     def get_index_projections(self) -> SearchIndexerIndexProjections:
         """This function returns the index projections for inquiry document."""
-        mappings =[
-                        InputFieldMappingEntry(
-                            name="Chunk", source="/document/pages/*/chunk"
-                        ),
-                        InputFieldMappingEntry(
-                            name="ChunkEmbedding",
-                            source="/document/pages/*/vector",
-                        ),
-                        InputFieldMappingEntry(
-                            name="Title", 
-                            source="/document/Title"
-                        ),
-                        InputFieldMappingEntry(
-                            name="ID1", 
-                            source="/document/ID1"
-                        ),
-                        InputFieldMappingEntry(
-                            name="ID2", 
-                            source="/document/ID2"
-                        ),
-                        InputFieldMappingEntry(
-                            name="SourceUrl", 
-                            source="/document/SourceUrl"
-                        ),
-                        InputFieldMappingEntry(
-                            name="Keywords", 
-                            source="/document/pages/*/keywords"
-                        ),
-                        InputFieldMappingEntry(
-                            name="AdditionalMetadata",
-                            source="/document/AdditionalMetadata",
-                        ),
-                        InputFieldMappingEntry(
-                                name="Section", 
-                                source="/document/pages/*/eachsection"
-                        )
-                    ]
-        
+        mappings = [
+            InputFieldMappingEntry(name="Chunk", source="/document/pages/*/chunk"),
+            InputFieldMappingEntry(
+                name="ChunkEmbedding",
+                source="/document/pages/*/vector",
+            ),
+            InputFieldMappingEntry(name="Field1", source="/document/Field1"),
+            InputFieldMappingEntry(name="Field2", source="/document/Field2"),
+            InputFieldMappingEntry(name="Field3", source="/document/Field3"),
+            InputFieldMappingEntry(name="Field4", source="/document/Field4"),
+            InputFieldMappingEntry(
+                name="Field5", source="/document/pages/*/Field5"
+            ),
+            InputFieldMappingEntry(
+                name="Field6",
+                source="/document/Field6",
+            ),
+            InputFieldMappingEntry(
+                name="Field7", source="/document/pages/*/Field7"
+            ),
+        ]
+
         if self.enable_page_by_chunking:
             mappings.extend(
                 [
                     InputFieldMappingEntry(
-                                name="PageNumber", source="/document/pages/*/page_no"
-                            )
-                ] 
+                        name="Field8", source="/document/pages/*/Field8"
+                    )
+                ]
             )
-        
+
         index_projections = SearchIndexerIndexProjections(
             selectors=[
                 SearchIndexerIndexProjectionSelector(
                     target_index_name=self.index_name,
                     parent_key_field_name="Id",
                     source_context="/document/pages/*",
-                    mappings=mappings
+                    mappings=mappings,
                 ),
             ],
             parameters=SearchIndexerIndexProjectionsParameters(
@@ -277,12 +289,9 @@ class InquiryDocumentAISearch(AISearch):
         indexer_parameters = IndexingParameters(
             batch_size=batch_size,
             configuration=IndexingParametersConfiguration(
-                # image_action=BlobIndexerImageAction.GENERATE_NORMALIZED_IMAGE_PER_PAGE,
                 data_to_extract=BlobIndexerDataToExtract.ALL_METADATA,
                 query_timeout=None,
-                # allow_skillset_to_read_file_data=True,
                 execution_environment=IndexerExecutionEnvironment.PRIVATE,
-                # pdf_text_rotation_algorithm=BlobIndexerPDFTextRotationAlgorithm.DETECT_ANGLES,
                 fail_on_unprocessable_document=False,
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
@@ -302,16 +311,16 @@ class InquiryDocumentAISearch(AISearch):
                 FieldMapping(
                     source_field_name="metadata_storage_name", target_field_name="Title"
                 ),
-                FieldMapping(source_field_name="ID1", target_field_name="ID1"),
+                FieldMapping(source_field_name="Field1", target_field_name="Field1"),
                 FieldMapping(
-                    source_field_name="ID2", target_field_name="ID2"
+                    source_field_name="Field2", target_field_name="Field2"
                 ),
                 FieldMapping(
-                    source_field_name="SharePointUrl", target_field_name="SourceUrl"
+                    source_field_name="Field3", target_field_name="Field3"
                 ),
                 FieldMapping(
-                    source_field_name="Additional_Metadata",
-                    target_field_name="AdditionalMetadata",
+                    source_field_name="Field4",
+                    target_field_name="Field4",
                 ),
             ],
             parameters=indexer_parameters,

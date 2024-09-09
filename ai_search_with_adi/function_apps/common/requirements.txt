@@ -1,0 +1,11 @@
+azure-storage-blob
+azure-servicebus
+azure-core
+azure-identity
+pydantic
+pymongo
+azure-search
+azure-search-documents==11.6.0b4
+openai
+aiohttp
+motor

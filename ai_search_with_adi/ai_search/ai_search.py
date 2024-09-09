@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from abc import ABC, abstractmethod
 from azure.search.documents.indexes.models import (
     SearchIndex,
@@ -28,7 +31,7 @@ from azure.search.documents.indexes.models import (
 )
 from azure.core.exceptions import HttpResponseError
 from azure.search.documents.indexes import SearchIndexerClient, SearchIndexClient
-from environment import (
+from ai_search_with_adi.ai_search.environment import (
     get_fq_blob_connection_string,
     get_blob_container_name,
     get_custom_skill_function_url,
@@ -70,30 +73,47 @@ class AISearch(ABC):
 
     @property
     def indexer_name(self):
+        """Get the indexer name for the indexer."""
         return f"{str(self.indexer_type.value)}-indexer{self.suffix}"
 
     @property
     def skillset_name(self):
+        """Get the skillset name for the indexer."""
         return f"{str(self.indexer_type.value)}-skillset{self.suffix}"
 
     @property
     def semantic_config_name(self):
+        """Get the semantic config name for the indexer."""
         return f"{str(self.indexer_type.value)}-semantic-config{self.suffix}"
 
     @property
     def index_name(self):
+        """Get the index name for the indexer."""
         return f"{str(self.indexer_type.value)}-index{self.suffix}"
 
     @property
     def data_source_name(self):
+        """Get the data source name for the indexer."""
         blob_container_name = get_blob_container_name(self.indexer_type)
         return f"{blob_container_name}-data-source{self.suffix}"
 
     @property
     def vector_search_profile_name(self):
+        """Get the vector search profile name for the indexer."""
         return (
             f"{str(self.indexer_type.value)}-compass-vector-search-profile{self.suffix}"
         )
+
+    @property
+    def vectorizer_name(self):
+        """Get the vectorizer name."""
+        return f"{str(self.indexer_type.value)}-compass-vectorizer{self.suffix}"
+
+    @property
+    def algorithm_name(self):
+        """Gtt the algorithm name"""
+
+        return f"{str(self.indexer_type.value)}-hnsw-algorithm{self.suffix}"
 
     @abstractmethod
     def get_index_fields(self) -> list[SearchableField]:
@@ -122,6 +142,7 @@ class AISearch(ABC):
         return None
 
     def get_synonym_map_names(self):
+        """Get the synonym map names for the indexer."""
         return []
 
     def get_user_assigned_managed_identity(
@@ -292,67 +313,7 @@ class AISearch(ABC):
 
         return text_split_skill
 
-    def get_custom_text_split_skill(
-        self,
-        context,
-        source,
-        text_split_mode="semantic",
-        maximum_page_length=1000,
-        separator=" ",
-        initial_threshold=0.7,
-        appending_threshold=0.6,
-        merging_threshold=0.6,
-    ) -> WebApiSkill:
-        """Get the custom skill for text split.
-
-        Args:
-        -----
-            context (str): The context of the skill
-            inputs (List[InputFieldMappingEntry]): The inputs of the skill
-            outputs (List[OutputFieldMappingEntry]): The outputs of the skill
-
-        Returns:
-        --------
-            WebApiSkill: The custom skill for text split"""
-
-        if self.test:
-            batch_size = 2
-            degree_of_parallelism = 2
-        else:
-            batch_size = 2
-            degree_of_parallelism = 6
-
-        text_split_skill_inputs = [
-            InputFieldMappingEntry(name="text", source=source),
-        ]
-
-        headers = {
-            "text_split_mode": text_split_mode,
-            "maximum_page_length": maximum_page_length,
-            "separator": separator,
-            "initial_threshold": initial_threshold,
-            "appending_threshold": appending_threshold,
-            "merging_threshold": merging_threshold,
-        }
-
-        text_split_skill = WebApiSkill(
-            name="Text Split Skill",
-            description="Skill to split the text before sending to embedding",
-            context=context,
-            uri=get_custom_skill_function_url("split"),
-            timeout="PT230S",
-            batch_size=batch_size,
-            degree_of_parallelism=degree_of_parallelism,
-            http_method="POST",
-            http_headers=headers,
-            inputs=text_split_skill_inputs,
-            outputs=[OutputFieldMappingEntry(name="chunks", target_name="pages")],
-            auth_resource_id=get_function_app_authresourceid(),
-            auth_identity=self.get_user_assigned_managed_identity(),
-        )
-
-        return text_split_skill
-
+    
     def get_adi_skill(self, chunk_by_page=False) -> WebApiSkill:
         """Get the custom skill for adi.
 
@@ -399,6 +360,46 @@ class AISearch(ABC):
         )
 
         return adi_skill
+
+    def get_excel_skill(self) -> WebApiSkill:
+        """Get the custom skill for adi.
+
+        Returns:
+        --------
+            WebApiSkill: The custom skill for adi"""
+
+        if self.test:
+            batch_size = 1
+            degree_of_parallelism = 4
+        else:
+            batch_size = 1
+            degree_of_parallelism = 8
+
+        output = [
+            OutputFieldMappingEntry(name="extracted_content", target_name="pages")
+        ]
+
+        xlsx_skill = WebApiSkill(
+            name="XLSX Skill",
+            description="Skill to generate Markdown from XLSX",
+            context="/document",
+            uri=get_custom_skill_function_url("xlsx"),
+            timeout="PT230S",
+            batch_size=batch_size,
+            degree_of_parallelism=degree_of_parallelism,
+            http_method="POST",
+            http_headers={},
+            inputs=[
+                InputFieldMappingEntry(
+                    name="source", source="/document/metadata_storage_path"
+                )
+            ],
+            outputs=output,
+            auth_resource_id=get_function_app_authresourceid(),
+            auth_identity=self.get_user_assigned_managed_identity(),
+        )
+
+        return xlsx_skill
 
     def get_key_phrase_extraction_skill(self, context, source) -> WebApiSkill:
         """Get the key phrase extraction skill.
@@ -570,25 +571,21 @@ class AISearch(ABC):
         Returns:
             VectorSearch: The vector search configuration
         """
-        vectorizer_name = (
-            f"{str(self.indexer_type.value)}-compass-vectorizer{self.suffix}"
-        )
-        algorithim_name = f"{str(self.indexer_type.value)}-hnsw-algorithm{self.suffix}"
 
         vector_search = VectorSearch(
             algorithms=[
-                HnswAlgorithmConfiguration(name=algorithim_name),
+                HnswAlgorithmConfiguration(name=self.algorithm_name),
             ],
             profiles=[
                 VectorSearchProfile(
                     name=self.vector_search_profile_name,
-                    algorithm_configuration_name=algorithim_name,
-                    vectorizer=vectorizer_name,
+                    algorithm_configuration_name=self.algorithm_name,
+                    vectorizer=self.vectorizer_name,
                 )
             ],
             vectorizers=[
                 CustomVectorizer(
-                    name=vectorizer_name,
+                    name=self.vectorizer_name,
                     custom_web_api_parameters=CustomWebApiParameters(
                         uri=get_custom_skill_function_url("compass"),
                         auth_resource_id=get_function_app_authresourceid(),
