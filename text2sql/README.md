@@ -10,7 +10,7 @@ The sample provided works with Azure SQL Server, although it has been easily ada
 
 The following diagram shows a workflow for how the Text2SQL plugin would be incorporated into a RAG application. Using the plugins available, alongside the [Function Calling](https://platform.openai.com/docs/guides/function-calling) capabilities of LLMs, the LLM can do [Chain of Thought](https://learn.microsoft.com/en-us/dotnet/ai/conceptual/chain-of-thought-prompting) reasoning to determine the steps needed to answer the question. This allows the LLM to recognise intent and therefore pick appropriate data sources based on the intent of the question.
 
-![High level workflow for a plugin driven RAG application](./images/Plugin%20Based%20RAG%20Flow.png "High Level Workflow")
+![High level workflow for a plugin driven RAG application](../images/Plugin%20Based%20RAG%20Flow.png "High Level Workflow")
 
 ## Why Text2SQL instead of indexing the database contents?
 
@@ -177,3 +177,10 @@ Below are some of the considerations that should be made before using this plugi
     - Consider limiting the permissions of the identity or connection string to only allow access to certain tables or perform certain query types.
 - If possible, run the queries under the identity of the end user so that any row or column level security is applied to the data.
 - Consider data masking for sensitive columns that you do not wish to be exposed.
+
+## Possible Improvements
+
+Below are some possible improvements that could be made to the Text2SQL approach:
+
+- Storing the entity names / definitions / selectors in a vector database and using a vector search to obtain the most relevant entities.
+    - Due to the small number of tokens that this approaches uses, this approach was not considered but if the number of tables is significantly larger, this approach may provide benefits in selecting the most appropriate tables (untested).
