@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from semantic_kernel.functions import kernel_function
 import aioodbc
 from typing import Annotated
