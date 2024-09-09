@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from semantic_kernel.functions import kernel_function
 from typing import Annotated
 from azure.identity import DefaultAzureCredential
