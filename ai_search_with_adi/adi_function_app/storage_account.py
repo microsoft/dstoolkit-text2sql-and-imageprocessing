@@ -7,6 +7,7 @@ import tempfile
 from azure.storage.blob.aio import BlobServiceClient
 from azure.identity import DefaultAzureCredential
 import urllib
+from environment import IdentityType, get_identity_type
 
 
 class StorageAccountHelper:
@@ -14,15 +15,20 @@ class StorageAccountHelper:
 
     def __init__(self) -> None:
         """Initialize the StorageAccountHelper class."""
-        self._client_id = os.environ["FunctionApp__ClientId"]
-
         self._endpoint = os.environ["StorageAccount__ConnectionString"]
 
     async def get_client(self):
         """Get the BlobServiceClient object."""
-        credential = DefaultAzureCredential(managed_identity_client_id=self._client_id)
-
-        return BlobServiceClient(account_url=self._endpoint, credential=credential)
+        if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
+            credential = DefaultAzureCredential()
+            return BlobServiceClient(account_url=self._endpoint, credential=credential)
+        elif get_identity_type() == IdentityType.USER_ASSIGNED:
+            credential = DefaultAzureCredential(
+                managed_identity_client_id=os.environ["FunctionApp__ClientId"]
+            )
+            return BlobServiceClient(account_url=self._endpoint, credential=credential)
+        else:
+            return BlobServiceClient(account_url=self._endpoint)
 
     async def add_metadata_to_blob(
         self, source: str, container: str, metadata: dict
