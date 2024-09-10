@@ -42,12 +42,12 @@ async def extract_key_phrases_from_text(
         credential = DefaultAzureCredential()
     elif get_identity_type() == IdentityType.USER_ASSIGNED:
         credential = DefaultAzureCredential(
-            managed_identity_client_id=os.environ["FunctionApp__ClientId"]
+            managed_identity_client_id=os.environ.get("FunctionApp__ClientId")
         )
     else:
-        credential = AzureKeyCredential(os.environ["AIService__Services__Key"])
+        credential = AzureKeyCredential(os.environ.get("AIService__Services__Key"))
     text_analytics_client = TextAnalyticsClient(
-        endpoint=os.environ["AIService__Services__Endpoint"],
+        endpoint=os.environ.get("AIService__Services__Endpoint"),
         credential=credential,
     )
 

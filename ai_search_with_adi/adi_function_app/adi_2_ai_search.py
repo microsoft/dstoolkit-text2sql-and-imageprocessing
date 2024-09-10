@@ -146,7 +146,7 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
     elif get_identity_type() != IdentityType.USER_ASSIGNED:
         token_provider = get_bearer_token_provider(
             DefaultAzureCredential(
-                managed_identity_client_id=os.environ["FunctionApp__ClientId"]
+                managed_identity_client_id=os.environ.get("FunctionApp__ClientId")
             ),
             "https://cognitiveservices.azure.com/.default",
         )

@@ -13,22 +13,21 @@ from environment import IdentityType, get_identity_type
 class StorageAccountHelper:
     """Helper class for interacting with Azure Blob Storage."""
 
-    def __init__(self) -> None:
-        """Initialize the StorageAccountHelper class."""
-        self._endpoint = os.environ["StorageAccount__ConnectionString"]
-
     async def get_client(self):
         """Get the BlobServiceClient object."""
         if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
+            endpoint = os.environ.get("StorageAccount__Endpoint")
             credential = DefaultAzureCredential()
-            return BlobServiceClient(account_url=self._endpoint, credential=credential)
+            return BlobServiceClient(account_url=endpoint, credential=credential)
         elif get_identity_type() == IdentityType.USER_ASSIGNED:
+            endpoint = os.environ.get("StorageAccount__Endpoint")
             credential = DefaultAzureCredential(
-                managed_identity_client_id=os.environ["FunctionApp__ClientId"]
+                managed_identity_client_id=os.environ.get("FunctionApp__ClientId")
             )
-            return BlobServiceClient(account_url=self._endpoint, credential=credential)
+            return BlobServiceClient(account_url=endpoint, credential=credential)
         else:
-            return BlobServiceClient(account_url=self._endpoint)
+            endpoint = os.environ.get("StorageAccount__ConnectionString")
+            return BlobServiceClient(account_url=endpoint)
 
     async def add_metadata_to_blob(
         self, source: str, container: str, metadata: dict
