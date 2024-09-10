@@ -38,7 +38,7 @@ The properties returned from the ADI Custom Skill are then used to perform the f
 
 ## Provided Notebooks \& Utilities
 
-- `./adi_function_app` provides a pre-built Python function app that communicates with Azure Document Intelligence, Azure OpenAI etc to perform the Markdown conversion, extraction of figures, figure understanding and corresponding cleaning of Markdown.
+- `./ai_search_with_adi_function_app` provides a pre-built Python function app that communicates with Azure Document Intelligence, Azure OpenAI etc to perform the Markdown conversion, extraction of figures, figure understanding and corresponding cleaning of Markdown.
 - `./rag_with_ai_search.ipynb` provides example of how to utilise the AI Search plugin to query the index.
 
 ## Deploying AI Search Setup
@@ -47,7 +47,7 @@ To deploy the pre-built index and associated indexer / skillset setup, see instr
 
 ## ADI Custom Skill
 
-Deploy the associated function app and required resources. You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_ai_search` HTTP endpoint.
+Deploy the associated function app and required resources. You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_deploy_ai_search` HTTP endpoint.
 
 To use with an index, either use the utility to configure a indexer in the provided form, or integrate the skill with your skillset pipeline.
 
@@ -61,7 +61,7 @@ To use with an index, either use the utility to configure a indexer in the provi
 
 #### function_app.py
 
-`./indexer/adi_function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
+`./indexer/ai_search_with_adi_function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
 
 #### adi_2_aisearch
 
