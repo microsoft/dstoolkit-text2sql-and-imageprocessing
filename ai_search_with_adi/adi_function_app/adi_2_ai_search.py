@@ -66,7 +66,7 @@ def clean_adi_markdown(
     """
 
     output_dict = {}
-    comment_patterns = r"<!-- PageNumber=\"\d+\" -->|<!-- PageHeader=\".*?\" -->|<!-- PageFooter=\".*?\" -->|<!-- PageBreak -->"
+    comment_patterns = r"<!-- PageNumber=\"[^\"]*\" -->|<!-- PageHeader=\"[^\"]*\" -->|<!-- PageFooter=\"[^\"]*\" -->|<!-- PageBreak -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
 
     combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
@@ -82,8 +82,6 @@ def clean_adi_markdown(
             irrelevant_figure_pattern, "", cleaned_text, flags=re.DOTALL
         )
 
-    # Replace ':selected:' with a new line
-    cleaned_text = re.sub(r":(selected|unselected):", "\n", cleaned_text)
     output_dict["content"] = cleaned_text
     output_dict["sections"] = doc_metadata
 
@@ -312,6 +310,8 @@ async def process_figures_from_extracted_content(
                     break
 
     image_descriptions = await asyncio.gather(*image_understanding_tasks)
+
+    logging.info(f"Image Descriptions: {image_descriptions}")
 
     for idx, img_description in enumerate(image_descriptions):
         markdown_content = update_figure_description(

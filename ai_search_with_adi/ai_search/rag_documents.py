@@ -148,7 +148,7 @@ class RagDocumentsAISearch(AISearch):
         )
 
         pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
-            "/document/pages/*", "/document/pages/*", self.enable_page_by_chunking
+            "/document/pages/*", "/document/pages/*"
         )
 
         key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
@@ -248,7 +248,7 @@ class RagDocumentsAISearch(AISearch):
                 fail_on_unprocessable_document=False,
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
-                indexed_file_name_extensions=".pdf,.pptx,.docx,.xlsx,.txt",
+                indexed_file_name_extensions=".pdf,.pptx,.docx,.xlsx,.txt,.png,.jpg,.jpeg",
             ),
             max_failed_items=5,
         )

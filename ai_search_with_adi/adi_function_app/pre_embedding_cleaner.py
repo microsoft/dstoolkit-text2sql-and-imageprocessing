@@ -127,7 +127,7 @@ async def process_pre_embedding_cleaner(record: dict) -> dict:
                 record["data"]["chunk"]["content"]
             )
             cleaned_record["data"]["chunk"] = record["data"]["chunk"]["content"]
-            cleaned_record["data"]["sections"] = clean_sections(
+            cleaned_record["data"]["cleaned_sections"] = clean_sections(
                 record["data"]["chunk"]["sections"]
             )
         else:
