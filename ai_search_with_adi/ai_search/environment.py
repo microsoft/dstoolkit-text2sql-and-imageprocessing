@@ -5,6 +5,7 @@ from dotenv import find_dotenv, load_dotenv
 from enum import Enum
 from azure.identity import DefaultAzureCredential
 from azure.core.credentials import AzureKeyCredential
+from azure.search.documents.indexes.models import SearchIndexerDataUserAssignedIdentity
 
 class IndexerType(Enum):
     """The type of the indexer"""
@@ -68,6 +69,26 @@ class AISearchEnvironment:
             str: The ai search endpoint
         """
         return os.environ.get("AIService__AzureSearchOptions__Endpoint")
+    
+    @property
+    def ai_search_identity_id(self) -> str:
+        """This function returns the ai search identity id.
+        
+        Returns:
+            str: The ai search identity id
+        """
+        return os.environ.get("AIService__AzureSearchOptions__Identity__ClientId")
+    
+    @property
+    def ai_search_user_assigned_identity(self) -> SearchIndexerDataUserAssignedIdentity:
+        """This function returns the ai search user assigned identity.
+        
+        Returns:
+            SearchIndexerDataUserAssignedIdentity: The ai search user assigned identity"""
+        user_assigned_identity = SearchIndexerDataUserAssignedIdentity(
+            user_assigned_identity=os.environ.get("AIService__AzureSearchOptions__Identity__FQName")
+        )
+        return user_assigned_identity
 
     @property
     def ai_search_credential(self) -> DefaultAzureCredential | AzureKeyCredential:
@@ -79,9 +100,9 @@ class AISearchEnvironment:
         if self.identity_type in IdentityType.SYSTEM_ASSIGNED:
             return DefaultAzureCredential()
         elif self.identity_type in IdentityType.USER_ASSIGNED:
-            return DefaultAzureCredential(managed_identity_client_id =os.environ.get("AIService__AzureSearchOptions__ManagedIdentity__FQName"))
+            return DefaultAzureCredential(managed_identity_client_id=self.ai_search_identity_id)
         else:
-            return AzureKeyCredential(os.environ.get("AIService__AzureSearchOptions__Key__Secret"))
+            return AzureKeyCredential(os.environ.get("AIService__AzureSearchOptions__Key"))
 
     @property
     def storage_account_connection_string(self) -> str:
@@ -125,15 +146,35 @@ class AISearchEnvironment:
         """
         This function returns function app adi name
         """
-        return os.environ.get("FunctionApp__DocumentIntelligence__FunctionName")
+        return os.environ.get("FunctionApp__ADI__FunctionName")
 
     @property
     def function_app_key_phrase_extractor_route(self) -> str:
         """
         This function returns function app keyphrase extractor name
         """
-        return os.environ.get("FunctionApp__KeyphraseExtractor__FunctionName")
+        return os.environ.get("FunctionApp__KeyPhraseExtractor__FunctionName")
     
+    @property
+    def ai_search_embedding_model_dimensions(self) -> str:
+        """
+        This function returns dimensions for embedding model.
+
+        Returns:
+            str: The dimensions for embedding model
+        """
+
+        return os.environ.get(
+            f"AIService__AzureSearchOptions__{self.normalised_indexer_type}__EmbeddingDimensions"
+        )
+    
+    @property
+    def use_private_endpoint(self) -> bool:
+        """
+        This function returns true if private endpoint is used
+        """
+        return os.environ.get("AIService__AzureSearchOptions__UsePrivateEndpoint") == "true"
+
     def get_custom_skill_function_url(self, skill_type: str):
         """
         Get the function app url that is hosting the custom skill
@@ -152,81 +193,9 @@ class AISearchEnvironment:
         return full_url
 
 
-
-# managed identity id
-def get_managed_identity_id() -> str:
-    """
-    This function returns maanged identity id
-    """
-    return os.environ.get("AIService__AzureSearchOptions__ManagedIdentity__ClientId")
-
-
-def get_managed_identity_fqname() -> str:
-    """
-    This function returns maanged identity name
-    """
-    return os.environ.get("AIService__AzureSearchOptions__ManagedIdentity__FQName")
-
-
 # function app details
 def get_function_app_authresourceid() -> str:
     """
     This function returns apps registration in microsoft entra id
     """
     return os.environ.get("FunctionApp__AuthResourceId")
-
-# search
-def get_search_endpoint() -> str:
-    """
-    This function returns azure ai search service endpoint
-    """
-    return os.environ.get("AIService__AzureSearchOptions__Endpoint")
-
-
-def get_search_user_assigned_identity() -> str:
-    """
-    This function returns azure ai search service endpoint
-    """
-    return os.environ.get("AIService__AzureSearchOptions__UserAssignedIdentity")
-
-
-def get_search_key(client) -> str:
-    """
-    This function returns azure ai search service admin key
-    """
-    search_service_key_secret_name = (
-        str(os.environ.get("AIService__AzureSearchOptions__name")) + "-PrimaryKey"
-    )
-    retrieved_secret = client.get_secret(search_service_key_secret_name)
-    return retrieved_secret.value
-
-
-def get_search_key_secret() -> str:
-    """
-    This function returns azure ai search service admin key
-    """
-    return os.environ.get("AIService__AzureSearchOptions__Key__Secret")
-
-
-def get_search_embedding_model_dimensions(indexer_type: IndexerType) -> str:
-    """
-    This function returns dimensions for embedding model
-    """
-
-    normalised_indexer_type = (
-        indexer_type.value.replace("-", " ").title().replace(" ", "")
-    )
-
-    return os.environ.get(
-        f"AIService__AzureSearchOptions__{normalised_indexer_type}__EmbeddingDimensions"
-    )
-
-
-def get_blob_container_name(indexer_type: str) -> str:
-    """
-    This function returns azure blob container name
-    """
-    normalised_indexer_type = (
-        indexer_type.value.replace("-", " ").title().replace(" ", "")
-    )
-    return os.environ.get(f"StorageAccount__{normalised_indexer_type}__Container")

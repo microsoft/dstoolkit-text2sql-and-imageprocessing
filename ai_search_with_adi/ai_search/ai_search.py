@@ -362,10 +362,10 @@ class AISearch(ABC):
             batch_size = 16
             degree_of_parallelism = 16
 
-        keyphrase_extraction_skill_inputs = [
+        key_phrase_extraction_skill_inputs = [
             InputFieldMappingEntry(name="text", source=source),
         ]
-        keyphrase_extraction__skill_outputs = [
+        key_phrase_extraction__skill_outputs = [
             OutputFieldMappingEntry(name="keyPhrases", target_name="keywords")
         ]
         key_phrase_extraction_skill = WebApiSkill(
@@ -377,8 +377,8 @@ class AISearch(ABC):
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
-            inputs=keyphrase_extraction_skill_inputs,
-            outputs=keyphrase_extraction__skill_outputs,
+            inputs=key_phrase_extraction_skill_inputs,
+            outputs=key_phrase_extraction__skill_outputs,
         )
 
         if self.environment.identity_type != IdentityType.KEY:
