@@ -92,7 +92,7 @@ def clean_adi_markdown(
     return output_dict
 
 
-def update_figure_description(md_content, img_description, idx):
+def update_figure_description(md_content, img_description, offset, length):
     """
     Updates the figure description in the Markdown content.
 
@@ -105,26 +105,20 @@ def update_figure_description(md_content, img_description, idx):
         str: The updated Markdown content with the new figure description.
     """
 
-    # The substring you're looking for
-    start_substring = f"![](figures/{idx})"
-    end_substring = "</figure>"
+    # Define the new string to replace the old content
     new_string = f'<!-- FigureContent="{img_description}" -->'
 
-    new_md_content = md_content
-    # Find the start and end indices of the part to replace
-    start_index = md_content.find(start_substring)
-    if start_index != -1:  # if start_substring is found
-        start_index += len(
-            start_substring
-        )  # move the index to the end of start_substring
-        end_index = md_content.find(end_substring, start_index)
-        if end_index != -1:  # if end_substring is found
-            # Replace the old string with the new string
-            new_md_content = (
-                md_content[:start_index] + new_string + md_content[end_index:]
-            )
+    # Calculate the end index of the content to be replaced
+    end_index = offset + length
 
-    return new_md_content
+    # Ensure that the end_index does not exceed the length of the Markdown content
+    if end_index > len(md_content):
+        end_index = len(md_content)
+
+    # Replace the old string with the new string
+    new_md_content = md_content[:offset] + new_string + md_content[end_index:]
+
+    return new_md_content, len(new_string)
 
 
 async def understand_image_with_gptv(image_base64, caption, tries_left=3):
@@ -260,7 +254,11 @@ async def mark_image_as_irrelevant():
 
 
 async def process_figures_from_extracted_content(
-    file_path: str, markdown_content: str, figures: list, page_number: None | int = None
+    file_path: str,
+    markdown_content: str,
+    figures: list,
+    page_number: None | int = None,
+    page_offset: int = 0,
 ) -> str:
     """Process the figures extracted from the content using ADI and send them for analysis.
 
@@ -270,6 +268,7 @@ async def process_figures_from_extracted_content(
         markdown_content (str): The extracted content in Markdown format.
         figures (list): The list of figures extracted by the Azure Document Intelligence service.
         page_number (int): The page number to process. If None, all pages are processed.
+        page_offset (int): The offset of the page.
 
     Returns:
     --------
@@ -313,10 +312,14 @@ async def process_figures_from_extracted_content(
 
     logging.info(f"Image Descriptions: {image_descriptions}")
 
-    for idx, img_description in enumerate(image_descriptions):
-        markdown_content = update_figure_description(
-            markdown_content, img_description, idx
+    running_offset = 0
+    for idx, figure in enumerate(figures):
+        img_description = image_descriptions[idx]
+        starting_offset = figure.spans[0].offset + running_offset - page_offset
+        markdown_content, desc_offset = update_figure_description(
+            markdown_content, img_description, starting_offset, figure.spans[0].length
         )
+        running_offset += desc_offset
 
     return markdown_content
 
@@ -335,6 +338,7 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
 
     page_wise_content = []
     page_numbers = []
+    page_offsets = []
 
     for page_number, page in enumerate(result.pages):
         page_content = result.content[
@@ -342,6 +346,7 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
         ]
         page_wise_content.append(page_content)
         page_numbers.append(page_number)
+        page_offsets.append(page.spans[0]["offset"])
 
     return page_wise_content, page_numbers
 
@@ -496,15 +501,20 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
         try:
             if chunk_by_page:
                 cleaned_result = []
-                markdown_content, page_numbers = create_page_wise_content(result)
+                markdown_content, page_numbers, page_offsets = create_page_wise_content(
+                    result
+                )
                 content_with_figures_tasks = [
                     process_figures_from_extracted_content(
                         temp_file_path,
                         page_content,
                         result.figures,
                         page_number=page_number,
+                        page_offset=page_offset,
                     )
-                    for page_content, page_number in zip(markdown_content, page_numbers)
+                    for page_content, page_number, page_offset in zip(
+                        markdown_content, page_numbers, page_offsets
+                    )
                 ]
                 content_with_figures = await asyncio.gather(*content_with_figures_tasks)
 
@@ -523,7 +533,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
             else:
                 markdown_content = result.content
                 content_with_figures = await process_figures_from_extracted_content(
-                    temp_file_path, markdown_content, result.figures
+                    temp_file_path, markdown_content, result.figures, page_offset=0
                 )
                 cleaned_result = clean_adi_markdown(
                     content_with_figures, remove_irrelevant_figures=False
