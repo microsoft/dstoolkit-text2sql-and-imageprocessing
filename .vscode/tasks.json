@@ -1,0 +1,15 @@
+{
+  "tasks": [
+    {
+      "command": "host start",
+      "isBackground": true,
+      "label": "func: host start",
+      "options": {
+        "cwd": "${workspaceFolder}/ai_search_with_adi/function_app"
+      },
+      "problemMatcher": "$func-python-watch",
+      "type": "func"
+    }
+  ],
+  "version": "2.0.0"
+}

@@ -54,7 +54,7 @@ class AISearchEnvironment:
         Returns:
             IdentityType: The identity type
         """
-        identity = os.environ.get("AIService__AzureSearchOptions__IdentityType")
+        identity = os.environ.get("IdentityType")
 
         if identity == "user_assigned":
             return IdentityType.USER_ASSIGNED

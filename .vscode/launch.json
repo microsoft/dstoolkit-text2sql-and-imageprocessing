@@ -1,0 +1,15 @@
+{
+  "configurations": [
+    {
+      "connect": {
+        "host": "localhost",
+        "port": 9091
+      },
+      "name": "Attach to Python Functions",
+      "preLaunchTask": "func: host start",
+      "request": "attach",
+      "type": "debugpy"
+    }
+  ],
+  "version": "0.2.0"
+}

@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import base64
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.documentintelligence.aio import DocumentIntelligenceClient
@@ -17,6 +17,7 @@ import concurrent.futures
 import json
 from openai import AsyncAzureOpenAI
 import openai
+from environment import IdentityType, get_identity_type
 
 
 def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
@@ -134,23 +135,42 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
     """
 
     MAX_TOKENS = 2000
-    api_key = os.environ["AzureAI_GPT4V_Key"]
-    api_version = os.environ["AzureAI__GPT4V_Version"]
-    deployment_name = os.environ["AzureAI__GPT4V_Deployment"]
-    api_base = os.environ["AzureAI__GPT4V_APIbase"]
+    api_version = os.environ.get("OpenAI__ApiVersion")
+    model = os.environ.get("OpenAI__MultiModalDeployment")
+
+    if get_identity_type() != IdentityType.SYSTEM_ASSIGNED:
+        token_provider = get_bearer_token_provider(
+            DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+        )
+        api_key = None
+    elif get_identity_type() != IdentityType.USER_ASSIGNED:
+        token_provider = get_bearer_token_provider(
+            DefaultAzureCredential(
+                managed_identity_client_id=os.environ["FunctionApp__ClientId"]
+            ),
+            "https://cognitiveservices.azure.com/.default",
+        )
+        api_key = None
+    else:
+        token_provider = None
+        api_key = os.environ.get("OpenAI__ApiKey")
 
     try:
         async with AsyncAzureOpenAI(
             api_key=api_key,
             api_version=api_version,
-            base_url=f"{api_base}/openai/deployments/{deployment_name}",
+            azure_ad_token_provider=token_provider,
+            azure_endpoint=os.environ.get("OpenAI__AzureEndpoint"),
         ) as client:
             # We send both image caption and the image body to GPTv for better understanding
             if caption != "":
                 response = await client.chat.completions.create(
-                    model=deployment_name,
+                    model=model,
                     messages=[
-                        {"role": "system", "content": "You are a helpful assistant."},
+                        {
+                            "role": "system",
+                            "content": "You are an expert in image analysis. Use your experience and skills to provided a detailed description of any provided images. You should focus on what info can be inferred from the image and the meaning of the data inside the image.",
+                        },
                         {
                             "role": "user",
                             "content": [
@@ -170,9 +190,12 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
 
             else:
                 response = await client.chat.completions.create(
-                    model=deployment_name,
+                    model=model,
                     messages=[
-                        {"role": "system", "content": "You are a helpful assistant."},
+                        {
+                            "role": "system",
+                            "content": "You are an expert in image analysis. Use your experience and skills to provided a detailed description of any provided images. You should focus on what info can be inferred from the image and the meaning of the data inside the image.",
+                        },
                         {
                             "role": "user",
                             "content": [
@@ -323,9 +346,18 @@ async def analyse_document(file_path: str) -> AnalyzeResult:
     with open(file_path, "rb") as f:
         file_read = f.read()
 
+    if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
+        credential = DefaultAzureCredential()
+    elif get_identity_type() == IdentityType.USER_ASSIGNED:
+        credential = DefaultAzureCredential(
+            managed_identity_client_id=os.environ["FunctionApp__ClientId"]
+        )
+    else:
+        credential = AzureKeyCredential(os.environ["AIService__Services__Key"])
+
     async with DocumentIntelligenceClient(
         endpoint=os.environ["AIService__Services__Endpoint"],
-        credential=AzureKeyCredential(os.environ["AIService__Services__Key"]),
+        credential=credential,
     ) as document_intelligence_client:
         poller = await document_intelligence_client.begin_analyze_document(
             model_id="prebuilt-layout",

@@ -10,18 +10,29 @@ import urllib
 
 
 class StorageAccountHelper:
+    """Helper class for interacting with Azure Blob Storage."""
+
     def __init__(self) -> None:
+        """Initialize the StorageAccountHelper class."""
         self._client_id = os.environ["FunctionApp__ClientId"]
 
-        self._endpoint = os.environ["StorageAccount__Endpoint"]
+        self._endpoint = os.environ["StorageAccount__ConnectionString"]
 
     async def get_client(self):
+        """Get the BlobServiceClient object."""
         credential = DefaultAzureCredential(managed_identity_client_id=self._client_id)
 
         return BlobServiceClient(account_url=self._endpoint, credential=credential)
 
-    async def add_metadata_to_blob(self, source: str, container: str, metadata) -> None:
-        """Add metadata to the business glossary blob."""
+    async def add_metadata_to_blob(
+        self, source: str, container: str, metadata: dict
+    ) -> None:
+        """Add metadata to the blob.
+
+        Args
+            source (str): The source of the blob.
+            container (str): The container of the blob.
+            metadata (dict): The metadata to add to the blob."""
 
         blob = urllib.parse.unquote_plus(source)
 
@@ -37,7 +48,12 @@ class StorageAccountHelper:
     async def download_blob_to_temp_dir(
         self, source: str, container: str, target_file_name
     ) -> tuple[str, dict]:
-        """Download the business glossary file from the Azure Blob Storage."""
+        """Download the file from the Azure Blob Storage.
+
+        Args:
+            source (str): The source of the blob.
+            container (str): The container of the blob.
+            target_file_name (str): The target file name."""
 
         blob = urllib.parse.unquote_plus(source)
 
@@ -63,16 +79,3 @@ class StorageAccountHelper:
             temp_file.write(blob_contents)
 
         return temp_file_path, blob_properties.metadata
-
-    async def upload_business_glossary_dataframe(self, df: str, sheet: str) -> str:
-        """Upload the business glossary dataframe to a JSONL file."""
-        json_lines = df.to_json(orient="records", lines=True)
-
-        container = os.environ["StorageAccount__BusinessGlossary__Container"]
-        blob = f"{sheet}.jsonl"
-        blob_service_client = await self.get_client()
-        async with blob_service_client:
-            async with blob_service_client.get_blob_client(
-                container=container, blob=blob
-            ) as blob_client:
-                await blob_client.upload_blob(json_lines, overwrite=True)

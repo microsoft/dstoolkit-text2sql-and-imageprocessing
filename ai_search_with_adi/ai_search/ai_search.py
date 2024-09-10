@@ -374,7 +374,7 @@ class AISearch(ABC):
             InputFieldMappingEntry(name="text", source=source),
         ]
         key_phrase_extraction__skill_outputs = [
-            OutputFieldMappingEntry(name="keyPhrases", target_name="keywords")
+            OutputFieldMappingEntry(name="key_phrases", target_name="keywords")
         ]
         key_phrase_extraction_skill = WebApiSkill(
             name="Key phrase extraction API",

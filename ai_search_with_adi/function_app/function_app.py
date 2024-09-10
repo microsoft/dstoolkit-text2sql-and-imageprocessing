@@ -7,10 +7,7 @@ import asyncio
 
 from adi_2_ai_search import process_adi_2_ai_search
 from pre_embedding_cleaner import process_pre_embedding_cleaner
-
-
 from key_phrase_extraction import process_key_phrase_extraction
-
 
 logging.basicConfig(level=logging.INFO)
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
@@ -121,8 +118,9 @@ async def key_phrase_extractor(req: func.HttpRequest) -> func.HttpResponse:
 
         results = await asyncio.gather(*record_tasks)
         logging.debug("Results: %s", results)
-        cleaned_tasks = {"values": results}
 
         return func.HttpResponse(
-            json.dumps(cleaned_tasks), status_code=200, mimetype="application/json"
+            json.dumps({"values": results}),
+            status_code=200,
+            mimetype="application/json",
         )

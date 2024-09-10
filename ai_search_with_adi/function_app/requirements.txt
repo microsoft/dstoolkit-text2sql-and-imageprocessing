@@ -18,3 +18,4 @@ azure-ai-textanalytics
 azure-ai-vision-imageanalysis
 PyMuPDF
 aiohttp
+Pillow
