@@ -8,6 +8,7 @@ It is intended that the plugins and skills provided in this repository, are adap
 
 - `./text2sql` contains an Multi-Shot implementation for Text2SQL generation and querying which can be used to answer questions backed by a database as a knowledge base.
 - `./ai_search_with_adi` contains code for linking Azure Document Intelligence with AI Search to process complex documents with charts and images, and uses multi-modal models (gpt4o) to interpret and understand these.
+- `./ai_search` provides an easy Python based utility for deploying an index, indexer and corresponding skillset for AI Search.
 
 The above components have been successfully used on production RAG projects to increase the quality of responses. The code provided in this repo is a sample of the implementation and should be adjusted before being used in production.
 
