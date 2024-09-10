@@ -42,8 +42,7 @@ class AISearchEnvironment:
         Returns:
             str: The normalised indexer type
         """
-        print(self.indexer_type.value)
-        print(self.indexer_type)
+
         normalised_indexer_type = (
             self.indexer_type.value.replace("-", " ").title().replace(" ", "")
         )

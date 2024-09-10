@@ -331,7 +331,7 @@ class AISearch(ABC):
             InputFieldMappingEntry(name="text", source=source),
         ]
         embedding_skill_outputs = [
-            OutputFieldMappingEntry(name="vector", target_name=target_name)
+            OutputFieldMappingEntry(name="embedding", target_name=target_name)
         ]
 
         vector_skill = AzureOpenAIEmbeddingSkill(
@@ -340,6 +340,7 @@ class AISearch(ABC):
             context=context,
             deployment_id=self.environment.open_ai_embedding_deployment,
             model_name=self.environment.open_ai_embedding_model,
+            resource_uri=self.environment.open_ai_endpoint,
             inputs=embedding_skill_inputs,
             outputs=embedding_skill_outputs,
             dimensions=self.environment.open_ai_embedding_dimensions,
@@ -416,8 +417,8 @@ class AISearch(ABC):
 
         open_ai_params = AzureOpenAIParameters(
             resource_uri=self.environment.open_ai_endpoint,
-            modelName=self.environment.open_ai_embedding_model,
-            deploymentId=self.environment.open_ai_embedding_deployment,
+            model_name=self.environment.open_ai_embedding_model,
+            deployment_id=self.environment.open_ai_embedding_deployment,
         )
 
         if self.environment.identity_type == IdentityType.KEY:
