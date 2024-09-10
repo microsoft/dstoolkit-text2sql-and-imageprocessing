@@ -166,8 +166,8 @@ class AISearch(ABC):
             data_deletion_detection_policy=data_deletion_detection_policy,
         )
 
-        # if self.environment.identity_type != IdentityType.KEY:
-        #     data_source_connection.identity = self.environment.ai_search_identity_id
+        if self.environment.identity_type != IdentityType.KEY:
+            data_source_connection.identity = self.environment.ai_search_identity_id
 
         return data_source_connection
 
@@ -227,11 +227,11 @@ class AISearch(ABC):
 
         if self.environment.identity_type != IdentityType.KEY:
             pre_embedding_cleaner_skill.auth_identity = (
-                self.environment.ai_search_identity_id
+                self.environment.function_app_app_registration_resource_id
             )
 
         if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            pre_embedding_cleaner_skill.auth_resource_id = (
+            pre_embedding_cleaner_skill.auth_identity = (
                 self.environment.ai_search_user_assigned_identity
             )
 
@@ -307,10 +307,10 @@ class AISearch(ABC):
         )
 
         if self.environment.identity_type != IdentityType.KEY:
-            adi_skill.auth_identity = self.environment.ai_search_identity_id
+            adi_skill.auth_identity = self.environment.function_app_app_registration_resource_id
 
         if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            adi_skill.auth_resource_id = (
+            adi_skill.auth_identity = (
                 self.environment.ai_search_user_assigned_identity
             )
 
@@ -383,11 +383,11 @@ class AISearch(ABC):
 
         if self.environment.identity_type != IdentityType.KEY:
             key_phrase_extraction_skill.auth_identity = (
-                self.environment.ai_search_identity_id
+                self.environment.function_app_app_registration_resource_id
             )
 
         if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            key_phrase_extraction_skill.auth_resource_id = (
+            key_phrase_extraction_skill.auth_identity = (
                 self.environment.ai_search_user_assigned_identity
             )
 

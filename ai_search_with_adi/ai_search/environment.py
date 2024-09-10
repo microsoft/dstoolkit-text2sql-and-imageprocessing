@@ -135,6 +135,13 @@ class AISearchEnvironment:
         return os.environ.get("FunctionApp__Key")
     
     @property
+    def function_app_app_registration_resource_id(self) -> str:
+        """
+        This function returns function app app registration resource id
+        """
+        return os.environ.get("FunctionApp__AppRegistrationResourceId")
+    
+    @property
     def function_app_pre_embedding_cleaner_route(self) -> str:
         """
         This function returns function app data cleanup function name
@@ -191,11 +198,3 @@ class AISearchEnvironment:
         full_url = f"{self.function_app_end_point}/api/{route}?code={self.function_app_key}"
 
         return full_url
-
-
-# function app details
-def get_function_app_authresourceid() -> str:
-    """
-    This function returns apps registration in microsoft entra id
-    """
-    return os.environ.get("FunctionApp__AuthResourceId")
