@@ -274,6 +274,7 @@ async def process_figures_from_extracted_content(
     --------
         str: The updated Markdown content with the figure descriptions."""
 
+    figure_spans = []
     image_understanding_tasks = []
     for idx, figure in enumerate(figures):
         img_description = ""
@@ -297,6 +298,8 @@ async def process_figures_from_extracted_content(
                     file_path, region.page_number - 1, bounding_box
                 )  # page_number is 1-indexed3
 
+                figure_spans.append(figure.spans[0])
+
                 if cropped_image is None:
                     image_understanding_tasks.append(mark_image_as_irrelevant())
                 else:
@@ -313,11 +316,10 @@ async def process_figures_from_extracted_content(
     logging.info(f"Image Descriptions: {image_descriptions}")
 
     running_offset = 0
-    for idx, figure in enumerate(figures):
-        img_description = image_descriptions[idx]
-        starting_offset = figure.spans[0].offset + running_offset - page_offset
+    for figure_span, image_description in zip(figure_spans, image_descriptions):
+        starting_offset = figure_span.offset + running_offset - page_offset
         markdown_content, desc_offset = update_figure_description(
-            markdown_content, img_description, starting_offset, figure.spans[0].length
+            markdown_content, image_description, starting_offset, figure_span.length
         )
         running_offset += desc_offset
 
@@ -521,7 +523,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                 with concurrent.futures.ProcessPoolExecutor() as executor:
                     futures = {
                         executor.submit(
-                            clean_adi_markdown, page_content, page_number, False
+                            clean_adi_markdown, page_content, page_number, True
                         ): page_content
                         for page_content, page_number in zip(
                             content_with_figures, page_numbers
@@ -536,7 +538,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                     temp_file_path, markdown_content, result.figures, page_offset=0
                 )
                 cleaned_result = clean_adi_markdown(
-                    content_with_figures, remove_irrelevant_figures=False
+                    content_with_figures, remove_irrelevant_figures=True
                 )
         except Exception as e:
             logging.error(e)
