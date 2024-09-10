@@ -11,12 +11,12 @@ import asyncio
 import fitz
 from PIL import Image
 import io
-import aiohttp
 import logging
 from common.storage_account import StorageAccountHelper
 import concurrent.futures
 import json
 from openai import AzureOpenAI
+
 
 def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
     """
@@ -41,7 +41,9 @@ def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
     return img
 
 
-def clean_adi_markdown(markdown_text: str, page_no:int,remove_irrelevant_figures=False):
+def clean_adi_markdown(
+    markdown_text: str, page_no: int, remove_irrelevant_figures=False
+):
     """Clean Markdown text extracted by the Azure Document Intelligence service.
 
     Args:
@@ -73,10 +75,9 @@ def clean_adi_markdown(markdown_text: str, page_no:int,remove_irrelevant_figures
     comment_patterns = r"<!-- PageNumber=\"\d+\" -->|<!-- PageHeader=\".*?\" -->|<!-- PageFooter=\".*?\" -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
 
-    combined_pattern = r'(.*?)\n===|\n## ?(.*?)\n|\n### ?(.*?)\n'
+    combined_pattern = r"(.*?)\n===|\n## ?(.*?)\n|\n### ?(.*?)\n"
     doc_metadata = re.findall(combined_pattern, cleaned_text, re.DOTALL)
     doc_metadata = [match for group in doc_metadata for match in group if match]
-
 
     if remove_irrelevant_figures:
         # Remove irrelevant figures
@@ -89,12 +90,12 @@ def clean_adi_markdown(markdown_text: str, page_no:int,remove_irrelevant_figures
 
     # Replace ':selected:' with a new line
     cleaned_text = re.sub(r":(selected|unselected):", "\n", cleaned_text)
-    output_dict['content']  =  cleaned_text
-    output_dict['section']  =  doc_metadata
+    output_dict["content"] = cleaned_text
+    output_dict["sections"] = doc_metadata
 
     # add page number when chunk by page is enabled
-    if page_no> -1:
-        output_dict['page_number'] =  page_no
+    if page_no > -1:
+        output_dict["page_number"] = page_no
 
     return output_dict
 
@@ -152,59 +153,58 @@ async def understand_image_with_gptv(image_base64, caption):
     deployment_name = os.environ["AzureAI__GPT4V_Deployment"]
     api_base = os.environ["AzureAI__GPT4V_APIbase"]
 
-
     client = AzureOpenAI(
-        api_key=api_key,  
+        api_key=api_key,
         api_version=api_version,
-        base_url=f"{api_base}/openai/deployments/{deployment_name}"
+        base_url=f"{api_base}/openai/deployments/{deployment_name}",
     )
 
     # We send both image caption and the image body to GPTv for better understanding
     if caption != "":
         response = client.chat.completions.create(
-                model=deployment_name,
-                messages=[
-                    { "role": "system", "content": "You are a helpful assistant." },
-                    { "role": "user", "content": [  
-                        { 
-                            "type": "text", 
-                            "text": f"Describe this image (note: it has image caption: {caption}):" 
+            model=deployment_name,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": f"Describe this image (note: it has image caption: {caption}):",
                         },
-                        { 
+                        {
                             "type": "image_base64",
-                            "image_base64": {
-                                "image": image_base64
-                            }
-                        }
-                    ] } 
-                ],
-                max_tokens=MAX_TOKENS
-            )
+                            "image_base64": {"image": image_base64},
+                        },
+                    ],
+                },
+            ],
+            max_tokens=MAX_TOKENS,
+        )
 
     else:
         response = client.chat.completions.create(
             model=deployment_name,
             messages=[
-                { "role": "system", "content": "You are a helpful assistant." },
-                { "role": "user", "content": [  
-                    { 
-                        "type": "text", 
-                        "text": "Describe this image:" 
-                    },
-                    { 
-                        "type": "image_base64",
-                        "image_base64": {
-                            "image": image_base64
-                        }
-                    }
-                ] } 
+                {"role": "system", "content": "You are a helpful assistant."},
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Describe this image:"},
+                        {
+                            "type": "image_base64",
+                            "image_base64": {"image": image_base64},
+                        },
+                    ],
+                },
             ],
-            max_tokens=MAX_TOKENS
+            max_tokens=MAX_TOKENS,
         )
 
     img_description = response.choices[0].message.content
-    
+
     return img_description
+
 
 def pil_image_to_base64(image, image_format="JPEG"):
     """
@@ -293,10 +293,10 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
             page.spans[0]["offset"] : page.spans[0]["offset"] + page.spans[0]["length"]
         ]
         page_wise_content.append(page_content)
-        page_number+=1
+        page_number += 1
         page_numbers.append(page_number)
 
-    return page_wise_content,page_numbers
+    return page_wise_content, page_numbers
 
 
 async def analyse_document(file_path: str) -> AnalyzeResult:
@@ -431,7 +431,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
         try:
             if chunk_by_page:
                 cleaned_result = []
-                markdown_content,page_no = create_page_wise_content(result)
+                markdown_content, page_no = create_page_wise_content(result)
                 tasks = [
                     process_figures_from_extracted_content(
                         temp_file_path, page_content, result.figures, page_number=idx
@@ -455,7 +455,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                     temp_file_path, markdown_content, result.figures
                 )
                 cleaned_result = clean_adi_markdown(
-                    content_with_figures, page_no=-1,remove_irrelevant_figures=False
+                    content_with_figures, page_no=-1, remove_irrelevant_figures=False
                 )
         except Exception as e:
             logging.error(e)

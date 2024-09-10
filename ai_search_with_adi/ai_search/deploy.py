@@ -11,7 +11,8 @@ from ai_search_with_adi.ai_search.environment import (
 from azure.core.credentials import AzureKeyCredential
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-from inquiry_document import InquiryDocumentAISearch
+from ai_search_with_adi.ai_search.rag_documents import RagDocumentsAISearch
+
 
 def main(args):
     endpoint = get_search_endpoint()
@@ -28,9 +29,9 @@ def main(args):
         credential = AzureKeyCredential(get_search_key(client=client))
         print("Using Azure Key credential")
 
-    if args.indexer_type == "inquiry":
+    if args.indexer_type == "rag":
         # Deploy the inquiry index
-        index_config = InquiryDocumentAISearch(
+        index_config = RagDocumentsAISearch(
             endpoint=endpoint,
             credential=credential,
             suffix=args.suffix,

@@ -12,16 +12,16 @@ load_dotenv(find_dotenv())
 class IndexerType(Enum):
     """The type of the indexer"""
 
-    INQUIRY_DOCUMENT = "inquiry-document"
-    SUMMARY_DOCUMENT = "summary-document"
-    BUSINESS_GLOSSARY = "business-glossary"
+    RAG_DOCUMENTS = "rag-documents"
+
 
 # key vault
-def get_key_vault_url() ->str:
+def get_key_vault_url() -> str:
     """
     This function returns key vault url
     """
     return os.environ.get("KeyVault__Url")
+
 
 # managed identity id
 def get_managed_identity_id() -> str:
@@ -52,11 +52,13 @@ def get_function_app_end_point() -> str:
     """
     return os.environ.get("FunctionApp__Endpoint")
 
+
 def get_function_app_key() -> str:
     """
     This function returns function app key
     """
     return os.environ.get("FunctionApp__Key")
+
 
 def get_function_app_compass_function() -> str:
     """
@@ -119,9 +121,12 @@ def get_search_key(client) -> str:
     """
     This function returns azure ai search service admin key
     """
-    search_service_key_secret_name = str(os.environ.get("AIService__AzureSearchOptions__name")) + "-PrimaryKey"
+    search_service_key_secret_name = (
+        str(os.environ.get("AIService__AzureSearchOptions__name")) + "-PrimaryKey"
+    )
     retrieved_secret = client.get_secret(search_service_key_secret_name)
     return retrieved_secret.value
+
 
 def get_search_key_secret() -> str:
     """
@@ -143,11 +148,13 @@ def get_search_embedding_model_dimensions(indexer_type: IndexerType) -> str:
         f"AIService__AzureSearchOptions__{normalised_indexer_type}__EmbeddingDimensions"
     )
 
+
 def get_blob_connection_string() -> str:
     """
     This function returns azure blob storage connection string
     """
     return os.environ.get("StorageAccount__ConnectionString")
+
 
 def get_fq_blob_connection_string() -> str:
     """

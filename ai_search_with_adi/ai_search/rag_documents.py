@@ -29,8 +29,8 @@ from ai_search_with_adi.ai_search.environment import (
 )
 
 
-class InquiryDocumentAISearch(AISearch):
-    """This class is used to deploy the inquiry document index."""
+class RagDocumentsAISearch(AISearch):
+    """This class is used to deploy the rag document index."""
 
     def __init__(
         self,
@@ -42,39 +42,11 @@ class InquiryDocumentAISearch(AISearch):
     ):
         super().__init__(endpoint, credential, suffix, rebuild)
 
-        self.indexer_type = IndexerType.INQUIRY_DOCUMENT
+        self.indexer_type = IndexerType.RAG_DOCUMENTS
         if enable_page_by_chunking is not None:
             self.enable_page_by_chunking = enable_page_by_chunking
         else:
             self.enable_page_by_chunking = False
-
-    @property
-    def index_name(self):
-        """Get the index name for the indexer. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
-        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-index{self.suffix}"
-
-    @property
-    def vector_search_profile_name(self):
-        """Get the vector search profile name for the indexer. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
-        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-compass-vector-search-profile{self.suffix}"
-
-    @property
-    def vectorizer_name(self):
-        """Get the vectorizer name. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
-        return (
-            f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-compass-vectorizer{self.suffix}"
-        )
-
-    @property
-    def algorithm_name(self):
-        """Gtt the algorithm name. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
-
-        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-hnsw-algorithm{self.suffix}"
-
-    @property
-    def semantic_config_name(self):
-        """Get the semantic config name for the indexer. Overwritten as this class is subclassed by InquiryDocumentXLSX and they should both point to the same index"""
-        return f"{str(IndexerType.INQUIRY_DOCUMENT.value)}-semantic-config{self.suffix}"
 
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for inquiry document.
@@ -85,42 +57,28 @@ class InquiryDocumentAISearch(AISearch):
         fields = [
             SimpleField(name="Id", type=SearchFieldDataType.String, filterable=True),
             SearchableField(
-                name="Field1", type=SearchFieldDataType.String, filterable=True
+                name="Title", type=SearchFieldDataType.String, filterable=True
             ),
             SearchableField(
-                name="Field2",
-                type=SearchFieldDataType.String,
-                sortable=True,
-                filterable=True,
-                facetable=True,
-            ),
-            SearchableField(
-                name="Field3",
-                type=SearchFieldDataType.String,
-                sortable=True,
-                filterable=True,
-                facetable=True,
-            ),
-            SearchableField(
-                name="Field4",
+                name="ChunkId",
                 type=SearchFieldDataType.String,
                 key=True,
-                analyzer_name="a1",
+                analyzer_name="keyword",
             ),
             SearchableField(
-                name="Field5",
+                name="Chunk",
                 type=SearchFieldDataType.String,
                 sortable=False,
                 filterable=False,
                 facetable=False,
             ),
             SearchableField(
-                name="Field6",
+                name="Sections",
                 type=SearchFieldDataType.String,
                 collection=True,
             ),
             SearchField(
-                name="EmbeddingField",
+                name="ChunkEmbedding",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                 vector_search_dimensions=get_search_embedding_model_dimensions(
                     self.indexer_type
@@ -128,17 +86,10 @@ class InquiryDocumentAISearch(AISearch):
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             SearchableField(
-                name="Field7", type=SearchFieldDataType.String, collection=True
+                name="Keywords", type=SearchFieldDataType.String, collection=True
             ),
             SearchableField(
-                name="Field8",
-                type=SearchFieldDataType.String,
-                sortable=True,
-                filterable=True,
-                facetable=True,
-            ),
-            SearchableField(
-                name="Field9",
+                name="SourceUri",
                 type=SearchFieldDataType.String,
                 sortable=True,
                 filterable=True,
@@ -150,7 +101,7 @@ class InquiryDocumentAISearch(AISearch):
             fields.extend(
                 [
                     SearchableField(
-                        name="Field10",
+                        name="PageNumber",
                         type=SearchFieldDataType.Int64,
                         sortable=True,
                         filterable=True,
@@ -170,11 +121,11 @@ class InquiryDocumentAISearch(AISearch):
         semantic_config = SemanticConfiguration(
             name=self.semantic_config_name,
             prioritized_fields=SemanticPrioritizedFields(
-                title_field=SemanticField(field_name="Field1"),
-                content_fields=[SemanticField(field_name="Field2")],
+                title_field=SemanticField(field_name="Title"),
+                content_fields=[SemanticField(field_name="Chunk")],
                 keywords_fields=[
-                    SemanticField(field_name="Field3"),
-                    SemanticField(field_name="Field4"),
+                    SemanticField(field_name="Keywords"),
+                    SemanticField(field_name="Sections"),
                 ],
             ),
         )
@@ -183,27 +134,27 @@ class InquiryDocumentAISearch(AISearch):
 
         return semantic_search
 
-    def get_skills(self):
-        """This function returns the skills for inquiry document"""
+    def get_skills(self) -> list:
+        """Get the skillset for the indexer.
+
+        Returns:
+            list: The skillsets  used in the indexer"""
 
         adi_skill = self.get_adi_skill(self.enable_page_by_chunking)
-
 
         text_split_skill = self.get_text_split_skill(
             "/document", "/document/extracted_content/content"
         )
 
-
         pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
             "/document/pages/*", "/document/pages/*", self.enable_page_by_chunking
         )
-
 
         key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
             "/document/pages/*", "/document/pages/*/cleaned_chunk"
         )
 
-        embedding_skill = self.get_compass_vector_custom_skill(
+        embedding_skill = self.get_vector_skill(
             "/document/pages/*", "/document/pages/*/cleaned_chunk"
         )
 
@@ -233,19 +184,13 @@ class InquiryDocumentAISearch(AISearch):
                 name="ChunkEmbedding",
                 source="/document/pages/*/vector",
             ),
-            InputFieldMappingEntry(name="Field1", source="/document/Field1"),
-            InputFieldMappingEntry(name="Field2", source="/document/Field2"),
-            InputFieldMappingEntry(name="Field3", source="/document/Field3"),
-            InputFieldMappingEntry(name="Field4", source="/document/Field4"),
+            InputFieldMappingEntry(name="Title", source="/document/Title"),
+            InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
             InputFieldMappingEntry(
-                name="Field5", source="/document/pages/*/Field5"
+                name="Keywords", source="/document/pages/*/keywords"
             ),
             InputFieldMappingEntry(
-                name="Field6",
-                source="/document/Field6",
-            ),
-            InputFieldMappingEntry(
-                name="Field7", source="/document/pages/*/Field7"
+                name="Sections", source="/document/pages/*/sections"
             ),
         ]
 
@@ -253,7 +198,7 @@ class InquiryDocumentAISearch(AISearch):
             mappings.extend(
                 [
                     InputFieldMappingEntry(
-                        name="Field8", source="/document/pages/*/Field8"
+                        name="PageNumber", source="/document/pages/*/page_number"
                     )
                 ]
             )
@@ -295,7 +240,7 @@ class InquiryDocumentAISearch(AISearch):
                 fail_on_unprocessable_document=False,
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
-                indexed_file_name_extensions=".pdf,.pptx,.docx",
+                indexed_file_name_extensions=".pdf,.pptx,.docx,.xlsx,.txt",
             ),
             max_failed_items=5,
         )
@@ -311,16 +256,9 @@ class InquiryDocumentAISearch(AISearch):
                 FieldMapping(
                     source_field_name="metadata_storage_name", target_field_name="Title"
                 ),
-                FieldMapping(source_field_name="Field1", target_field_name="Field1"),
                 FieldMapping(
-                    source_field_name="Field2", target_field_name="Field2"
-                ),
-                FieldMapping(
-                    source_field_name="Field3", target_field_name="Field3"
-                ),
-                FieldMapping(
-                    source_field_name="Field4",
-                    target_field_name="Field4",
+                    source_field_name="metadata_storage_path",
+                    target_field_name="SourceUri",
                 ),
             ],
             parameters=indexer_parameters,
