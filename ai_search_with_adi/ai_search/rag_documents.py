@@ -24,7 +24,6 @@ from azure.search.documents.indexes.models import (
 )
 from ai_search import AISearch
 from ai_search_with_adi.ai_search.environment import (
-    get_search_embedding_model_dimensions,
     IndexerType,
 )
 
@@ -34,13 +33,17 @@ class RagDocumentsAISearch(AISearch):
 
     def __init__(
         self,
-        endpoint,
-        credential,
-        suffix=None,
-        rebuild=False,
+        suffix: str | None = None,
+        rebuild: bool | None = False,
         enable_page_by_chunking=False,
     ):
-        super().__init__(endpoint, credential, suffix, rebuild)
+        """Initialize the RagDocumentsAISearch class. This class implements the deployment of the rag document index.
+
+        Args:
+            suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
+            rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
+        """
+        super().__init__(suffix, rebuild)
 
         self.indexer_type = IndexerType.RAG_DOCUMENTS
         if enable_page_by_chunking is not None:
@@ -80,9 +83,7 @@ class RagDocumentsAISearch(AISearch):
             SearchField(
                 name="ChunkEmbedding",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-                vector_search_dimensions=get_search_embedding_model_dimensions(
-                    self.indexer_type
-                ),
+                vector_search_dimensions=self.environment.embedding_model_dimensions,
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             SearchableField(
@@ -224,6 +225,8 @@ class RagDocumentsAISearch(AISearch):
 
         Returns:
             SearchIndexer: The indexer for inquiry document"""
+
+        # Only place on schedule if it is not a test deployment
         if self.test:
             schedule = None
             batch_size = 4
@@ -231,12 +234,17 @@ class RagDocumentsAISearch(AISearch):
             schedule = {"interval": "PT15M"}
             batch_size = 16
 
+        if self.environment.use_private_endpoint:
+            execution_environment = IndexerExecutionEnvironment.PRIVATE
+        else:
+            execution_environment = IndexerExecutionEnvironment.STANDARD
+
         indexer_parameters = IndexingParameters(
             batch_size=batch_size,
             configuration=IndexingParametersConfiguration(
                 data_to_extract=BlobIndexerDataToExtract.ALL_METADATA,
                 query_timeout=None,
-                execution_environment=IndexerExecutionEnvironment.PRIVATE,
+                execution_environment=execution_environment,
                 fail_on_unprocessable_document=False,
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,

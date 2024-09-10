@@ -20,7 +20,6 @@ from azure.search.documents.indexes.models import (
     SearchIndexerDataContainer,
     SearchIndexerDataSourceConnection,
     SearchIndexerDataSourceType,
-    SearchIndexerDataUserAssignedIdentity,
     OutputFieldMappingEntry,
     InputFieldMappingEntry,
     SynonymMap,
@@ -29,29 +28,21 @@ from azure.search.documents.indexes.models import (
 )
 from azure.core.exceptions import HttpResponseError
 from azure.search.documents.indexes import SearchIndexerClient, SearchIndexClient
-from ai_search_with_adi.ai_search.environment import (
-    get_fq_blob_connection_string,
-    get_blob_container_name,
-    get_custom_skill_function_url,
-    get_managed_identity_fqname,
-    get_function_app_authresourceid,
-)
+from ai_search_with_adi.ai_search.environment import AISearchEnvironment, IdentityType
 
 
 class AISearch(ABC):
+    """Handles the deployment of the AI search pipeline."""
+
     def __init__(
         self,
-        endpoint: str,
-        credential,
         suffix: str | None = None,
         rebuild: bool | None = False,
     ):
         """Initialize the AI search class
 
         Args:
-            endpoint (str): The search endpoint
-            credential (AzureKeyCredential): The search credential
-            suffix (str, optional): The suffix for the indexer. Defaults to None.
+            suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
         self.indexer_type = None
@@ -61,6 +52,7 @@ class AISearch(ABC):
         else:
             self.rebuild = False
 
+        # If suffix is None, then it is not a test indexer. Test indexer limits the rate of indexing and turns off the schedule. Useful for testing index changes
         if suffix is None:
             self.suffix = ""
             self.test = False
@@ -68,8 +60,14 @@ class AISearch(ABC):
             self.suffix = f"-{suffix}-test"
             self.test = True
 
-        self._search_indexer_client = SearchIndexerClient(endpoint, credential)
-        self._search_index_client = SearchIndexClient(endpoint, credential)
+        self.environment = AISearchEnvironment(indexer_type=self.indexer_type)
+
+        self._search_indexer_client = SearchIndexerClient(
+            self.environment.ai_search_endpoint, self.environment.ai_search_credential
+        )
+        self._search_index_client = SearchIndexClient(
+            self.environment.ai_search_endpoint, self.environment.ai_search_credential
+        )
 
     @property
     def indexer_name(self):
@@ -94,7 +92,7 @@ class AISearch(ABC):
     @property
     def data_source_name(self):
         """Get the data source name for the indexer."""
-        blob_container_name = get_blob_container_name(self.indexer_type)
+        blob_container_name = self.environment.get_blob_container_name()
         return f"{blob_container_name}-data-source{self.suffix}"
 
     @property
@@ -146,16 +144,6 @@ class AISearch(ABC):
         """Get the synonym map names for the indexer."""
         return []
 
-    def get_user_assigned_managed_identity(
-        self,
-    ) -> SearchIndexerDataUserAssignedIdentity:
-        """Get user assigned managed identity details"""
-
-        user_assigned_identity = SearchIndexerDataUserAssignedIdentity(
-            user_assigned_identity=get_managed_identity_fqname()
-        )
-        return user_assigned_identity
-
     def get_data_source(self) -> SearchIndexerDataSourceConnection:
         """Get the data source for the indexer."""
 
@@ -166,18 +154,20 @@ class AISearch(ABC):
         )
 
         container = SearchIndexerDataContainer(
-            name=get_blob_container_name(self.indexer_type)
+            name=self.environment.get_blob_container_name()
         )
 
         data_source_connection = SearchIndexerDataSourceConnection(
             name=self.data_source_name,
             type=SearchIndexerDataSourceType.AZURE_BLOB,
-            connection_string=get_fq_blob_connection_string(),
+            connection_string=self.environment.blob_connection_string,
             container=container,
             data_change_detection_policy=data_change_detection_policy,
             data_deletion_detection_policy=data_deletion_detection_policy,
-            identity=self.get_user_assigned_managed_identity(),
         )
+
+        if self.environment.identity_type != IdentityType.KEY:
+            data_source_connection.identity = self.environment.ai_search_identity_id
 
         return data_source_connection
 
@@ -226,16 +216,24 @@ class AISearch(ABC):
             name="Pre Embedding Cleaner Skill",
             description="Skill to clean the data before sending to embedding",
             context=context,
-            uri=get_custom_skill_function_url("pre_embedding_cleaner"),
+            uri=self.environment.get_custom_skill_function_url("pre_embedding_cleaner"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
             inputs=pre_embedding_cleaner_skill_inputs,
             outputs=pre_embedding_cleaner_skill_outputs,
-            auth_resource_id=get_function_app_authresourceid(),
-            auth_identity=self.get_user_assigned_managed_identity(),
         )
+
+        if self.environment.identity_type != IdentityType.KEY:
+            pre_embedding_cleaner_skill.auth_identity = (
+                self.environment.ai_search_identity_id
+            )
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            pre_embedding_cleaner_skill.auth_resource_id = (
+                self.environment.ai_search_user_assigned_identity
+            )
 
         return pre_embedding_cleaner_skill
 
@@ -294,7 +292,7 @@ class AISearch(ABC):
             name="ADI Skill",
             description="Skill to generate ADI",
             context="/document",
-            uri=get_custom_skill_function_url("adi"),
+            uri=self.environment.get_custom_skill_function_url("adi"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
@@ -306,9 +304,15 @@ class AISearch(ABC):
                 )
             ],
             outputs=output,
-            auth_resource_id=get_function_app_authresourceid(),
-            auth_identity=self.get_user_assigned_managed_identity(),
         )
+
+        if self.environment.identity_type != IdentityType.KEY:
+            adi_skill.auth_identity = self.environment.ai_search_identity_id
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            adi_skill.auth_resource_id = (
+                self.environment.ai_search_user_assigned_identity
+            )
 
         return adi_skill
 
@@ -368,16 +372,24 @@ class AISearch(ABC):
             name="Key phrase extraction API",
             description="Skill to extract keyphrases",
             context=context,
-            uri=get_custom_skill_function_url("keyphraseextraction"),
+            uri=self.environment.get_custom_skill_function_url("key_phrase_extraction"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
             inputs=keyphrase_extraction_skill_inputs,
             outputs=keyphrase_extraction__skill_outputs,
-            auth_resource_id=get_function_app_authresourceid(),
-            auth_identity=self.get_user_assigned_managed_identity(),
         )
+
+        if self.environment.identity_type != IdentityType.KEY:
+            key_phrase_extraction_skill.auth_identity = (
+                self.environment.ai_search_identity_id
+            )
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            key_phrase_extraction_skill.auth_resource_id = (
+                self.environment.ai_search_user_assigned_identity
+            )
 
         return key_phrase_extraction_skill
 

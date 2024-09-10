@@ -1,49 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-
 import argparse
-from ai_search_with_adi.ai_search.environment import (
-    get_search_endpoint,
-    get_managed_identity_id,
-    get_search_key,
-    get_key_vault_url,
-)
-from azure.core.credentials import AzureKeyCredential
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
 from ai_search_with_adi.ai_search.rag_documents import RagDocumentsAISearch
 
 
-def main(args):
-    endpoint = get_search_endpoint()
+def deploy_config(arguments: argparse.Namespace):
+    """Deploy the indexer configuration based on the arguments passed.
 
-    try:
-        credential = DefaultAzureCredential(
-            managed_identity_client_id=get_managed_identity_id()
-        )
-        # initializing key vault client
-        client = SecretClient(vault_url=get_key_vault_url(), credential=credential)
-        print("Using managed identity credential")
-    except Exception as e:
-        print(e)
-        credential = AzureKeyCredential(get_search_key(client=client))
-        print("Using Azure Key credential")
-
-    if args.indexer_type == "rag":
-        # Deploy the inquiry index
+    Args:
+        arguments (argparse.Namespace): The arguments passed to the script"""
+    if arguments.indexer_type == "rag":
         index_config = RagDocumentsAISearch(
-            endpoint=endpoint,
-            credential=credential,
-            suffix=args.suffix,
-            rebuild=args.rebuild,
-            enable_page_by_chunking=args.enable_page_chunking,
+            suffix=arguments.suffix,
+            rebuild=arguments.rebuild,
+            enable_page_by_chunking=arguments.enable_page_chunking,
         )
     else:
         raise ValueError("Invalid Indexer Type")
 
     index_config.deploy()
 
-    if args.rebuild:
+    if arguments.rebuild:
         index_config.reset_indexer()
 
 
@@ -75,4 +52,4 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    main(args)
+    deploy_config(args)
