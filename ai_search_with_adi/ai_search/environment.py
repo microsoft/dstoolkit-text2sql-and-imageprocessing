@@ -1,11 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-
-"""Module providing environment definition"""
 import os
 from dotenv import find_dotenv, load_dotenv
 from enum import Enum
-
+from azure.identity import DefaultAzureCredential
+from azure.core.credentials import AzureKeyCredential
 
 class IndexerType(Enum):
     """The type of the indexer"""
@@ -20,6 +19,7 @@ class IdentityType(Enum):
     KEY = "key"
 
 class AISearchEnvironment:
+    """This class is used to get the environment variables for the AI search service."""
     def __init__(self, indexer_type: IndexerType):
         """Initialize the AISearchEnvironment class.
 
@@ -30,8 +30,12 @@ class AISearchEnvironment:
         self.indexer_type = indexer_type
 
     @property
-    def normalised_indexer_type(self):
-        """This function returns the normalised indexer type"""
+    def normalised_indexer_type(self) -> str:
+        """This function returns the normalised indexer type.
+        
+        Returns:
+            str: The normalised indexer type
+        """
         normalised_indexer_type = (
             self.indexer_type.value.replace("-", " ").title().replace(" ", "")
         )
@@ -39,16 +43,45 @@ class AISearchEnvironment:
         return normalised_indexer_type
 
     @property
-    def identity_type(self):
-        """This function returns the identity type"""
-        type = os.environ.get("AIService__AzureSearchOptions__IdentityType")
+    def identity_type(self) -> IdentityType:
+        """This function returns the identity type.
+        
+        Returns:
+            IdentityType: The identity type
+        """
+        identity = os.environ.get("AIService__AzureSearchOptions__IdentityType")
 
-        if type == "user_assigned":
+        if identity == "user_assigned":
             return IdentityType.USER_ASSIGNED
-        elif type == "system_assigned":
+        elif identity == "system_assigned":
             return IdentityType.SYSTEM_ASSIGNED
-        elif type == "key":
+        elif identity == "key":
             return IdentityType.KEY
+        else:
+            raise ValueError("Invalid identity type")
+        
+    @property
+    def ai_search_endpoint(self) -> str:
+        """This function returns the ai search endpoint.
+        
+        Returns:
+            str: The ai search endpoint
+        """
+        return os.environ.get("AIService__AzureSearchOptions__Endpoint")
+
+    @property
+    def ai_search_credential(self) -> DefaultAzureCredential | AzureKeyCredential:
+        """This function returns the ai search credential.
+        
+        Returns:
+            DefaultAzureCredential | AzureKeyCredential: The ai search credential
+        """
+        if self.identity_type in IdentityType.SYSTEM_ASSIGNED:
+            return DefaultAzureCredential()
+        elif self.identity_type in IdentityType.USER_ASSIGNED:
+            return DefaultAzureCredential(managed_identity_client_id =os.environ.get("AIService__AzureSearchOptions__ManagedIdentity__FQName"))
+        else:
+            return AzureKeyCredential(os.environ.get("AIService__AzureSearchOptions__Key__Secret"))
 
     @property
     def storage_account_connection_string(self) -> str:
@@ -65,6 +98,61 @@ class AISearchEnvironment:
         """
 
         return os.environ.get(f"StorageAccount__{self.normalised_indexer_type}__Container")
+    
+    @property
+    def function_app_end_point(self) -> str:
+        """
+        This function returns function app endpoint
+        """
+        return os.environ.get("FunctionApp__Endpoint")
+
+    @property
+    def function_app_key(self) -> str:
+        """
+        This function returns function app key
+        """
+        return os.environ.get("FunctionApp__Key")
+    
+    @property
+    def function_app_pre_embedding_cleaner_route(self) -> str:
+        """
+        This function returns function app data cleanup function name
+        """
+        return os.environ.get("FunctionApp__PreEmbeddingCleaner__FunctionName")
+
+    @property
+    def function_app_adi_route(self) -> str:
+        """
+        This function returns function app adi name
+        """
+        return os.environ.get("FunctionApp__DocumentIntelligence__FunctionName")
+
+    @property
+    def function_app_key_phrase_extractor_route(self) -> str:
+        """
+        This function returns function app keyphrase extractor name
+        """
+        return os.environ.get("FunctionApp__KeyphraseExtractor__FunctionName")
+    
+    def get_custom_skill_function_url(self, skill_type: str):
+        """
+        Get the function app url that is hosting the custom skill
+        """
+        if skill_type == "pre_embedding_cleaner":
+            route = self.function_app_pre_embedding_cleaner_route
+        elif skill_type == "adi":
+            route = self.function_app_adi_route
+        elif skill_type == "key_phrase_extraction":
+            route = self.function_app_key_phrase_extractor_route
+        else:
+            raise ValueError(f"Invalid skill type: {skill_type}")
+        
+        full_url = f"{self.function_app_end_point}/api/{route}?code={self.function_app_key}"
+
+        return full_url
+
+
+
 # managed identity id
 def get_managed_identity_id() -> str:
     """
@@ -86,63 +174,6 @@ def get_function_app_authresourceid() -> str:
     This function returns apps registration in microsoft entra id
     """
     return os.environ.get("FunctionApp__AuthResourceId")
-
-
-def get_function_app_end_point() -> str:
-    """
-    This function returns function app endpoint
-    """
-    return os.environ.get("FunctionApp__Endpoint")
-
-
-def get_function_app_key() -> str:
-    """
-    This function returns function app key
-    """
-    return os.environ.get("FunctionApp__Key")
-
-
-def get_function_app_compass_function() -> str:
-    """
-    This function returns function app compass function name
-    """
-    return os.environ.get("FunctionApp__Compass__FunctionName")
-
-
-def get_function_app_pre_embedding_cleaner_function() -> str:
-    """
-    This function returns function app data cleanup function name
-    """
-    return os.environ.get("FunctionApp__PreEmbeddingCleaner__FunctionName")
-
-
-def get_function_app_adi_function() -> str:
-    """
-    This function returns function app adi name
-    """
-    return os.environ.get("FunctionApp__DocumentIntelligence__FunctionName")
-
-
-def get_function_app_custom_split_function() -> str:
-    """
-    This function returns function app adi name
-    """
-    return os.environ.get("FunctionApp__CustomTextSplit__FunctionName")
-
-
-def get_function_app_keyphrase_extractor_function() -> str:
-    """
-    This function returns function app keyphrase extractor name
-    """
-    return os.environ.get("FunctionApp__KeyphraseExtractor__FunctionName")
-
-
-def get_function_app_ocr_function() -> str:
-    """
-    This function returns function app ocr name
-    """
-    return os.environ.get("FunctionApp__Ocr__FunctionName")
-
 
 # search
 def get_search_endpoint() -> str:
@@ -191,20 +222,6 @@ def get_search_embedding_model_dimensions(indexer_type: IndexerType) -> str:
     )
 
 
-def get_blob_connection_string() -> str:
-    """
-    This function returns azure blob storage connection string
-    """
-    return os.environ.get("StorageAccount__ConnectionString")
-
-
-def get_fq_blob_connection_string() -> str:
-    """
-    This function returns azure blob storage connection string
-    """
-    return os.environ.get("StorageAccount__FQEndpoint")
-
-
 def get_blob_container_name(indexer_type: str) -> str:
     """
     This function returns azure blob container name
@@ -213,32 +230,3 @@ def get_blob_container_name(indexer_type: str) -> str:
         indexer_type.value.replace("-", " ").title().replace(" ", "")
     )
     return os.environ.get(f"StorageAccount__{normalised_indexer_type}__Container")
-
-
-def get_custom_skill_function_url(skill_type: str):
-    """
-    Get the function app url that is hosting the custom skill
-    """
-    url = (
-        get_function_app_end_point()
-        + "/api/function_name?code="
-        + get_function_app_key()
-    )
-    if skill_type == "compass":
-        url = url.replace("function_name", get_function_app_compass_function())
-    elif skill_type == "pre_embedding_cleaner":
-        url = url.replace(
-            "function_name", get_function_app_pre_embedding_cleaner_function()
-        )
-    elif skill_type == "adi":
-        url = url.replace("function_name", get_function_app_adi_function())
-    elif skill_type == "split":
-        url = url.replace("function_name", get_function_app_custom_split_function())
-    elif skill_type == "keyphraseextraction":
-        url = url.replace(
-            "function_name", get_function_app_keyphrase_extractor_function()
-        )
-    elif skill_type == "ocr":
-        url = url.replace("function_name", get_function_app_ocr_function())
-
-    return url

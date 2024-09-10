@@ -92,7 +92,7 @@ class AISearch(ABC):
     @property
     def data_source_name(self):
         """Get the data source name for the indexer."""
-        blob_container_name = self.environment.get_blob_container_name()
+        blob_container_name = self.environment.storage_account_blob_container_name
         return f"{blob_container_name}-data-source{self.suffix}"
 
     @property
@@ -166,8 +166,8 @@ class AISearch(ABC):
             data_deletion_detection_policy=data_deletion_detection_policy,
         )
 
-        if self.environment.identity_type != IdentityType.KEY:
-            data_source_connection.identity = self.environment.ai_search_identity_id
+        # if self.environment.identity_type != IdentityType.KEY:
+        #     data_source_connection.identity = self.environment.ai_search_identity_id
 
         return data_source_connection
 
