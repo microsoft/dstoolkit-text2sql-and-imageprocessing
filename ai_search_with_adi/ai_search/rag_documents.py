@@ -191,7 +191,7 @@ class RagDocumentsAISearch(AISearch):
                 name="Keywords", source="/document/pages/*/keywords"
             ),
             InputFieldMappingEntry(
-                name="Sections", source="/document/pages/*/sections"
+                name="Sections", source="/document/pages/*/cleaned_sections"
             ),
         ]
 

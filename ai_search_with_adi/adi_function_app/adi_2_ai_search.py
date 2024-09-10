@@ -69,7 +69,7 @@ def clean_adi_markdown(
     comment_patterns = r"<!-- PageNumber=\"\d+\" -->|<!-- PageHeader=\".*?\" -->|<!-- PageFooter=\".*?\" -->|<!-- PageBreak -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
 
-    combined_pattern = r"(.*?)\n===|\n# (.*?)\n|\n## ?(.*?)\n|\n### ?(.*?)\n|\n#### ?(.*?)\n|\n##### ?(.*?)\n|\n###### ?(.*?)\n"
+    combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
     doc_metadata = re.findall(combined_pattern, cleaned_text, re.DOTALL)
     doc_metadata = [match for group in doc_metadata for match in group if match]
 
@@ -170,6 +170,8 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
 
     If the image is a diagram, you should describe the components, relationships, and any other relevant information that can be inferred from the diagram.
 
+    Include any data points, labels, and other relevant information that can be inferred from the image.
+
     IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'."""
 
     user_input = "Describe this image with technical analysis. Provide a well-structured, description."
@@ -255,6 +257,10 @@ def pil_image_to_base64(image, image_format="JPEG"):
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 
+async def mark_image_as_irrelevant():
+    return "Irrelevant Image"
+
+
 async def process_figures_from_extracted_content(
     file_path: str, markdown_content: str, figures: list, page_number: None | int = None
 ) -> str:
@@ -270,6 +276,8 @@ async def process_figures_from_extracted_content(
     Returns:
     --------
         str: The updated Markdown content with the figure descriptions."""
+
+    image_understanding_tasks = []
     for idx, figure in enumerate(figures):
         img_description = ""
         logging.debug(f"Figure #{idx} has the following spans: {figure.spans}")
@@ -293,16 +301,19 @@ async def process_figures_from_extracted_content(
                 )  # page_number is 1-indexed3
 
                 if cropped_image is None:
-                    img_description += "Irrelevant Image"
+                    image_understanding_tasks.append(mark_image_as_irrelevant())
                 else:
                     image_base64 = pil_image_to_base64(cropped_image)
 
-                    img_description = await understand_image_with_gptv(
-                        image_base64, figure.caption.content
+                    image_understanding_tasks.append(
+                        understand_image_with_gptv(image_base64, figure.caption.content)
                     )
                     logging.info(f"\tDescription of figure {idx}: {img_description}")
                     break
 
+    image_descriptions = await asyncio.gather(*image_understanding_tasks)
+
+    for idx, img_description in enumerate(image_descriptions):
         markdown_content = update_figure_description(
             markdown_content, img_description, idx
         )

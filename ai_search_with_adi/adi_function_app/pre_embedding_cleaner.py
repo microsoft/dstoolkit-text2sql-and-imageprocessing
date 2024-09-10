@@ -21,10 +21,17 @@ def get_section(cleaned_text: str) -> list:
         list: The sections related to text
 
     """
-    combined_pattern = r"(.*?)\n===|\n## ?(.*?)\n|\n### ?(.*?)\n"
+    combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
     doc_metadata = re.findall(combined_pattern, cleaned_text, re.DOTALL)
     doc_metadata = [match for group in doc_metadata for match in group if match]
-    return doc_metadata
+    return clean_sections(doc_metadata)
+
+
+def clean_sections(sections: list) -> list:
+    """Cleans the sections by removing special characters and extra white spaces."""
+    cleaned_sections = [re.sub(r"[=#]", "", match).strip() for match in sections]
+
+    return cleaned_sections
 
 
 def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
@@ -120,16 +127,17 @@ async def process_pre_embedding_cleaner(record: dict) -> dict:
                 record["data"]["chunk"]["content"]
             )
             cleaned_record["data"]["chunk"] = record["data"]["chunk"]["content"]
-            cleaned_record["data"]["section"] = record["data"]["chunk"]["section"]
-            cleaned_record["data"]["page_number"] = record["data"]["chunk"][
-                "page_number"
-            ]
+            cleaned_record["data"]["sections"] = clean_sections(
+                record["data"]["chunk"]["sections"]
+            )
         else:
             cleaned_record["data"]["cleaned_chunk"] = clean_text(
                 record["data"]["chunk"]
             )
             cleaned_record["data"]["chunk"] = record["data"]["chunk"]
-            cleaned_record["data"]["section"] = get_section(record["data"]["chunk"])
+            cleaned_record["data"]["cleaned_sections"] = get_section(
+                record["data"]["chunk"]
+            )
 
     except Exception as e:
         logging.error("string cleanup Error: %s", e)

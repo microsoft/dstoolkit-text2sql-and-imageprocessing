@@ -175,7 +175,7 @@ class AISearch(ABC):
         return data_source_connection
 
     def get_pre_embedding_cleaner_skill(
-        self, context, source, chunk_by_page=False, target_name="cleaned_chunk"
+        self, context, source, target_name="cleaned_chunk"
     ) -> WebApiSkill:
         """Get the custom skill for data cleanup.
 
@@ -203,17 +203,10 @@ class AISearch(ABC):
         pre_embedding_cleaner_skill_outputs = [
             OutputFieldMappingEntry(name="cleaned_chunk", target_name=target_name),
             OutputFieldMappingEntry(name="chunk", target_name="chunk"),
-            OutputFieldMappingEntry(name="section", target_name="section"),
+            OutputFieldMappingEntry(
+                name="cleaned_sections", target_name="cleaned_sections"
+            ),
         ]
-
-        if chunk_by_page:
-            pre_embedding_cleaner_skill_outputs.extend(
-                [
-                    OutputFieldMappingEntry(
-                        name="page_number", target_name="page_number"
-                    ),
-                ]
-            )
 
         pre_embedding_cleaner_skill = WebApiSkill(
             name="Pre Embedding Cleaner Skill",
@@ -277,8 +270,9 @@ class AISearch(ABC):
             batch_size = 1
             degree_of_parallelism = 4
         else:
+            # Depending on your GPT Token limit, you may need to adjust the batch size and degree of parallelism
             batch_size = 1
-            degree_of_parallelism = 16
+            degree_of_parallelism = 8
 
         if chunk_by_page:
             output = [
