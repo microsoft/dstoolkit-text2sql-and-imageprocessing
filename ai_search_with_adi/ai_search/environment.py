@@ -6,23 +6,65 @@ import os
 from dotenv import find_dotenv, load_dotenv
 from enum import Enum
 
-load_dotenv(find_dotenv())
-
 
 class IndexerType(Enum):
     """The type of the indexer"""
 
     RAG_DOCUMENTS = "rag-documents"
 
+class IdentityType(Enum):
+    """The type of the indexer"""
 
-# key vault
-def get_key_vault_url() -> str:
-    """
-    This function returns key vault url
-    """
-    return os.environ.get("KeyVault__Url")
+    USER_ASSIGNED = "user_assigned"
+    SYSTEM_ASSIGNED = "system_assigned"
+    KEY = "key"
 
+class AISearchEnvironment:
+    def __init__(self, indexer_type: IndexerType):
+        """Initialize the AISearchEnvironment class.
 
+        Args:
+            indexer_type (IndexerType): The type of the indexer
+        """
+        load_dotenv(find_dotenv())
+        self.indexer_type = indexer_type
+
+    @property
+    def normalised_indexer_type(self):
+        """This function returns the normalised indexer type"""
+        normalised_indexer_type = (
+            self.indexer_type.value.replace("-", " ").title().replace(" ", "")
+        )
+
+        return normalised_indexer_type
+
+    @property
+    def identity_type(self):
+        """This function returns the identity type"""
+        type = os.environ.get("AIService__AzureSearchOptions__IdentityType")
+
+        if type == "user_assigned":
+            return IdentityType.USER_ASSIGNED
+        elif type == "system_assigned":
+            return IdentityType.SYSTEM_ASSIGNED
+        elif type == "key":
+            return IdentityType.KEY
+
+    @property
+    def storage_account_connection_string(self) -> str:
+        """This function returns the blob connection string. If the identity type is user_assigned or system_assigned, it returns the FQEndpoint, otherwise it returns the ConnectionString"""
+        if self.identity_type in [IdentityType.SYSTEM_ASSIGNED, IdentityType.USER_ASSIGNED]:
+            return os.environ.get("StorageAccount__FQEndpoint")
+        else:
+            return os.environ.get("StorageAccount__ConnectionString")
+
+    @property
+    def storage_account_blob_container_name(self) -> str:
+        """
+        This function returns azure blob container name
+        """
+
+        return os.environ.get(f"StorageAccount__{self.normalised_indexer_type}__Container")
 # managed identity id
 def get_managed_identity_id() -> str:
     """

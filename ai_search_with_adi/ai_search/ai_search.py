@@ -154,13 +154,13 @@ class AISearch(ABC):
         )
 
         container = SearchIndexerDataContainer(
-            name=self.environment.get_blob_container_name()
+            name=self.environment.storage_account_blob_container_name
         )
 
         data_source_connection = SearchIndexerDataSourceConnection(
             name=self.data_source_name,
             type=SearchIndexerDataSourceType.AZURE_BLOB,
-            connection_string=self.environment.blob_connection_string,
+            connection_string=self.environment.storage_account_connection_string,
             container=container,
             data_change_detection_policy=data_change_detection_policy,
             data_deletion_detection_policy=data_deletion_detection_policy,
