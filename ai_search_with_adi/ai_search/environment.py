@@ -54,7 +54,7 @@ class AISearchEnvironment:
         Returns:
             IdentityType: The identity type
         """
-        identity = os.environ.get("IdentityType")
+        identity = os.environ.get("IdentityType").lower()
 
         if identity == "user_assigned":
             return IdentityType.USER_ASSIGNED
@@ -231,7 +231,7 @@ class AISearchEnvironment:
         This function returns true if private endpoint is used
         """
         return (
-            os.environ.get("AIService__AzureSearchOptions__UsePrivateEndpoint")
+            os.environ.get("AIService__AzureSearchOptions__UsePrivateEndpoint").lower()
             == "true"
         )
 
