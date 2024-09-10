@@ -75,9 +75,7 @@ def clean_adi_markdown(
 
     if remove_irrelevant_figures:
         # Remove irrelevant figures
-        irrelevant_figure_pattern = (
-            r"<figure>.*?<!-- FigureContent=\"Irrelevant Image\" -->.*?</figure>\s*"
-        )
+        irrelevant_figure_pattern = r"<!-- FigureContent=\"Irrelevant Image\" -->\s*"
         cleaned_text = re.sub(
             irrelevant_figure_pattern, "", cleaned_text, flags=re.DOTALL
         )
@@ -296,7 +294,7 @@ async def process_figures_from_extracted_content(
                 )
                 cropped_image = crop_image_from_pdf_page(
                     file_path, region.page_number - 1, bounding_box
-                )  # page_number is 1-indexed3
+                )  # page_number is 1-indexed
 
                 figure_spans.append(figure.spans[0])
 
@@ -347,7 +345,7 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
             page.spans[0]["offset"] : page.spans[0]["offset"] + page.spans[0]["length"]
         ]
         page_wise_content.append(page_content)
-        page_numbers.append(page_number)
+        page_numbers.append(page_number + 1)
         page_offsets.append(page.spans[0]["offset"])
 
     return page_wise_content, page_numbers, page_offsets
@@ -535,7 +533,11 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
             else:
                 markdown_content = result.content
                 content_with_figures = await process_figures_from_extracted_content(
-                    temp_file_path, markdown_content, result.figures, page_offset=0
+                    temp_file_path,
+                    markdown_content,
+                    result.figures,
+                    page_offset=0,
+                    page_number=1,
                 )
                 cleaned_result = clean_adi_markdown(
                     content_with_figures, remove_irrelevant_figures=True
