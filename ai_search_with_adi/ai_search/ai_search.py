@@ -307,12 +307,12 @@ class AISearch(ABC):
         )
 
         if self.environment.identity_type != IdentityType.KEY:
-            adi_skill.auth_identity = self.environment.function_app_app_registration_resource_id
+            adi_skill.auth_identity = (
+                self.environment.function_app_app_registration_resource_id
+            )
 
         if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            adi_skill.auth_identity = (
-                self.environment.ai_search_user_assigned_identity
-            )
+            adi_skill.auth_identity = self.environment.ai_search_user_assigned_identity
 
         return adi_skill
 
@@ -335,11 +335,19 @@ class AISearch(ABC):
             name="Vector Skill",
             description="Skill to generate embeddings",
             context=context,
-            deployment_id="0",
-            model_name="text-embedding-3-large",
+            deployment_id=self.environment.open_ai_embedding_deployment,
+            model_name=self.environment.open_ai_embedding_model,
             inputs=embedding_skill_inputs,
             outputs=embedding_skill_outputs,
+            dimensions=self.environment.open_ai_embedding_dimensions,
         )
+
+        if self.environment.identity_type == IdentityType.KEY:
+            vector_skill.api_key = self.environment.open_ai_api_key
+        elif self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            vector_skill.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
 
         return vector_skill
 
@@ -403,6 +411,19 @@ class AISearch(ABC):
             VectorSearch: The vector search configuration
         """
 
+        open_ai_params = AzureOpenAIParameters(
+            resource_uri=self.environment.open_ai_endpoint,
+            modelName=self.environment.open_ai_embedding_model,
+            deploymentId=self.environment.open_ai_embedding_deployment,
+        )
+
+        if self.environment.identity_type == IdentityType.KEY:
+            open_ai_params.api_key = self.environment.open_ai_api_key
+        elif self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            open_ai_params.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
+
         vector_search = VectorSearch(
             algorithms=[
                 HnswAlgorithmConfiguration(name=self.algorithm_name),
@@ -417,7 +438,7 @@ class AISearch(ABC):
             vectorizers=[
                 AzureOpenAIVectorizer(
                     name=self.vectorizer_name,
-                    azure_open_ai_parameters=AzureOpenAIParameters(),
+                    azure_open_ai_parameters=open_ai_params,
                 ),
             ],
         )

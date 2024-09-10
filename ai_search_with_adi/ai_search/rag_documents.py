@@ -83,7 +83,7 @@ class RagDocumentsAISearch(AISearch):
             SearchField(
                 name="ChunkEmbedding",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-                vector_search_dimensions=self.environment.ai_search_embedding_model_dimensions,
+                vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             SearchableField(
