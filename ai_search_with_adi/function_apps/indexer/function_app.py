@@ -169,8 +169,8 @@ async def pre_embedding_cleaner(req: func.HttpRequest) -> func.HttpResponse:
         )
 
 
-@app.route(route="keyphrase_extractor", methods=[func.HttpMethod.POST])
-async def keyphrase_extractor(req: func.HttpRequest) -> func.HttpResponse:
+@app.route(route="key_phrase_extractor", methods=[func.HttpMethod.POST])
+async def key_phrase_extractor(req: func.HttpRequest) -> func.HttpResponse:
     """HTTP trigger for data cleanup function.
 
     Args:
