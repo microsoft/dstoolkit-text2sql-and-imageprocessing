@@ -32,12 +32,19 @@ def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
     doc = fitz.open(pdf_path)
     page = doc.load_page(page_number)
 
+    logging.debug(f"Bounding Box: {bounding_box}")
+    logging.debug(f"Page Number: {page_number}")
+
     # Cropping the page. The rect requires the coordinates in the format (x0, y0, x1, y1).
     bbx = [x * 72 for x in bounding_box]
     rect = fitz.Rect(bbx)
     pix = page.get_pixmap(matrix=fitz.Matrix(300 / 72, 300 / 72), clip=rect)
 
     img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+
+    if pix.width == 0 or pix.height == 0:
+        logging.error("Cropped image has 0 width or height.")
+        return None
 
     doc.close()
     return img
@@ -160,7 +167,7 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
             api_key=api_key,
             api_version=api_version,
             azure_ad_token_provider=token_provider,
-            azure_endpoint=os.environ.get("OpenAI__AzureEndpoint"),
+            azure_endpoint=os.environ.get("OpenAI__Endpoint"),
         ) as client:
             # We send both image caption and the image body to GPTv for better understanding
             if caption != "":
@@ -179,8 +186,10 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
                                     "text": f"Describe this image with technical analysis. Provide a well-structured, description. IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'. (note: it has image caption: {caption}):",
                                 },
                                 {
-                                    "type": "image_base64",
-                                    "image_base64": {"image": image_base64},
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/png;base64,{image_base64}"
+                                    },
                                 },
                             ],
                         },
@@ -204,8 +213,10 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
                                     "text": "Describe this image with technical analysis. Provide a well-structured, description. IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'.",
                                 },
                                 {
-                                    "type": "image_base64",
-                                    "image_base64": {"image": image_base64},
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/png;base64,{image_base64}"
+                                    },
                                 },
                             ],
                         },
@@ -294,12 +305,16 @@ async def process_figures_from_extracted_content(
                     file_path, region.page_number - 1, bounding_box
                 )  # page_number is 1-indexed3
 
-                image_base64 = pil_image_to_base64(cropped_image)
+                if cropped_image is None:
+                    img_description += "Irrelevant Image"
+                else:
+                    image_base64 = pil_image_to_base64(cropped_image)
 
-                img_description += await understand_image_with_gptv(
-                    image_base64, figure.caption.content
-                )
-                logging.info(f"\tDescription of figure {idx}: {img_description}")
+                    img_description = await understand_image_with_gptv(
+                        image_base64, figure.caption.content
+                    )
+                    logging.info(f"\tDescription of figure {idx}: {img_description}")
+                    break
 
         markdown_content = update_figure_description(
             markdown_content, img_description, idx

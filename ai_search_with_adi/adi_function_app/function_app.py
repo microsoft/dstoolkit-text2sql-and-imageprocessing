@@ -9,7 +9,7 @@ from adi_2_ai_search import process_adi_2_ai_search
 from pre_embedding_cleaner import process_pre_embedding_cleaner
 from key_phrase_extraction import process_key_phrase_extraction
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 
