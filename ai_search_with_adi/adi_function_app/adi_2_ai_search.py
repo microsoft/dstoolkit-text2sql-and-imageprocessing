@@ -348,7 +348,7 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
         page_numbers.append(page_number)
         page_offsets.append(page.spans[0]["offset"])
 
-    return page_wise_content, page_numbers
+    return page_wise_content, page_numbers, page_offsets
 
 
 async def analyse_document(file_path: str) -> AnalyzeResult:
