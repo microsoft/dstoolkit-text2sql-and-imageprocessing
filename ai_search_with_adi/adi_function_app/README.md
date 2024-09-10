@@ -12,7 +12,7 @@ The associated scripts in this portion of the repository contains the Azure Docu
 
 ### function_app.py
 
-`./indexer/function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
+`./indexer/adi_function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
 
 ### adi_2_aisearch
 

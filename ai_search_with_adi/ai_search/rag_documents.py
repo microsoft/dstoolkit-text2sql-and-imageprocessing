@@ -23,7 +23,7 @@ from azure.search.documents.indexes.models import (
     IndexerExecutionEnvironment,
 )
 from ai_search import AISearch
-from ai_search_with_adi.ai_search.environment import (
+from environment import (
     IndexerType,
 )
 
@@ -43,9 +43,9 @@ class RagDocumentsAISearch(AISearch):
             suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
+        self.indexer_type = IndexerType.RAG_DOCUMENTS
         super().__init__(suffix, rebuild)
 
-        self.indexer_type = IndexerType.RAG_DOCUMENTS
         if enable_page_by_chunking is not None:
             self.enable_page_by_chunking = enable_page_by_chunking
         else:

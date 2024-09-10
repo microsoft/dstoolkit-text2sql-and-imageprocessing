@@ -28,7 +28,7 @@ from azure.search.documents.indexes.models import (
 )
 from azure.core.exceptions import HttpResponseError
 from azure.search.documents.indexes import SearchIndexerClient, SearchIndexClient
-from ai_search_with_adi.ai_search.environment import AISearchEnvironment, IdentityType
+from environment import AISearchEnvironment, IdentityType
 
 
 class AISearch(ABC):
@@ -45,7 +45,10 @@ class AISearch(ABC):
             suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
-        self.indexer_type = None
+
+        if not hasattr(self, "indexer_type"):
+            self.indexer_type = None  # Needed to help mypy understand that indexer_type is defined in the child class
+            raise ValueError("indexer_type is not defined in the child class.")
 
         if rebuild is not None:
             self.rebuild = rebuild

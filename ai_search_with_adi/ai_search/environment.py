@@ -32,6 +32,7 @@ class AISearchEnvironment:
             indexer_type (IndexerType): The type of the indexer
         """
         load_dotenv(find_dotenv())
+
         self.indexer_type = indexer_type
 
     @property
@@ -41,6 +42,8 @@ class AISearchEnvironment:
         Returns:
             str: The normalised indexer type
         """
+        print(self.indexer_type.value)
+        print(self.indexer_type)
         normalised_indexer_type = (
             self.indexer_type.value.replace("-", " ").title().replace(" ", "")
         )
@@ -104,9 +107,9 @@ class AISearchEnvironment:
         Returns:
             DefaultAzureCredential | AzureKeyCredential: The ai search credential
         """
-        if self.identity_type in IdentityType.SYSTEM_ASSIGNED:
+        if self.identity_type == IdentityType.SYSTEM_ASSIGNED:
             return DefaultAzureCredential()
-        elif self.identity_type in IdentityType.USER_ASSIGNED:
+        elif self.identity_type == IdentityType.USER_ASSIGNED:
             return DefaultAzureCredential(
                 managed_identity_client_id=self.ai_search_identity_id
             )

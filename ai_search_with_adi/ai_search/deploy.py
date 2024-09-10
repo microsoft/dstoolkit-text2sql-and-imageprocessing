@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 import argparse
-from ai_search_with_adi.ai_search.rag_documents import RagDocumentsAISearch
+from rag_documents import RagDocumentsAISearch
 
 
 def deploy_config(arguments: argparse.Namespace):
