@@ -66,10 +66,10 @@ def clean_adi_markdown(
     """
 
     output_dict = {}
-    comment_patterns = r"<!-- PageNumber=\"\d+\" -->|<!-- PageHeader=\".*?\" -->|<!-- PageFooter=\".*?\" -->"
+    comment_patterns = r"<!-- PageNumber=\"\d+\" -->|<!-- PageHeader=\".*?\" -->|<!-- PageFooter=\".*?\" -->|<!-- PageBreak -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
 
-    combined_pattern = r"(.*?)\n===|\n## ?(.*?)\n|\n### ?(.*?)\n"
+    combined_pattern = r"(.*?)\n===|\n# (.*?)\n|\n## ?(.*?)\n|\n### ?(.*?)\n|\n#### ?(.*?)\n|\n##### ?(.*?)\n|\n###### ?(.*?)\n"
     doc_metadata = re.findall(combined_pattern, cleaned_text, re.DOTALL)
     doc_metadata = [match for group in doc_metadata for match in group if match]
 
@@ -162,6 +162,21 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
         token_provider = None
         api_key = os.environ.get("OpenAI__ApiKey")
 
+    system_prompt = """You are an expert in image analysis. Use your experience and skills to provided a detailed description of any provided images. You should FOCUS on what info can be inferred from the image and the meaning of the data inside the image. Draw actionable insights and conclusions from the image.
+
+    If the image is a chart for instance, you should describe the data trends, patterns, and insights that can be drawn from the chart.
+
+    If the image is a map, you should describe the geographical features, landmarks, and any other relevant information that can be inferred from the map.
+
+    If the image is a diagram, you should describe the components, relationships, and any other relevant information that can be inferred from the diagram.
+
+    IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'."""
+
+    user_input = "Describe this image with technical analysis. Provide a well-structured, description."
+
+    if caption != "":
+        user_input += f" (note: it has image caption: {caption})"
+
     try:
         async with AsyncAzureOpenAI(
             api_key=api_key,
@@ -170,59 +185,31 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
             azure_endpoint=os.environ.get("OpenAI__Endpoint"),
         ) as client:
             # We send both image caption and the image body to GPTv for better understanding
-            if caption != "":
-                response = await client.chat.completions.create(
-                    model=model,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are an expert in image analysis. Use your experience and skills to provided a detailed description of any provided images. You should focus on what info can be inferred from the image and the meaning of the data inside the image.",
-                        },
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": f"Describe this image with technical analysis. Provide a well-structured, description. IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'. (note: it has image caption: {caption}):",
+            response = await client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt,
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": user_input,
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/png;base64,{image_base64}"
                                 },
-                                {
-                                    "type": "image_url",
-                                    "image_url": {
-                                        "url": f"data:image/png;base64,{image_base64}"
-                                    },
-                                },
-                            ],
-                        },
-                    ],
-                    max_tokens=MAX_TOKENS,
-                )
-
-            else:
-                response = await client.chat.completions.create(
-                    model=model,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are an expert in image analysis. Use your experience and skills to provided a detailed description of any provided images. You should focus on what info can be inferred from the image and the meaning of the data inside the image.",
-                        },
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": "Describe this image with technical analysis. Provide a well-structured, description. IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'.",
-                                },
-                                {
-                                    "type": "image_url",
-                                    "image_url": {
-                                        "url": f"data:image/png;base64,{image_base64}"
-                                    },
-                                },
-                            ],
-                        },
-                    ],
-                    max_tokens=MAX_TOKENS,
-                )
+                            },
+                        ],
+                    },
+                ],
+                max_tokens=MAX_TOKENS,
+            )
 
             img_description = response.choices[0].message.content
 
