@@ -19,6 +19,7 @@ class TaskEnum(Enum):
     PENDING_INDEX_COMPLETION = "pending_index_completion"
     PENDING_INDEX_TRIGGER = "pending_index_trigger"
 
+
 class Header(BaseModel):
     """Header model"""
 

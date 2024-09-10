@@ -20,7 +20,9 @@ class PendingIndexTriggerBody(BaseModel):
     id_name: Optional[str] = Field(
         None, description="The text name for the integer ID field"
     )
-    additional_field: Optional[str] = Field(None, description="Description of additional_field")
+    additional_field: Optional[str] = Field(
+        None, description="Description of additional_field"
+    )
 
     __config__ = ConfigDict(extra="ignore")
 

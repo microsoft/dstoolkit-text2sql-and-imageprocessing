@@ -38,9 +38,13 @@ The properties returned from the ADI Custom Skill are then used to perform the f
 
 ## Provided Notebooks \& Utilities
 
-- `./ai_search.py`, `./deployment.py` provide an easy Python based utility for deploying an index, indexer and corresponding skillset for AI Search.
+- `./ai_search.py`, `./deploy.py` provide an easy Python based utility for deploying an index, indexer and corresponding skillset for AI Search.
 - `./function_apps/indexer` provides a pre-built Python function app that communicates with Azure Document Intelligence, Azure OpenAI etc to perform the Markdown conversion, extraction of figures, figure understanding and corresponding cleaning of Markdown.
 - `./rag_with_ai_search.ipynb` provides example of how to utilise the AI Search plugin to query the index.
+
+## Deploying AI Search Setup
+
+To deploy the pre-built index and associated indexer / skillset setup, see instructions in `./ai_search/README.md`.
 
 ## ADI Custom Skill
 

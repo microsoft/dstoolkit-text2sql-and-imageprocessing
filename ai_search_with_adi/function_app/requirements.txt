@@ -17,10 +17,4 @@ azure-ai-documentintelligence
 azure-ai-textanalytics
 azure-ai-vision-imageanalysis
 PyMuPDF
-pillow
-torch
 aiohttp
-spacy==3.7.5
-transformers
-scikit-learn
-en-core-web-md @ https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1.tar.gz

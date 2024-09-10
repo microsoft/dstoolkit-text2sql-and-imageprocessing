@@ -5,7 +5,7 @@ from common.ai_search import AISearchHelper, IndexerStatusEnum
 from common.service_bus import ServiceBusHelper
 from common.payloads.pending_index_completion import PendingIndexCompletionPayload
 from common.payloads.pending_index_trigger import PendingIndexTriggerPayload
-from common.payloads.header import TaskEnum, DataTypeEnum
+from common.payloads.header import TaskEnum
 from common.payloads.error import Error
 from datetime import datetime, timedelta, timezone
 from common.delay_processing_exception import DelayProcessingException

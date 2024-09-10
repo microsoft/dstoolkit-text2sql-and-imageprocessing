@@ -12,10 +12,11 @@ import fitz
 from PIL import Image
 import io
 import logging
-from common.storage_account import StorageAccountHelper
+from storage_account import StorageAccountHelper
 import concurrent.futures
 import json
-from openai import AzureOpenAI
+from openai import AsyncAzureOpenAI
+import openai
 
 
 def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
@@ -42,7 +43,7 @@ def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
 
 
 def clean_adi_markdown(
-    markdown_text: str, page_no: int, remove_irrelevant_figures=False
+    markdown_text: str, page_no: int = None, remove_irrelevant_figures=False
 ):
     """Clean Markdown text extracted by the Azure Document Intelligence service.
 
@@ -56,21 +57,6 @@ def clean_adi_markdown(
         str: The cleaned Markdown text.
     """
 
-    # # Remove the page number comment
-    # page_number_pattern = r"<!-- PageNumber=\"\d+\" -->"
-    # cleaned_text = re.sub(page_number_pattern, "", markdown_text)
-
-    # # Replace the page header comment with its content
-    # page_header_pattern = r"<!-- PageHeader=\"(.*?)\" -->"
-    # cleaned_text = re.sub(
-    #     page_header_pattern, lambda match: match.group(1), cleaned_text
-    # )
-
-    # # Replace the page footer comment with its content
-    # page_footer_pattern = r"<!-- PageFooter=\"(.*?)\" -->"
-    # cleaned_text = re.sub(
-    #     page_footer_pattern, lambda match: match.group(1), cleaned_text
-    # )
     output_dict = {}
     comment_patterns = r"<!-- PageNumber=\"\d+\" -->|<!-- PageHeader=\".*?\" -->|<!-- PageFooter=\".*?\" -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
@@ -94,7 +80,7 @@ def clean_adi_markdown(
     output_dict["sections"] = doc_metadata
 
     # add page number when chunk by page is enabled
-    if page_no > -1:
+    if page_no is not None:
         output_dict["page_number"] = page_no
 
     return output_dict
@@ -135,7 +121,7 @@ def update_figure_description(md_content, img_description, idx):
     return new_md_content
 
 
-async def understand_image_with_gptv(image_base64, caption):
+async def understand_image_with_gptv(image_base64, caption, tries_left=3):
     """
     Generates a description for an image using the GPT-4V model.
 
@@ -153,57 +139,81 @@ async def understand_image_with_gptv(image_base64, caption):
     deployment_name = os.environ["AzureAI__GPT4V_Deployment"]
     api_base = os.environ["AzureAI__GPT4V_APIbase"]
 
-    client = AzureOpenAI(
-        api_key=api_key,
-        api_version=api_version,
-        base_url=f"{api_base}/openai/deployments/{deployment_name}",
-    )
-
-    # We send both image caption and the image body to GPTv for better understanding
-    if caption != "":
-        response = client.chat.completions.create(
-            model=deployment_name,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {
-                    "role": "user",
-                    "content": [
+    try:
+        async with AsyncAzureOpenAI(
+            api_key=api_key,
+            api_version=api_version,
+            base_url=f"{api_base}/openai/deployments/{deployment_name}",
+        ) as client:
+            # We send both image caption and the image body to GPTv for better understanding
+            if caption != "":
+                response = await client.chat.completions.create(
+                    model=deployment_name,
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
                         {
-                            "type": "text",
-                            "text": f"Describe this image (note: it has image caption: {caption}):",
-                        },
-                        {
-                            "type": "image_base64",
-                            "image_base64": {"image": image_base64},
-                        },
-                    ],
-                },
-            ],
-            max_tokens=MAX_TOKENS,
-        )
-
-    else:
-        response = client.chat.completions.create(
-            model=deployment_name,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": "Describe this image:"},
-                        {
-                            "type": "image_base64",
-                            "image_base64": {"image": image_base64},
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": f"Describe this image with technical analysis. Provide a well-structured, description. IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'. (note: it has image caption: {caption}):",
+                                },
+                                {
+                                    "type": "image_base64",
+                                    "image_base64": {"image": image_base64},
+                                },
+                            ],
                         },
                     ],
-                },
-            ],
-            max_tokens=MAX_TOKENS,
-        )
+                    max_tokens=MAX_TOKENS,
+                )
 
-    img_description = response.choices[0].message.content
+            else:
+                response = await client.chat.completions.create(
+                    model=deployment_name,
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "Describe this image with technical analysis. Provide a well-structured, description. IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'.",
+                                },
+                                {
+                                    "type": "image_base64",
+                                    "image_base64": {"image": image_base64},
+                                },
+                            ],
+                        },
+                    ],
+                    max_tokens=MAX_TOKENS,
+                )
 
-    return img_description
+            img_description = response.choices[0].message.content
+
+            logging.info(f"Image Description: {img_description}")
+
+        return img_description
+    except openai.RateLimitError as e:
+        logging.error("OpenAI Rate Limit Error: %s", e)
+
+        if tries_left > 0:
+            logging.info(
+                "Retrying understanding of image with %s tries left.", tries_left
+            )
+            remaining_tries = tries_left - 1
+            backoff = 20 ** (3 - remaining_tries)
+            await asyncio.sleep(backoff)
+            return await understand_image_with_gptv(
+                image_base64, caption, tries_left=remaining_tries
+            )
+        else:
+            raise Exception("OpenAI Rate Limit Error: No retries left.") from e
+    except (openai.OpenAIError, openai.APIConnectionError) as e:
+        logging.error("OpenAI Error: %s", e)
+
+        raise Exception("OpenAI Rate Limit Error: No retries left.") from e
 
 
 def pil_image_to_base64(image, image_format="JPEG"):
@@ -263,7 +273,9 @@ async def process_figures_from_extracted_content(
 
                 image_base64 = pil_image_to_base64(cropped_image)
 
-                img_description += await understand_image_with_gptv(image_base64)
+                img_description += await understand_image_with_gptv(
+                    image_base64, figure.caption.content
+                )
                 logging.info(f"\tDescription of figure {idx}: {img_description}")
 
         markdown_content = update_figure_description(
@@ -287,13 +299,12 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
 
     page_wise_content = []
     page_numbers = []
-    page_number = 0
-    for page in result.pages:
+
+    for page_number, page in enumerate(result.pages):
         page_content = result.content[
             page.spans[0]["offset"] : page.spans[0]["offset"] + page.spans[0]["length"]
         ]
         page_wise_content.append(page_content)
-        page_number += 1
         page_numbers.append(page_number)
 
     return page_wise_content, page_numbers
@@ -311,7 +322,6 @@ async def analyse_document(file_path: str) -> AnalyzeResult:
         AnalyzeResult: The result of the document analysis."""
     with open(file_path, "rb") as f:
         file_read = f.read()
-        # base64_encoded_file = base64.b64encode(file_read).decode("utf-8")
 
     async with DocumentIntelligenceClient(
         endpoint=os.environ["AIService__Services__Endpoint"],
@@ -335,6 +345,16 @@ async def analyse_document(file_path: str) -> AnalyzeResult:
 
 
 async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> dict:
+    """Process the extracted content from the Azure Document Intelligence service and prepare it for Azure Search.
+
+    Args:
+    -----
+        record (dict): The record containing the extracted content.
+        chunk_by_page (bool): Whether to chunk the content by page.
+
+    Returns:
+    --------
+        dict: The processed content ready for Azure Search."""
     logging.info("Python HTTP trigger function processed a request.")
 
     storage_account_helper = StorageAccountHelper()
@@ -431,20 +451,26 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
         try:
             if chunk_by_page:
                 cleaned_result = []
-                markdown_content, page_no = create_page_wise_content(result)
-                tasks = [
+                markdown_content, page_numbers = create_page_wise_content(result)
+                content_with_figures_tasks = [
                     process_figures_from_extracted_content(
-                        temp_file_path, page_content, result.figures, page_number=idx
+                        temp_file_path,
+                        page_content,
+                        result.figures,
+                        page_number=page_number,
                     )
-                    for idx, page_content in enumerate(markdown_content)
+                    for page_content, page_number in zip(markdown_content, page_numbers)
                 ]
-                content_with_figures = await asyncio.gather(*tasks)
+                content_with_figures = await asyncio.gather(*content_with_figures_tasks)
+
                 with concurrent.futures.ProcessPoolExecutor() as executor:
                     futures = {
                         executor.submit(
-                            clean_adi_markdown, page_content, False
+                            clean_adi_markdown, page_content, page_number, False
                         ): page_content
-                        for page_content in content_with_figures
+                        for page_content, page_number in zip(
+                            content_with_figures, page_numbers
+                        )
                     }
                     for future in concurrent.futures.as_completed(futures):
                         cleaned_result.append(future.result())
@@ -455,7 +481,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                     temp_file_path, markdown_content, result.figures
                 )
                 cleaned_result = clean_adi_markdown(
-                    content_with_figures, page_no=-1, remove_irrelevant_figures=False
+                    content_with_figures, remove_irrelevant_figures=False
                 )
         except Exception as e:
             logging.error(e)
@@ -483,7 +509,4 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
 
         logging.info(f"final output: {json_str}")
 
-        return {
-            "recordId": record["recordId"],
-            "data": {"extracted_content": cleaned_result},
-        }
+        return src
