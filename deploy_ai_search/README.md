@@ -1,4 +1,4 @@
-# AI Search Indexing with Azure Document Intelligence - Pre-built Index Setup
+# AI Search Indexing Pre-built Index Setup
 
 The associated scripts in this portion of the repository contains pre-built scripts to deploy the skillset with Azure Document Intelligence.
 
