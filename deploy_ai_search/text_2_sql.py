@@ -139,10 +139,10 @@ class Text2SqlAISearch(AISearch):
         return skills
 
     def get_indexer(self) -> SearchIndexer:
-        """This function returns the indexer for rag document.
+        """This function returns the indexer for sql.
 
         Returns:
-            SearchIndexer: The indexer for rag document"""
+            SearchIndexer: The indexer for sql"""
 
         # Only place on schedule if it is not a test deployment
         if self.test:
