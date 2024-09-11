@@ -69,7 +69,7 @@ class AISearchEnvironment:
             raise ValueError("Invalid identity type")
 
     @property
-    def ai_search_endpoint(self) -> str:
+    def AIService__AzureSearchOptions__Endpoint(self) -> str:
         """This function returns the ai search endpoint.
 
         Returns:
@@ -128,7 +128,7 @@ class AISearchEnvironment:
         return os.environ.get("OpenAI__ApiKey")
 
     @property
-    def open_ai_endpoint(self) -> str:
+    def OpenAI__Endpoint(self) -> str:
         """This function returns the open ai endpoint.
 
         Returns:
@@ -137,7 +137,7 @@ class AISearchEnvironment:
         return os.environ.get("OpenAI__Endpoint")
 
     @property
-    def open_ai_embedding_model(self) -> str:
+    def OpenAI__EmbeddingModel(self) -> str:
         """This function returns the open ai embedding model.
 
         Returns:

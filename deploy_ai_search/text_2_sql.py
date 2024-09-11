@@ -17,6 +17,7 @@ from environment import (
 )
 import logging
 import json
+import os
 
 
 class Text2SqlAISearch(AISearch):
@@ -77,8 +78,27 @@ class Text2SqlAISearch(AISearch):
                     SearchableField(name="Name", type=SearchFieldDataType.String),
                     SearchableField(name="Definition", type=SearchFieldDataType.String),
                     SearchableField(name="Type", type=SearchFieldDataType.String),
+                    ComplexField(
+                        name="AllowedValues",
+                        collection=True,
+                        fields=[
+                            SimpleField(name="Value", type=SearchFieldDataType.String),
+                        ],
+                    ),
+                    ComplexField(
+                        name="ExampleValues",
+                        collection=True,
+                        fields=[
+                            SimpleField(name="Value", type=SearchFieldDataType.String),
+                        ],
+                    ),
                 ],
             ),
+            SearchableField(
+                name="ColumnNames",
+                type=SearchFieldDataType.String,
+                collection=True,
+            ),  # This is needed to enable semantic searching against the column names as complex field types are not used.
         ]
 
         return fields
@@ -96,12 +116,9 @@ class Text2SqlAISearch(AISearch):
                 content_fields=[
                     SemanticField(field_name="Description"),
                     SemanticField(field_name="Selector"),
-                    SemanticField(field_name="Description"),
                 ],
                 keywords_fields=[
-                    SemanticField(field_name="Column/Name"),
-                    SemanticField(field_name="Column/Definition"),
-                    SemanticField(field_name="Column/Type"),
+                    SemanticField(field_name="ColumnNames"),
                 ],
             ),
         )
@@ -141,11 +158,13 @@ class Text2SqlAISearch(AISearch):
             }
 
             # Load tables and views
-            for entity in entities["tables"].extend(entities["views"]):
+            full_entities = entities["tables"] + entities["views"]
+            database = os.environ["Text2SQL__DatabaseName"]
+            for entity in full_entities:
                 entity_object = rename_keys(entity.copy(), top_level_renaming_map)
 
                 entity = entity_object["Entity"]
-                entity_object["SelectFromEntity"] = f"{self.database}.{entity}"
+                entity_object["SelectFromEntity"] = f"{database}.{entity}"
 
                 entity_object["Columns"] = rename_keys(
                     entity_object["Columns"],

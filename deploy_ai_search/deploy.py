@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 import argparse
 from rag_documents import RagDocumentsAISearch
+from text_2_sql import Text2SqlAISearch
 
 
 def deploy_config(arguments: argparse.Namespace):
@@ -14,6 +15,10 @@ def deploy_config(arguments: argparse.Namespace):
             suffix=arguments.suffix,
             rebuild=arguments.rebuild,
             enable_page_by_chunking=arguments.enable_page_chunking,
+        )
+    elif arguments.indexer_type == "text_2_sql":
+        index_config = Text2SqlAISearch(
+            suffix=arguments.suffix, rebuild=arguments.rebuild
         )
     else:
         raise ValueError("Invalid Indexer Type")

@@ -146,7 +146,7 @@ class SQLPlugin:
         logging.info("Executing SQL Query")
         logging.debug("SQL Query: %s", sql_query)
 
-        connection_string = os.environ["SQL_DB_CONNECTION_STRING"]
+        connection_string = os.environ["Text2SQL__DatabaseConnectionString"]
         async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
             async with sql_db_client.cursor() as cursor:
                 await cursor.execute(sql_query)

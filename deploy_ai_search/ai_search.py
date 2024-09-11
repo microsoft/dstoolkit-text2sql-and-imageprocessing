@@ -66,10 +66,12 @@ class AISearch(ABC):
         self.environment = AISearchEnvironment(indexer_type=self.indexer_type)
 
         self._search_indexer_client = SearchIndexerClient(
-            self.environment.ai_search_endpoint, self.environment.ai_search_credential
+            self.environment.AIService__AzureSearchOptions__Endpoint,
+            self.environment.ai_search_credential,
         )
         self._search_index_client = SearchIndexClient(
-            self.environment.ai_search_endpoint, self.environment.ai_search_credential
+            self.environment.AIService__AzureSearchOptions__Endpoint,
+            self.environment.ai_search_credential,
         )
 
     @property
@@ -339,8 +341,8 @@ class AISearch(ABC):
             description="Skill to generate embeddings",
             context=context,
             deployment_id=self.environment.open_ai_embedding_deployment,
-            model_name=self.environment.open_ai_embedding_model,
-            resource_uri=self.environment.open_ai_endpoint,
+            model_name=self.environment.OpenAI__EmbeddingModel,
+            resource_uri=self.environment.OpenAI__Endpoint,
             inputs=embedding_skill_inputs,
             outputs=embedding_skill_outputs,
             dimensions=self.environment.open_ai_embedding_dimensions,
@@ -416,8 +418,8 @@ class AISearch(ABC):
         """
 
         open_ai_params = AzureOpenAIParameters(
-            resource_uri=self.environment.open_ai_endpoint,
-            model_name=self.environment.open_ai_embedding_model,
+            resource_uri=self.environment.OpenAI__Endpoint,
+            model_name=self.environment.OpenAI__EmbeddingModel,
             deployment_id=self.environment.open_ai_embedding_deployment,
         )
 

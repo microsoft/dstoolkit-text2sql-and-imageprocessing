@@ -39,12 +39,12 @@ class AISearchPlugin:
 
         async with AsyncAzureOpenAI(
             # This is the default and can be omitted
-            api_key=os.environ["OPEN_AI_KEY"],
-            azure_endpoint=os.environ["OPEN_AI_ENDPOINT"],
+            api_key=os.environ["OpenAI__ApiKey"],
+            azure_endpoint=os.environ["OpenAI__Endpoint"],
             api_version=os.environ["OPEN_AI_VERSION"],
         ) as open_ai_client:
             embeddings = await open_ai_client.embeddings.create(
-                model=os.environ["OPEN_AI_EMBEDDING_MODEL"], input=text
+                model=os.environ["OpenAI__EmbeddingModel"], input=text
             )
 
             # Extract the embedding vector
@@ -58,15 +58,15 @@ class AISearchPlugin:
 
         credential = DefaultAzureCredential()
         async with SearchClient(
-            endpoint=os.environ["AI_SEARCH_ENDPOINT"],
-            index_name=os.environ["AI_SEARCH_RAG_DOCUMENTS_INDEX"],
+            endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
+            index_name=os.environ["AIService__AzureSearchOptions__RagDocuments__Index"],
             credential=credential,
         ) as search_client:
             results = await search_client.search(
                 top=5,
                 query_type="semantic",
                 semantic_configuration_name=os.environ[
-                    "AI_SEARCH_RAG_DOCUMENTS_SEMANTIC_CONFIG"
+                    "AIService__AzureSearchOptions__RagDocuments__SemanticConfig"
                 ],
                 search_text=text,
                 select="Title,Chunk,SourceUri",
