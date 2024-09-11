@@ -6,6 +6,10 @@ from typing import Annotated
 import os
 import json
 import logging
+from azure.identity import DefaultAzureCredential
+from openai import AsyncAzureOpenAI
+from azure.search.documents.models import VectorizedQuery
+from azure.search.documents.aio import SearchClient
 
 
 class VectorBasedSQLPlugin:
@@ -14,7 +18,7 @@ class VectorBasedSQLPlugin:
     This is an improved version of the SQLPlugin that uses a vector-based approach to generate SQL queries. This works best for a database with a large number of entities and columns.
     """
 
-    def __init__(self, database: str, target_engine: str = "Microsoft TSQL Server"):
+    def __init__(self, target_engine: str = "Microsoft TSQL Server"):
         """Initialize the SQL Plugin.
 
         Args:
@@ -22,7 +26,6 @@ class VectorBasedSQLPlugin:
             database (str): The name of the database to connect to.
             target_engine (str): The target database engine to run the queries against. Default is 'SQL Server'.
         """
-        self.database = database
         self.target_engine = target_engine
 
     def system_prompt(self, engine_specific_rules: str | None = None) -> str:
@@ -32,29 +35,12 @@ class VectorBasedSQLPlugin:
             str: The system prompt for the user.
         """
 
-        entity_descriptions = []
-        for entity in self.entities.values():
-            entity_string = "     [BEGIN ENTITY = '{}']\n                 Name='{}'\n                 Description='{} {}'\n             [END ENTITY = '{}']".format(
-                entity["entity_name"].upper(),
-                entity["entity_name"],
-                entity["description"],
-                entity["selector"],
-                entity["entity_name"].upper(),
-            )
-            entity_descriptions.append(entity_string)
-
-        entity_descriptions = "\n\n        ".join(entity_descriptions)
-
         if engine_specific_rules:
             engine_specific_rules = f"\n        The following {self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"
 
         system_prompt = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query. Use the 'RunSQLQuery()' function to run the SQL query against the database.
 
         You must always examine the provided {self.target_engine} entity descriptions to determine if they can answer the question.
-
-        [BEGIN ENTITIES LIST]
-        {entity_descriptions}
-        [END ENTITIES LIST]
 
         Output corresponding text values in the answer for columns where there is an ID. For example, if the column is 'ProductID', output the corresponding 'ProductModel' in the response. Do not include the ID in the response.
         If a user is asking for a comparison, always compare the relevant values in the database.
@@ -73,34 +59,70 @@ class VectorBasedSQLPlugin:
         return system_prompt
 
     @kernel_function(
-        description="Get the detailed schema of an entity in the Database. Use the entity and the column returned to formulate a SQL query. The view name or table name must be one of the ENTITY NAMES defined in the [ENTITIES LIST]. Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.",
+        description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.",
         name="GetEntitySchema",
     )
-    async def get_entity_schema(
+    async def get_entity_schemas(
         self,
-        entity_name: Annotated[
+        text: Annotated[
             str,
-            "The view or table name to get the schema for. It must be one of the ENTITY NAMES defined in the [ENTITIES LIST] function.",
+            "The text to run a semantic search against. Relevant entities will be returned.",
         ],
     ) -> str:
-        """Get the schema of a view or table in the SQL Database.
+        """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
         Args:
         ----
-            entity_name (str): A views or table name to get the schema for.
+            text (str): The text to run the search against.
 
         Returns:
             str: The schema of the views or tables in JSON format.
         """
 
-        if entity_name.lower() not in self.entities:
-            return json.dumps(
-                {
-                    "error": f"The view or table {entity_name} does not exist in the database. Refer to the previously provided list of entities. Allow values are: {', '.join(self.entities.keys())}."
-                }
+        async with AsyncAzureOpenAI(
+            # This is the default and can be omitted
+            api_key=os.environ["OpenAI__ApiKey"],
+            azure_endpoint=os.environ["OpenAI__Endpoint"],
+            api_version=os.environ["OpenAI__ApiVersion"],
+        ) as open_ai_client:
+            embeddings = await open_ai_client.embeddings.create(
+                model=os.environ["OpenAI__EmbeddingModel"], input=text
             )
 
-        return json.dumps({entity_name: self.entities[entity_name.lower()]})
+            # Extract the embedding vector
+            embedding_vector = embeddings.data[0].embedding
+
+        vector_query = VectorizedQuery(
+            vector=embedding_vector,
+            k_nearest_neighbors=5,
+            fields="ChunkEmbedding",
+        )
+
+        credential = DefaultAzureCredential()
+        async with SearchClient(
+            endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
+            index_name=os.environ["AIService__AzureSearchOptions__Text2SQL__Index"],
+            credential=credential,
+        ) as search_client:
+            results = await search_client.search(
+                top=5,
+                query_type="semantic",
+                semantic_configuration_name=os.environ[
+                    "AIService__AzureSearchOptions__Text2SQL__SemanticConfig"
+                ],
+                search_text=text,
+                select="Title,Chunk,SourceUri",
+                vector_queries=[vector_query],
+            )
+
+            documents = [
+                document
+                async for result in results.by_page()
+                async for document in result
+            ]
+
+        logging.debug("Results: %s", documents)
+        return json.dumps(documents, default=str)
 
     @kernel_function(
         description="Runs an SQL query against the SQL Database to extract information.",

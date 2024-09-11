@@ -57,24 +57,24 @@ The data dictionary is stored in `./plugins/sql_plugin/entities.json`. Below is 
 ```json
 {
     "view_name": "Get All Categories",
-    "entity": "vGetAllCategories",
-    "description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
+    "Entity": "vGetAllCategories",
+    "Description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
     "selector": "Use this view to retrieve information about product categories and subcategories. It is useful for scenarios where product categorization is required, such as generating reports based on product categories or filtering products by category.",
-    "columns": [
+    "Columns": [
         {
-            "definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
+            "Definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
             "name": "ProductCategoryID",
-            "type": "INT"
+            "Type": "INT"
         },
         {
-            "definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
+            "Definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
             "name": "ParentProductCategoryName",
-            "type": "NVARCHAR(50)"
+            "Type": "NVARCHAR(50)"
         },
         {
-            "definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
+            "Definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
             "name": "ProductCategoryName",
-            "type": "NVARCHAR(50)"
+            "Type": "NVARCHAR(50)"
         }
     ]
 }

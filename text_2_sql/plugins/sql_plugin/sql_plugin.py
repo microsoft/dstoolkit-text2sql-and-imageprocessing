@@ -27,7 +27,7 @@ class SQLPlugin:
 
     def load_entities(self):
         """Load the views from the JSON file and formats into common memory dictionary."""
-        with open("./plugins/sql_plugin/entities.json", "r", encoding="utf-8") as file:
+        with open("./data_dictionary/entities.json", "r", encoding="utf-8") as file:
             entities = json.load(file)
 
             # Load views
@@ -36,7 +36,7 @@ class SQLPlugin:
 
                 entity_object["entity_name"] = entity_object["view_name"]
                 del entity_object["view_name"]
-                entity = entity_object["entity"]
+                entity = entity_object["Entity"]
                 entity_object["select_from_entity"] = f"{self.database}.{entity}"
                 self.entities[entity_object["entity_name"].lower()] = entity_object
 
@@ -46,7 +46,7 @@ class SQLPlugin:
 
                 entity_object["entity_name"] = entity_object["table_name"]
                 del entity_object["table_name"]
-                entity = entity_object["entity"]
+                entity = entity_object["Entity"]
                 entity_object["select_from_entity"] = f"{self.database}.{entity}"
                 self.entities[entity_object["entity_name"].lower()] = entity_object
 
@@ -62,7 +62,7 @@ class SQLPlugin:
             entity_string = "     [BEGIN ENTITY = '{}']\n                 Name='{}'\n                 Description='{} {}'\n             [END ENTITY = '{}']".format(
                 entity["entity_name"].upper(),
                 entity["entity_name"],
-                entity["description"],
+                entity["Description"],
                 entity["selector"],
                 entity["entity_name"].upper(),
             )

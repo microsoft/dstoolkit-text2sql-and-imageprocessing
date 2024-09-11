@@ -10,6 +10,7 @@ from azure.search.documents.indexes.models import (
     SemanticConfiguration,
     SemanticSearch,
     SimpleField,
+    SearchField,
 )
 from ai_search import AISearch
 from environment import (
@@ -59,12 +60,11 @@ class Text2SqlAISearch(AISearch):
                 filterable=False,
                 facetable=False,
             ),
-            SearchableField(
-                name="Selector",
-                type=SearchFieldDataType.String,
-                sortable=False,
-                filterable=False,
-                facetable=False,
+            SearchField(
+                name="DescriptionEmbedding",
+                type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
+                vector_search_profile_name=self.vector_search_profile_name,
             ),
             ComplexField(
                 name="Columns",
@@ -147,10 +147,9 @@ class Text2SqlAISearch(AISearch):
             top_level_renaming_map = {
                 "view_name": "EntityName",
                 "table_name": "EntityName",
-                "entity": "Entity",
-                "columns": "Columns",
-                "description": "Description",
-                "selector": "Selector",
+                "Entity": "Entity",
+                "Columns": "Columns",
+                "Description": "Description",
             }
 
             # Load tables and views
@@ -167,10 +166,10 @@ class Text2SqlAISearch(AISearch):
                         entity_object["Columns"],
                         {
                             "name": "Name",
-                            "definition": "Definition",
-                            "type": "Type",
-                            "allowed_values": "AllowedValues",
-                            "sample_values": "SampleValues",
+                            "Definition": "Definition",
+                            "Type": "Type",
+                            "AllowedValues": "AllowedValues",
+                            "SampleValues": "SampleValues",
                         },
                     )
                     for entity_object["Columns"] in entity_object["Columns"]

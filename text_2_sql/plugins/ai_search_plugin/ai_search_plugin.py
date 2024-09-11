@@ -41,7 +41,7 @@ class AISearchPlugin:
             # This is the default and can be omitted
             api_key=os.environ["OpenAI__ApiKey"],
             azure_endpoint=os.environ["OpenAI__Endpoint"],
-            api_version=os.environ["OPEN_AI_VERSION"],
+            api_version=os.environ["OpenAI__ApiVersion"],
         ) as open_ai_client:
             embeddings = await open_ai_client.embeddings.create(
                 model=os.environ["OpenAI__EmbeddingModel"], input=text
@@ -53,7 +53,7 @@ class AISearchPlugin:
         vector_query = VectorizedQuery(
             vector=embedding_vector,
             k_nearest_neighbors=5,
-            fields="chunk_vector",
+            fields="ChunkEmbedding",
         )
 
         credential = DefaultAzureCredential()

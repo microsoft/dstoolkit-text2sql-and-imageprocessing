@@ -188,11 +188,11 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
                         "role": "user",
                         "content": [
                             {
-                                "type": "text",
+                                "Type": "text",
                                 "text": user_input,
                             },
                             {
-                                "type": "image_url",
+                                "Type": "image_url",
                                 "image_url": {
                                     "url": f"data:image/png;base64,{image_base64}"
                                 },
