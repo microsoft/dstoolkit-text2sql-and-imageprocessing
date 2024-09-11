@@ -8,7 +8,7 @@ import json
 import logging
 
 
-class SQLPlugin:
+class PromptBasedSQLPlugin:
     """A plugin that allows for the execution of SQL queries against a SQL Database."""
 
     def __init__(self, database: str, target_engine: str = "Microsoft TSQL Server"):
