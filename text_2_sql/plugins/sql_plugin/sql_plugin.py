@@ -27,28 +27,13 @@ class SQLPlugin:
 
     def load_entities(self):
         """Load the views from the JSON file and formats into common memory dictionary."""
-        with open("./data_dictionary/entities.json", "r", encoding="utf-8") as file:
-            entities = json.load(file)
+        with open("./data_dictionary/entities.jsonl", "r", encoding="utf-8") as file:
+            for line in file:
+                entity_object = json.load(line)
 
-            # Load views
-            for view in entities["views"]:
-                entity_object = view.copy()
-
-                entity_object["entity_name"] = entity_object["view_name"]
-                del entity_object["view_name"]
                 entity = entity_object["Entity"]
-                entity_object["select_from_entity"] = f"{self.database}.{entity}"
-                self.entities[entity_object["entity_name"].lower()] = entity_object
-
-            # Load tables
-            for table in entities["tables"]:
-                entity_object = table.copy()
-
-                entity_object["entity_name"] = entity_object["table_name"]
-                del entity_object["table_name"]
-                entity = entity_object["Entity"]
-                entity_object["select_from_entity"] = f"{self.database}.{entity}"
-                self.entities[entity_object["entity_name"].lower()] = entity_object
+                entity_object["SelectFromEntity"] = f"{self.database}.{entity}"
+                self.entities[entity.lower()] = entity_object
 
     def system_prompt(self, engine_specific_rules: str | None = None) -> str:
         """Get the schemas for the database entities and provide a system prompt for the user.
@@ -59,12 +44,11 @@ class SQLPlugin:
 
         entity_descriptions = []
         for entity in self.entities.values():
-            entity_string = "     [BEGIN ENTITY = '{}']\n                 Name='{}'\n                 Description='{} {}'\n             [END ENTITY = '{}']".format(
-                entity["entity_name"].upper(),
-                entity["entity_name"],
+            entity_string = "     [BEGIN ENTITY = '{}']\n                 Name='{}'\n                 Description='{}'\n             [END ENTITY = '{}']".format(
+                entity["EntityName"].upper(),
+                entity["EntityName"],
                 entity["Description"],
-                entity["selector"],
-                entity["entity_name"].upper(),
+                entity["EntityName"].upper(),
             )
             entity_descriptions.append(entity_string)
 
