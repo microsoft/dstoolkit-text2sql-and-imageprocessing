@@ -59,15 +59,17 @@ class AISearchPlugin:
         credential = DefaultAzureCredential()
         async with SearchClient(
             endpoint=os.environ["AI_SEARCH_ENDPOINT"],
-            index_name=os.environ["AI_SEARCH_INDEX"],
+            index_name=os.environ["AI_SEARCH_RAG_DOCUMENTS_INDEX"],
             credential=credential,
         ) as search_client:
             results = await search_client.search(
                 top=5,
                 query_type="semantic",
-                semantic_configuration_name=os.environ["AI_SEARCH_SEMANTIC_CONFIG"],
+                semantic_configuration_name=os.environ[
+                    "AI_SEARCH_RAG_DOCUMENTS_SEMANTIC_CONFIG"
+                ],
                 search_text=text,
-                select="title,chunk,source",
+                select="Title,Chunk,SourceUri",
                 vector_queries=[vector_query],
             )
 

@@ -29,7 +29,7 @@ class Text2SqlAISearch(AISearch):
             suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
-        self.indexer_type = IndexerType.SQL
+        self.indexer_type = IndexerType.TEXT_2_SQL
         super().__init__(suffix, rebuild)
 
         self.entities = []
