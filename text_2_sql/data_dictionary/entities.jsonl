@@ -1,5 +1,3 @@
-{
-  "tables": [
     {
       "Columns": [
         {
@@ -45,8 +43,7 @@
       ],
       "Description": "This table stores detailed information about sales order tickets, including the order details, customer information, order status, and timestamps. It is used to manage and track sales orders throughout the order lifecycle, from creation to fulfillment.",
       "Entity": "SalesOrderDetail",
-      "selector": "Use this table to retrieve or store information related to individual sales order tickets. This is applicable when processing sales orders, managing customer transactions, or tracking order fulfillment status.",
-      "table_name": "Sales Order Detail"
+      "TableName": "Sales Order Detail"
     },
     {
       "Columns": [
@@ -157,8 +154,7 @@
       ],
       "Description": "This table contains high-level information about sales orders, including order dates, customer details, shipping information, and order status. It is used to manage and track sales orders from initiation to fulfillment.",
       "Entity": "SalesOrderHeader",
-      "selector": "Use this table to retrieve or store information related to the overall details of a sales order. It is applicable when you need to track order status, manage order dates, or relate orders to customers and shipping information.",
-      "table_name": "Sales Order Header"
+      "TableName": "Sales Order Header"
     },
     {
       "Columns": [
@@ -195,11 +191,8 @@
       ],
       "Description": "This table stores address information for customers, including street addresses, city, state, postal code, and country/region. It is used to maintain contact and shipping information for orders, as well as to manage customer locations.",
       "Entity": "Address",
-      "selector": "Use this table to retrieve or store address details for customers, shipping locations, or billing addresses. It is applicable in scenarios where location information is required, such as shipping orders, verifying customer addresses, or managing geographical data.",
-      "table_name": "Address"
+      "TableName": "Address"
     }
-  ],
-  "views": [
     {
       "Columns": [
         {
@@ -220,8 +213,7 @@
       ],
       "Description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
       "Entity": "vGetAllCategories",
-      "selector": "Use this view to retrieve information about product categories and subcategories. It is useful for scenarios where product categorization is required, such as generating reports based on product categories or filtering products by category.",
-      "view_name": "Get All Categories"
+      "ViewName": "Get All Categories"
     },
     {
       "Columns": [
@@ -259,8 +251,7 @@
       ],
       "Description": "This view provides detailed information about products, including their names, associated product models, descriptions, and the specific culture or language of the description. It is useful for understanding product details and translating product descriptions for different cultures.",
       "Entity": "vProductAndDescription",
-      "selector": "Use this view when you need comprehensive details about products, including their descriptions in different languages. This view is particularly useful for multilingual product catalogs or when creating localized content.",
-      "view_name": "Product and Description"
+      "ViewName": "Product and Description"
     },
     {
       "Columns": [
@@ -387,8 +378,5 @@
       ],
       "Description": "This view provides detailed catalog information about product models, including descriptions, manufacturing details, warranty information, and specifications related to product design and features. It is useful for generating comprehensive product catalogs and providing detailed product information to customers.",
       "Entity": "vProductModelCatalogDescription",
-      "selector": "Use this view when you need to retrieve detailed product model descriptions, manufacturing information, and specifications. It is particularly useful for creating product catalogs, detailing product features, and providing warranty information.",
-      "view_name": "Product Model Catalog Description"
+      "ViewName": "Product Model Catalog Description"
     }
-  ]
-}
