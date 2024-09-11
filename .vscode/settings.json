@@ -1,0 +1,7 @@
+{
+  "azureFunctions.projectLanguage": "Python",
+  "azureFunctions.projectLanguageModel": 2,
+  "azureFunctions.projectRuntime": "~4",
+  "azureFunctions.scmDoBuildDuringDeployment": true,
+  "debug.internalConsoleOptions": "neverOpen"
+}

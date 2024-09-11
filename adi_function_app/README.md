@@ -38,35 +38,46 @@ The properties returned from the ADI Custom Skill are then used to perform the f
 
 ## Provided Notebooks \& Utilities
 
-- `./ai_search.py`, `./deployment.py` provide an easy Python based utility for deploying an index, indexer and corresponding skillset for AI Search.
-- `./function_apps/indexer` provides a pre-built Python function app that communicates with Azure Document Intelligence, Azure OpenAI etc to perform the Markdown conversion, extraction of figures, figure understanding and corresponding cleaning of Markdown.
+- `./ai_search_with_adi_function_app` provides a pre-built Python function app that communicates with Azure Document Intelligence, Azure OpenAI etc to perform the Markdown conversion, extraction of figures, figure understanding and corresponding cleaning of Markdown.
 - `./rag_with_ai_search.ipynb` provides example of how to utilise the AI Search plugin to query the index.
+
+## Deploying AI Search Setup
+
+To deploy the pre-built index and associated indexer / skillset setup, see instructions in `./ai_search/README.md`.
 
 ## ADI Custom Skill
 
-Deploy the associated function app and required resources. You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_ai_search` HTTP endpoint.
+Deploy the associated function app and required resources. You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_deploy_ai_search` HTTP endpoint.
 
 To use with an index, either use the utility to configure a indexer in the provided form, or integrate the skill with your skillset pipeline.
 
-### function_app.py
+### Deployment Steps
 
-`./function_apps/indexer/function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
+1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication. Use this template to update the environment variables in the function app.
+2. Make sure the infra and required identities are setup. This setup requires Azure Document Intelligence and GPT4o.
+3. [Deploy your function app](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies?tabs=windows) and test with a HTTP request.
 
-### adi_2_aisearch
+### Code Files
 
-`./function_apps/indexer/adi_2_aisearch.py` contains the methods for content extraction with ADI. The key methods are:
+#### function_app.py
 
-#### analyse_document
+`./indexer/ai_search_with_adi_function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
+
+#### adi_2_aisearch
+
+`./indexer/adi_2_aisearch.py` contains the methods for content extraction with ADI. The key methods are:
+
+##### analyse_document
 
 This method takes the passed file, uploads it to ADI and retrieves the Markdown format.
 
-#### process_figures_from_extracted_content
+##### process_figures_from_extracted_content
 
 This method takes the detected figures, and crops them out of the page to save them as images. It uses the `understand_image_with_vlm` to communicate with Azure OpenAI to understand the meaning of the extracted figure.
 
 `update_figure_description` is used to update the original Markdown content with the description and meaning of the figure.
 
-#### clean_adi_markdown
+##### clean_adi_markdown
 
 This method performs the final cleaning of the Markdown contents. In this method, the section headings and page numbers are extracted for the content to be returned to the indexer.
 
@@ -180,7 +191,6 @@ If `chunk_by_page` header is `False`:
 ```
 
 **Page wise analysis in ADI is recommended to avoid splitting tables / figures across multiple chunks, when the chunking is performed.**
-
 
 ## Production Considerations
 
