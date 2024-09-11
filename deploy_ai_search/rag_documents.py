@@ -52,10 +52,10 @@ class RagDocumentsAISearch(AISearch):
             self.enable_page_by_chunking = False
 
     def get_index_fields(self) -> list[SearchableField]:
-        """This function returns the index fields for inquiry document.
+        """This function returns the index fields for rag document.
 
         Returns:
-            list[SearchableField]: The index fields for inquiry document"""
+            list[SearchableField]: The index fields for rag document"""
 
         fields = [
             SimpleField(name="Id", type=SearchFieldDataType.String, filterable=True),
@@ -114,7 +114,7 @@ class RagDocumentsAISearch(AISearch):
         return fields
 
     def get_semantic_search(self) -> SemanticSearch:
-        """This function returns the semantic search configuration for inquiry document
+        """This function returns the semantic search configuration for rag document
 
         Returns:
             SemanticSearch: The semantic search configuration"""
@@ -178,7 +178,7 @@ class RagDocumentsAISearch(AISearch):
         return skills
 
     def get_index_projections(self) -> SearchIndexerIndexProjections:
-        """This function returns the index projections for inquiry document."""
+        """This function returns the index projections for rag document."""
         mappings = [
             InputFieldMappingEntry(name="Chunk", source="/document/pages/*/chunk"),
             InputFieldMappingEntry(
@@ -221,10 +221,10 @@ class RagDocumentsAISearch(AISearch):
         return index_projections
 
     def get_indexer(self) -> SearchIndexer:
-        """This function returns the indexer for inquiry document.
+        """This function returns the indexer for rag document.
 
         Returns:
-            SearchIndexer: The indexer for inquiry document"""
+            SearchIndexer: The indexer for rag document"""
 
         # Only place on schedule if it is not a test deployment
         if self.test:

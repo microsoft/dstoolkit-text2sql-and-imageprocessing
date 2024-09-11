@@ -128,20 +128,23 @@ class AISearch(ABC):
         Returns:
             SemanticSearch: The semantic search configuration"""
 
-    @abstractmethod
     def get_skills(self) -> list:
         """Get the skillset for the indexer.
 
         Returns:
             list: The skillsets  used in the indexer"""
 
-    @abstractmethod
+        return []
+
     def get_indexer(self) -> SearchIndexer:
         """Get the indexer for the indexer."""
 
-    @abstractmethod
+        return None
+
     def get_index_projections(self) -> SearchIndexerIndexProjections:
         """Get the index projections for the indexer."""
+
+        return None
 
     def get_synonym_map_names(self) -> list[str]:
         """Get the synonym map names for the indexer."""
@@ -149,6 +152,9 @@ class AISearch(ABC):
 
     def get_data_source(self) -> SearchIndexerDataSourceConnection:
         """Get the data source for the indexer."""
+
+        if self.get_indexer() is None:
+            return None
 
         data_deletion_detection_policy = NativeBlobSoftDeleteDeletionDetectionPolicy()
 
@@ -464,6 +470,12 @@ class AISearch(ABC):
     def deploy_skillset(self):
         """This function deploys the skillset."""
         skills = self.get_skills()
+
+        if len(skills) == 0:
+            logging.warning("No skills defined. Skipping skillset deployment.")
+
+            return
+
         index_projections = self.get_index_projections()
 
         skillset = SearchIndexerSkillset(
@@ -481,6 +493,11 @@ class AISearch(ABC):
         """This function deploys the data source."""
         data_source = self.get_data_source()
 
+        if data_source is None:
+            logging.warning("Data source not defined. Skipping data source deployment.")
+
+            return
+
         result = self._search_indexer_client.create_or_update_data_source_connection(
             data_source
         )
@@ -490,6 +507,11 @@ class AISearch(ABC):
     def deploy_indexer(self):
         """This function deploys the indexer."""
         indexer = self.get_indexer()
+
+        if indexer is None:
+            logging.warning("Indexer not defined. Skipping data source deployment.")
+
+            return
 
         result = self._search_indexer_client.create_or_update_indexer(indexer)
 
