@@ -18,7 +18,7 @@ class VectorBasedSQLPlugin:
     This is an improved version of the SQLPlugin that uses a vector-based approach to generate SQL queries. This works best for a database with a large number of entities and columns.
     """
 
-    def __init__(self, target_engine: str = "Microsoft TSQL Server"):
+    def __init__(self, database: str, target_engine: str = "Microsoft TSQL Server"):
         """Initialize the SQL Plugin.
 
         Args:
@@ -26,6 +26,8 @@ class VectorBasedSQLPlugin:
             database (str): The name of the database to connect to.
             target_engine (str): The target database engine to run the queries against. Default is 'SQL Server'.
         """
+        self.entities = {}
+        self.database = database
         self.target_engine = target_engine
 
     def system_prompt(self, engine_specific_rules: str | None = None) -> str:
@@ -101,14 +103,14 @@ class VectorBasedSQLPlugin:
         credential = DefaultAzureCredential()
         async with SearchClient(
             endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
-            index_name=os.environ["AIService__AzureSearchOptions__Text2SQL__Index"],
+            index_name=os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
             credential=credential,
         ) as search_client:
             results = await search_client.search(
                 top=5,
                 query_type="semantic",
                 semantic_configuration_name=os.environ[
-                    "AIService__AzureSearchOptions__Text2SQL__SemanticConfig"
+                    "AIService__AzureSearchOptions__Text2Sql__SemanticConfig"
                 ],
                 search_text=text,
                 select="Title,Chunk,SourceUri",
@@ -143,7 +145,7 @@ class VectorBasedSQLPlugin:
         logging.info("Executing SQL Query")
         logging.debug("SQL Query: %s", sql_query)
 
-        connection_string = os.environ["Text2SQL__DatabaseConnectionString"]
+        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
         async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
             async with sql_db_client.cursor() as cursor:
                 await cursor.execute(sql_query)

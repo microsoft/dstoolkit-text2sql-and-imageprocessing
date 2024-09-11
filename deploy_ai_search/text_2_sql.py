@@ -16,9 +16,6 @@ from ai_search import AISearch
 from environment import (
     IndexerType,
 )
-import logging
-import json
-import os
 
 
 class Text2SqlAISearch(AISearch):
@@ -122,82 +119,3 @@ class Text2SqlAISearch(AISearch):
         semantic_search = SemanticSearch(configurations=[semantic_config])
 
         return semantic_search
-
-    def load_entities(self):
-        """Load the views from the JSON file and formats into memory."""
-        with open(
-            "../text_2_sql/plugins/vector_based_sql_plugin/entities.json",
-            "r",
-            encoding="utf-8",
-        ) as file:
-            entities = json.load(file)
-
-            def rename_keys(d: dict, key_mapping: dict) -> dict:
-                """Rename the keys in the dictionary.
-
-                Args:
-                    d (dict): The dictionary to rename the keys.
-                    key_mapping (dict): The mapping of the keys to rename.
-
-                Returns:
-                    dict: The dictionary with the renamed keys.
-                """
-                return {key_mapping.get(k): v for k, v in d.items()}
-
-            top_level_renaming_map = {
-                "view_name": "EntityName",
-                "table_name": "EntityName",
-                "Entity": "Entity",
-                "Columns": "Columns",
-                "Description": "Description",
-            }
-
-            # Load tables and views
-            full_entities = entities["tables"] + entities["views"]
-            database = os.environ["Text2SQL__DatabaseName"]
-            for entity in full_entities:
-                entity_object = rename_keys(entity.copy(), top_level_renaming_map)
-
-                entity = entity_object["Entity"]
-                entity_object["SelectFromEntity"] = f"{database}.{entity}"
-
-                entity_object["Columns"] = [
-                    rename_keys(
-                        entity_object["Columns"],
-                        {
-                            "name": "Name",
-                            "Definition": "Definition",
-                            "Type": "Type",
-                            "AllowedValues": "AllowedValues",
-                            "SampleValues": "SampleValues",
-                        },
-                    )
-                    for entity_object["Columns"] in entity_object["Columns"]
-                ]
-
-                # Fill in missing values
-                for column in entity_object["Columns"]:
-                    if "AllowedValues" not in column:
-                        column["AllowedValues"] = []
-                    if "SampleValues" not in column:
-                        column["SampleValues"] = []
-
-                entity_object["ColumnNames"] = [
-                    column["Name"] for column in entity_object["Columns"]
-                ]
-                self.entities.append(entity_object)
-
-        logging.info("Entities loaded into memory.")
-
-    def deploy_entities(self):
-        """Upload the entities to AI search"""
-
-        self._search_client.upload_documents(documents=self.entities)
-
-        logging.info("Entities uploaded to AI search.")
-
-    def deploy(self):
-        """Deploy the sql index."""
-        super().deploy()
-        self.load_entities()
-        self.deploy_entities()

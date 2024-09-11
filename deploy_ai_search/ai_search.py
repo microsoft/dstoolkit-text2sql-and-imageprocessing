@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 import logging
 from abc import ABC, abstractmethod
-from azure.search.documents import SearchClient
 from azure.search.documents.indexes.models import (
     SearchIndex,
     SearchableField,
@@ -73,11 +72,6 @@ class AISearch(ABC):
         self._search_index_client = SearchIndexClient(
             endpoint=self.environment.AIService__AzureSearchOptions__Endpoint,
             credential=self.environment.ai_search_credential,
-        )
-        self._search_client = SearchClient(
-            endpoint=self.environment.AIService__AzureSearchOptions__Endpoint,
-            credential=self.environment.ai_search_credential,
-            index_name=self.index_name,
         )
 
     @property
