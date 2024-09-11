@@ -201,7 +201,7 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 - Give all columns and views / tables good names that are descriptive.
 - Spend time providing good descriptions in the metadata for all entities and columns e.g.
     - If a column contains a value in a given currency, give the currency information in the metadata.
-    - Clearly state in the **selector** what sorts of questions a given view / table can provide answers for.
+    - Clearly state in the **description** what sorts of questions a given view / table can provide answers for.
 - Use common codes for columns that need filtering e.g.
     - A  country can have multiple text representations e.g. United Kingdom or UK. Use ISO codes for countries, instead of text descriptions to increase the likelihood of correct and valid SQL queries.
 
