@@ -66,11 +66,6 @@ class Text2SqlAISearch(AISearch):
                 filterable=False,
                 facetable=False,
             ),
-            SearchableField(
-                name="Sections",
-                type=SearchFieldDataType.String,
-                collection=True,
-            ),
             ComplexField(
                 name="Columns",
                 collection=True,
@@ -86,7 +81,7 @@ class Text2SqlAISearch(AISearch):
                         ],
                     ),
                     ComplexField(
-                        name="ExampleValues",
+                        name="SampleValues",
                         collection=True,
                         fields=[
                             SimpleField(name="Value", type=SearchFieldDataType.String),
@@ -98,6 +93,7 @@ class Text2SqlAISearch(AISearch):
                 name="ColumnNames",
                 type=SearchFieldDataType.String,
                 collection=True,
+                retrievable=False,
             ),  # This is needed to enable semantic searching against the column names as complex field types are not used.
         ]
 
@@ -166,10 +162,30 @@ class Text2SqlAISearch(AISearch):
                 entity = entity_object["Entity"]
                 entity_object["SelectFromEntity"] = f"{database}.{entity}"
 
-                entity_object["Columns"] = rename_keys(
-                    entity_object["Columns"],
-                    {"name": "Name", "definition": "Definition", "type": "Type"},
-                )
+                entity_object["Columns"] = [
+                    rename_keys(
+                        entity_object["Columns"],
+                        {
+                            "name": "Name",
+                            "definition": "Definition",
+                            "type": "Type",
+                            "allowed_values": "AllowedValues",
+                            "sample_values": "SampleValues",
+                        },
+                    )
+                    for entity_object["Columns"] in entity_object["Columns"]
+                ]
+
+                # Fill in missing values
+                for column in entity_object["Columns"]:
+                    if "AllowedValues" not in column:
+                        column["AllowedValues"] = []
+                    if "SampleValues" not in column:
+                        column["SampleValues"] = []
+
+                entity_object["ColumnNames"] = [
+                    column["Name"] for column in entity_object["Columns"]
+                ]
                 self.entities.append(entity_object)
 
         logging.info("Entities loaded into memory.")
@@ -177,7 +193,7 @@ class Text2SqlAISearch(AISearch):
     def deploy_entities(self):
         """Upload the entities to AI search"""
 
-        self.index_client.upload_documents(documents=self.entities)
+        self._search_client.upload_documents(documents=self.entities)
 
         logging.info("Entities uploaded to AI search.")
 

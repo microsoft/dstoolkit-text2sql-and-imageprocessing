@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 import logging
 from abc import ABC, abstractmethod
+from azure.search.documents import SearchClient
 from azure.search.documents.indexes.models import (
     SearchIndex,
     SearchableField,
@@ -66,12 +67,17 @@ class AISearch(ABC):
         self.environment = AISearchEnvironment(indexer_type=self.indexer_type)
 
         self._search_indexer_client = SearchIndexerClient(
-            self.environment.AIService__AzureSearchOptions__Endpoint,
-            self.environment.ai_search_credential,
+            endpoint=self.environment.AIService__AzureSearchOptions__Endpoint,
+            credential=self.environment.ai_search_credential,
         )
         self._search_index_client = SearchIndexClient(
-            self.environment.AIService__AzureSearchOptions__Endpoint,
-            self.environment.ai_search_credential,
+            endpoint=self.environment.AIService__AzureSearchOptions__Endpoint,
+            credential=self.environment.ai_search_credential,
+        )
+        self._search_client = SearchClient(
+            endpoint=self.environment.AIService__AzureSearchOptions__Endpoint,
+            credential=self.environment.ai_search_credential,
+            index_name=self.index_name,
         )
 
     @property
@@ -530,6 +536,11 @@ class AISearch(ABC):
 
     def reset_indexer(self):
         """This function runs the indexer."""
+
+        if self.get_indexer() is None:
+            logging.warning("Indexer not defined. Skipping reset operation.")
+
+            return
         self._search_indexer_client.reset_indexer(self.indexer_name)
 
         logging.info("%s reset.", self.indexer_name)
