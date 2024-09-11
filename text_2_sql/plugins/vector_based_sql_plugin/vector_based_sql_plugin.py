@@ -51,10 +51,10 @@ class VectorBasedSQLPlugin:
         Always generate the SQL query based on the GetEntitySchema() function output, do not use the chat history data to generate the SQL query.
         Do not use any other entities and columns in your SQL query, other than those defined above. Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.
         You must only provide SELECT SQL queries.
-        For a given entity, use the 'select_from_entity' property returned from 'GetEntitySchema()' function in the SELECT FROM part of the SQL query. If the property is {{'select_from_entity': 'test_schema.test_table'}}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.
+        For a given entity, use the 'SelectFromEntity' property returned from 'GetEntitySchema()' function in the SELECT FROM part of the SQL query. If the property is {{'SelectFromEntity': 'test_schema.test_table'}}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.
 
         If you don't know how the value is formatted in a column, run a query against the column to get the unique values that might match your query.
-        Some columns returned from 'GetEntitySchema()' may have the properties 'allowed_values' or 'sample_values'. Use these values to determine the possible values that can be used in the SQL query.
+        Some columns returned from 'GetEntitySchema()' may have the properties 'AllowedValues' or 'SampleValues'. Use these values to determine the possible values that can be used in the SQL query.
 
         The source title to cite is the 'entity_name' property. The source reference is the SQL query used. The source chunk is the result of the SQL query used to answer the user query in Markdown table format. e.g. {{ 'title': "vProductAndDescription", 'chunk': '| ProductID | Name              | ProductModel | Culture | Description                      |\\n|-----------|-------------------|--------------|---------|----------------------------------|\\n| 101       | Mountain Bike     | MT-100       | en      | A durable bike for mountain use. |\\n| 102       | Road Bike         | RB-200       | en      | Lightweight bike for road use.   |\\n| 103       | Hybrid Bike       | HB-300       | fr      | Vélo hybride pour usage mixte.   |\\n', 'reference': 'SELECT ProductID, Name, ProductModel, Culture, Description FROM vProductAndDescription WHERE Culture = \"en\";' }}"""
 

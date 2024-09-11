@@ -3,14 +3,23 @@
 
 from azure.search.documents.indexes.models import (
     SearchFieldDataType,
-    ComplexField,
+    SearchField,
     SearchableField,
     SemanticField,
     SemanticPrioritizedFields,
     SemanticConfiguration,
     SemanticSearch,
+    SearchIndexer,
+    FieldMapping,
     SimpleField,
-    SearchField,
+    ComplexField,
+    IndexingParameters,
+    IndexingParametersConfiguration,
+    BlobIndexerDataToExtract,
+    IndexerExecutionEnvironment,
+    BlobIndexerParsingMode,
+    OutputFieldMappingEntry,
+    InputFieldMappingEntry,
 )
 from ai_search import AISearch
 from environment import (
@@ -31,6 +40,8 @@ class Text2SqlAISearch(AISearch):
         self.indexer_type = IndexerType.TEXT_2_SQL
         super().__init__(suffix, rebuild)
 
+        self.parsing_mode = BlobIndexerParsingMode.JSON_LINES
+
         self.entities = []
 
     def get_index_fields(self) -> list[SearchableField]:
@@ -49,7 +60,6 @@ class Text2SqlAISearch(AISearch):
             SearchableField(
                 name="EntityName", type=SearchFieldDataType.String, filterable=True
             ),
-            SimpleField(name="SelectFromEntity", type=SearchFieldDataType.String),
             SearchableField(
                 name="Description",
                 type=SearchFieldDataType.String,
@@ -108,7 +118,6 @@ class Text2SqlAISearch(AISearch):
                 title_field=SemanticField(field_name="EntityName"),
                 content_fields=[
                     SemanticField(field_name="Description"),
-                    SemanticField(field_name="Selector"),
                 ],
                 keywords_fields=[
                     SemanticField(field_name="ColumnNames"),
@@ -119,3 +128,96 @@ class Text2SqlAISearch(AISearch):
         semantic_search = SemanticSearch(configurations=[semantic_config])
 
         return semantic_search
+
+    def get_skills(self) -> list:
+        """Get the skillset for the indexer.
+
+        Returns:
+            list: The skillsets  used in the indexer"""
+
+        embedding_skill = self.get_vector_skill(
+            "/document", "/document/Definition", target_name="DescriptionEmbedding"
+        )
+
+        shaper_inputs = [
+            InputFieldMappingEntry(name="ColumnName", source="/document/Columns/Name")
+        ]
+        shaper_outputs = [
+            OutputFieldMappingEntry(name="output", target_name="/document/ColumnNames")
+        ]
+        shaper_skill = self.get_shaper_skill("/document", shaper_inputs, shaper_outputs)
+
+        skills = [embedding_skill, shaper_skill]
+
+        return skills
+
+    def get_indexer(self) -> SearchIndexer:
+        """This function returns the indexer for rag document.
+
+        Returns:
+            SearchIndexer: The indexer for rag document"""
+
+        # Only place on schedule if it is not a test deployment
+        if self.test:
+            schedule = None
+            batch_size = 4
+        else:
+            schedule = {"interval": "PT24H"}
+            batch_size = 16
+
+        if self.environment.use_private_endpoint:
+            execution_environment = IndexerExecutionEnvironment.PRIVATE
+        else:
+            execution_environment = IndexerExecutionEnvironment.STANDARD
+
+        indexer_parameters = IndexingParameters(
+            batch_size=batch_size,
+            configuration=IndexingParametersConfiguration(
+                data_to_extract=BlobIndexerDataToExtract.CONTENT_AND_METADATA,
+                query_timeout=None,
+                execution_environment=execution_environment,
+                fail_on_unprocessable_document=False,
+                fail_on_unsupported_content_type=False,
+                index_storage_metadata_only_for_oversized_documents=True,
+                indexed_file_name_extensions=".jsonl",
+                parsing_mode=self.parsing_mode,
+            ),
+            max_failed_items=5,
+        )
+
+        indexer = SearchIndexer(
+            name=self.indexer_name,
+            description="Indexer to sql entities and generate embeddings",
+            skillset_name=self.skillset_name,
+            target_index_name=self.index_name,
+            data_source_name=self.data_source_name,
+            schedule=schedule,
+            output_field_mappings=[
+                FieldMapping(
+                    source_field_name="/document/Entity", target_field_name="Entity"
+                ),
+                FieldMapping(
+                    source_field_name="/document/EntityName",
+                    target_field_name="EntityName",
+                ),
+                FieldMapping(
+                    source_field_name="/document/Description",
+                    target_field_name="Description",
+                ),
+                FieldMapping(
+                    source_field_name="/document/DescriptionEmbedding",
+                    target_field_name="DescriptionEmbedding",
+                ),
+                FieldMapping(
+                    source_field_name="/document/Columns",
+                    target_field_name="Columns",
+                ),
+                FieldMapping(
+                    source_field_name="/document/ColumnNames",
+                    target_field_name="ColumnNames",
+                ),
+            ],
+            parameters=indexer_parameters,
+        )
+
+        return indexer
