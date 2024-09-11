@@ -371,10 +371,12 @@ async def analyse_document(file_path: str) -> AnalyzeResult:
             managed_identity_client_id=os.environ["FunctionApp__ClientId"]
         )
     else:
-        credential = AzureKeyCredential(os.environ["AIService__Services__Key"])
+        credential = AzureKeyCredential(
+            os.environ["AIService__DocumentIntelligence__Key"]
+        )
 
     async with DocumentIntelligenceClient(
-        endpoint=os.environ["AIService__Services__Endpoint"],
+        endpoint=os.environ["AIService__DocumentIntelligence__Endpoint"],
         credential=credential,
     ) as document_intelligence_client:
         poller = await document_intelligence_client.begin_analyze_document(
