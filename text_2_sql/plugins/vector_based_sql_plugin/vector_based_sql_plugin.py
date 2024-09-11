@@ -5,11 +5,21 @@ import aioodbc
 from typing import Annotated
 import os
 import json
+from azure.core.credentials import AzureKeyCredential
 import logging
 from azure.identity import DefaultAzureCredential
 from openai import AsyncAzureOpenAI
 from azure.search.documents.models import VectorizedQuery
 from azure.search.documents.aio import SearchClient
+from enum import Enum
+
+
+class IdentityType(Enum):
+    """The type of the indexer"""
+
+    USER_ASSIGNED = "user_assigned"
+    SYSTEM_ASSIGNED = "system_assigned"
+    KEY = "key"
 
 
 class VectorBasedSQLPlugin:
@@ -79,6 +89,17 @@ class VectorBasedSQLPlugin:
             str: The schema of the views or tables in JSON format.
         """
 
+        identity = os.environ.get("IdentityType").lower()
+
+        if identity == "user_assigned":
+            identity_type = IdentityType.USER_ASSIGNED
+        elif identity == "system_assigned":
+            identity_type = IdentityType.SYSTEM_ASSIGNED
+        elif identity == "key":
+            identity_type = IdentityType.KEY
+        else:
+            raise ValueError("Invalid identity type")
+
         async with AsyncAzureOpenAI(
             # This is the default and can be omitted
             api_key=os.environ["OpenAI__ApiKey"],
@@ -98,7 +119,17 @@ class VectorBasedSQLPlugin:
             fields="DescriptionEmbedding",
         )
 
-        credential = DefaultAzureCredential()
+        if identity_type == IdentityType.SYSTEM_ASSIGNED:
+            credential = DefaultAzureCredential()
+        elif identity_type == IdentityType.USER_ASSIGNED:
+            credential = DefaultAzureCredential(
+                managed_identity_client_id=os.environ["ClientID"]
+            )
+        else:
+            credential = AzureKeyCredential(
+                os.environ["AIService__AzureSearchOptions__Key"]
+            )
+
         async with SearchClient(
             endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
             index_name=os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
@@ -116,11 +147,10 @@ class VectorBasedSQLPlugin:
             )
 
             entities = []
+            # Add the SelectFromEntity property to the entity
             async for result in results.by_page():
                 async for entity in result:
-                    entity[
-                        "SelectFromEntity"
-                    ] = f"{self.database}.{entity['EntityName']}"
+                    entity["SelectFromEntity"] = f"{self.database}.{entity['Entity']}"
                     entities.append(entity)
 
         logging.debug("Results: %s", entities)

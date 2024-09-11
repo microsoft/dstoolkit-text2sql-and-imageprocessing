@@ -1,0 +1,384 @@
+[
+  {
+    "Columns": [
+      {
+        "Definition": "A unique identifier for each sales order ticket. This ID is auto-generated and serves as the primary key for the SalesOrderTicket table.",
+        "Name": "SalesOrderID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The date and time when the sales order was created. This is used to track when the order was initiated.",
+        "Name": "OrderDate",
+        "Type": "DATETIME"
+      },
+      {
+        "Definition": "The date by which the order is expected to be fulfilled or delivered. It helps in managing delivery timelines.",
+        "Name": "DueDate",
+        "Type": "DATETIME"
+      },
+      {
+        "Definition": "The date when the order was shipped to the customer. This is used for tracking shipping and fulfillment status.",
+        "Name": "ShipDate",
+        "Type": "DATETIME"
+      },
+      {
+        "AllowedValues": [
+          1,
+          2,
+          3
+        ],
+        "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
+        "Name": "Status",
+        "Type": "TINYINT"
+      },
+      {
+        "Definition": "The total amount due for the order, including all line items, taxes, and shipping charges.",
+        "Name": "TotalDue",
+        "Type": "MONEY"
+      },
+      {
+        "Definition": "The date and time when the sales order ticket record was last modified. This is used for tracking updates and changes to the order.",
+        "Name": "ModifiedDate",
+        "Type": "DATETIME"
+      }
+    ],
+    "Description": "This table stores detailed information about sales order tickets, including the order details, customer information, order status, and timestamps. It is used to manage and track sales orders throughout the order lifecycle, from creation to fulfillment.",
+    "Entity": "SalesOrderDetail",
+    "EntityName": "Sales Order Detail"
+  },
+  {
+    "Columns": [
+      {
+        "Definition": "A unique identifier for each sales order. This ID is auto-generated and serves as the primary key for the SalesOrderHeader table.",
+        "Name": "SalesOrderID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The date and time when the sales order was created. This field is used to track when the order was initiated.",
+        "Name": "OrderDate",
+        "Type": "DATETIME"
+      },
+      {
+        "Definition": "The date by which the order is expected to be fulfilled or delivered. It helps in managing delivery timelines.",
+        "Name": "DueDate",
+        "Type": "DATETIME"
+      },
+      {
+        "Definition": "The date when the order was shipped to the customer. This is used for tracking shipping and fulfillment status.",
+        "Name": "ShipDate",
+        "Type": "DATETIME"
+      },
+      {
+        "AllowedValues": [
+          1,
+          2,
+          3
+        ],
+        "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
+        "Name": "Status",
+        "Type": "TINYINT"
+      },
+      {
+        "AllowedValues": [
+          "True",
+          "False"
+        ],
+        "Definition": "Indicates whether the order was placed online.",
+        "Name": "OnlineOrderFlag",
+        "Type": "BIT"
+      },
+      {
+        "Definition": "A unique order number assigned to the sales order. This is used for tracking and identification purposes.",
+        "Name": "SalesOrderNumber",
+        "Type": "NVARCHAR(25)"
+      },
+      {
+        "Definition": "The purchase order number provided by the customer. This field links the sales order to the customer's purchase order.",
+        "Name": "PurchaseOrderNumber",
+        "Type": "NVARCHAR(25)"
+      },
+      {
+        "Definition": "The account number of the customer placing the order. This helps link the order to the customer's account.",
+        "Name": "AccountNumber",
+        "Type": "NVARCHAR(15)"
+      },
+      {
+        "Definition": "A foreign key that links to the Customer table, representing the customer who placed the order.",
+        "Name": "CustomerID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "A foreign key that links to the Address table, representing the shipping address for the order.",
+        "Name": "ShipToAddressID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "A foreign key that links to the Address table, representing the billing address for the order.",
+        "Name": "BillToAddressID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The shipping method used for the order (e.g., UPS, FedEx). This field helps track shipping preferences.",
+        "Name": "ShipMethod",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The total cost of the order before taxes and shipping charges. This field is used to calculate the final total. The currency is pound sterling (GBP).",
+        "Name": "SubTotal",
+        "Type": "MONEY"
+      },
+      {
+        "Definition": "The tax amount applied to the order. This is calculated based on the order subtotal and applicable tax rates. The currency is pound sterling (GBP).",
+        "Name": "TaxAmt",
+        "Type": "MONEY"
+      },
+      {
+        "Definition": "The shipping charge applied to the order. This field represents the cost of shipping the order to the customer. The currency is pound sterling (GBP).",
+        "Name": "Freight",
+        "Type": "MONEY"
+      },
+      {
+        "Definition": "The total amount due for the order, including all line items, taxes, and shipping charges. The currency is pound sterling (GBP).",
+        "Name": "TotalDue",
+        "Type": "MONEY"
+      },
+      {
+        "Definition": "Any additional comments or notes related to the sales order. This field can include special instructions or remarks.",
+        "Name": "Comment",
+        "Type": "NVARCHAR(255)"
+      },
+      {
+        "Definition": "The date and time when the sales order header record was last modified. This is used for tracking updates and changes to the order.",
+        "Name": "ModifiedDate",
+        "Type": "DATETIME"
+      }
+    ],
+    "Description": "This table contains high-level information about sales orders, including order dates, customer details, shipping information, and order status. It is used to manage and track sales orders from initiation to fulfillment.",
+    "Entity": "SalesOrderHeader",
+    "EntityName": "Sales Order Header"
+  },
+  {
+    "Columns": [
+      {
+        "Definition": "A unique identifier for each address. This ID is auto-generated and serves as the primary key for the Address table.",
+        "Name": "AddressID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The city in which the address is located. This is used to specify the city for the address.",
+        "Name": "City",
+        "Type": "NVARCHAR(30)"
+      },
+      {
+        "Definition": "The state or province in which the address is located. This is used to specify the state or province for the address.",
+        "Name": "StateProvince",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The country or region in which the address is located. This is used to specify the country or region for the address.",
+        "Name": "CountryRegion",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The postal code associated with the address. This is used to specify the postal code for the address, which helps in geographical sorting and shipping.",
+        "Name": "PostalCode",
+        "Type": "NVARCHAR(15)"
+      },
+      {
+        "Definition": "The date and time when the address record was last modified. This is used for tracking updates and changes to the address information.",
+        "Name": "ModifiedDate",
+        "Type": "DATETIME"
+      }
+    ],
+    "Description": "This table stores address information for customers, including street addresses, city, state, postal code, and country/region. It is used to maintain contact and shipping information for orders, as well as to manage customer locations.",
+    "Entity": "Address",
+    "EntityName": "Address"
+  },
+  {
+    "Columns": [
+      {
+        "Definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
+        "Name": "ProductCategoryID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
+        "Name": "ParentProductCategoryName",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
+        "Name": "ProductCategoryName",
+        "Type": "NVARCHAR(50)"
+      }
+    ],
+    "Description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
+    "Entity": "vGetAllCategories",
+    "EntityName": "Get All Categories"
+  },
+  {
+    "Columns": [
+      {
+        "Definition": "A unique identifier for each product. This ID is used to distinguish individual products.",
+        "Name": "ProductID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The name of the product. This provides a brief and identifiable name for each product.",
+        "Name": "Name",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The model name associated with the product. This indicates the specific model type or version of the product.",
+        "Name": "ProductModel",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The culture or language code for the product description. This is used to localize the product description, such as 'en' for English or 'fr' for French.",
+        "Name": "Culture",
+        "SampleValues": [
+          "en",
+          "fr",
+          "es",
+          "de"
+        ],
+        "Type": "NVARCHAR(6)"
+      },
+      {
+        "Definition": "A detailed description of the product. This text provides additional information about the product, which can vary based on the culture or language.",
+        "Name": "Description",
+        "Type": "NVARCHAR(400)"
+      }
+    ],
+    "Description": "This view provides detailed information about products, including their names, associated product models, descriptions, and the specific culture or language of the description. It is useful for understanding product details and translating product descriptions for different cultures.",
+    "Entity": "vProductAndDescription",
+    "EntityName": "Product and Description"
+  },
+  {
+    "Columns": [
+      {
+        "Definition": "A unique identifier for each product model. This ID is used to distinguish different product models.",
+        "Name": "ProductModelID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The name of the product model, providing a recognizable title for each model.",
+        "Name": "Name",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "A brief summary of the product model, highlighting key features and characteristics.",
+        "Name": "Summary",
+        "Type": "NVARCHAR(MAX)"
+      },
+      {
+        "Definition": "The name of the manufacturer of the product model.",
+        "Name": "Manufacturer",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "Copyright information related to the product model, indicating the legal ownership of the product design and content.",
+        "Name": "Copyright",
+        "Type": "NVARCHAR(30)"
+      },
+      {
+        "Definition": "The URL for the product model, providing a link to more information or to purchase the product.",
+        "Name": "ProductURL",
+        "Type": "NVARCHAR(256)"
+      },
+      {
+        "Definition": "The duration of the warranty period for the product model, specifying how long the warranty is valid.",
+        "Name": "WarrantyPeriod",
+        "Type": "NVARCHAR(30)"
+      },
+      {
+        "Definition": "A description of the warranty provided for the product model, detailing what is covered under the warranty.",
+        "Name": "WarrantyDescription",
+        "Type": "NVARCHAR(255)"
+      },
+      {
+        "Definition": "The number of years the warranty is valid for the product model.",
+        "Name": "NoOfYears",
+        "Type": "INT"
+      },
+      {
+        "Definition": "A description of the maintenance requirements and recommendations for the product model.",
+        "Name": "MaintenanceDescription",
+        "Type": "NVARCHAR(MAX)"
+      },
+      {
+        "Definition": "Details about the type of wheels used in the product model.",
+        "Name": "Wheel",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "Information about the saddle of the product model, such as material and design.",
+        "Name": "Saddle",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "Details regarding the pedal design and specifications of the product model.",
+        "Name": "Pedal",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "Description of the bike frame used in the product model, including material and type.",
+        "Name": "BikeFrame",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "Information about the crankset of the product model, specifying its design and features.",
+        "Name": "Crankset",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The angle at which the product model is photographed, providing a visual perspective of the product.",
+        "Name": "PictureAngle",
+        "Type": "NVARCHAR(20)"
+      },
+      {
+        "Definition": "The size of the product model's picture, specifying dimensions or resolution.",
+        "Name": "PictureSize",
+        "Type": "NVARCHAR(20)"
+      },
+      {
+        "Definition": "An identifier linking to the product photo, which provides a visual representation of the product model.",
+        "Name": "ProductPhotoID",
+        "Type": "INT"
+      },
+      {
+        "Definition": "The material used in the construction of the product model, indicating durability and quality.",
+        "Name": "Material",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The color of the product model, providing information about the appearance of the product.",
+        "Name": "Color",
+        "Type": "NVARCHAR(15)"
+      },
+      {
+        "Definition": "A code representing the product line to which the model belongs, categorizing the product within a broader product range.",
+        "Name": "ProductLine",
+        "Type": "NVARCHAR(2)"
+      },
+      {
+        "Definition": "The style of the product model, indicating design and aesthetic aspects.",
+        "Name": "Style",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "A description of the target rider's experience level for which the product model is designed, such as beginner, intermediate, or expert.",
+        "Name": "RiderExperience",
+        "Type": "NVARCHAR(50)"
+      },
+      {
+        "Definition": "The date and time when the product model information was last modified, indicating the currency of the data.",
+        "Name": "ModifiedDate",
+        "Type": "DATETIME"
+      }
+    ],
+    "Description": "This view provides detailed catalog information about product models, including descriptions, manufacturing details, warranty information, and specifications related to product design and features. It is useful for generating comprehensive product catalogs and providing detailed product information to customers.",
+    "Entity": "vProductModelCatalogDescription",
+    "EntityName": "Product Model Catalog Description"
+  }
+]

@@ -38,7 +38,7 @@ class Text2SqlAISearch(AISearch):
         self.indexer_type = IndexerType.TEXT_2_SQL
         super().__init__(suffix, rebuild)
 
-        self.parsing_mode = BlobIndexerParsingMode.JSON_LINES
+        self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
 
         self.entities = []
 
@@ -166,7 +166,7 @@ class Text2SqlAISearch(AISearch):
                 fail_on_unprocessable_document=False,
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
-                indexed_file_name_extensions=".jsonl",
+                indexed_file_name_extensions=".json",
                 parsing_mode=self.parsing_mode,
             ),
             max_failed_items=5,

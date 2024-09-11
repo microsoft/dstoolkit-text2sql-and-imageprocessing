@@ -27,7 +27,9 @@ template: |
     The 'answer' property MUST meet the requirements in the ANSWER PROPERTY REQUIREMENTS.
     The 'sources' property MUST meet the requirements in the SOURCES PROPERTY REQUIREMENTS.
 
-    Do NOT return anything outside of the provided JSON property.
+    Do NOT return anything outside of the provided JSON property. Ensure that this is valid JSON returned.
+
+    Never return an empty response or null value. Always answer the question.
 
     [ANSWER PROPERTY REQUIREMENTS]
       1. Language and Tone:
@@ -99,7 +101,7 @@ input_variables:
 output_variable:
   description: The chatbot response formatted in JSON as defined in the FINAL ANSWER OUTPUT REQUIREMENTS.
 execution_settings:
-  chat:
+  default:
     function_choice_behavior:
       type: auto
       maximum_auto_invoke_attempts: 5
