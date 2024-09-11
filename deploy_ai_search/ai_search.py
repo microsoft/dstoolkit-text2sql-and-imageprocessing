@@ -25,7 +25,6 @@ from azure.search.documents.indexes.models import (
     SynonymMap,
     SplitSkill,
     SearchIndexerIndexProjections,
-    ShaperSkill,
     BlobIndexerParsingMode,
 )
 from azure.core.exceptions import HttpResponseError
@@ -279,33 +278,6 @@ class AISearch(ABC):
         )
 
         return text_split_skill
-
-    def get_shaper_skill(
-        self, context: str, inputs: list[InputFieldMappingEntry], target_name="Combined"
-    ) -> ShaperSkill:
-        """Get the shaper skill for the indexer.
-
-        Args:
-        -----
-            context (str): The context of the skill
-            inputs (List[InputFieldMappingEntry]): The inputs of the skill
-            outputs (List[OutputFieldMappingEntry]): The outputs of the skill
-
-        Returns:
-        --------
-            ShaperSkill: The shaper skill for the indexer"""
-
-        outputs = [OutputFieldMappingEntry(name="output", target_name=target_name)]
-
-        shaper_skill = ShaperSkill(
-            name="Shaper Skill",
-            description="Skill to transform the context.",
-            context=context,
-            inputs=inputs,
-            outputs=outputs,
-        )
-
-        return shaper_skill
 
     def get_adi_skill(self, chunk_by_page=False) -> WebApiSkill:
         """Get the custom skill for adi.

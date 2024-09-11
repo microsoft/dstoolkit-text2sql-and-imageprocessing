@@ -18,8 +18,6 @@ from azure.search.documents.indexes.models import (
     BlobIndexerDataToExtract,
     IndexerExecutionEnvironment,
     BlobIndexerParsingMode,
-    OutputFieldMappingEntry,
-    InputFieldMappingEntry,
 )
 from ai_search import AISearch
 from environment import (
@@ -80,19 +78,15 @@ class Text2SqlAISearch(AISearch):
                     SearchableField(name="Name", type=SearchFieldDataType.String),
                     SearchableField(name="Definition", type=SearchFieldDataType.String),
                     SearchableField(name="Type", type=SearchFieldDataType.String),
-                    ComplexField(
+                    SimpleField(
                         name="AllowedValues",
+                        type=SearchFieldDataType.String,
                         collection=True,
-                        fields=[
-                            SimpleField(name="Value", type=SearchFieldDataType.String),
-                        ],
                     ),
-                    ComplexField(
+                    SimpleField(
                         name="SampleValues",
+                        type=SearchFieldDataType.String,
                         collection=True,
-                        fields=[
-                            SimpleField(name="Value", type=SearchFieldDataType.String),
-                        ],
                     ),
                 ],
             ),
@@ -100,7 +94,7 @@ class Text2SqlAISearch(AISearch):
                 name="ColumnNames",
                 type=SearchFieldDataType.String,
                 collection=True,
-                retrievable=False,
+                hidden=True,
             ),  # This is needed to enable semantic searching against the column names as complex field types are not used.
         ]
 
@@ -136,18 +130,10 @@ class Text2SqlAISearch(AISearch):
             list: The skillsets  used in the indexer"""
 
         embedding_skill = self.get_vector_skill(
-            "/document", "/document/Definition", target_name="DescriptionEmbedding"
+            "/document", "/document/Description", target_name="DescriptionEmbedding"
         )
 
-        shaper_inputs = [
-            InputFieldMappingEntry(name="ColumnName", source="/document/Columns/Name")
-        ]
-        shaper_outputs = [
-            OutputFieldMappingEntry(name="output", target_name="/document/ColumnNames")
-        ]
-        shaper_skill = self.get_shaper_skill("/document", shaper_inputs, shaper_outputs)
-
-        skills = [embedding_skill, shaper_skill]
+        skills = [embedding_skill]
 
         return skills
 
@@ -213,7 +199,7 @@ class Text2SqlAISearch(AISearch):
                     target_field_name="Columns",
                 ),
                 FieldMapping(
-                    source_field_name="/document/ColumnNames",
+                    source_field_name="/document/Columns/*/Name",
                     target_field_name="ColumnNames",
                 ),
             ],

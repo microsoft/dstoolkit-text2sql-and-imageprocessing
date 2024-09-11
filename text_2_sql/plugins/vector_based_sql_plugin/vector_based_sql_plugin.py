@@ -40,23 +40,21 @@ class VectorBasedSQLPlugin:
         if engine_specific_rules:
             engine_specific_rules = f"\n        The following {self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"
 
-        system_prompt = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query. Use the 'RunSQLQuery()' function to run the SQL query against the database.
-
-        You must always examine the provided {self.target_engine} entity descriptions to determine if they can answer the question.
+        system_prompt = f"""Use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain. Use the 'RunSQLQuery()' function to run the SQL query against the database.
 
         Output corresponding text values in the answer for columns where there is an ID. For example, if the column is 'ProductID', output the corresponding 'ProductModel' in the response. Do not include the ID in the response.
         If a user is asking for a comparison, always compare the relevant values in the database.
 
         The target database engine is {self.target_engine}, SQL queries must be able compatible to run on {self.target_engine}. {engine_specific_rules}
         Always generate the SQL query based on the GetEntitySchema() function output, do not use the chat history data to generate the SQL query.
-        Do not use any other entities and columns in your SQL query, other than those defined above. Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.
+        Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.
         You must only provide SELECT SQL queries.
         For a given entity, use the 'SelectFromEntity' property returned from 'GetEntitySchema()' function in the SELECT FROM part of the SQL query. If the property is {{'SelectFromEntity': 'test_schema.test_table'}}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.
 
         If you don't know how the value is formatted in a column, run a query against the column to get the unique values that might match your query.
         Some columns returned from 'GetEntitySchema()' may have the properties 'AllowedValues' or 'SampleValues'. Use these values to determine the possible values that can be used in the SQL query.
 
-        The source title to cite is the 'entity_name' property. The source reference is the SQL query used. The source chunk is the result of the SQL query used to answer the user query in Markdown table format. e.g. {{ 'title': "vProductAndDescription", 'chunk': '| ProductID | Name              | ProductModel | Culture | Description                      |\\n|-----------|-------------------|--------------|---------|----------------------------------|\\n| 101       | Mountain Bike     | MT-100       | en      | A durable bike for mountain use. |\\n| 102       | Road Bike         | RB-200       | en      | Lightweight bike for road use.   |\\n| 103       | Hybrid Bike       | HB-300       | fr      | Vélo hybride pour usage mixte.   |\\n', 'reference': 'SELECT ProductID, Name, ProductModel, Culture, Description FROM vProductAndDescription WHERE Culture = \"en\";' }}"""
+        The source title to cite is the 'EntityName' property. The source reference is the SQL query used. The source chunk is the result of the SQL query used to answer the user query in Markdown table format. e.g. {{ 'title': "vProductAndDescription", 'chunk': '| ProductID | Name              | ProductModel | Culture | Description                      |\\n|-----------|-------------------|--------------|---------|----------------------------------|\\n| 101       | Mountain Bike     | MT-100       | en      | A durable bike for mountain use. |\\n| 102       | Road Bike         | RB-200       | en      | Lightweight bike for road use.   |\\n| 103       | Hybrid Bike       | HB-300       | fr      | Vélo hybride pour usage mixte.   |\\n', 'reference': 'SELECT ProductID, Name, ProductModel, Culture, Description FROM vProductAndDescription WHERE Culture = \"en\";' }}"""
 
         return system_prompt
 
@@ -97,7 +95,7 @@ class VectorBasedSQLPlugin:
         vector_query = VectorizedQuery(
             vector=embedding_vector,
             k_nearest_neighbors=5,
-            fields="ChunkEmbedding",
+            fields="DescriptionEmbedding",
         )
 
         credential = DefaultAzureCredential()
@@ -107,24 +105,26 @@ class VectorBasedSQLPlugin:
             credential=credential,
         ) as search_client:
             results = await search_client.search(
-                top=5,
+                top=3,
                 query_type="semantic",
                 semantic_configuration_name=os.environ[
                     "AIService__AzureSearchOptions__Text2Sql__SemanticConfig"
                 ],
                 search_text=text,
-                select="Title,Chunk,SourceUri",
+                select="Entity,EntityName,Description,Columns",
                 vector_queries=[vector_query],
             )
 
-            documents = [
-                document
-                async for result in results.by_page()
-                async for document in result
-            ]
+            entities = []
+            async for result in results.by_page():
+                async for entity in result:
+                    entity[
+                        "SelectFromEntity"
+                    ] = f"{self.database}.{entity['EntityName']}"
+                    entities.append(entity)
 
-        logging.debug("Results: %s", documents)
-        return json.dumps(documents, default=str)
+        logging.debug("Results: %s", entities)
+        return json.dumps(entities, default=str)
 
     @kernel_function(
         description="Runs an SQL query against the SQL Database to extract information.",
