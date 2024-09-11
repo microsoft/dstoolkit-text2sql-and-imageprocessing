@@ -10,8 +10,9 @@ import logging
 
 class VectorBasedSQLPlugin:
     """A plugin that allows for the execution of SQL queries against a SQL Database.
-    
-    This is an improved version of the SQLPlugin that uses a vector-based approach to generate SQL queries. This works best for a database with a large number of entities and columns."""
+
+    This is an improved version of the SQLPlugin that uses a vector-based approach to generate SQL queries. This works best for a database with a large number of entities and columns.
+    """
 
     def __init__(self, database: str, target_engine: str = "Microsoft TSQL Server"):
         """Initialize the SQL Plugin.

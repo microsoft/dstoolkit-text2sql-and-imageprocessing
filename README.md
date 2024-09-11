@@ -6,7 +6,7 @@ It is intended that the plugins and skills provided in this repository, are adap
 
 ## Components
 
-- `./text2sql` contains an Multi-Shot implementation for Text2SQL generation and querying which can be used to answer questions backed by a database as a knowledge base.
+- `./text_2_sql` contains an Multi-Shot implementation for Text2SQL generation and querying which can be used to answer questions backed by a database as a knowledge base.
 - `./ai_search_with_adi_function_app` contains code for linking Azure Document Intelligence with AI Search to process complex documents with charts and images, and uses multi-modal models (gpt4o) to interpret and understand these.
 - `./deploy_ai_search` provides an easy Python based utility for deploying an index, indexer and corresponding skillset for AI Search.
 

@@ -9,7 +9,7 @@ from azure.search.documents.indexes.models import (
     SemanticPrioritizedFields,
     SemanticConfiguration,
     SemanticSearch,
-    SimpleField
+    SimpleField,
 )
 from ai_search import AISearch
 from environment import (
@@ -50,9 +50,7 @@ class Text2SqlAISearch(AISearch):
             SearchableField(
                 name="EntityName", type=SearchFieldDataType.String, filterable=True
             ),
-            SimpleField(
-                name="SelectFromEntity", type=SearchFieldDataType.String
-            ),
+            SimpleField(name="SelectFromEntity", type=SearchFieldDataType.String),
             SearchableField(
                 name="Description",
                 type=SearchFieldDataType.String,
@@ -114,22 +112,33 @@ class Text2SqlAISearch(AISearch):
 
     def load_entities(self):
         """Load the views from the JSON file and formats into memory."""
-        with open("../text2sql/plugins/vector_based_sql_plugin/entities.json", "r", encoding="utf-8") as file:
+        with open(
+            "../text_2_sql/plugins/vector_based_sql_plugin/entities.json",
+            "r",
+            encoding="utf-8",
+        ) as file:
             entities = json.load(file)
 
-            def rename_keys(d: dict, key_mapping: dict) -> dict: 
+            def rename_keys(d: dict, key_mapping: dict) -> dict:
                 """Rename the keys in the dictionary.
-                
+
                 Args:
                     d (dict): The dictionary to rename the keys.
                     key_mapping (dict): The mapping of the keys to rename.
-                    
+
                 Returns:
                     dict: The dictionary with the renamed keys.
                 """
                 return {key_mapping.get(k): v for k, v in d.items()}
 
-            top_level_renaming_map = {"view_name": "EntityName", "table_name": "EntityName", "entity": "Entity", "columns": "Columns", "description": "Description", "selector": "Selector"}
+            top_level_renaming_map = {
+                "view_name": "EntityName",
+                "table_name": "EntityName",
+                "entity": "Entity",
+                "columns": "Columns",
+                "description": "Description",
+                "selector": "Selector",
+            }
 
             # Load tables and views
             for entity in entities["tables"].extend(entities["views"]):
@@ -138,7 +147,10 @@ class Text2SqlAISearch(AISearch):
                 entity = entity_object["Entity"]
                 entity_object["SelectFromEntity"] = f"{self.database}.{entity}"
 
-                entity_object["Columns"] = rename_keys(entity_object["Columns"], {"name": "Name", "definition": "Definition", "type": "Type"})
+                entity_object["Columns"] = rename_keys(
+                    entity_object["Columns"],
+                    {"name": "Name", "definition": "Definition", "type": "Type"},
+                )
                 self.entities.append(entity_object)
 
         logging.info("Entities loaded into memory.")
