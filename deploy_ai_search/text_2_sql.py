@@ -115,6 +115,7 @@ class Text2SqlAISearch(AISearch):
                 ],
                 keywords_fields=[
                     SemanticField(field_name="ColumnNames"),
+                    SemanticField(field_name="Entity"),
                 ],
             ),
         )
