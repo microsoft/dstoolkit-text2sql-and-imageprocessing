@@ -50,13 +50,17 @@ class StorageAccountHelper:
 
         logging.info("Metadata Added")
 
-    async def upload_blob(self, container, blob, data) -> str:
+    async def upload_blob(self, container: str, blob: str, data) -> str:
         """Upload the file to the Azure Blob Storage.
 
         Args:
             container (str): The container of the blob.
             blob (str): The blob name.
             data (bytes): The data to upload."""
+
+        logging.info("Uploading Blob...")
+        logging.info(f"Container: {container}")
+        logging.info(f"Blob: {blob}")
 
         blob_service_client = await self.get_client()
         async with blob_service_client:

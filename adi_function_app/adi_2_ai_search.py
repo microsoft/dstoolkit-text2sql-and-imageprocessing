@@ -100,8 +100,8 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
     """
 
     MAX_TOKENS = 2000
-    api_version = os.environ.get("OpenAI__ApiVersion")
-    model = os.environ.get("OpenAI__MultiModalDeployment")
+    api_version = os.environ["OpenAI__ApiVersion"]
+    model = os.environ["OpenAI__MultiModalDeployment"]
 
     if get_identity_type() != IdentityType.SYSTEM_ASSIGNED:
         token_provider = get_bearer_token_provider(
@@ -111,14 +111,14 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
     elif get_identity_type() != IdentityType.USER_ASSIGNED:
         token_provider = get_bearer_token_provider(
             DefaultAzureCredential(
-                managed_identity_client_id=os.environ.get("FunctionApp__ClientId")
+                managed_identity_client_id=os.environ["FunctionApp__ClientId"]
             ),
             "https://cognitiveservices.azure.com/.default",
         )
         api_key = None
     else:
         token_provider = None
-        api_key = os.environ.get("OpenAI__ApiKey")
+        api_key = os.environ["OpenAI__ApiKey"]
 
     system_prompt = """You are an expert in image analysis. Use your experience and skills to provided a detailed description of any provided images. You should FOCUS on what info can be inferred from the image and the meaning of the data inside the image. Draw actionable insights and conclusions from the image.
 
@@ -241,8 +241,10 @@ async def process_figures_from_extracted_content(
     --------
         str: The updated Markdown content with the figure descriptions."""
 
-    figure_spans = []
+    image_processing_data = []
+    download_image_tasks = []
     image_understanding_tasks = []
+    image_upload_tasks = []
 
     document_intelligence_client = await get_document_intelligence_client()
     storage_account_helper = await get_storage_account_helper()
@@ -257,39 +259,47 @@ async def process_figures_from_extracted_content(
                     if page_number is not None and region.page_number != page_number:
                         continue
 
-                    figure_spans.append(figure.spans[0])
-
-                    response = (
-                        await document_intelligence_client.get_analyze_result_figure(
+                    logging.info(f"Figure ID: {figure.id}")
+                    download_image_tasks.append(
+                        document_intelligence_client.get_analyze_result_figure(
                             model_id=result.model_id,
                             result_id=operation_id,
                             figure_id=figure.id,
                         )
                     )
 
-                    logging.info(f"Figure ID: {figure.id}")
                     logging.info(f"Figure Caption: {figure.caption.content}")
-                    logging.info(f"Figure Response: {response}")
 
                     container, blob = container_and_blob
                     image_blob = f"{blob}/{figure.id}.png"
-                    await storage_account_helper.upload_blob(
-                        container, image_blob, response
-                    )
 
-                    image_understanding_tasks.append(
-                        understand_image_with_gptv(response, figure.caption.content)
+                    image_processing_data.append(
+                        container, image_blob, figure.caption.content, figure.spans[0]
                     )
 
                     break
 
+    image_responses = await asyncio.gather(*download_image_tasks)
+    for image_processing_data, response in zip(image_processing_data, image_responses):
+        container, image_blob, caption, _ = image_processing_data
+        image_upload_tasks.append(
+            storage_account_helper.upload_blob(container, image_blob, response)
+        )
+
+        image_understanding_tasks.append(understand_image_with_gptv(response, caption))
+
     logging.info("Running image understanding tasks")
     image_descriptions = await asyncio.gather(*image_understanding_tasks)
-
     logging.info(f"Image Descriptions: {image_descriptions}")
 
+    logging.info("Running image upload tasks")
+    await asyncio.gather(*image_upload_tasks)
+
     running_offset = 0
-    for figure_span, image_description in zip(figure_spans, image_descriptions):
+    for image_processing_data, image_description in zip(
+        image_processing_data, image_descriptions
+    ):
+        _, _, _, figure_span = image_processing_data
         starting_offset = figure_span.offset + running_offset - page_offset
         markdown_content, desc_offset = update_figure_description(
             markdown_content, image_description, starting_offset, figure_span.length
