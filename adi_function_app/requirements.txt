@@ -13,7 +13,7 @@ nltk==3.8.1
 bs4
 azure-search
 azure-search-documents
-azure-ai-documentintelligence
+azure-ai-documentintelligence==1.0.0b4
 azure-ai-textanalytics
 azure-ai-vision-imageanalysis
 PyMuPDF

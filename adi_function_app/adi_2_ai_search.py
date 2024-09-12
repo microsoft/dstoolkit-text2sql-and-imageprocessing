@@ -8,8 +8,6 @@ from azure.ai.documentintelligence.models import AnalyzeResult, ContentFormat
 import os
 import re
 import asyncio
-import fitz
-from PIL import Image
 import io
 import logging
 from storage_account import StorageAccountHelper
@@ -18,36 +16,6 @@ import json
 from openai import AsyncAzureOpenAI
 import openai
 from environment import IdentityType, get_identity_type
-
-
-def crop_image_from_pdf_page(pdf_path, page_number, bounding_box):
-    """
-    Crops a region from a given page in a PDF and returns it as an image.
-
-    :param pdf_path: Path to the PDF file.
-    :param page_number: The page number to crop from (0-indexed).
-    :param bounding_box: A tuple of (x0, y0, x1, y1) coordinates for the bounding box.
-    :return: A PIL Image of the cropped area.
-    """
-    doc = fitz.open(pdf_path)
-    page = doc.load_page(page_number)
-
-    logging.debug(f"Bounding Box: {bounding_box}")
-    logging.debug(f"Page Number: {page_number}")
-
-    # Cropping the page. The rect requires the coordinates in the format (x0, y0, x1, y1).
-    bbx = [x * 72 for x in bounding_box]
-    rect = fitz.Rect(bbx)
-    pix = page.get_pixmap(matrix=fitz.Matrix(300 / 72, 300 / 72), clip=rect)
-
-    img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-
-    if pix.width == 0 or pix.height == 0:
-        logging.error("Cropped image has 0 width or height.")
-        return None
-
-    doc.close()
-    return img
 
 
 def clean_adi_markdown(
@@ -166,7 +134,7 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
 
     user_input = "Describe this image with technical analysis. Provide a well-structured, description."
 
-    if caption != "":
+    if caption is not None and len(caption) > 0:
         user_input += f" (note: it has image caption: {caption})"
 
     try:
@@ -252,9 +220,10 @@ async def mark_image_as_irrelevant():
 
 
 async def process_figures_from_extracted_content(
-    file_path: str,
+    result,
+    operation_id: str,
+    container_and_blob: str,
     markdown_content: str,
-    figures: list,
     page_number: None | int = None,
     page_offset: int = 0,
 ) -> str:
@@ -274,41 +243,47 @@ async def process_figures_from_extracted_content(
 
     figure_spans = []
     image_understanding_tasks = []
-    for idx, figure in enumerate(figures):
-        img_description = ""
-        logging.debug(f"Figure #{idx} has the following spans: {figure.spans}")
 
-        caption_region = figure.caption.bounding_regions if figure.caption else []
-        for region in figure.bounding_regions:
-            # Skip the region if it is not on the specified page
-            if page_number is not None and region.page_number != page_number:
-                continue
+    document_intelligence_client = await get_document_intelligence_client()
+    storage_account_helper = await get_storage_account_helper()
 
-            if region not in caption_region:
-                # To learn more about bounding regions, see https://aka.ms/bounding-region
-                bounding_box = (
-                    region.polygon[0],  # x0 (left)
-                    region.polygon[1],  # y0 (top)
-                    region.polygon[4],  # x1 (right)
-                    region.polygon[5],  # y1 (bottom)
-                )
-                cropped_image = crop_image_from_pdf_page(
-                    file_path, region.page_number - 1, bounding_box
-                )  # page_number is 1-indexed
+    async with document_intelligence_client:
+        if result.figures:
+            for figure in result.figures:
+                if figure.id is None:
+                    continue
 
-                figure_spans.append(figure.spans[0])
+                for region in figure.bounding_regions:
+                    if page_number is not None and region.page_number != page_number:
+                        continue
 
-                if cropped_image is None:
-                    image_understanding_tasks.append(mark_image_as_irrelevant())
-                else:
-                    image_base64 = pil_image_to_base64(cropped_image)
+                    figure_spans.append(figure.spans[0])
+
+                    response = (
+                        await document_intelligence_client.get_analyze_result_figure(
+                            model_id=result.model_id,
+                            result_id=operation_id,
+                            figure_id=figure.id,
+                        )
+                    )
+
+                    logging.info(f"Figure ID: {figure.id}")
+                    logging.info(f"Figure Caption: {figure.caption.content}")
+                    logging.info(f"Figure Response: {response}")
+
+                    container, blob = container_and_blob
+                    image_blob = f"{blob}/{figure.id}.png"
+                    await storage_account_helper.upload_blob(
+                        container, image_blob, response
+                    )
 
                     image_understanding_tasks.append(
-                        understand_image_with_gptv(image_base64, figure.caption.content)
+                        understand_image_with_gptv(response, figure.caption.content)
                     )
-                    logging.info(f"\tDescription of figure {idx}: {img_description}")
+
                     break
 
+    logging.info("Running image understanding tasks")
     image_descriptions = await asyncio.gather(*image_understanding_tasks)
 
     logging.info(f"Image Descriptions: {image_descriptions}")
@@ -351,19 +326,12 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
     return page_wise_content, page_numbers, page_offsets
 
 
-async def analyse_document(file_path: str) -> AnalyzeResult:
-    """Analyse a document using the Azure Document Intelligence service.
-
-    Args:
-    -----
-        file_path (str): The path to the document to analyse.
+async def get_document_intelligence_client() -> DocumentIntelligenceClient:
+    """Get the Azure Document Intelligence client.
 
     Returns:
     --------
-        AnalyzeResult: The result of the document analysis."""
-    with open(file_path, "rb") as f:
-        file_read = f.read()
-
+        DocumentIntelligenceClient: The Azure Document Intelligence client."""
     if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
         credential = DefaultAzureCredential()
     elif get_identity_type() == IdentityType.USER_ASSIGNED:
@@ -375,10 +343,39 @@ async def analyse_document(file_path: str) -> AnalyzeResult:
             os.environ["AIService__DocumentIntelligence__Key"]
         )
 
-    async with DocumentIntelligenceClient(
+    return DocumentIntelligenceClient(
         endpoint=os.environ["AIService__DocumentIntelligence__Endpoint"],
         credential=credential,
-    ) as document_intelligence_client:
+    )
+
+
+async def get_storage_account_helper() -> StorageAccountHelper:
+    """Get the Storage Account Helper.
+
+    Returns:
+    --------
+        StorageAccountHelper: The Storage Account Helper."""
+
+    return StorageAccountHelper()
+
+
+async def analyse_document(file_path: str) -> tuple[AnalyzeResult, str]:
+    """Analyse a document using the Azure Document Intelligence service.
+
+    Args:
+    -----
+        file_path (str): The path to the document to analyse.
+
+    Returns:
+    --------
+        AnalyzeResult: The result of the document analysis.
+        str: The operation ID of the analysis.
+    """
+    with open(file_path, "rb") as f:
+        file_read = f.read()
+
+    document_intelligence_client = await get_document_intelligence_client()
+    async with document_intelligence_client:
         poller = await document_intelligence_client.begin_analyze_document(
             model_id="prebuilt-layout",
             analyze_request=file_read,
@@ -388,12 +385,14 @@ async def analyse_document(file_path: str) -> AnalyzeResult:
 
         result = await poller.result()
 
+        operation_id = poller.details["operation_id"]
+
     if result is None or result.content is None or result.pages is None:
         raise ValueError(
             "Failed to analyze the document with Azure Document Intelligence."
         )
 
-    return result
+    return result, operation_id
 
 
 async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> dict:
@@ -409,7 +408,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
         dict: The processed content ready for Azure Search."""
     logging.info("Python HTTP trigger function processed a request.")
 
-    storage_account_helper = StorageAccountHelper()
+    storage_account_helper = await get_storage_account_helper()
 
     try:
         source = record["data"]["source"]
@@ -435,6 +434,8 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
 
             container = source_parts[3]
 
+            container_and_blob = (container, blob)
+
             file_extension = blob.split(".")[-1]
             target_file_name = f"{record['recordId']}.{file_extension}"
 
@@ -456,13 +457,13 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
             }
 
         try:
-            result = await analyse_document(temp_file_path)
+            result, operation_id = await analyse_document(temp_file_path)
         except Exception as e:
             logging.error(e)
             logging.info("Sleeping for 10 seconds and retrying")
             await asyncio.sleep(10)
             try:
-                result = await analyse_document(temp_file_path)
+                result, operation_id = await analyse_document(temp_file_path)
             except ValueError as inner_e:
                 logging.error(inner_e)
                 logging.error(
@@ -508,9 +509,10 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                 )
                 content_with_figures_tasks = [
                     process_figures_from_extracted_content(
-                        temp_file_path,
+                        result,
+                        operation_id,
+                        container_and_blob,
                         page_content,
-                        result.figures,
                         page_number=page_number,
                         page_offset=page_offset,
                     )
@@ -534,13 +536,16 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
 
             else:
                 markdown_content = result.content
+
                 content_with_figures = await process_figures_from_extracted_content(
-                    temp_file_path,
+                    result,
+                    operation_id,
+                    container_and_blob,
                     markdown_content,
-                    result.figures,
                     page_offset=0,
-                    page_number=1,
+                    page_number=None,
                 )
+
                 cleaned_result = clean_adi_markdown(
                     content_with_figures, remove_irrelevant_figures=True
                 )
