@@ -50,7 +50,9 @@ class StorageAccountHelper:
 
         logging.info("Metadata Added")
 
-    async def upload_blob(self, container: str, blob: str, data) -> str:
+    async def upload_blob(
+        self, container: str, blob: str, data, content_type: str
+    ) -> str:
         """Upload the file to the Azure Blob Storage.
 
         Args:
@@ -67,7 +69,12 @@ class StorageAccountHelper:
             async with blob_service_client.get_blob_client(
                 container=container, blob=blob
             ) as blob_client:
-                await blob_client.upload_blob(data, overwrite=True)
+                await blob_client.upload_blob(
+                    data,
+                    overwrite=True,
+                    blob_type="BlockBlob",
+                    content_type=content_type,
+                )
 
     async def download_blob_to_temp_dir(
         self, source: str, container: str, target_file_name

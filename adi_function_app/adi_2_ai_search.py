@@ -256,12 +256,10 @@ async def process_figures_from_extracted_content(
     --------
         str: The updated Markdown content with the figure descriptions."""
 
-    image_processing_data = []
+    image_processing_datas = []
     download_image_tasks = []
     image_understanding_tasks = []
     image_upload_tasks = []
-
-    storage_account_helper = await get_storage_account_helper()
 
     if result.figures:
         for figure in result.figures:
@@ -288,7 +286,7 @@ async def process_figures_from_extracted_content(
 
                 logging.info(f"Figure Caption: {caption}")
 
-                image_processing_data.append(
+                image_processing_datas.append(
                     (container, image_blob, caption, figure.spans[0])
                 )
 
@@ -298,7 +296,9 @@ async def process_figures_from_extracted_content(
     image_responses = await asyncio.gather(*download_image_tasks)
     logging.info("Finished image download tasks")
 
-    for image_processing_data, response in zip(image_processing_data, image_responses):
+    storage_account_helper = await get_storage_account_helper()
+
+    for image_processing_data, response in zip(image_processing_datas, image_responses):
         container, image_blob, caption, _ = image_processing_data
         base_64_image = base64.b64encode(response).decode("utf-8")
 
@@ -308,8 +308,12 @@ async def process_figures_from_extracted_content(
             understand_image_with_gptv(base_64_image, caption)
         )
 
+        image_data = base64.b64decode(base_64_image)
+
         image_upload_tasks.append(
-            storage_account_helper.upload_blob(container, image_blob, response)
+            storage_account_helper.upload_blob(
+                container, image_blob, image_data, "image/png"
+            )
         )
 
     logging.info("Running image understanding tasks")
@@ -323,7 +327,7 @@ async def process_figures_from_extracted_content(
 
     running_offset = 0
     for image_processing_data, image_description in zip(
-        image_processing_data, image_descriptions
+        image_processing_datas, image_descriptions
     ):
         _, _, _, figure_span = image_processing_data
         starting_offset = figure_span.offset + running_offset - page_offset
