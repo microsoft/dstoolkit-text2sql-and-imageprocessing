@@ -210,10 +210,6 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
         raise Exception("OpenAI Connection Error: No retries left.") from e
 
 
-async def mark_image_as_irrelevant():
-    return "Irrelevant Image"
-
-
 async def download_figure_image(
     model_id: str, operation_id: str, figure_id: str
 ) -> bytearray:
