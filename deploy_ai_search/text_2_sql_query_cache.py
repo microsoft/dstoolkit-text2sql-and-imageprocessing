@@ -18,7 +18,7 @@ from environment import (
 )
 
 
-class Text2SqlAISearch(AISearch):
+class Text2SqlQueryCacheAISearch(AISearch):
     """This class is used to deploy the sql index."""
 
     def __init__(self, suffix: str | None = None, rebuild: bool | None = False):
@@ -55,19 +55,6 @@ class Text2SqlAISearch(AISearch):
             ),
             SearchField(
                 name="QueryEmbedding",
-                type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-                vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
-                vector_search_profile_name=self.vector_search_profile_name,
-            ),
-            SearchableField(
-                name="Description",
-                type=SearchFieldDataType.String,
-                sortable=False,
-                filterable=False,
-                facetable=False,
-            ),
-            SearchField(
-                name="DescriptionEmbedding",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                 vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
                 vector_search_profile_name=self.vector_search_profile_name,
