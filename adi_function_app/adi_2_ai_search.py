@@ -40,16 +40,24 @@ def clean_adi_markdown(
     comment_patterns = r"<!-- PageNumber=\"[^\"]*\" -->|<!-- PageHeader=\"[^\"]*\" -->|<!-- PageFooter=\"[^\"]*\" -->|<!-- PageBreak -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
 
-    combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
-    doc_metadata = re.findall(combined_pattern, cleaned_text, re.DOTALL)
-    doc_metadata = [match for group in doc_metadata for match in group if match]
-
+    # Remove irrelevant figures
     if remove_irrelevant_figures:
-        # Remove irrelevant figures
         irrelevant_figure_pattern = r"<!-- FigureContent=\"Irrelevant Image\" -->\s*"
         cleaned_text = re.sub(
             irrelevant_figure_pattern, "", cleaned_text, flags=re.DOTALL
         )
+
+    logging.info(f"Cleaned Text: {cleaned_text}")
+
+    markdown_without_figure_content = re.sub(
+        r"<!-- FigureContent=\"[^\"]*\" -->", "", cleaned_text, flags=re.DOTALL
+    )
+
+    combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
+    doc_metadata = re.findall(
+        combined_pattern, markdown_without_figure_content, re.DOTALL
+    )
+    doc_metadata = [match for group in doc_metadata for match in group if match]
 
     output_dict["content"] = cleaned_text
     output_dict["sections"] = doc_metadata
