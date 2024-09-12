@@ -106,12 +106,12 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
     api_version = os.environ["OpenAI__ApiVersion"]
     model = os.environ["OpenAI__MultiModalDeployment"]
 
-    if get_identity_type() != IdentityType.SYSTEM_ASSIGNED:
+    if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
         token_provider = get_bearer_token_provider(
             DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
         )
         api_key = None
-    elif get_identity_type() != IdentityType.USER_ASSIGNED:
+    elif get_identity_type() == IdentityType.USER_ASSIGNED:
         token_provider = get_bearer_token_provider(
             DefaultAzureCredential(
                 managed_identity_client_id=os.environ["FunctionApp__ClientId"]
