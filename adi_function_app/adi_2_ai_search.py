@@ -4,11 +4,14 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import base64
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.documentintelligence.aio import DocumentIntelligenceClient
-from azure.ai.documentintelligence.models import AnalyzeResult, ContentFormat
+from azure.ai.documentintelligence.models import (
+    AnalyzeResult,
+    ContentFormat,
+    AnalyzeOutputOption,
+)
 import os
 import re
 import asyncio
-import io
 import logging
 from storage_account import StorageAccountHelper
 import concurrent.futures
@@ -171,6 +174,8 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
                 max_tokens=MAX_TOKENS,
             )
 
+            logging.info(f"Response: {response}")
+
             img_description = response.choices[0].message.content
 
             logging.info(f"Image Description: {img_description}")
@@ -197,26 +202,35 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
         raise Exception("OpenAI Rate Limit Error: No retries left.") from e
 
 
-def pil_image_to_base64(image, image_format="JPEG"):
-    """
-    Converts a PIL image to a base64-encoded string.
-
-    Args:
-        image (PIL.Image.Image): The image to be converted.
-        image_format (str): The format to save the image in. Defaults to "JPEG".
-
-    Returns:
-        str: The base64-encoded string representation of the image.
-    """
-    if image.mode == "RGBA" and image_format == "JPEG":
-        image = image.convert("RGB")
-    buffered = io.BytesIO()
-    image.save(buffered, format=image_format)
-    return base64.b64encode(buffered.getvalue()).decode("utf-8")
-
-
 async def mark_image_as_irrelevant():
     return "Irrelevant Image"
+
+
+async def download_figure_image(
+    model_id: str, operation_id: str, figure_id: str
+) -> bytearray:
+    """Download the image associated with a figure extracted by the Azure Document Intelligence service.
+
+    Args:
+    -----
+        model_id (str): The model ID used for the analysis.
+        operation_id (str): The operation ID of the analysis.
+        figure_id (str): The ID of the figure to download.
+
+    Returns:
+    --------
+        bytes: The image associated with the figure."""
+    document_intelligence_client = await get_document_intelligence_client()
+    async with document_intelligence_client:
+        response = await document_intelligence_client.get_analyze_result_figure(
+            model_id=model_id, result_id=operation_id, figure_id=figure_id
+        )
+
+        full_bytes = bytearray()
+        async for chunk in response:
+            full_bytes.extend(chunk)
+
+    return full_bytes
 
 
 async def process_figures_from_extracted_content(
@@ -246,54 +260,66 @@ async def process_figures_from_extracted_content(
     image_understanding_tasks = []
     image_upload_tasks = []
 
-    document_intelligence_client = await get_document_intelligence_client()
     storage_account_helper = await get_storage_account_helper()
 
-    async with document_intelligence_client:
-        if result.figures:
-            for figure in result.figures:
-                if figure.id is None:
+    if result.figures:
+        for figure in result.figures:
+            if figure.id is None:
+                continue
+
+            for region in figure.bounding_regions:
+                if page_number is not None and region.page_number != page_number:
                     continue
 
-                for region in figure.bounding_regions:
-                    if page_number is not None and region.page_number != page_number:
-                        continue
-
-                    logging.info(f"Figure ID: {figure.id}")
-                    download_image_tasks.append(
-                        document_intelligence_client.get_analyze_result_figure(
-                            model_id=result.model_id,
-                            result_id=operation_id,
-                            figure_id=figure.id,
-                        )
+                logging.info(f"Figure ID: {figure.id}")
+                download_image_tasks.append(
+                    download_figure_image(
+                        model_id=result.model_id,
+                        operation_id=operation_id,
+                        figure_id=figure.id,
                     )
+                )
 
-                    logging.info(f"Figure Caption: {figure.caption.content}")
+                container, blob = container_and_blob
+                image_blob = f"{blob}/{figure.id}.png"
 
-                    container, blob = container_and_blob
-                    image_blob = f"{blob}/{figure.id}.png"
+                caption = figure.caption.content if figure.caption is not None else None
 
-                    image_processing_data.append(
-                        container, image_blob, figure.caption.content, figure.spans[0]
-                    )
+                logging.info(f"Figure Caption: {caption}")
 
-                    break
+                image_processing_data.append(
+                    (container, image_blob, caption, figure.spans[0])
+                )
 
+                break
+
+    logging.info("Running image download tasks")
     image_responses = await asyncio.gather(*download_image_tasks)
+    logging.info("Finished image download tasks")
+
     for image_processing_data, response in zip(image_processing_data, image_responses):
         container, image_blob, caption, _ = image_processing_data
+        base_64_image = base64.b64encode(response).decode("utf-8")
+
+        logging.info(f"Image Blob: {image_blob}")
+        logging.info(f"Response: {response}")
+
+        image_understanding_tasks.append(
+            understand_image_with_gptv(base_64_image, caption)
+        )
+
         image_upload_tasks.append(
             storage_account_helper.upload_blob(container, image_blob, response)
         )
 
-        image_understanding_tasks.append(understand_image_with_gptv(response, caption))
-
     logging.info("Running image understanding tasks")
     image_descriptions = await asyncio.gather(*image_understanding_tasks)
+    logging.info("Finished image understanding tasks")
     logging.info(f"Image Descriptions: {image_descriptions}")
 
     logging.info("Running image upload tasks")
     await asyncio.gather(*image_upload_tasks)
+    logging.info("Finished image upload tasks")
 
     running_offset = 0
     for image_processing_data, image_description in zip(
@@ -390,6 +416,7 @@ async def analyse_document(file_path: str) -> tuple[AnalyzeResult, str]:
             model_id="prebuilt-layout",
             analyze_request=file_read,
             output_content_format=ContentFormat.MARKDOWN,
+            output=[AnalyzeOutputOption.FIGURES],
             content_type="application/octet-stream",
         )
 
