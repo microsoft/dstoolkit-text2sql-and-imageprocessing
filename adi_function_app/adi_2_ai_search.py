@@ -159,11 +159,11 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
                         "role": "user",
                         "content": [
                             {
-                                "Type": "text",
+                                "type": "text",
                                 "text": user_input,
                             },
                             {
-                                "Type": "image_url",
+                                "type": "image_url",
                                 "image_url": {
                                     "url": f"data:image/png;base64,{image_base64}"
                                 },
@@ -199,7 +199,7 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
     except (openai.OpenAIError, openai.APIConnectionError) as e:
         logging.error("OpenAI Error: %s", e)
 
-        raise Exception("OpenAI Rate Limit Error: No retries left.") from e
+        raise Exception("OpenAI Connection Error: No retries left.") from e
 
 
 async def mark_image_as_irrelevant():
@@ -303,7 +303,6 @@ async def process_figures_from_extracted_content(
         base_64_image = base64.b64encode(response).decode("utf-8")
 
         logging.info(f"Image Blob: {image_blob}")
-        logging.info(f"Response: {response}")
 
         image_understanding_tasks.append(
             understand_image_with_gptv(base_64_image, caption)
