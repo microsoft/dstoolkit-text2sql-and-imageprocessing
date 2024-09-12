@@ -234,7 +234,7 @@ async def download_figure_image(
 
 
 async def process_figures_from_extracted_content(
-    result,
+    result: AnalyzeResult,
     operation_id: str,
     container_and_blob: str,
     markdown_content: str,
@@ -245,9 +245,10 @@ async def process_figures_from_extracted_content(
 
     Args:
     -----
-        file_path (str): The path to the PDF file.
+        result (AnalyzeResult): The result of the document analysis.
+        operation_id (str): The operation ID of the analysis.
+        container_and_blob (str): The container and blob of the document.
         markdown_content (str): The extracted content in Markdown format.
-        figures (list): The list of figures extracted by the Azure Document Intelligence service.
         page_number (int): The page number to process. If None, all pages are processed.
         page_offset (int): The offset of the page.
 
