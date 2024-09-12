@@ -12,6 +12,7 @@ class IndexerType(Enum):
     """The type of the indexer"""
 
     RAG_DOCUMENTS = "rag-documents"
+    TEXT_2_SQL = "text-2-sql"
 
 
 class IdentityType(Enum):

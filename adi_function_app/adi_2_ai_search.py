@@ -188,11 +188,11 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
                         "role": "user",
                         "content": [
                             {
-                                "type": "text",
+                                "Type": "text",
                                 "text": user_input,
                             },
                             {
-                                "type": "image_url",
+                                "Type": "image_url",
                                 "image_url": {
                                     "url": f"data:image/png;base64,{image_base64}"
                                 },
@@ -371,10 +371,12 @@ async def analyse_document(file_path: str) -> AnalyzeResult:
             managed_identity_client_id=os.environ["FunctionApp__ClientId"]
         )
     else:
-        credential = AzureKeyCredential(os.environ["AIService__Services__Key"])
+        credential = AzureKeyCredential(
+            os.environ["AIService__DocumentIntelligence__Key"]
+        )
 
     async with DocumentIntelligenceClient(
-        endpoint=os.environ["AIService__Services__Endpoint"],
+        endpoint=os.environ["AIService__DocumentIntelligence__Endpoint"],
         credential=credential,
     ) as document_intelligence_client:
         poller = await document_intelligence_client.begin_analyze_document(

@@ -43,11 +43,11 @@ The properties returned from the ADI Custom Skill are then used to perform the f
 
 ## Deploying AI Search Setup
 
-To deploy the pre-built index and associated indexer / skillset setup, see instructions in `./ai_search/README.md`.
+To deploy the pre-built index and associated indexer / skillset setup, see instructions in `./deploy_ai_search/README.md`.
 
 ## ADI Custom Skill
 
-Deploy the associated function app and required resources. You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_deploy_ai_search` HTTP endpoint.
+Deploy the associated function app and required resources. You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_ai_search` HTTP endpoint.
 
 To use with an index, either use the utility to configure a indexer in the provided form, or integrate the skill with your skillset pipeline.
 

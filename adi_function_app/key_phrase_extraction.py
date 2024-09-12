@@ -45,9 +45,9 @@ async def extract_key_phrases_from_text(
             managed_identity_client_id=os.environ.get("FunctionApp__ClientId")
         )
     else:
-        credential = AzureKeyCredential(os.environ.get("AIService__Services__Key"))
+        credential = AzureKeyCredential(os.environ.get("AIService__Language__Key"))
     text_analytics_client = TextAnalyticsClient(
-        endpoint=os.environ.get("AIService__Services__Endpoint"),
+        endpoint=os.environ.get("AIService__Language__Endpoint"),
         credential=credential,
     )
 

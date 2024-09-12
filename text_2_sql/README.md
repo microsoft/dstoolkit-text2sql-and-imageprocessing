@@ -6,6 +6,8 @@ The implementation is written for [Semantic Kernel](https://github.com/microsoft
 
 The sample provided works with Azure SQL Server, although it has been easily adapted to other SQL sources such as Snowflake.
 
+**Two approaches are provided for schema management. A prompt based approach and a vector database based approach. See Multi-Shot Approach for more details**
+
 ## High Level Workflow
 
 The following diagram shows a workflow for how the Text2SQL plugin would be incorporated into a RAG application. Using the plugins available, alongside the [Function Calling](https://platform.openai.com/docs/guides/function-calling) capabilities of LLMs, the LLM can do [Chain of Thought](https://learn.microsoft.com/en-us/dotnet/ai/conceptual/chain-of-thought-prompting) reasoning to determine the steps needed to answer the question. This allows the LLM to recognise intent and therefore pick appropriate data sources based on the intent of the question.
@@ -34,19 +36,22 @@ To solve these issues, a Multi-Shot approach is used:
 
 ![Comparison between a common Text2SQL approach and a Multi-Shot Text2SQL approach.](./images/OneShot%20SQL%20vs%20TwoShot%20SQL%20OpenAI.png "Multi Shot SQL Approach")
 
-Instead of inserting the entire database schema into the prompt, a brief description of the available entities is injected into the prompt. This limits the number of tokens used and avoids filling the prompt with confusing schema information.
+To solve this, two different approaches can be used:
+ - Injection of a brief description of the available entities is injected into the prompt. This limits the number of tokens used and avoids filling the prompt with confusing schema information.
+ - Indexing the entity definitions in a vector database, such as AI Search, and querying it retrieve the most relevant entities for the query.
+
+Both approaches limit the number of tokens used and avoids filling the prompt with confusing schema information.
 
 Using Auto-Function calling capabilities, the LLM is able to retrieve from the plugin the full schema information for the views / tables that it considers useful for answering the question. Once retrieved, the full SQL query can then be generated. The schemas for multiple views / tables can be retrieved to allow the LLM to perform joins and other complex queries.
 
 ## Provided Notebooks
 
-- `./rag_with_text_2_sql.ipynb` provides example of how to utilise the Text2SQL plugin to query the database.
-- `./rag_with_ai_searchandtext_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
+- `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
+- `./rag_with_vector_based_text_2_sql.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin to query the database.
+- `./rag_with_ai_search_and_text_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
     - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
 
-## SQL Plugin
-
-`./plugins/sql_plugin` contains all the relevant Semantic Kernel code for the plugin.
+## Data Dictionary
 
 ### entities.json
 
@@ -56,51 +61,55 @@ The data dictionary is stored in `./plugins/sql_plugin/entities.json`. Below is 
 
 ```json
 {
-    "view_name": "Get All Categories",
-    "entity": "vGetAllCategories",
-    "description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
-    "selector": "Use this view to retrieve information about product categories and subcategories. It is useful for scenarios where product categorization is required, such as generating reports based on product categories or filtering products by category.",
-    "columns": [
+    "EntityName": "Get All Categories",
+    "Entity": "vGetAllCategories",
+    "Description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
+    "Columns": [
         {
-            "definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
-            "name": "ProductCategoryID",
-            "type": "INT"
+            "Definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
+            "Name": "ProductCategoryID",
+            "Type": "INT"
         },
         {
-            "definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
-            "name": "ParentProductCategoryName",
-            "type": "NVARCHAR(50)"
+            "Definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
+            "Name": "ParentProductCategoryName",
+            "Type": "NVARCHAR(50)"
         },
         {
-            "definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
-            "name": "ProductCategoryName",
-            "type": "NVARCHAR(50)"
+            "Definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
+            "Name": "ProductCategoryName",
+            "Type": "NVARCHAR(50)"
         }
     ]
 }
 ```
 
 #### Property Definitions
-- **view_name** or **table_name** is a human readable name for the entity.
-- **entity** is the actual name for the entity that is used in the SQL query.
-- **description** provides a comprehensive description of what information the entity contains.
-- **selector** provides reasoning to the LLM of in which scenarios it should select this entity.
-- **columns** contains a list of the columns exposed for querying. Each column contains:
-    - **definition** a short definition of what information the column contains. Here you can add extra metadata to **prompt engineer** the LLM to select the right columns or interpret the data in the column correctly.
-    - **name** is the actual column name.
-    - **type** is the datatype for the column.
-    - **sample_values (optional)** is a list of sample values that are in the column. This is useful for instructing the LLM of what format the data may be in.
-    - **allowed_values (optional)** is a list of absolute allowed values for the column. This instructs the LLM only to use these values if filtering against this column.
+- **EntityName** is a human readable name for the entity.
+- **Entity** is the actual name for the entity that is used in the SQL query.
+- **Description** provides a comprehensive description of what information the entity contains.
+- **Columns** contains a list of the columns exposed for querying. Each column contains:
+    - **Definition** a short definition of what information the column contains. Here you can add extra metadata to **prompt engineer** the LLM to select the right columns or interpret the data in the column correctly.
+    - **Name** is the actual column name.
+    - **Type** is the datatype for the column.
+    - **SampleValues (optional)** is a list of sample values that are in the column. This is useful for instructing the LLM of what format the data may be in.
+    - **AllowedValues (optional)** is a list of absolute allowed values for the column. This instructs the LLM only to use these values if filtering against this column.
 
 A full data dictionary must be built for all the views / tables you which to expose to the LLM. The metadata provide directly influences the accuracy of the Text2SQL component.
 
-### sql_plugin.py
+## Prompt Based SQL Plugin
 
-The `./plugins/sql_plugin/sql_plugin.py` contains 3 key methods to power the Text2SQL engine.
+This approach works well for a small number of entities (test on up to 20 entities with hundreds of columns). It performed well on the testing, with correct metadata, we achieved 100% accuracy on the test set.
+
+Whilst a simple and high performing approach, the downside of this approach is the increase in number of tokens as the number of entities increases.
+
+### prompt_based_sql_plugin.py
+
+The `./plugins/prompt_based_sql_plugin/prompt_based_sql_plugin.py` contains 3 key methods to power the Prompt Based Text2SQL engine.
 
 #### system_prompt()
 
-This method takes the loaded `entities.json` file and generates a system prompt based on it. Here, the **entity_name**, **description** and **selector** are used to build a list of available entities for the LLM to select.
+This method takes the loaded `entities.json` file and generates a system prompt based on it. Here, the **EntityName** and **Description** are used to build a list of available entities for the LLM to select.
 
 This is then inserted into a pre-made Text2SQL generation prompt that already contains optimised and working instructions for the LLM. This system prompt for the plugin is added to the main prompt file at runtime.
 
@@ -109,6 +118,34 @@ The **target_engine** is passed to the prompt, along with **engine_specific_rule
 #### get_entity_schema()
 
 This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to fetch the full schema definitions for a given entity. This returns a JSON string of the chosen entity which allows the LLM to understand the column definitions and their associated metadata. This can be called in parallel for multiple entities.
+
+#### run_sql_query()
+
+This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
+
+## Vector Based SQL Plugin
+
+This approach allows the system to scale without significantly increasing the number of tokens used within the system prompt. Indexing and running an AI Search instance consumes additional cost, compared to the prompt based approach.
+
+### vector_based_sql_plugin.py
+
+The `./plugins/vector_based_sql_plugin/vector_based_sql_plugin.py` contains 3 key methods to power the Vector Based Text2SQL engine.
+
+#### Indexing
+
+`./deploy_ai_search/text_2_sql.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search/README.md`.
+
+#### system_prompt()
+
+This method simply returns a pre-made system prompt that contains optimised and working instructions for the LLM. This system prompt for the plugin is added to the main prompt file at runtime.
+
+The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
+
+#### get_entity_schema()
+
+This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to search the AI Search instance with the given text. The LLM is able to pass the key terms from the user query, and retrieve a ranked list of the most suitable entities to answer the question.
+
+The search text passed is vectorised against the entity level **Description** columns. A hybrid Semantic Reranking search is applied against the **EntityName**, **Entity**, **Columns/Name** fields.
 
 #### run_sql_query()
 
@@ -164,7 +201,7 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 - Give all columns and views / tables good names that are descriptive.
 - Spend time providing good descriptions in the metadata for all entities and columns e.g.
     - If a column contains a value in a given currency, give the currency information in the metadata.
-    - Clearly state in the **selector** what sorts of questions a given view / table can provide answers for.
+    - Clearly state in the **description** what sorts of questions a given view / table can provide answers for.
 - Use common codes for columns that need filtering e.g.
     - A  country can have multiple text representations e.g. United Kingdom or UK. Use ISO codes for countries, instead of text descriptions to increase the likelihood of correct and valid SQL queries.
 
@@ -177,10 +214,3 @@ Below are some of the considerations that should be made before using this plugi
     - Consider limiting the permissions of the identity or connection string to only allow access to certain tables or perform certain query types.
 - If possible, run the queries under the identity of the end user so that any row or column level security is applied to the data.
 - Consider data masking for sensitive columns that you do not wish to be exposed.
-
-## Possible Improvements
-
-Below are some possible improvements that could be made to the Text2SQL approach:
-
-- Storing the entity names / definitions / selectors in a vector database and using a vector search to obtain the most relevant entities.
-    - Due to the small number of tokens that this approaches uses, this approach was not considered but if the number of tables is significantly larger, this approach may provide benefits in selecting the most appropriate tables (untested).

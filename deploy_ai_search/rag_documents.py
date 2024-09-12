@@ -249,6 +249,7 @@ class RagDocumentsAISearch(AISearch):
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
                 indexed_file_name_extensions=".pdf,.pptx,.docx,.xlsx,.txt,.png,.jpg,.jpeg",
+                parsing_mode=self.parsing_mode,
             ),
             max_failed_items=5,
         )

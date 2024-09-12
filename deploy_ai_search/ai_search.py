@@ -25,6 +25,7 @@ from azure.search.documents.indexes.models import (
     SynonymMap,
     SplitSkill,
     SearchIndexerIndexProjections,
+    BlobIndexerParsingMode,
 )
 from azure.core.exceptions import HttpResponseError
 from azure.search.documents.indexes import SearchIndexerClient, SearchIndexClient
@@ -66,11 +67,15 @@ class AISearch(ABC):
         self.environment = AISearchEnvironment(indexer_type=self.indexer_type)
 
         self._search_indexer_client = SearchIndexerClient(
-            self.environment.ai_search_endpoint, self.environment.ai_search_credential
+            endpoint=self.environment.ai_search_endpoint,
+            credential=self.environment.ai_search_credential,
         )
         self._search_index_client = SearchIndexClient(
-            self.environment.ai_search_endpoint, self.environment.ai_search_credential
+            endpoint=self.environment.ai_search_endpoint,
+            credential=self.environment.ai_search_credential,
         )
+
+        self.parsing_mode = BlobIndexerParsingMode.DEFAULT
 
     @property
     def indexer_name(self):
@@ -156,7 +161,16 @@ class AISearch(ABC):
         if self.get_indexer() is None:
             return None
 
-        data_deletion_detection_policy = NativeBlobSoftDeleteDeletionDetectionPolicy()
+        if self.parsing_mode in [
+            BlobIndexerParsingMode.DEFAULT,
+            BlobIndexerParsingMode.TEXT,
+            BlobIndexerParsingMode.JSON,
+        ]:
+            data_deletion_detection_policy = (
+                NativeBlobSoftDeleteDeletionDetectionPolicy()
+            )
+        else:
+            data_deletion_detection_policy = None
 
         data_change_detection_policy = HighWaterMarkChangeDetectionPolicy(
             high_water_mark_column_name="metadata_storage_last_modified"
@@ -267,6 +281,10 @@ class AISearch(ABC):
 
     def get_adi_skill(self, chunk_by_page=False) -> WebApiSkill:
         """Get the custom skill for adi.
+
+        Args:
+        -----
+            chunk_by_page (bool, optional): Whether to chunk by page. Defaults to False.
 
         Returns:
         --------
@@ -528,6 +546,11 @@ class AISearch(ABC):
 
     def reset_indexer(self):
         """This function runs the indexer."""
+
+        if self.get_indexer() is None:
+            logging.warning("Indexer not defined. Skipping reset operation.")
+
+            return
         self._search_indexer_client.reset_indexer(self.indexer_name)
 
         logging.info("%s reset.", self.indexer_name)
