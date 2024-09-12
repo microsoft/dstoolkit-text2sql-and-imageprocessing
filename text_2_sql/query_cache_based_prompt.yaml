@@ -22,10 +22,11 @@ template: |
 
   [RESPONSE OUTPUT REQUIREMENTS]
 
-    The answer MUST be returned in JSON format as { "answer": "<GENERATED ANSWER>", "sources": [ {"title": <SOURCE 1 TITLE>, "chunk": <SOURCE 1 CONTEXT CHUNK>, "reference": "<SOURCE 1 REFERENCE>"}, {"title": <SOURCE 2 TITLE>, "chunk": <SOURCE 2 CONTEXT CHUNK>, "reference": "<SOURCE 2 REFERENCE>"} ] }.
+    The answer MUST be returned in JSON format as { "answer": "<GENERATED ANSWER>", "sources": [ {"title": <SOURCE 1 TITLE>, "chunk": <SOURCE 1 CONTEXT CHUNK>, "reference": "<SOURCE 1 REFERENCE>"}, {"title": <SOURCE 2 TITLE>, "chunk": <SOURCE 2 CONTEXT CHUNK>, "reference": "<SOURCE 2 REFERENCE>"} ], "schemas": [ <SCHEMAS USED> ] }.
 
     The 'answer' property MUST meet the requirements in the ANSWER PROPERTY REQUIREMENTS.
     The 'sources' property MUST meet the requirements in the SOURCES PROPERTY REQUIREMENTS.
+    The 'schemas' property MUST meet the requirements in the SCHEMAS PROPERTY REQUIREMENTS.
 
     Do NOT return anything outside of the provided JSON property. Ensure that this is valid JSON returned.
 
@@ -67,6 +68,15 @@ template: |
       7. Citations Format:
         Citations should be embedded within the text, not as a separate list at the end of the 'answer' property.
     [END ANSWER PROPERTY REQUIREMENTS]
+
+    [SCHEMAS PROPERTY REQUIREMENTS]
+      1. Inclusion Criteria:
+        If you used a schema obtained from 'GetEntitySchemas' function, it must be returned in the 'schemas' property. The 'schemas' property should contain a list of all the schemas used to create the SQL query.
+
+      3. Schema Format:
+        Each schema entry should be formatted as: {"Entity": "<ENTITY>", "Columns", [ {"Name": "<COLUMN NAME>", "Definition": <COLUMN DEFINITION>, "Type": "<COLUMN TYPE>" } ]}. This is the same format as the 'GetEntitySchemas' function output. Simply copy the schema from the function output to the 'schemas' property and remove the not needed properties.
+
+    [END SCHEMAS PROPERTY REQUIREMENTS]
 
     [SOURCES PROPERTY REQUIREMENTS]
       1. Reference Inclusion:
