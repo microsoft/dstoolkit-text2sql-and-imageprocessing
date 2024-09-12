@@ -38,10 +38,12 @@ class Text2SqlQueryCacheAISearch(AISearch):
             list[SearchableField]: The index fields for sql index"""
 
         fields = [
+            SimpleField(
+                name="Id", type=SearchFieldDataType.String, key=True, retrievable=False
+            ),
             SearchableField(
                 name="Question",
                 type=SearchFieldDataType.String,
-                key=True,
                 analyzer_name="keyword",
             ),
             SearchField(
@@ -64,7 +66,7 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 collection=True,
                 fields=[
                     SearchableField(
-                        name="EntityName",
+                        name="Entity",
                         type=SearchFieldDataType.String,
                         filterable=True,
                     ),

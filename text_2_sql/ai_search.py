@@ -8,6 +8,7 @@ from azure.search.documents.aio import SearchClient
 from environment import IdentityType, get_identity_type
 import os
 import logging
+import base64
 
 
 async def run_ai_search_query(
@@ -67,14 +68,19 @@ async def run_ai_search_query(
             result async for results in results.by_page() async for result in results
         ]
 
+        logging.info("Results: %s", combined_results)
+
     return combined_results
 
 
-async def add_entry_to_index(document: dict, vector_fields: list[str], index_name: str):
+async def add_entry_to_index(document: dict, vector_fields: dict, index_name: str):
     """Add an entry to the search index."""
 
-    for field in vector_fields:
-        if field not in document:
+    logging.info("Document: %s", document)
+    logging.info("Vector Fields: %s", vector_fields)
+
+    for field in vector_fields.keys():
+        if field not in document.keys():
             raise ValueError(f"Field {field} is not in the document.")
 
     identity_type = get_identity_type()
@@ -92,10 +98,11 @@ async def add_entry_to_index(document: dict, vector_fields: list[str], index_nam
         )
 
         # Extract the embedding vector
-        for i, field in enumerate(vector_fields):
+        for i, field in enumerate(vector_fields.values()):
             document[field] = embeddings.data[i].embedding
 
-    logging.debug("Document with embeddings: %s", document)
+    document["Id"] = base64.b64encode(document["Question"].encode()).decode("utf-8")
+    logging.info("Document with embeddings: %s", document)
 
     if identity_type == IdentityType.SYSTEM_ASSIGNED:
         credential = DefaultAzureCredential()
