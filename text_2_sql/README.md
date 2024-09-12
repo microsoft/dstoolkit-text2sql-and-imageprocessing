@@ -44,6 +44,50 @@ Both approaches limit the number of tokens used and avoids filling the prompt wi
 
 Using Auto-Function calling capabilities, the LLM is able to retrieve from the plugin the full schema information for the views / tables that it considers useful for answering the question. Once retrieved, the full SQL query can then be generated. The schemas for multiple views / tables can be retrieved to allow the LLM to perform joins and other complex queries.
 
+## Sample Output
+
+### What is the top performing product by quantity of units sold?
+
+#### SQL Query Generated
+
+*SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC*
+
+#### JSON Result
+
+```json
+{
+    "answer": "The top-performing product by quantity of units sold is the **Classic Vest, S** from the **Classic Vest** product model, with a total of 87 units sold [1][2].",
+    "sources": [
+        {
+            "title": "Sales Order Detail",
+            "chunk": "| ProductID | TotalUnitsSold |\n|-----------|----------------|\n| 864       | 87             |\n",
+            "reference": "SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC;"
+        },
+        {
+            "title": "Product and Description",
+            "chunk": "| Name           | ProductModel  |\n|----------------|---------------|\n| Classic Vest, S| Classic Vest  |\n",
+            "reference": "SELECT Name, ProductModel FROM SalesLT.vProductAndDescription WHERE ProductID = 864;"
+        }
+    ]
+}
+```
+
+The **answer** and **sources** properties can be rendered to the user to visualize the results. Markdown support is useful for complex answer outputs and explaining the source of the information.
+
+#### Rendered Output
+
+The top-performing product by quantity of units sold is the **Classic Vest, S** from the **Classic Vest** product model, with a total of 87 units sold [1][2].
+
+#### Rendered Sources
+
+| ProductID | TotalUnitsSold |
+|-----------|----------------|
+| 864       | 87             |
+
+| Name           | ProductModel  |
+|----------------|---------------|
+| Classic Vest, S| Classic Vest  |
+
 ## Provided Notebooks
 
 - `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
@@ -150,50 +194,6 @@ The search text passed is vectorised against the entity level **Description** co
 #### run_sql_query()
 
 This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
-
-## Sample Usage
-
-### What is the top performing product by quantity of units sold?
-
-#### SQL Query Generated
-
-*SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC*
-
-#### JSON Result
-
-```json
-{
-    "answer": "The top-performing product by quantity of units sold is the **Classic Vest, S** from the **Classic Vest** product model, with a total of 87 units sold [1][2].",
-    "sources": [
-        {
-            "title": "Sales Order Detail",
-            "chunk": "| ProductID | TotalUnitsSold |\n|-----------|----------------|\n| 864       | 87             |\n",
-            "reference": "SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC;"
-        },
-        {
-            "title": "Product and Description",
-            "chunk": "| Name           | ProductModel  |\n|----------------|---------------|\n| Classic Vest, S| Classic Vest  |\n",
-            "reference": "SELECT Name, ProductModel FROM SalesLT.vProductAndDescription WHERE ProductID = 864;"
-        }
-    ]
-}
-```
-
-The **answer** and **sources** properties can be rendered to the user to visualize the results. Markdown support is useful for complex answer outputs and explaining the source of the information.
-
-#### Rendered Output
-
-The top-performing product by quantity of units sold is the **Classic Vest, S** from the **Classic Vest** product model, with a total of 87 units sold [1][2].
-
-#### Rendered Sources
-
-| ProductID | TotalUnitsSold |
-|-----------|----------------|
-| 864       | 87             |
-
-| Name           | ProductModel  |
-|----------------|---------------|
-| Classic Vest, S| Classic Vest  |
 
 ## Tips for good Text2SQL performance.
 
