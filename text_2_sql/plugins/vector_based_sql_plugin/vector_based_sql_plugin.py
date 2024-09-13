@@ -101,6 +101,7 @@ class VectorBasedSQLPlugin:
             ["Entity", "EntityName", "Description", "Columns"],
             os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
             os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
+            top=3,
         )
 
         for schema in schemas:

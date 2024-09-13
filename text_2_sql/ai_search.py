@@ -17,6 +17,7 @@ async def run_ai_search_query(
     retrieval_fields: list[str],
     index_name: str,
     semantic_config: str,
+    top=5,
 ):
     """Run the AI search query."""
     identity_type = get_identity_type()
@@ -56,8 +57,7 @@ async def run_ai_search_query(
         credential=credential,
     ) as search_client:
         results = await search_client.search(
-            top=5,
-            query_type="semantic",
+            top=top,
             semantic_configuration_name=semantic_config,
             search_text=query,
             select=",".join(retrieval_fields),
