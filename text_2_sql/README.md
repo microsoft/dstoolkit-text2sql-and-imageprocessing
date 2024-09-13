@@ -46,8 +46,15 @@ All approaches limit the number of tokens used and avoids filling the prompt wit
 Using Auto-Function calling capabilities, the LLM is able to retrieve from the plugin the full schema information for the views / tables that it considers useful for answering the question. Once retrieved, the full SQL query can then be generated. The schemas for multiple views / tables can be retrieved to allow the LLM to perform joins and other complex queries.
 
 ### Comparison of Iterations
-
-
+| | Common Text2SQL Approach | Prompt Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach With Query Cache |
+|-|-|-|-|-|
+|**Advantages** | Fast for a limited number of entities. | Significant reduction in token usage. | Significant reduction in token usage. | Significant reduction in token usage.
+| | | | Scales well to multiple entities. | Scales well to multiple entities. |
+| | | | Uses a vector approach to detect the best fitting entity which is faster than using an LLM. Matching is offloaded to AI Search. | Uses a vector approach to detect the best fitting entity which is faster than using an LLM. Matching is offloaded to AI Search. |
+| | | | | Significantly faster to answer similar questions as best fitting entity detection is skipped. Observed tests resulted in almost half the time for final output compared to the previous iteration. |
+|**Disadvantages** | Slows down significantly as the number of entities increases. | Uses LLM to detect the best fitting entity which is slow compared to a vector approach. | Could be sped up without auto function calling for vector search, but passing whole query **may** reduce reduce matching performance. | Slower than other approaches for the first time a question with no similar questions in the cache is asked. |
+| | Consumes a significant number of tokens as number of entities increases. | As number of entities increases, token usage will grow but at a lesser rate than Iteration 1. | AI Search adds additional cost to the solution. | AI Search adds additional cost to the solution. |
+| | LLM struggled to differentiate which table to choose with the large amount of information passed. | | |
 
 ## Sample Output
 
