@@ -104,6 +104,7 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 
 - `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
 - `./rag_with_vector_based_text_2_sql.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin to query the database.
+- `./rag_with_vector_based_text_2_sql_query_cache.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin, alongside the query cache, to query the database.
 - `./rag_with_ai_search_and_text_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
     - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
 
@@ -198,6 +199,8 @@ The `./plugins/vector_based_sql_plugin/vector_based_sql_plugin.py` contains 3 ke
 This method simply returns a pre-made system prompt that contains optimised and working instructions for the LLM. This system prompt for the plugin is added to the main prompt file at runtime.
 
 The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
+
+If the query cache is enabled, the prompt is adjusted to instruct the LLM to look at the cached data first, before calling `get_entity_schema()`.
 
 #### get_entity_schema()
 
