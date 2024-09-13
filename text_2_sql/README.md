@@ -45,6 +45,8 @@ All approaches limit the number of tokens used and avoids filling the prompt wit
 
 Using Auto-Function calling capabilities, the LLM is able to retrieve from the plugin the full schema information for the views / tables that it considers useful for answering the question. Once retrieved, the full SQL query can then be generated. The schemas for multiple views / tables can be retrieved to allow the LLM to perform joins and other complex queries.
 
+For the query cache enabled approach, AI Search is used as a vector based cache, but any other cache that supports vector queries could be used, such as Redis.
+
 ### Comparison of Iterations
 | | Common Text2SQL Approach | Prompt Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach With Query Cache |
 |-|-|-|-|-|
@@ -200,13 +202,17 @@ This method simply returns a pre-made system prompt that contains optimised and 
 
 The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
 
-If the query cache is enabled, the prompt is adjusted to instruct the LLM to look at the cached data first, before calling `get_entity_schema()`.
+**If the query cache is enabled, the prompt is adjusted to instruct the LLM to look at the cached data first, before calling `get_entity_schema()`.**
 
 #### get_entity_schema()
 
 This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to search the AI Search instance with the given text. The LLM is able to pass the key terms from the user query, and retrieve a ranked list of the most suitable entities to answer the question.
 
 The search text passed is vectorised against the entity level **Description** columns. A hybrid Semantic Reranking search is applied against the **EntityName**, **Entity**, **Columns/Name** fields.
+
+#### run_ai_search_query()
+
+The vector based with query cache notebook uses the `run_ai_search_query()` method to fetch the most relevant previous query and injects it into the prompt. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
 
 ## Tips for good Text2SQL performance.
 
