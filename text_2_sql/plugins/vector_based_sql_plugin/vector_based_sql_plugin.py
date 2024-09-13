@@ -75,7 +75,7 @@ class VectorBasedSQLPlugin:
         return system_prompt
 
     @kernel_function(
-        description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.",
+        description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned.",
         name="GetEntitySchema",
     )
     async def get_entity_schemas(

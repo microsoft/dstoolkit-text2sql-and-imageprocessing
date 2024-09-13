@@ -15,11 +15,23 @@ The associated scripts in this portion of the repository contains pre-built scri
 
 ## Steps for Text2SQL Index Deployment
 
+### Entity Schema Index
+
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
 2. Adjust `text_2_sql.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
 3. Run `deploy.py` with the following args:
 
     - `index_type text_2_sql`. This selects the `Text2SQLAISearch` sub class.
+    - `rebuild`. Whether to delete and rebuild the index.
+    - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
+
+### Query Cache Index
+
+1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
+2. Adjust `text_2_sql_query_cache.py` with any changes to the index. **There is no provided indexer or skillset for this cache, it is expected that application code will write directly to it.**
+3. Run `deploy.py` with the following args:
+
+    - `index_type text_2_sql_query_cache`. This selects the `Text2SQLQueryCacheAISearch` sub class.
     - `rebuild`. Whether to delete and rebuild the index.
     - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
 
