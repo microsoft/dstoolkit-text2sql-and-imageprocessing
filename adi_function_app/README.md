@@ -206,6 +206,12 @@ If `chunk_by_page` header is `False`:
 
 **Page wise analysis in ADI is recommended to avoid splitting tables / figures across multiple chunks, when the chunking is performed.**
 
+## Other Provided Custom Skills
+
+Due to a AI Search product limitation that AI Search cannot connect to AI Services behind Private Endpoints, we provide a Custom Key Phrase Extraction Skill that will work within a Private Endpoint environment.
+
+Additionally, a custom cleaning skill is provided to clean the chunks before vectorisation takes place.
+
 ## Production Considerations
 
 Below are some of the considerations that should be made before using this custom skill in production:
