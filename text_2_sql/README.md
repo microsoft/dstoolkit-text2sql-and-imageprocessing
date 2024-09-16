@@ -162,7 +162,7 @@ A full data dictionary must be built for all the views / tables you which to exp
 
 This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
 
-## Prompt Based SQL Plugin
+## Prompt Based SQL Plugin (Iteration 2)
 
 This approach works well for a small number of entities (test on up to 20 entities with hundreds of columns). It performed well on the testing, with correct metadata, we achieved 100% accuracy on the test set.
 
@@ -184,7 +184,7 @@ The **target_engine** is passed to the prompt, along with **engine_specific_rule
 
 This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to fetch the full schema definitions for a given entity. This returns a JSON string of the chosen entity which allows the LLM to understand the column definitions and their associated metadata. This can be called in parallel for multiple entities.
 
-## Vector Based SQL Plugin
+## Vector Based SQL Plugin (Iterations 3 & 4)
 
 This approach allows the system to scale without significantly increasing the number of tokens used within the system prompt. Indexing and running an AI Search instance consumes additional cost, compared to the prompt based approach.
 
@@ -212,7 +212,7 @@ The search text passed is vectorised against the entity level **Description** co
 
 #### run_ai_search_query()
 
-The vector based with query cache notebook uses the `run_ai_search_query()` method to fetch the most relevant previous query and injects it into the prompt. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
+The vector based with query cache notebook uses the `run_ai_search_query()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
 
 ## Tips for good Text2SQL performance.
 
