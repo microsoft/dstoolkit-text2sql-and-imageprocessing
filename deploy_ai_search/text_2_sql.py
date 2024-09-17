@@ -40,8 +40,6 @@ class Text2SqlAISearch(AISearch):
 
         self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
 
-        self.entities = []
-
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for sql index.
 

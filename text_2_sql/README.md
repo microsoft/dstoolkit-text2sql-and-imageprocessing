@@ -6,7 +6,7 @@ The implementation is written for [Semantic Kernel](https://github.com/microsoft
 
 The sample provided works with Azure SQL Server, although it has been easily adapted to other SQL sources such as Snowflake.
 
-**Two approaches are provided for schema management. A prompt based approach and a vector database based approach. See Multi-Shot Approach for more details**
+**Three iterations on the approache are provided for SQL query generation. A prompt based approach and a two vector database based approaches. See Multi-Shot Approach for more details**
 
 ## High Level Workflow
 
@@ -27,22 +27,36 @@ Generating SQL queries and executing them to provide context for the RAG applica
 
 ## Multi-Shot Approach
 
-A common way to perform Text2SQL generation is to provide the complete schema information (either a full schema or a plain text description) inside the initial prompt. Whilst this works for small databases, there are issues with scalability as the number of tables and views exposed to the LLM increases:
+A common way to perform Text2SQL generation _(Iteration 1)_ is to provide the complete schema information (either a full schema or a plain text description) inside the initial prompt. Whilst this works for small databases, there are issues with scalability as the number of tables and views exposed to the LLM increases:
 
 - More tables / views significantly increases the number of tokens used within the prompt and the cost of inference.
 - More schema information can cause confusion with the LLM. In our original use case, when exceeding 5 complex tables / views, we found that the LLM could get confused between which columns belonged to which entity and as such, would generate invalid SQL queries.
 
-To solve these issues, a Multi-Shot approach is used:
+To solve these issues, a Multi-Shot approach is developed. Below is the iterations of development on the Text2SQL query component.
 
-![Comparison between a common Text2SQL approach and a Multi-Shot Text2SQL approach.](./images/OneShot%20SQL%20vs%20TwoShot%20SQL%20OpenAI.png "Multi Shot SQL Approach")
+![Comparison between a common Text2SQL approach and a Multi-Shot Text2SQL approach.](./images/Text2SQL%20Approaches.png "Multi Shot SQL Approaches")
 
-To solve this, two different approaches can be used:
- - Injection of a brief description of the available entities is injected into the prompt. This limits the number of tokens used and avoids filling the prompt with confusing schema information.
- - Indexing the entity definitions in a vector database, such as AI Search, and querying it retrieve the most relevant entities for the query.
+Three different iterations are presented and code provided for:
+ - **Iteration 2:** Injection of a brief description of the available entities is injected into the prompt. This limits the number of tokens used and avoids filling the prompt with confusing schema information.
+ - **Iteration 3:** Indexing the entity definitions in a vector database, such as AI Search, and querying it to retrieve the most relevant entities for the key terms from the query.
+  - **Iteration 4:** Keeping an index of commonly asked questions and which schema / SQL query they resolve to. Additionally, indexing the entity definitions in a vector database, such as AI Search _(same as Iteration 3)_. First querying this index to see if a similar SQL query can be obtained. If not, falling back to the schema index, and querying it to retrieve the most relevant entities for the key terms from the query.
 
-Both approaches limit the number of tokens used and avoids filling the prompt with confusing schema information.
+All approaches limit the number of tokens used and avoids filling the prompt with confusing schema information.
 
 Using Auto-Function calling capabilities, the LLM is able to retrieve from the plugin the full schema information for the views / tables that it considers useful for answering the question. Once retrieved, the full SQL query can then be generated. The schemas for multiple views / tables can be retrieved to allow the LLM to perform joins and other complex queries.
+
+For the query cache enabled approach, AI Search is used as a vector based cache, but any other cache that supports vector queries could be used, such as Redis.
+
+### Comparison of Iterations
+| | Common Text2SQL Approach | Prompt Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach With Query Cache |
+|-|-|-|-|-|
+|**Advantages** | Fast for a limited number of entities. | Significant reduction in token usage. | Significant reduction in token usage. | Significant reduction in token usage.
+| | | | Scales well to multiple entities. | Scales well to multiple entities. |
+| | | | Uses a vector approach to detect the best fitting entity which is faster than using an LLM. Matching is offloaded to AI Search. | Uses a vector approach to detect the best fitting entity which is faster than using an LLM. Matching is offloaded to AI Search. |
+| | | | | Significantly faster to answer similar questions as best fitting entity detection is skipped. Observed tests resulted in almost half the time for final output compared to the previous iteration. |
+|**Disadvantages** | Slows down significantly as the number of entities increases. | Uses LLM to detect the best fitting entity which is slow compared to a vector approach. | Could be sped up without auto function calling for vector search, but passing whole query **may** reduce reduce matching performance. | Slower than other approaches for the first time a question with no similar questions in the cache is asked. |
+| | Consumes a significant number of tokens as number of entities increases. | As number of entities increases, token usage will grow but at a lesser rate than Iteration 1. | AI Search adds additional cost to the solution. | AI Search adds additional cost to the solution. |
+| | LLM struggled to differentiate which table to choose with the large amount of information passed. | | |
 
 ## Sample Output
 
@@ -92,6 +106,7 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 
 - `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
 - `./rag_with_vector_based_text_2_sql.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin to query the database.
+- `./rag_with_vector_based_text_2_sql_query_cache.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin, alongside the query cache, to query the database.
 - `./rag_with_ai_search_and_text_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
     - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
 
@@ -141,7 +156,13 @@ The data dictionary is stored in `./plugins/sql_plugin/entities.json`. Below is 
 
 A full data dictionary must be built for all the views / tables you which to expose to the LLM. The metadata provide directly influences the accuracy of the Text2SQL component.
 
-## Prompt Based SQL Plugin
+## Common Plugin Components
+
+#### run_sql_query()
+
+This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
+
+## Prompt Based SQL Plugin (Iteration 2)
 
 This approach works well for a small number of entities (test on up to 20 entities with hundreds of columns). It performed well on the testing, with correct metadata, we achieved 100% accuracy on the test set.
 
@@ -163,11 +184,7 @@ The **target_engine** is passed to the prompt, along with **engine_specific_rule
 
 This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to fetch the full schema definitions for a given entity. This returns a JSON string of the chosen entity which allows the LLM to understand the column definitions and their associated metadata. This can be called in parallel for multiple entities.
 
-#### run_sql_query()
-
-This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
-
-## Vector Based SQL Plugin
+## Vector Based SQL Plugin (Iterations 3 & 4)
 
 This approach allows the system to scale without significantly increasing the number of tokens used within the system prompt. Indexing and running an AI Search instance consumes additional cost, compared to the prompt based approach.
 
@@ -185,15 +202,17 @@ This method simply returns a pre-made system prompt that contains optimised and 
 
 The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
 
+**If the query cache is enabled, the prompt is adjusted to instruct the LLM to look at the cached data first, before calling `get_entity_schema()`.**
+
 #### get_entity_schema()
 
 This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to search the AI Search instance with the given text. The LLM is able to pass the key terms from the user query, and retrieve a ranked list of the most suitable entities to answer the question.
 
 The search text passed is vectorised against the entity level **Description** columns. A hybrid Semantic Reranking search is applied against the **EntityName**, **Entity**, **Columns/Name** fields.
 
-#### run_sql_query()
+#### run_ai_search_query()
 
-This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
+The vector based with query cache notebook uses the `run_ai_search_query()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
 
 ## Tips for good Text2SQL performance.
 

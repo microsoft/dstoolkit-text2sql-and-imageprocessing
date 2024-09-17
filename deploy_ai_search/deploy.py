@@ -3,6 +3,7 @@
 import argparse
 from rag_documents import RagDocumentsAISearch
 from text_2_sql import Text2SqlAISearch
+from text_2_sql_query_cache import Text2SqlQueryCacheAISearch
 
 
 def deploy_config(arguments: argparse.Namespace):
@@ -10,14 +11,18 @@ def deploy_config(arguments: argparse.Namespace):
 
     Args:
         arguments (argparse.Namespace): The arguments passed to the script"""
-    if arguments.indexer_type == "rag":
+    if arguments.index_type == "rag":
         index_config = RagDocumentsAISearch(
             suffix=arguments.suffix,
             rebuild=arguments.rebuild,
             enable_page_by_chunking=arguments.enable_page_chunking,
         )
-    elif arguments.indexer_type == "text_2_sql":
+    elif arguments.index_type == "text_2_sql":
         index_config = Text2SqlAISearch(
+            suffix=arguments.suffix, rebuild=arguments.rebuild
+        )
+    elif arguments.index_type == "text_2_sql_query_cache":
+        index_config = Text2SqlQueryCacheAISearch(
             suffix=arguments.suffix, rebuild=arguments.rebuild
         )
     else:
@@ -32,7 +37,7 @@ def deploy_config(arguments: argparse.Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process some arguments.")
     parser.add_argument(
-        "--indexer_type",
+        "--index_type",
         type=str,
         required=True,
         help="Type of Indexer want to deploy.",
