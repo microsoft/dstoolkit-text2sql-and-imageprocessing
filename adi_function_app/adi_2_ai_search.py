@@ -359,12 +359,12 @@ def create_page_wise_content(result: AnalyzeResult) -> list:
     page_numbers = []
     page_offsets = []
 
-    for page_number, page in enumerate(result.pages):
+    for page in result.pages:
         page_content = result.content[
             page.spans[0]["offset"] : page.spans[0]["offset"] + page.spans[0]["length"]
         ]
         page_wise_content.append(page_content)
-        page_numbers.append(page_number + 1)
+        page_numbers.append(page.page_number)
         page_offsets.append(page.spans[0]["offset"])
 
     return page_wise_content, page_numbers, page_offsets
