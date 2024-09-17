@@ -1,0 +1,33 @@
+name: CI Checks
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - "*" # Run on all branches
+
+env:
+  MIN_PYTHON_VERSION: 3.11
+
+jobs:
+  job-pre-commit-check:
+    name: Pre-Commit Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ env.MIN_PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
