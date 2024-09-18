@@ -96,6 +96,11 @@ class RagDocumentsAISearch(AISearch):
                 filterable=True,
                 facetable=True,
             ),
+            SimpleField(
+                name="DateLastModified",
+                type=SearchFieldDataType.DateTimeOffset,
+                filterable=True,
+            ),
         ]
 
         if self.enable_page_by_chunking:
@@ -193,6 +198,9 @@ class RagDocumentsAISearch(AISearch):
             InputFieldMappingEntry(
                 name="Sections", source="/document/pages/*/cleaned_sections"
             ),
+            InputFieldMappingEntry(
+                name="DateLastModified", source="/document/DateLastModified"
+            ),
         ]
 
         if self.enable_page_by_chunking:
@@ -268,6 +276,10 @@ class RagDocumentsAISearch(AISearch):
                 FieldMapping(
                     source_field_name="metadata_storage_path",
                     target_field_name="SourceUri",
+                ),
+                FieldMapping(
+                    source_field_name="metadata_storage_last_modified",
+                    target_field_name="DateLastModified",
                 ),
             ],
             parameters=indexer_parameters,
