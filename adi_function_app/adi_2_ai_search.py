@@ -140,9 +140,9 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
         token_provider = None
         api_key = os.environ["OpenAI__ApiKey"]
 
-    system_prompt = """You are an expert in image analysis. Use your experience and skills to provided a detailed description of any provided images. You should FOCUS on what info can be inferred from the image and the meaning of the data inside the image. Draw actionable insights and conclusions from the image.
+    system_prompt = """You are an expert in technical image analysis. Your task is to provided analysis of images. You should FOCUS on what info can be inferred from the image and the meaning of the data inside the image. Draw actionable insights and conclusions from the image. Do not describe the image in a general way or describe the image in a way that is not useful for decision-making.
 
-    If the image is a chart for instance, you should describe the data trends, patterns, and insights that can be drawn from the chart.
+    If the image is a chart for instance, you should describe the data trends, patterns, and insights that can be drawn from the chart. For example, you could describe the increase or decrease in sales over time, the peak sales period, or the sales performance of a particular product.
 
     If the image is a map, you should describe the geographical features, landmarks, and any other relevant information that can be inferred from the map.
 
@@ -150,12 +150,14 @@ async def understand_image_with_gptv(image_base64, caption, tries_left=3):
 
     Include any data points, labels, and other relevant information that can be inferred from the image.
 
+    Provide a well-structured, detailed, and actionable analysis of the image. Focus on extracting data and information that can be inferred from the image.
+
     IMPORTANT: If the provided image is a logo or photograph, simply return 'Irrelevant Image'."""
 
-    user_input = "Describe this image with technical analysis. Provide a well-structured, description."
+    user_input = "Perform technical analysis on this image. Provide a well-structured, description."
 
     if caption is not None and len(caption) > 0:
-        user_input += f" (note: it has image caption: {caption})"
+        user_input += f" (note: it has the following caption: {caption})"
 
     try:
         async with AsyncAzureOpenAI(
