@@ -17,12 +17,16 @@ from storage_account import StorageAccountHelper
 import concurrent.futures
 import json
 from openai import AsyncAzureOpenAI
+from typing import Union
 import openai
 from environment import IdentityType, get_identity_type
 
 
-def clean_adi_markdown(
-    markdown_text: str, page_no: int = None, remove_irrelevant_figures=False
+def build_and_clean_markdown_for_response(
+    markdown_text: str,
+    figures: dict,
+    page_no: int = None,
+    remove_irrelevant_figures=False,
 ):
     """Clean Markdown text extracted by the Azure Document Intelligence service.
 
@@ -62,6 +66,8 @@ def clean_adi_markdown(
     output_dict["content"] = cleaned_text
     output_dict["sections"] = doc_metadata
 
+    output_dict["figures"] = figures
+
     # add page number when chunk by page is enabled
     if page_no is not None:
         output_dict["page_number"] = page_no
@@ -69,21 +75,24 @@ def clean_adi_markdown(
     return output_dict
 
 
-def update_figure_description(md_content, img_description, offset, length):
+def update_figure_description(
+    md_content: str, figure_id: str, img_description: str, offset: int, length: int
+):
     """
     Updates the figure description in the Markdown content.
 
     Args:
         md_content (str): The original Markdown content.
         img_description (str): The new description for the image.
-        idx (int): The index of the figure.
+        offset (int): Position offset in the text.
+        length (int): Length of the original figure in the text.
 
     Returns:
         str: The updated Markdown content with the new figure description.
     """
 
     # Define the new string to replace the old content
-    new_string = f'<!-- FigureContent="{img_description}" -->'
+    new_string = f'<!-- FigureId="{figure_id}" FigureContent="{img_description}" -->'
 
     # Calculate the end index of the content to be replaced
     end_index = offset + length
@@ -244,7 +253,7 @@ async def process_figures_from_extracted_content(
     markdown_content: str,
     page_number: None | int = None,
     page_offset: int = 0,
-) -> str:
+) -> Union[str, dict]:
     """Process the figures extracted from the content using ADI and send them for analysis.
 
     Args:
@@ -258,12 +267,13 @@ async def process_figures_from_extracted_content(
 
     Returns:
     --------
-        str: The updated Markdown content with the figure descriptions."""
+        str: The updated Markdown content with the figure descriptions.
+        dict: A mapping of the FigureId to the stored Uri in blob storage."""
 
-    image_processing_datas = []
+    figure_processing_datas = []
     download_image_tasks = []
-    image_understanding_tasks = []
-    image_upload_tasks = []
+    figure_understanding_tasks = []
+    figure_upload_tasks = []
 
     if result.figures:
         for figure in result.figures:
@@ -290,8 +300,8 @@ async def process_figures_from_extracted_content(
 
                 logging.info(f"Figure Caption: {caption}")
 
-                image_processing_datas.append(
-                    (container, image_blob, caption, figure.spans[0])
+                figure_processing_datas.append(
+                    (figure.id, container, image_blob, caption, figure.spans[0])
                 )
 
                 break
@@ -302,45 +312,59 @@ async def process_figures_from_extracted_content(
 
     storage_account_helper = await get_storage_account_helper()
 
-    for image_processing_data, response in zip(image_processing_datas, image_responses):
-        container, image_blob, caption, _ = image_processing_data
+    for figure_processing_data, response in zip(
+        figure_processing_datas, image_responses
+    ):
+        _, container, image_blob, caption, _ = figure_processing_data
         base_64_image = base64.b64encode(response).decode("utf-8")
 
         logging.info(f"Image Blob: {image_blob}")
 
-        image_understanding_tasks.append(
+        figure_understanding_tasks.append(
             understand_image_with_gptv(base_64_image, caption)
         )
 
         image_data = base64.b64decode(base_64_image)
 
-        image_upload_tasks.append(
+        figure_upload_tasks.append(
             storage_account_helper.upload_blob(
                 container, image_blob, image_data, "image/png"
             )
         )
 
+    figure_ids = [
+        figure_processing_data[0] for figure_processing_data in figure_processing_datas
+    ]
     logging.info("Running image understanding tasks")
-    image_descriptions = await asyncio.gather(*image_understanding_tasks)
+    figure_descriptions = await asyncio.gather(*figure_understanding_tasks)
     logging.info("Finished image understanding tasks")
-    logging.info(f"Image Descriptions: {image_descriptions}")
+    logging.info(f"Image Descriptions: {figure_descriptions}")
 
     logging.info("Running image upload tasks")
-    await asyncio.gather(*image_upload_tasks)
+    figure_uris = await asyncio.gather(*figure_upload_tasks)
     logging.info("Finished image upload tasks")
 
+    figures = [
+        {"FigureId": figure_id, "FigureUri": figure_uri}
+        for figure_id, figure_uri in zip(figure_ids, figure_uris)
+    ]
+
     running_offset = 0
-    for image_processing_data, image_description in zip(
-        image_processing_datas, image_descriptions
+    for figure_processing_data, figure_description in zip(
+        figure_processing_datas, figure_descriptions
     ):
-        _, _, _, figure_span = image_processing_data
+        figure_id, _, _, _, figure_span = figure_processing_data
         starting_offset = figure_span.offset + running_offset - page_offset
         markdown_content, desc_offset = update_figure_description(
-            markdown_content, image_description, starting_offset, figure_span.length
+            markdown_content,
+            figure_id,
+            figure_description,
+            starting_offset,
+            figure_span.length,
         )
         running_offset += desc_offset
 
-    return markdown_content
+    return markdown_content, figures
 
 
 def create_page_wise_content(result: AnalyzeResult) -> list:
@@ -570,9 +594,13 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                 with concurrent.futures.ProcessPoolExecutor() as executor:
                     futures = {
                         executor.submit(
-                            clean_adi_markdown, page_content, page_number, True
-                        ): page_content
-                        for page_content, page_number in zip(
+                            build_and_clean_markdown_for_response,
+                            extracted_page_content[0],
+                            extracted_page_content[1],
+                            page_number,
+                            True,
+                        ): extracted_page_content
+                        for extracted_page_content, page_number in zip(
                             content_with_figures, page_numbers
                         )
                     }
@@ -582,7 +610,10 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
             else:
                 markdown_content = result.content
 
-                content_with_figures = await process_figures_from_extracted_content(
+                (
+                    extracted_content,
+                    figures,
+                ) = await process_figures_from_extracted_content(
                     result,
                     operation_id,
                     container_and_blob,
@@ -591,8 +622,8 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                     page_number=None,
                 )
 
-                cleaned_result = clean_adi_markdown(
-                    content_with_figures, remove_irrelevant_figures=True
+                cleaned_result = build_and_clean_markdown_for_response(
+                    extracted_content, figures, remove_irrelevant_figures=True
                 )
         except Exception as e:
             logging.error(e)

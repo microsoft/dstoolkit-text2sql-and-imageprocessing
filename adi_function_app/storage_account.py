@@ -58,7 +58,10 @@ class StorageAccountHelper:
         Args:
             container (str): The container of the blob.
             blob (str): The blob name.
-            data (bytes): The data to upload."""
+            data (bytes): The data to upload.
+
+        Returns:
+            str: url of the uploaded blob."""
 
         logging.info("Uploading Blob...")
         logging.info(f"Container: {container}")
@@ -75,6 +78,8 @@ class StorageAccountHelper:
                     blob_type="BlockBlob",
                     content_type=content_type,
                 )
+
+        return blob_client.url
 
     async def download_blob_to_temp_dir(
         self, source: str, container: str, target_file_name

@@ -19,6 +19,7 @@ from azure.search.documents.indexes.models import (
     SearchIndexerIndexProjectionsParameters,
     IndexProjectionMode,
     SimpleField,
+    ComplexField,
     BlobIndexerDataToExtract,
     IndexerExecutionEnvironment,
 )
@@ -95,6 +96,22 @@ class RagDocumentsAISearch(AISearch):
                 sortable=True,
                 filterable=True,
                 facetable=True,
+            ),
+            ComplexField(
+                name="Figures",
+                collection=True,
+                fields=[
+                    SimpleField(
+                        name="FigureId",
+                        type=SearchFieldDataType.String,
+                        collection=True,
+                    ),
+                    SimpleField(
+                        name="FigureUri",
+                        type=SearchFieldDataType.String,
+                        collection=True,
+                    ),
+                ],
             ),
             SimpleField(
                 name="DateLastModified",
@@ -199,8 +216,12 @@ class RagDocumentsAISearch(AISearch):
                 name="Sections", source="/document/pages/*/cleaned_sections"
             ),
             InputFieldMappingEntry(
+                name="Figures", source="/document/pages/*/cleaned_sections"
+            ),
+            InputFieldMappingEntry(
                 name="DateLastModified", source="/document/DateLastModified"
             ),
+            InputFieldMappingEntry(name="Figures", source="/document/pages/*/figures"),
         ]
 
         if self.enable_page_by_chunking:
