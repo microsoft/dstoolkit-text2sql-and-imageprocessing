@@ -67,6 +67,8 @@ class VectorBasedSQLPlugin:
         Output corresponding text values in the answer for columns where there is an ID. For example, if the column is 'ProductID', output the corresponding 'ProductModel' in the response. Do not include the ID in the response.
         If a user is asking for a comparison, always compare the relevant values in the database.
 
+        Only use schema information provided as part of the input or fetched from GetEntitySchema() to construct the SQL query. Do not use any other columns or make up column names.
+
         The target database engine is {self.target_engine}, SQL queries must be able compatible to run on {self.target_engine}. {engine_specific_rules}
         You must only provide SELECT SQL queries.
         For a given entity, use the 'SelectFromEntity' property returned in the schema in the SELECT FROM part of the SQL query. If the property is {{'SelectFromEntity': 'test_schema.test_table'}}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.

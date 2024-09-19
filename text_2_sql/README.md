@@ -58,6 +58,21 @@ For the query cache enabled approach, AI Search is used as a vector based cache,
 | | Consumes a significant number of tokens as number of entities increases. | As number of entities increases, token usage will grow but at a lesser rate than Iteration 1. | AI Search adds additional cost to the solution. | AI Search adds additional cost to the solution. |
 | | LLM struggled to differentiate which table to choose with the large amount of information passed. | | |
 
+#### Timing Comparison for Test Question Set
+
+To compare the different in complete execution time, the following questions were tested 10 times each for 3 different scenarios.
+
+Scenarios:
+- Vector-Based Multi-Shot (Iteration 3)
+- Vector-Based Multi-Shot with Query Cache (Iteration 4)
+- Vector-Based Multi-shot with Pre Run Query Cache (Iteration 4)
+
+Questions:
+- Give me the total number of orders in 2008?
+- What is the top performing product by quantity of units sold?
+- Which country did we sell the most to in June 2008?
+- How many different product categories do we have?
+
 ## Sample Output
 
 ### What is the top performing product by quantity of units sold?

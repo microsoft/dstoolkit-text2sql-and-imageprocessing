@@ -43,9 +43,6 @@ async def run_ai_search_query(
         fields=",".join(vector_fields),
     )
 
-    # if include_scores:
-    #     retrieval_fields.append("search.rerankerScore")
-
     if identity_type == IdentityType.SYSTEM_ASSIGNED:
         credential = DefaultAzureCredential()
     elif identity_type == IdentityType.USER_ASSIGNED:
@@ -119,7 +116,9 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
         for i, field in enumerate(vector_fields.values()):
             document[field] = embeddings.data[i].embedding
 
-    document["Id"] = base64.b64encode(document["Question"].encode()).decode("utf-8")
+    document["Id"] = base64.urlsafe_b64encode(document["Question"].encode()).decode(
+        "utf-8"
+    )
     logging.info("Document with embeddings: %s", document)
 
     if identity_type == IdentityType.SYSTEM_ASSIGNED:

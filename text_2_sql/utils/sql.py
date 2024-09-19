@@ -40,14 +40,23 @@ async def add_queries_to_cache(question: str, response: dict):
         response (dict): The response from the AI model.
     """
     # Add the queries to the cache
-    queries = [source["reference"] for source in response["sources"]]
+    try:
+        queries = [source["reference"] for source in response["sources"]]
 
-    for query in queries:
-        entry = {"Question": question, "Query": query, "Schemas": response["schemas"]}
-        await add_entry_to_index(
-            entry,
-            {"Question": "QuestionEmbedding"},
-            os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
+        for query in queries:
+            entry = {
+                "Question": question,
+                "Query": query,
+                "Schemas": response["schemas"],
+            }
+            await add_entry_to_index(
+                entry,
+                {"Question": "QuestionEmbedding"},
+                os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
+            )
+    except KeyError:
+        logging.warning(
+            "No sources found in the response. Unable to add queries to the cache."
         )
 
 
@@ -91,8 +100,6 @@ async def fetch_queries_from_cache(question: str):
 
             pre_computed_match = f"Pre-run SQL result from the cache using query '{sql_query}':\n{json.dumps(sql_result, default=str)}\n"
 
-    formatted_sql_cache_string = f"""{pre_computed_match}Top 3 matching questions and schemas:
-    {json.dumps(cached_schemas, default=str)}
-    """
+    formatted_sql_cache_string = f"{pre_computed_match}Top 3 matching questions and schemas:\n{json.dumps(cached_schemas, default=str)}"
 
     return formatted_sql_cache_string
