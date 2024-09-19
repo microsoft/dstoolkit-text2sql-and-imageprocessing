@@ -194,16 +194,13 @@ class AISearch(ABC):
 
         return data_source_connection
 
-    def get_pre_embedding_cleaner_skill(
-        self, context, source, target_name="cleanedChunk"
-    ) -> WebApiSkill:
+    def get_pre_embedding_cleaner_skill(self, context, source) -> WebApiSkill:
         """Get the custom skill for data cleanup.
 
         Args:
         -----
             context (str): The context of the skill
-            inputs (List[InputFieldMappingEntry]): The inputs of the skill
-            outputs (List[OutputFieldMappingEntry]): The outputs of the skill
+            source (str): The source of the skill
 
         Returns:
         --------
@@ -221,7 +218,7 @@ class AISearch(ABC):
         ]
 
         pre_embedding_cleaner_skill_outputs = [
-            OutputFieldMappingEntry(name="cleanedChunk", target_name=target_name),
+            OutputFieldMappingEntry(name="cleanedChunk", target_name="cleanedChunk"),
             OutputFieldMappingEntry(name="chunk", target_name="chunk"),
             OutputFieldMappingEntry(
                 name="cleanedSections", target_name="cleanedSections"
