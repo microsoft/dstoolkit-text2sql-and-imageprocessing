@@ -70,7 +70,7 @@ def build_and_clean_markdown_for_response(
 
     # add page number when chunk by page is enabled
     if page_no is not None:
-        output_dict["page_number"] = page_no
+        output_dict["pageNumber"] = page_no
 
     return output_dict
 
@@ -347,7 +347,7 @@ async def process_figures_from_extracted_content(
     logging.info("Finished image upload tasks")
 
     figures = [
-        {"FigureId": figure_id, "FigureUri": figure_uri}
+        {"figureId": figure_id, "figureUri": figure_uri}
         for figure_id, figure_uri in zip(figure_ids, figure_uris)
     ]
 
