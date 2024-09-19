@@ -91,7 +91,7 @@ This method takes the detected figures, and crops them out of the page to save t
 
 `update_figure_description` is used to update the original Markdown content with the description and meaning of the figure.
 
-##### clean_adi_markdown
+##### build_and_clean_markdown_for_response
 
 This method performs the final cleaning of the Markdown contents. In this method, the section headings and page numbers are extracted for the content to be returned to the indexer.
 

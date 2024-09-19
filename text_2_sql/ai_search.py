@@ -9,6 +9,7 @@ from environment import IdentityType, get_identity_type
 import os
 import logging
 import base64
+from datetime import datetime, timezone
 
 
 async def run_ai_search_query(
@@ -86,6 +87,8 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
     identity_type = get_identity_type()
 
     fields_to_embed = {field: document[field] for field in vector_fields}
+
+    document["DateLastModified"] = datetime.now(timezone.utc)
 
     async with AsyncAzureOpenAI(
         # This is the default and can be omitted
