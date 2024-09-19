@@ -19,6 +19,7 @@ from azure.search.documents.indexes.models import (
     SearchIndexerIndexProjectionsParameters,
     IndexProjectionMode,
     SimpleField,
+    ComplexField,
     BlobIndexerDataToExtract,
     IndexerExecutionEnvironment,
 )
@@ -96,6 +97,27 @@ class RagDocumentsAISearch(AISearch):
                 filterable=True,
                 facetable=True,
             ),
+            ComplexField(
+                name="Figures",
+                collection=True,
+                fields=[
+                    SimpleField(
+                        name="FigureId",
+                        type=SearchFieldDataType.String,
+                        collection=True,
+                    ),
+                    SimpleField(
+                        name="FigureUri",
+                        type=SearchFieldDataType.String,
+                        collection=True,
+                    ),
+                ],
+            ),
+            SimpleField(
+                name="DateLastModified",
+                type=SearchFieldDataType.DateTimeOffset,
+                filterable=True,
+            ),
         ]
 
         if self.enable_page_by_chunking:
@@ -152,11 +174,11 @@ class RagDocumentsAISearch(AISearch):
         )
 
         key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
-            "/document/pages/*", "/document/pages/*/cleaned_chunk"
+            "/document/pages/*", "/document/pages/*/cleanedChunk"
         )
 
         embedding_skill = self.get_vector_skill(
-            "/document/pages/*", "/document/pages/*/cleaned_chunk"
+            "/document/pages/*", "/document/pages/*/cleanedChunk"
         )
 
         if self.enable_page_by_chunking:
@@ -191,7 +213,22 @@ class RagDocumentsAISearch(AISearch):
                 name="Keywords", source="/document/pages/*/keywords"
             ),
             InputFieldMappingEntry(
-                name="Sections", source="/document/pages/*/cleaned_sections"
+                name="Sections", source="/document/pages/*/cleanedSections"
+            ),
+            InputFieldMappingEntry(
+                name="Figures",
+                source_context="/document/pages/*/figures/*",
+                inputs=[
+                    InputFieldMappingEntry(
+                        name="FigureId", source="/document/pages/*/figures/*/figureId"
+                    ),
+                    InputFieldMappingEntry(
+                        name="FigureUri", source="/document/pages/*/figures/*/figureUri"
+                    ),
+                ],
+            ),
+            InputFieldMappingEntry(
+                name="DateLastModified", source="/document/DateLastModified"
             ),
         ]
 
@@ -199,7 +236,7 @@ class RagDocumentsAISearch(AISearch):
             mappings.extend(
                 [
                     InputFieldMappingEntry(
-                        name="PageNumber", source="/document/pages/*/page_number"
+                        name="PageNumber", source="/document/pages/*/pageNumber"
                     )
                 ]
             )
@@ -268,6 +305,10 @@ class RagDocumentsAISearch(AISearch):
                 FieldMapping(
                     source_field_name="metadata_storage_path",
                     target_field_name="SourceUri",
+                ),
+                FieldMapping(
+                    source_field_name="metadata_storage_last_modified",
+                    target_field_name="DateLastModified",
                 ),
             ],
             parameters=indexer_parameters,

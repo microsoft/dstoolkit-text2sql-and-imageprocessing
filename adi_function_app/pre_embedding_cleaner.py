@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize
 
 nltk.download("punkt")
 nltk.download("stopwords")
+nltk.download("punkt_tab")
 
 
 def get_section(cleaned_text: str) -> list:
@@ -29,9 +30,9 @@ def get_section(cleaned_text: str) -> list:
 
 def clean_sections(sections: list) -> list:
     """Cleans the sections by removing special characters and extra white spaces."""
-    cleaned_sections = [re.sub(r"[=#]", "", match).strip() for match in sections]
+    cleanedSections = [re.sub(r"[=#]", "", match).strip() for match in sections]
 
-    return cleaned_sections
+    return cleanedSections
 
 
 def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
@@ -123,19 +124,17 @@ async def process_pre_embedding_cleaner(record: dict) -> dict:
 
         # scenarios when page by chunking is enabled
         if isinstance(record["data"]["chunk"], dict):
-            cleaned_record["data"]["cleaned_chunk"] = clean_text(
+            cleaned_record["data"]["cleanedChunk"] = clean_text(
                 record["data"]["chunk"]["content"]
             )
             cleaned_record["data"]["chunk"] = record["data"]["chunk"]["content"]
-            cleaned_record["data"]["cleaned_sections"] = clean_sections(
+            cleaned_record["data"]["cleanedSections"] = clean_sections(
                 record["data"]["chunk"]["sections"]
             )
         else:
-            cleaned_record["data"]["cleaned_chunk"] = clean_text(
-                record["data"]["chunk"]
-            )
+            cleaned_record["data"]["cleanedChunk"] = clean_text(record["data"]["chunk"])
             cleaned_record["data"]["chunk"] = record["data"]["chunk"]
-            cleaned_record["data"]["cleaned_sections"] = get_section(
+            cleaned_record["data"]["cleanedSections"] = get_section(
                 record["data"]["chunk"]
             )
 

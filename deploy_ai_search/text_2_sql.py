@@ -94,6 +94,11 @@ class Text2SqlAISearch(AISearch):
                 collection=True,
                 hidden=True,
             ),  # This is needed to enable semantic searching against the column names as complex field types are not used.
+            SimpleField(
+                name="DateLastModified",
+                type=SearchFieldDataType.DateTimeOffset,
+                filterable=True,
+            ),
         ]
 
         return fields
@@ -177,6 +182,12 @@ class Text2SqlAISearch(AISearch):
             target_index_name=self.index_name,
             data_source_name=self.data_source_name,
             schedule=schedule,
+            field_mappings=[
+                FieldMapping(
+                    source_field_name="metadata_storage_last_modified",
+                    target_field_name="DateLastModified",
+                )
+            ],
             output_field_mappings=[
                 FieldMapping(
                     source_field_name="/document/Entity", target_field_name="Entity"
@@ -200,6 +211,9 @@ class Text2SqlAISearch(AISearch):
                 FieldMapping(
                     source_field_name="/document/Columns/*/Name",
                     target_field_name="ColumnNames",
+                ),
+                FieldMapping(
+                    name="DateLastModified", source="/document/DateLastModified"
                 ),
             ],
             parameters=indexer_parameters,

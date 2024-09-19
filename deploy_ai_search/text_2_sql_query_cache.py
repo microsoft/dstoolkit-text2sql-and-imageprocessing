@@ -97,6 +97,11 @@ class Text2SqlQueryCacheAISearch(AISearch):
                     ),
                 ],
             ),
+            SimpleField(
+                name="DateLastModified",
+                type=SearchFieldDataType.DateTimeOffset,
+                filterable=True,
+            ),
         ]
 
         return fields
