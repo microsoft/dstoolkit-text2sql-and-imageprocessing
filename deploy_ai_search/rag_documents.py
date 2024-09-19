@@ -174,11 +174,11 @@ class RagDocumentsAISearch(AISearch):
         )
 
         key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
-            "/document/pages/*", "/document/pages/*/cleaned_chunk"
+            "/document/pages/*", "/document/pages/*/cleanedChunk"
         )
 
         embedding_skill = self.get_vector_skill(
-            "/document/pages/*", "/document/pages/*/cleaned_chunk"
+            "/document/pages/*", "/document/pages/*/cleanedChunk"
         )
 
         if self.enable_page_by_chunking:
@@ -213,22 +213,29 @@ class RagDocumentsAISearch(AISearch):
                 name="Keywords", source="/document/pages/*/keywords"
             ),
             InputFieldMappingEntry(
-                name="Sections", source="/document/pages/*/cleaned_sections"
+                name="Sections", source="/document/pages/*/cleanedSections"
             ),
             InputFieldMappingEntry(
-                name="Figures", source="/document/pages/*/cleaned_sections"
+                name="Figures",
+                inputs=[
+                    InputFieldMappingEntry(
+                        name="FigureID", source="/document/pages/*/figures/figureId"
+                    ),
+                    InputFieldMappingEntry(
+                        name="FigureUri", source="/document/pages/*/figures/figureUri"
+                    ),
+                ],
             ),
             InputFieldMappingEntry(
                 name="DateLastModified", source="/document/DateLastModified"
             ),
-            InputFieldMappingEntry(name="Figures", source="/document/pages/*/figures"),
         ]
 
         if self.enable_page_by_chunking:
             mappings.extend(
                 [
                     InputFieldMappingEntry(
-                        name="PageNumber", source="/document/pages/*/page_number"
+                        name="PageNumber", source="/document/pages/*/pageNumber"
                     )
                 ]
             )
