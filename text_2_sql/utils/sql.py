@@ -76,6 +76,7 @@ async def fetch_queries_from_cache(question: str):
         os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"],
         top=3,
         include_scores=True,
+        minimum_score=1.5,
     )
 
     if len(cached_schemas) == 0:

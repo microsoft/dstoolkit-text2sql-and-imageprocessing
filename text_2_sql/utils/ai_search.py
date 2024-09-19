@@ -20,6 +20,7 @@ async def run_ai_search_query(
     semantic_config: str,
     top=5,
     include_scores=False,
+    minimum_score: float = None,
 ):
     """Run the AI search query."""
     identity_type = get_identity_type()
@@ -72,6 +73,12 @@ async def run_ai_search_query(
 
         async for result in results.by_page():
             async for item in result:
+                if (
+                    minimum_score is not None
+                    and item["@search.reranker_score"] < minimum_score
+                ):
+                    continue
+
                 if include_scores is False:
                     del item["@search.reranker_score"]
                     del item["@search.score"]
