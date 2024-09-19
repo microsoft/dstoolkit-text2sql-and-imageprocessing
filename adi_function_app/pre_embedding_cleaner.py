@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize
 
 nltk.download("punkt")
 nltk.download("stopwords")
+nltk.download("punkt_tab")
 
 
 def get_section(cleaned_text: str) -> list:
