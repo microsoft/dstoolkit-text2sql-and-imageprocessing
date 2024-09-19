@@ -217,12 +217,13 @@ class RagDocumentsAISearch(AISearch):
             ),
             InputFieldMappingEntry(
                 name="Figures",
+                source_context="/document/pages/*/figures/*",
                 inputs=[
                     InputFieldMappingEntry(
-                        name="FigureID", source="/document/pages/*/figures/figureId"
+                        name="FigureId", source="/document/pages/*/figures/*/figureId"
                     ),
                     InputFieldMappingEntry(
-                        name="FigureUri", source="/document/pages/*/figures/figureUri"
+                        name="FigureUri", source="/document/pages/*/figures/*/figureUri"
                     ),
                 ],
             ),
