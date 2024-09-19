@@ -35,7 +35,8 @@ class VectorBasedSQLPlugin:
         """
 
         if engine_specific_rules:
-            engine_specific_rules = f"\n        The following {self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"
+            engine_specific_rules = f"""\n        The following {
+                self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"""
 
         use_query_cache = (
             os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
@@ -49,7 +50,7 @@ class VectorBasedSQLPlugin:
             query_prompt = """First look at the provided cached queries, and associated schemas to see if you can use them to formulate a SQL query. If you can't use or adjust a previous generated SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
             """
         elif use_query_cache and pre_run_query_cache:
-            query_prompt = """First consider the pre-computed SQL query and the results from execution. Consider if you can use this data to answer the question without running another SQL query.
+            query_prompt = """First consider the pre-fetched SQL query and the results from execution. Consider if you can use this data to answer the question without running another SQL query.
 
             If this data or query will not answer the question, look at the provided cached queries, and associated schemas to see if you can use them to formulate a SQL query.
 
@@ -67,7 +68,7 @@ class VectorBasedSQLPlugin:
         Output corresponding text values in the answer for columns where there is an ID. For example, if the column is 'ProductID', output the corresponding 'ProductModel' in the response. Do not include the ID in the response.
         If a user is asking for a comparison, always compare the relevant values in the database.
 
-        Only use schema information provided as part of the input or fetched from GetEntitySchema() to construct the SQL query. Do not use any other columns or make up column names.
+        Only use schema / column information provided as part of [CACHED SCHEMAS] or fetched from GetEntitySchema() to construct the SQL query. Do NOT use any other columns or make up column names.
 
         The target database engine is {self.target_engine}, SQL queries must be able compatible to run on {self.target_engine}. {engine_specific_rules}
         You must only provide SELECT SQL queries.

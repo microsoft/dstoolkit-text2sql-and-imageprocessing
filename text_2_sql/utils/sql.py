@@ -78,6 +78,9 @@ async def fetch_queries_from_cache(question: str):
         include_scores=True,
     )
 
+    if len(cached_schemas) == 0:
+        return ""
+
     pre_run_query_cache = (
         os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
     )
@@ -98,8 +101,10 @@ async def fetch_queries_from_cache(question: str):
             sql_result = await run_sql_query(sql_query)
             logging.info("SQL Query Result: %s", sql_result)
 
-            pre_computed_match = f"Pre-run SQL result from the cache using query '{sql_query}':\n{json.dumps(sql_result, default=str)}\n"
+            pre_computed_match = f"""[BEGIN PRE-FETCHED RESULTS FOR SQL QUERY = '{sql_query}']\n{
+                json.dumps(sql_result, default=str)}\n[END PRE-FETCHED RESULTS FOR SQL QUERY]\n"""
 
-    formatted_sql_cache_string = f"{pre_computed_match}Top 3 matching questions and schemas:\n{json.dumps(cached_schemas, default=str)}"
+    formatted_sql_cache_string = f"""{pre_computed_match}[BEGIN CACHED SCHEMAS]:\n{
+        json.dumps(cached_schemas, default=str)}[END CACHED SCHEMAS]"""
 
     return formatted_sql_cache_string
