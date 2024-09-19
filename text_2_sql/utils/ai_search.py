@@ -19,6 +19,7 @@ async def run_ai_search_query(
     index_name: str,
     semantic_config: str,
     top=5,
+    include_scores=False,
 ):
     """Run the AI search query."""
     identity_type = get_identity_type()
@@ -42,6 +43,9 @@ async def run_ai_search_query(
         fields=",".join(vector_fields),
     )
 
+    # if include_scores:
+    #     retrieval_fields.append("search.rerankerScore")
+
     if identity_type == IdentityType.SYSTEM_ASSIGNED:
         credential = DefaultAzureCredential()
     elif identity_type == IdentityType.USER_ASSIGNED:
@@ -63,11 +67,22 @@ async def run_ai_search_query(
             search_text=query,
             select=",".join(retrieval_fields),
             vector_queries=[vector_query],
+            query_type="semantic",
+            query_language="en-GB",
         )
 
-        combined_results = [
-            result async for results in results.by_page() async for result in results
-        ]
+        combined_results = []
+
+        async for result in results.by_page():
+            async for item in result:
+                if include_scores is False:
+                    del item["@search.reranker_score"]
+                    del item["@search.score"]
+                    del item["@search.highlights"]
+                    del item["@search.captions"]
+
+                logging.info("Item: %s", item)
+                combined_results.append(item)
 
         logging.info("Results: %s", combined_results)
 

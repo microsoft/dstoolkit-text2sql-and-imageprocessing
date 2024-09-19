@@ -1,12 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 from semantic_kernel.functions import kernel_function
-import aioodbc
 from typing import Annotated
 import os
 import json
 import logging
-from ai_search import run_ai_search_query
+from utils.ai_search import run_ai_search_query
+from utils.sql import run_sql_query
 
 
 class VectorBasedSQLPlugin:
@@ -27,9 +27,7 @@ class VectorBasedSQLPlugin:
         self.database = database
         self.target_engine = target_engine
 
-    def system_prompt(
-        self, engine_specific_rules: str | None = None, query_cache: str | None = None
-    ) -> str:
+    def system_prompt(self, engine_specific_rules: str | None = None) -> str:
         """Get the schemas for the database entities and provide a system prompt for the user.
 
         Returns:
@@ -43,13 +41,19 @@ class VectorBasedSQLPlugin:
             os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
         )
 
-        if use_query_cache:
-            query_prompt = f"""First look at the cached queries, SQL templates and schemas to see if you can use them to formulate a SQL query. If you can't find a suitable query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
+        pre_run_query_cache = (
+            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+        )
 
-            [BEGIN QUERY CACHE]
-            {query_cache}
-            [END QUERY CACHE]
+        if use_query_cache and not pre_run_query_cache:
+            query_prompt = """First look at the provided cached queries, and associated schemas to see if you can use them to formulate a SQL query. If you can't use or adjust a previous generated SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
             """
+        elif use_query_cache and pre_run_query_cache:
+            query_prompt = """First consider the pre-computed SQL query and the results from execution. Consider if you can use this data to answer the question without running another SQL query.
+
+            If this data or query will not answer the question, look at the provided cached queries, and associated schemas to see if you can use them to formulate a SQL query.
+
+            Finally, if you can't use or adjust a previous generated SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain."""
         else:
             query_prompt = """Use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
 
@@ -128,16 +132,6 @@ class VectorBasedSQLPlugin:
         logging.info("Executing SQL Query")
         logging.debug("SQL Query: %s", sql_query)
 
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
-        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-            async with sql_db_client.cursor() as cursor:
-                await cursor.execute(sql_query)
-
-                columns = [column[0] for column in cursor.description]
-
-                rows = await cursor.fetchall()
-                results = [dict(zip(columns, returned_row)) for returned_row in rows]
-
-        logging.debug("Results: %s", results)
+        results = await run_sql_query(sql_query)
 
         return json.dumps(results, default=str)
