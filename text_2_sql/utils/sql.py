@@ -74,7 +74,7 @@ async def fetch_queries_from_cache(question: str):
         ["Question", "Query", "Schemas"],
         os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
         os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"],
-        top=3,
+        top=2,
         include_scores=True,
         minimum_score=1.5,
     )
@@ -95,6 +95,7 @@ async def fetch_queries_from_cache(question: str):
             logging.info("Score is greater than 3")
 
             sql_query = cached_schemas[0]["Query"]
+            schema = cached_schemas[0]["Schemas"]
 
             logging.info("SQL Query: %s", sql_query)
 
@@ -103,7 +104,9 @@ async def fetch_queries_from_cache(question: str):
             logging.info("SQL Query Result: %s", sql_result)
 
             pre_computed_match = f"""[BEGIN PRE-FETCHED RESULTS FOR SQL QUERY = '{sql_query}']\n{
-                json.dumps(sql_result, default=str)}\n[END PRE-FETCHED RESULTS FOR SQL QUERY]\n"""
+                json.dumps(sql_result, default=str)}\nSchema={json.dumps(schema, default=str)}\n[END PRE-FETCHED RESULTS FOR SQL QUERY]\n"""
+
+            del cached_schemas[0]
 
     formatted_sql_cache_string = f"""{pre_computed_match}[BEGIN CACHED SCHEMAS]:\n{
         json.dumps(cached_schemas, default=str)}[END CACHED SCHEMAS]"""

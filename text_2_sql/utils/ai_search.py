@@ -40,7 +40,7 @@ async def run_ai_search_query(
 
     vector_query = VectorizedQuery(
         vector=embedding_vector,
-        k_nearest_neighbors=5,
+        k_nearest_neighbors=7,
         fields=",".join(vector_fields),
     )
 
@@ -126,7 +126,6 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
     document["Id"] = base64.urlsafe_b64encode(document["Question"].encode()).decode(
         "utf-8"
     )
-    logging.info("Document with embeddings: %s", document)
 
     if identity_type == IdentityType.SYSTEM_ASSIGNED:
         credential = DefaultAzureCredential()

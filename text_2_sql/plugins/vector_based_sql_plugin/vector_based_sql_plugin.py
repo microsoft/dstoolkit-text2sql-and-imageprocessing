@@ -5,8 +5,9 @@ from typing import Annotated
 import os
 import json
 import logging
-from utils.ai_search import run_ai_search_query
+from utils.ai_search import run_ai_search_query, add_entry_to_index
 from utils.sql import run_sql_query
+import asyncio
 
 
 class VectorBasedSQLPlugin:
@@ -63,7 +64,7 @@ class VectorBasedSQLPlugin:
 
         system_prompt = f"""{query_prompt}
 
-        Use the 'RunSQLQuery()' function to run the SQL query against the database.
+        If needed, use the 'RunSQLQuery()' function to run the SQL query against the database. Never just return the SQL query as the answer.
 
         Output corresponding text values in the answer for columns where there is an ID. For example, if the column is 'ProductID', output the corresponding 'ProductModel' in the response. Do not include the ID in the response.
         If a user is asking for a comparison, always compare the relevant values in the database.
@@ -121,7 +122,15 @@ class VectorBasedSQLPlugin:
         name="RunSQLQuery",
     )
     async def run_sql_query(
-        self, sql_query: Annotated[str, "The SQL query to run against the DB"]
+        self,
+        sql_query: Annotated[str, "The SQL query to run against the DB"],
+        question: Annotated[
+            str, "The question that was asked by the user in unedited form."
+        ],
+        schemas: Annotated[
+            str,
+            "JSON string of array schemas that were used to generate the SQL query. This is either the output of GetEntitySchema() or the cached schemas.",
+        ],
     ) -> str:
         """Sends an SQL Query to the SQL Databases and returns to the result.
 
@@ -136,5 +145,18 @@ class VectorBasedSQLPlugin:
         logging.debug("SQL Query: %s", sql_query)
 
         results = await run_sql_query(sql_query)
+
+        entry = {
+            "Question": question,
+            "Query": sql_query,
+            "Schemas": json.loads(schemas),
+        }
+        task = add_entry_to_index(
+            entry,
+            {"Question": "QuestionEmbedding"},
+            os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
+        )
+
+        asyncio.create_task(task)
 
         return json.dumps(results, default=str)
