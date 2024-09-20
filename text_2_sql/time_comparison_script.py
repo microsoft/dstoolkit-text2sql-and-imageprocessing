@@ -187,7 +187,7 @@ async def run_tests():
     for scenario in scenarios:
         average_times[scenario] = {i: [] for i in range(len(questions))}
 
-    for _ in range(25):
+    for _ in range(2):
         for q_num, question in enumerate(questions):
             for scenario in scenarios:
                 question_scenario_sets.append((q_num, question, scenario))

@@ -134,7 +134,7 @@ class VectorBasedSQLPlugin:
                     entity = schema["Entity"]
                     schema["SelectFromEntity"] = f"{database}.{entity}"
 
-        self.schemas.extend(cached_schemas)
+                    self.schemas.append(schema)
 
         pre_fetched_results_string = ""
         if self.pre_run_query_cache and len(cached_schemas) > 0:
@@ -288,6 +288,9 @@ class VectorBasedSQLPlugin:
 
                 matching_schemas = self.filter_schemas_against_statement(sql_query)
 
+                if len(matching_schemas) == 0:
+                    return json.dumps(results, default=str)
+
                 for schema in matching_schemas:
                     logging.info("Loaded Schema: %s", schema)
                     valid_columns = ["Entity", "Columns"]
@@ -305,15 +308,16 @@ class VectorBasedSQLPlugin:
                 }
             except Exception as e:
                 logging.error("Error: %s", e)
-
-            if entry is not None:
-                task = add_entry_to_index(
-                    entry,
-                    {"Question": "QuestionEmbedding"},
-                    os.environ[
-                        "AIService__AzureSearchOptions__Text2SqlQueryCache__Index"
-                    ],
-                )
+                raise e
+            else:
+                if entry is not None:
+                    task = add_entry_to_index(
+                        entry,
+                        {"Question": "QuestionEmbedding"},
+                        os.environ[
+                            "AIService__AzureSearchOptions__Text2SqlQueryCache__Index"
+                        ],
+                    )
 
                 asyncio.create_task(task)
 
