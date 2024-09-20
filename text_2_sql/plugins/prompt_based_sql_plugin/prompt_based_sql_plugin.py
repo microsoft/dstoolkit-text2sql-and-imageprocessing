@@ -4,7 +4,8 @@ from semantic_kernel.functions import kernel_function
 from typing import Annotated
 import json
 import logging
-from utils.sql import run_sql_query
+import os
+import aioodbc
 
 
 class PromptBasedSQLPlugin:
@@ -132,7 +133,15 @@ class PromptBasedSQLPlugin:
         logging.info("Executing SQL Query")
         logging.debug("SQL Query: %s", sql_query)
 
-        results = await run_sql_query(sql_query)
+        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
+        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
+            async with sql_db_client.cursor() as cursor:
+                await cursor.execute(sql_query)
+
+                columns = [column[0] for column in cursor.description]
+
+                rows = await cursor.fetchall()
+                results = [dict(zip(columns, returned_row)) for returned_row in rows]
 
         logging.debug("Results: %s", results)
 

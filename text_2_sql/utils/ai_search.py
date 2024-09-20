@@ -117,8 +117,8 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
             api_version=os.environ["OpenAI__ApiVersion"],
         ) as open_ai_client:
             embeddings = await open_ai_client.embeddings.create(
-                model=os.environ["OpenAI__EmbeddingModel"], input=fields_to_embed.values(
-                )
+                model=os.environ["OpenAI__EmbeddingModel"],
+                input=fields_to_embed.values(),
             )
 
             # Extract the embedding vector
@@ -148,3 +148,4 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
     except Exception as e:
         logging.error("Failed to add item to index.")
         logging.error("Error: %s", e)
+        raise e

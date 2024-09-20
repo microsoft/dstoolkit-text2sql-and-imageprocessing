@@ -17,9 +17,9 @@ from plugins.vector_based_sql_plugin.vector_based_sql_plugin import VectorBasedS
 from plugins.prompt_based_sql_plugin.prompt_based_sql_plugin import PromptBasedSQLPlugin
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.prompt_template.prompt_template_config import PromptTemplateConfig
-from utils.sql import fetch_queries_from_cache, fetch_schemas_from_store
 import seaborn as sns
 import random
+
 logging.basicConfig(level=logging.INFO)
 
 dotenv.load_dotenv()
@@ -49,13 +49,11 @@ prompt_chat_service = AzureChatCompletion(
 prompt_kernel.add_service(prompt_chat_service)
 
 # Register the SQL Plugin with the Database name to use.
-vector_sql_plugin = VectorBasedSQLPlugin(
-    database=os.environ["Text2Sql__DatabaseName"])
+vector_sql_plugin = VectorBasedSQLPlugin()
 vector_kernel.add_plugin(vector_sql_plugin, "SQL")
 
 # Register the SQL Plugin with the Database name to use.
-prompt_sql_plugin = PromptBasedSQLPlugin(
-    database=os.environ["Text2Sql__DatabaseName"])
+prompt_sql_plugin = PromptBasedSQLPlugin(database=os.environ["Text2Sql__DatabaseName"])
 prompt_kernel.add_plugin(prompt_sql_plugin, "SQL")
 
 # Load prompt and execution settings from the file
@@ -77,7 +75,9 @@ chat_function = prompt_kernel.add_function(
 )
 
 
-async def ask_question_to_prompt_kernel(question: str, chat_history: ChatHistory) -> str:
+async def ask_question_to_prompt_kernel(
+    question: str, chat_history: ChatHistory
+) -> str:
     """Asks a question to the chatbot and returns the answer.
 
     Args:
@@ -113,7 +113,9 @@ async def ask_question_to_prompt_kernel(question: str, chat_history: ChatHistory
     logging.info("Answer: %s", answer)
 
 
-async def ask_question_to_vector_kernel(question: str, chat_history: ChatHistory) -> str:
+async def ask_question_to_vector_kernel(
+    question: str, chat_history: ChatHistory
+) -> str:
     """Asks a question to the chatbot and returns the answer.
 
     Args:
@@ -124,14 +126,12 @@ async def ask_question_to_vector_kernel(question: str, chat_history: ChatHistory
         str: The answer from the chatbot.
     """
 
-    formatted_sql_schema_string = await fetch_schemas_from_store(question)
-
     # Create important information prompt that contains the SQL database information.
     engine_specific_rules = "Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error."
     important_information_prompt = f"""
     [SQL DATABASE INFORMATION]
-    {vector_sql_plugin.system_prompt(
-        engine_specific_rules=engine_specific_rules, schemas_string=formatted_sql_schema_string)}
+    {await vector_sql_plugin.system_prompt(
+        engine_specific_rules=engine_specific_rules, question=question)}
     [END SQL DATABASE INFORMATION]
     """
 
@@ -152,55 +152,14 @@ async def ask_question_to_vector_kernel(question: str, chat_history: ChatHistory
     logging.info("Answer: %s", answer)
 
 
-async def ask_question_to_vector_kernel_against_cache(question: str, chat_history: ChatHistory) -> str:
-    """Asks a question to the chatbot and returns the answer.
-
-    Args:
-        question (str): The question to ask the chatbot.
-        chat_history (ChatHistory): The chat history object.
-
-    Returns:
-        str: The answer from the chatbot.
-    """
-
-    formatted_sql_cache_string, pre_fetched_results_string = await fetch_queries_from_cache(question)
-
-    # Create important information prompt that contains the SQL database information.
-    engine_specific_rules = "Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error."
-    important_information_prompt = f"""
-    [SQL DATABASE INFORMATION]
-    {vector_sql_plugin.system_prompt(
-        engine_specific_rules=engine_specific_rules, query_cache_string=formatted_sql_cache_string, pre_fetched_results_string=pre_fetched_results_string)}
-    [END SQL DATABASE INFORMATION]
-    """
-
-    arguments = KernelArguments()
-    arguments["chat_history"] = chat_history
-    arguments["important_information"] = important_information_prompt
-    arguments["user_input"] = question
-
-    logging.info("Question: %s", question)
-
-    answer = await vector_kernel.invoke(
-        function_name="Chat",
-        plugin_name="ChatBot",
-        arguments=arguments,
-        chat_history=chat_history,
-    )
-
-    logging.info("Answer: %s", answer)
-
-
-async def measure_time(question: str, scenario: str, n=30) -> float:
+async def measure_time(question: str, scenario: str) -> float:
     history = ChatHistory()
 
     start_time = time.time()
     if scenario == "Prompt":
         await ask_question_to_prompt_kernel(question, history)
-    elif scenario == "Vector":
-        await ask_question_to_vector_kernel(question, history)
     else:
-        await ask_question_to_vector_kernel_against_cache(question, history)
+        await ask_question_to_vector_kernel(question, history)
     time_taken = time.time() - start_time
 
     logging.info("Scenario: %s", scenario)
@@ -218,7 +177,7 @@ async def run_tests():
     questions = [
         "What is the total revenue in June 2008?",
         "Give me the total number of orders in 2008?",
-        "Which country did we sell the most to in June 2008?",
+        "Which country did had the highest number of orders in June 2008?",
     ]
 
     # Store average times for each question and scenario
@@ -228,7 +187,7 @@ async def run_tests():
     for scenario in scenarios:
         average_times[scenario] = {i: [] for i in range(len(questions))}
 
-    for _ in range(30):
+    for _ in range(25):
         for q_num, question in enumerate(questions):
             for scenario in scenarios:
                 question_scenario_sets.append((q_num, question, scenario))
@@ -255,7 +214,8 @@ async def run_tests():
         normalised_average_times[scenario] = []
         for q_num in range(len(questions)):
             normalised_average_times[scenario].append(
-                np.median(average_times[scenario][q_num]))
+                np.median(average_times[scenario][q_num])
+            )
 
     return normalised_average_times
 
