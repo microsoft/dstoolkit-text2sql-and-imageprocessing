@@ -1,4 +1,4 @@
-semantic-kernel==1.8.3
+semantic-kernel
 azure-search
 azure-search-documents==11.6.0b4
 aioodbc
@@ -6,3 +6,4 @@ azure-identity
 python-dotenv
 matplotlib
 numpy
+seaborn

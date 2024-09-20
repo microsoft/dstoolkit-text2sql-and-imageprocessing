@@ -101,7 +101,7 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
 
     for field in vector_fields.keys():
         if field not in document.keys():
-            raise ValueError(f"Field {field} is not in the document.")
+            logging.error(f"Field {field} is not in the document.")
 
     identity_type = get_identity_type()
 
@@ -109,37 +109,42 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
 
     document["DateLastModified"] = datetime.now(timezone.utc)
 
-    async with AsyncAzureOpenAI(
-        # This is the default and can be omitted
-        api_key=os.environ["OpenAI__ApiKey"],
-        azure_endpoint=os.environ["OpenAI__Endpoint"],
-        api_version=os.environ["OpenAI__ApiVersion"],
-    ) as open_ai_client:
-        embeddings = await open_ai_client.embeddings.create(
-            model=os.environ["OpenAI__EmbeddingModel"], input=fields_to_embed.values()
+    try:
+        async with AsyncAzureOpenAI(
+            # This is the default and can be omitted
+            api_key=os.environ["OpenAI__ApiKey"],
+            azure_endpoint=os.environ["OpenAI__Endpoint"],
+            api_version=os.environ["OpenAI__ApiVersion"],
+        ) as open_ai_client:
+            embeddings = await open_ai_client.embeddings.create(
+                model=os.environ["OpenAI__EmbeddingModel"], input=fields_to_embed.values(
+                )
+            )
+
+            # Extract the embedding vector
+            for i, field in enumerate(vector_fields.values()):
+                document[field] = embeddings.data[i].embedding
+
+        document["Id"] = base64.urlsafe_b64encode(document["Question"].encode()).decode(
+            "utf-8"
         )
 
-        # Extract the embedding vector
-        for i, field in enumerate(vector_fields.values()):
-            document[field] = embeddings.data[i].embedding
-
-    document["Id"] = base64.urlsafe_b64encode(document["Question"].encode()).decode(
-        "utf-8"
-    )
-
-    if identity_type == IdentityType.SYSTEM_ASSIGNED:
-        credential = DefaultAzureCredential()
-    elif identity_type == IdentityType.USER_ASSIGNED:
-        credential = DefaultAzureCredential(
-            managed_identity_client_id=os.environ["ClientID"]
-        )
-    else:
-        credential = AzureKeyCredential(
-            os.environ["AIService__AzureSearchOptions__Key"]
-        )
-    async with SearchClient(
-        endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
-        index_name=index_name,
-        credential=credential,
-    ) as search_client:
-        await search_client.upload_documents(documents=[document])
+        if identity_type == IdentityType.SYSTEM_ASSIGNED:
+            credential = DefaultAzureCredential()
+        elif identity_type == IdentityType.USER_ASSIGNED:
+            credential = DefaultAzureCredential(
+                managed_identity_client_id=os.environ["ClientID"]
+            )
+        else:
+            credential = AzureKeyCredential(
+                os.environ["AIService__AzureSearchOptions__Key"]
+            )
+        async with SearchClient(
+            endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
+            index_name=index_name,
+            credential=credential,
+        ) as search_client:
+            await search_client.upload_documents(documents=[document])
+    except Exception as e:
+        logging.error("Failed to add item to index.")
+        logging.error("Error: %s", e)

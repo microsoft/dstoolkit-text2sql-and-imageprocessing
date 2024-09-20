@@ -5,7 +5,7 @@ from typing import Annotated
 import os
 import json
 import logging
-from utils.ai_search import run_ai_search_query, add_entry_to_index
+from utils.ai_search import run_ai_search_query, add_entry_to_index, fetch_schemas_from_store
 from utils.sql import run_sql_query
 import asyncio
 
@@ -16,19 +16,17 @@ class VectorBasedSQLPlugin:
     This is an improved version of the SQLPlugin that uses a vector-based approach to generate SQL queries. This works best for a database with a large number of entities and columns.
     """
 
-    def __init__(self, database: str, target_engine: str = "Microsoft TSQL Server"):
+    def __init__(self, target_engine: str = "Microsoft TSQL Server"):
         """Initialize the SQL Plugin.
 
         Args:
         ----
-            database (str): The name of the database to connect to.
             target_engine (str): The target database engine to run the queries against. Default is 'SQL Server'.
         """
         self.entities = {}
-        self.database = database
         self.target_engine = target_engine
 
-    def system_prompt(self, engine_specific_rules: str | None = None) -> str:
+    def system_prompt(self, engine_specific_rules: str | None = None, schemas_string: str | None = None, query_cache_string: str | None = None, pre_fetched_results_string: str | None = None) -> str:
         """Get the schemas for the database entities and provide a system prompt for the user.
 
         Returns:
@@ -40,27 +38,39 @@ class VectorBasedSQLPlugin:
                 self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"""
 
         use_query_cache = (
-            os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseQueryCache",
+                           "False").lower() == "true"
         )
 
         pre_run_query_cache = (
-            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__PreRunQueryCache",
+                           "False").lower() == "true"
         )
 
         if use_query_cache and not pre_run_query_cache:
-            query_prompt = """First look at the provided cached queries, and associated schemas to see if you can use them to formulate a SQL query. If you can't use or adjust a previous generated SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
+            query_prompt = f"""First look at the provided cached queries below, and associated schemas to see if you can use them to formulate a SQL query.
+
+            {query_cache_string}
+
+            If you can't the above or adjust a previous generated SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
             """
         elif use_query_cache and pre_run_query_cache:
-            query_prompt = """First consider the pre-fetched SQL query and the results from execution. Consider if you can use this data to answer the question without running another SQL query.
+            query_prompt = f"""First consider the pre-fetched SQL query and the results from execution. Consider if you can use this data to answer the question without running another SQL query. If the data is sufficient, use it to answer the question instead of running a new query.
 
-            If this data or query will not answer the question, look at the provided cached queries, and associated schemas to see if you can use them to formulate a SQL query.
+            {pre_fetched_results_string}
+
+            If this data or query will not answer the question, look at the provided cached queries below, and associated schemas to see if you can use them to formulate a SQL query.
+
+            {query_cache_string}
 
             Finally, if you can't use or adjust a previous generated SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain."""
         else:
-            query_prompt = """Use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
+            query_prompt = f"""
+            First look at the provided schemas below which have been retrieved based on the user question. Consider if you can use these schemas to formulate a SQL query.
 
-            Always generate the SQL query based on the GetEntitySchema() function output, do not use the chat history data to generate the SQL query.
-            Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names."""
+            {schemas_string}
+
+            If you can't use the above schemas to formulate a SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain."""
 
         system_prompt = f"""{query_prompt}
 
@@ -69,7 +79,8 @@ class VectorBasedSQLPlugin:
         Output corresponding text values in the answer for columns where there is an ID. For example, if the column is 'ProductID', output the corresponding 'ProductModel' in the response. Do not include the ID in the response.
         If a user is asking for a comparison, always compare the relevant values in the database.
 
-        Only use schema / column information provided as part of [CACHED SCHEMAS] or fetched from GetEntitySchema() to construct the SQL query. Do NOT use any other columns or make up column names.
+        Only use schema / column information provided as part of the system prompt or from the 'GetEntitySchema()' function output when constructing a SQL query. Do not use any other entities and columns in your SQL query, other than those defined above.
+        Do not makeup or guess column names.
 
         The target database engine is {self.target_engine}, SQL queries must be able compatible to run on {self.target_engine}. {engine_specific_rules}
         You must only provide SELECT SQL queries.
@@ -103,19 +114,7 @@ class VectorBasedSQLPlugin:
             str: The schema of the views or tables in JSON format.
         """
 
-        schemas = await run_ai_search_query(
-            text,
-            ["DescriptionEmbedding"],
-            ["Entity", "EntityName", "Description", "Columns"],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
-            top=3,
-        )
-
-        for schema in schemas:
-            schema["SelectFromEntity"] = f"{self.database}.{schema['Entity']}"
-
-        return json.dumps(schemas, default=str)
+        return await fetch_schemas_from_store(text)
 
     @kernel_function(
         description="Runs an SQL query against the SQL Database to extract information.",
@@ -128,8 +127,8 @@ class VectorBasedSQLPlugin:
             str, "The question that was asked by the user in unedited form."
         ],
         schemas: Annotated[
-            str,
-            "JSON string of array schemas that were used to generate the SQL query. This is either the output of GetEntitySchema() or the cached schemas.",
+            list[str],
+            "List of JSON strings that were used to generate the SQL query. This is either the output of GetEntitySchema() or the cached schemas. Following properties: Entity (str), Columns (list). Columns is a list of dictionaries with the following properties: Name (str), Type (str), Definition (str), AllowedValues (list), SampleValues (list).",
         ],
     ) -> str:
         """Sends an SQL Query to the SQL Databases and returns to the result.
@@ -146,17 +145,36 @@ class VectorBasedSQLPlugin:
 
         results = await run_sql_query(sql_query)
 
-        entry = {
-            "Question": question,
-            "Query": sql_query,
-            "Schemas": json.loads(schemas),
-        }
-        task = add_entry_to_index(
-            entry,
-            {"Question": "QuestionEmbedding"},
-            os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
-        )
+        entry = None
+        try:
+            cleaned_schemas = []
 
-        asyncio.create_task(task)
+            for schema in schemas:
+                loaded_schema = json.loads(schema)
+                logging.info("Loaded Schema: %s", loaded_schema)
+                valid_columns = ["Entity", "Columns"]
+
+                cleaned_schema = {}
+                for valid_column in valid_columns:
+                    cleaned_schema[valid_column] = loaded_schema[valid_column]
+
+                cleaned_schemas.append(cleaned_schema)
+
+            entry = {
+                "Question": question,
+                "Query": sql_query,
+                "Schemas": cleaned_schemas,
+            }
+        except Exception as e:
+            logging.error("Error: %s", e)
+
+        if entry is not None:
+            task = add_entry_to_index(
+                entry,
+                {"Question": "QuestionEmbedding"},
+                os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
+            )
+
+            asyncio.create_task(task)
 
         return json.dumps(results, default=str)

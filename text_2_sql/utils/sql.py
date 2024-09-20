@@ -3,7 +3,7 @@
 import aioodbc
 import os
 import logging
-from utils.ai_search import add_entry_to_index, run_ai_search_query
+from utils.ai_search import run_ai_search_query
 import json
 
 
@@ -26,38 +26,29 @@ async def run_sql_query(sql_query: str) -> list[dict]:
             columns = [column[0] for column in cursor.description]
 
             rows = await cursor.fetchall()
-            results = [dict(zip(columns, returned_row)) for returned_row in rows]
+            results = [dict(zip(columns, returned_row))
+                       for returned_row in rows]
 
     logging.debug("Results: %s", results)
     return results
 
 
-async def add_queries_to_cache(question: str, response: dict):
-    """Add the queries to the cache.
+async def fetch_schemas_from_store(search: str):
+    schemas = await run_ai_search_query(
+        search,
+        ["DescriptionEmbedding"],
+        ["Entity", "EntityName", "Description", "Columns"],
+        os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
+        os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
+        top=3,
+    )
 
-    Args:
-    ----
-        response (dict): The response from the AI model.
-    """
-    # Add the queries to the cache
-    try:
-        queries = [source["reference"] for source in response["sources"]]
+    for schema in schemas:
+        entity = schema["Entity"]
+        database = os.environ["Text2Sql__DatabaseName"]
+        schema["SelectFromEntity"] = f"{database}.{entity}"
 
-        for query in queries:
-            entry = {
-                "Question": question,
-                "Query": query,
-                "Schemas": response["schemas"],
-            }
-            await add_entry_to_index(
-                entry,
-                {"Question": "QuestionEmbedding"},
-                os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
-            )
-    except KeyError:
-        logging.warning(
-            "No sources found in the response. Unable to add queries to the cache."
-        )
+    return json.dumps(schemas, default=str)
 
 
 async def fetch_queries_from_cache(question: str):
@@ -66,7 +57,7 @@ async def fetch_queries_from_cache(question: str):
     )
 
     if not use_query_cache:
-        return ""
+        return "", ""
 
     cached_schemas = await run_ai_search_query(
         question,
@@ -80,13 +71,20 @@ async def fetch_queries_from_cache(question: str):
     )
 
     if len(cached_schemas) == 0:
-        return ""
+        return "", ""
+    else:
+        database = os.environ["Text2Sql__DatabaseName"]
+        for entry in cached_schemas:
+            for schemas in entry["Schemas"]:
+                for schema in schemas:
+                    entity = schema["Entity"]
+                    schema["SelectFromEntity"] = f"{database}.{entity}"
 
     pre_run_query_cache = (
         os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
     )
 
-    pre_computed_match = ""
+    pre_fetched_results_string = ""
     if pre_run_query_cache and len(cached_schemas) > 0:
         logging.info("Cached schemas: %s", cached_schemas)
 
@@ -95,7 +93,7 @@ async def fetch_queries_from_cache(question: str):
             logging.info("Score is greater than 3")
 
             sql_query = cached_schemas[0]["Query"]
-            schema = cached_schemas[0]["Schemas"]
+            schemas = cached_schemas[0]["Schemas"]
 
             logging.info("SQL Query: %s", sql_query)
 
@@ -103,12 +101,12 @@ async def fetch_queries_from_cache(question: str):
             sql_result = await run_sql_query(sql_query)
             logging.info("SQL Query Result: %s", sql_result)
 
-            pre_computed_match = f"""[BEGIN PRE-FETCHED RESULTS FOR SQL QUERY = '{sql_query}']\n{
-                json.dumps(sql_result, default=str)}\nSchema={json.dumps(schema, default=str)}\n[END PRE-FETCHED RESULTS FOR SQL QUERY]\n"""
+            pre_fetched_results_string = f"""[BEGIN PRE-FETCHED RESULTS FOR SQL QUERY = '{sql_query}']\n{
+                json.dumps(sql_result, default=str)}\nSchema={json.dumps(schemas, default=str)}\n[END PRE-FETCHED RESULTS FOR SQL QUERY]\n"""
 
             del cached_schemas[0]
 
-    formatted_sql_cache_string = f"""{pre_computed_match}[BEGIN CACHED SCHEMAS]:\n{
+    formatted_sql_cache_string = f"""[BEGIN CACHED SCHEMAS]:\n{
         json.dumps(cached_schemas, default=str)}[END CACHED SCHEMAS]"""
 
-    return formatted_sql_cache_string
+    return formatted_sql_cache_string, pre_fetched_results_string
