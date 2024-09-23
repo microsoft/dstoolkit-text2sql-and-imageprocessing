@@ -49,7 +49,7 @@ For the query cache enabled approach, AI Search is used as a vector based cache,
 
 ### Full Logical Flow for Vector Based Approach
 
-The following diagram shows the logical flow within the Vector Based plugin. In an ideal scenario, the questions will follow the _Pre-Fetched Cache Results Path** which leads to the quickest answer generation. In cases where the question is not known, the plugin will fall back the other paths accordingly.
+The following diagram shows the logical flow within the Vector Based plugin. In an ideal scenario, the questions will follow the _Pre-Fetched Cache Results Path** which leads to the quickest answer generation. In cases where the question is not known, the plugin will fall back the other paths accordingly and generate the SQL query using the LLM. The cache is then updated with the newly generated query and schemas.
 
 As the query cache is shared between users (no data is stored in the cache), a new user can benefit from the pre-mapped question and schema resolution in the index.
 
