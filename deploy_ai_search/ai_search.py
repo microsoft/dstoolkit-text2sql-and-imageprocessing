@@ -24,6 +24,9 @@ from azure.search.documents.indexes.models import (
     InputFieldMappingEntry,
     SynonymMap,
     SplitSkill,
+    DocumentExtractionSkill,
+    OcrSkill,
+    MergeSkill,
     SearchIndexerIndexProjections,
     BlobIndexerParsingMode,
 )
@@ -147,7 +150,7 @@ class AISearch(ABC):
         return None
 
     def get_index_projections(self) -> SearchIndexerIndexProjections:
-        """Get the index projections for the indexer."""
+        """Get the index projections    for the indexer."""
 
         return None
 
@@ -420,6 +423,108 @@ class AISearch(ABC):
 
         return key_phrase_extraction_skill
 
+    def get_document_extraction_skill(self, context, source) -> DocumentExtractionSkill:
+        """Get the document extraction utility skill.
+
+        Args:
+        -----
+            context (str): The context of the skill
+            source (str): The source of the skill
+
+        Returns:
+        --------
+            DocumentExtractionSkill: The document extraction utility skill"""
+
+        doc_extraction_skill = DocumentExtractionSkill(
+            description="Extraction skill to extract content from office docs like excel, ppt, doc etc",
+            context=context,
+            inputs=[InputFieldMappingEntry(name="file_data", source=source)],
+            outputs=[
+                OutputFieldMappingEntry(
+                    name="content", target_name="extracted_content"
+                ),
+                OutputFieldMappingEntry(
+                    name="normalized_images", target_name="extracted_normalized_images"
+                ),
+            ],
+        )
+
+        return doc_extraction_skill
+
+    def get_ocr_skill(self, context, source) -> OcrSkill:
+        """Get the ocr utility skill
+        Args:
+        -----
+            context (str): The context of the skill
+            source (str): The source of the skill
+
+        Returns:
+        --------
+            OcrSkill: The ocr skill"""
+
+        if self.test:
+            batch_size = 2
+            degree_of_parallelism = 2
+        else:
+            batch_size = 2
+            degree_of_parallelism = 2
+
+        ocr_skill_inputs = [
+            InputFieldMappingEntry(name="image", source=source),
+        ]
+        ocr__skill_outputs = [OutputFieldMappingEntry(name="text", target_name="text")]
+        ocr_skill = WebApiSkill(
+            name="ocr API",
+            description="Skill to extract text from images",
+            context=context,
+            uri=self.environment.get_custom_skill_function_url("ocr"),
+            timeout="PT230S",
+            batch_size=batch_size,
+            degree_of_parallelism=degree_of_parallelism,
+            http_method="POST",
+            inputs=ocr_skill_inputs,
+            outputs=ocr__skill_outputs,
+        )
+
+        if self.environment.identity_type != IdentityType.KEY:
+                ocr_skill.auth_identity = (
+                self.environment.function_app_app_registration_resource_id
+            )
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            ocr_skill.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
+
+        return ocr_skill
+
+    def get_merge_skill(self, context, source) -> MergeSkill:
+        """Get the merge
+        Args:
+        -----
+            context (str): The context of the skill
+            source (array): The source of the skill
+
+        Returns:
+        --------
+            mergeSkill: The merge skill"""
+
+        merge_skill = MergeSkill(
+            description="Merge skill for combining OCR'd and regular text",
+            context=context,
+            inputs=[
+                InputFieldMappingEntry(name="text", source=source[0]),
+                InputFieldMappingEntry(name="itemsToInsert", source=source[1]),
+                InputFieldMappingEntry(name="offsets", source=source[2]),
+            ],
+            outputs=[
+                OutputFieldMappingEntry(name="mergedText", target_name="merged_content")
+            ],
+        )
+
+        return merge_skill
+    
+    
     def get_vector_search(self) -> VectorSearch:
         """Get the vector search configuration for compass.
 

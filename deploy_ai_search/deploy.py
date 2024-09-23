@@ -1,7 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 import argparse
-from rag_documents import RagDocumentsAISearch
+# from rag_documents import RagDocumentsAISearch
+from rag_documents_old import RagDocumentsAISearch
 from text_2_sql import Text2SqlAISearch
 from text_2_sql_query_cache import Text2SqlQueryCacheAISearch
 

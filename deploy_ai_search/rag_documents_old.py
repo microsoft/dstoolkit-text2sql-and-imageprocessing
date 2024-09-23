@@ -163,11 +163,28 @@ class RagDocumentsAISearch(AISearch):
         Returns:
             list: The skillsets  used in the indexer"""
         
-
         adi_skill = self.get_adi_skill(self.enable_page_by_chunking)
 
+
+        doc_extraction_skill = self.get_document_extraction_skill(
+            "/document", "/document/file_data"
+        )
+
+        ocr_skill = self.get_ocr_skill(
+            "/document/normalized_images/*", "/document/normalized_images/*"
+        )
+
+        merge_skill = self.get_merge_skill(
+            "/document",
+            [
+                "/document/content",
+                "/document/normalized_images/*/text",
+                "/document/normalized_images/*/contentOffset",
+            ],  
+        )
+
         text_split_skill = self.get_text_split_skill(
-            "/document", "/document/extracted_content/content"
+            "/document", "/document/merged_content/content"
         )
 
         pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
@@ -191,7 +208,9 @@ class RagDocumentsAISearch(AISearch):
             ]
         else:
             skills = [
-                adi_skill,
+                doc_extraction_skill,
+                ocr_skill,
+                merge_skill,
                 text_split_skill,
                 pre_embedding_cleaner_skill,
                 key_phrase_extraction_skill,
@@ -282,11 +301,13 @@ class RagDocumentsAISearch(AISearch):
             configuration=IndexingParametersConfiguration(
                 data_to_extract=BlobIndexerDataToExtract.ALL_METADATA,
                 query_timeout=None,
+                allow_skillset_to_read_file_data=True,
                 execution_environment=execution_environment,
                 fail_on_unprocessable_document=False,
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
-                indexed_file_name_extensions=".pdf,.pptx,.docx,.xlsx,.txt,.png,.jpg,.jpeg",
+                excluded_file_name_extensions=".png,.jpg,.jpeg,.xlsx",
+                indexed_file_name_extensions=".pdf,.pptx,.docx,.txt",
                 parsing_mode=self.parsing_mode,
             ),
             max_failed_items=5,
