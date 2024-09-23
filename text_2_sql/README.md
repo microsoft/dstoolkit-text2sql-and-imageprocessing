@@ -229,6 +229,11 @@ If the query cache is enabled, we used a vector search to find the similar previ
 
 In the case of an unknown question, there is a minor increase in latency but the query index cache could be pre-populated before it is released to users with common questions.
 
+The following environmental variables control the behaviour of the Vector Based Text2SQL generation:
+
+- **Text2Sql__UseQueryCache** - controls whether the query cached index is checked before using the standard schema index.
+- **Text2Sql__PreRunQueryCache** - controls whether the top result from the query cache index (if enabled) is pre-fetched against the data source to include the results in the prompt.
+
 ### vector_based_sql_plugin.py
 
 The `./plugins/vector_based_sql_plugin/vector_based_sql_plugin.py` contains 3 key methods to power the Vector Based Text2SQL engine.
