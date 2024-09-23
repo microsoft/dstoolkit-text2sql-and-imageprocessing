@@ -60,7 +60,9 @@ class PromptBasedSQLPlugin:
 
         system_prompt = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query.
 
-          Always then use the 'RunSQLQuery()' function to run the SQL query against the database. Never just return the SQL query as the answer.
+        Always then use the 'RunSQLQuery()' function to run the SQL query against the database. Never just return the SQL query as the answer.
+
+        Do not give the steps to the user in the response. Make sure to execute the SQL query and return the results in the response.
 
         You must always examine the provided {self.target_engine} entity descriptions to determine if they can answer the question.
 
@@ -115,7 +117,7 @@ class PromptBasedSQLPlugin:
         return json.dumps({entity_name: self.entities[entity_name.lower()]})
 
     @kernel_function(
-        description="Runs an SQL query against the SQL Database to extract information.",
+        description="Runs an SQL query against the SQL Database to extract information. This function must always be used during the answer generation process. Do not just return the SQL query as the answer.",
         name="RunSQLQuery",
     )
     async def run_sql_query(

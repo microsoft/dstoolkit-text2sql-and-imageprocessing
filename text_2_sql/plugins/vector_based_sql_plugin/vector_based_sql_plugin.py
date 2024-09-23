@@ -109,7 +109,7 @@ class VectorBasedSQLPlugin:
 
     async def fetch_queries_from_cache(self, question: str):
         if not self.use_query_cache:
-            return "", ""
+            return None
 
         cached_schemas = await run_ai_search_query(
             question,
@@ -119,13 +119,13 @@ class VectorBasedSQLPlugin:
             os.environ[
                 "AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"
             ],
-            top=2,
+            top=1,
             include_scores=True,
             minimum_score=1.5,
         )
 
         if len(cached_schemas) == 0:
-            return "", ""
+            return None
         else:
             database = os.environ["Text2Sql__DatabaseName"]
             for entry in cached_schemas:
@@ -155,12 +155,12 @@ class VectorBasedSQLPlugin:
                 pre_fetched_results_string = f"""[BEGIN PRE-FETCHED RESULTS FOR SQL QUERY = '{sql_query}']\n{
                     json.dumps(sql_result, default=str)}\nSchema={json.dumps(schemas, default=str)}\n[END PRE-FETCHED RESULTS FOR SQL QUERY]\n"""
 
-                del cached_schemas[0]
+                return pre_fetched_results_string
 
         formatted_sql_cache_string = f"""[BEGIN CACHED QUERIES AND SCHEMAS]:\n{
             json.dumps(cached_schemas, default=str)}[END CACHED QUERIES AND SCHEMAS]"""
 
-        return formatted_sql_cache_string, pre_fetched_results_string
+        return formatted_sql_cache_string
 
     async def system_prompt(
         self, engine_specific_rules: str | None = None, question: str | None = None
@@ -179,24 +179,24 @@ class VectorBasedSQLPlugin:
 
         self.set_mode()
 
-        if self.use_query_cache and not self.pre_run_query_cache:
-            query_cache_string, _ = await self.fetch_queries_from_cache(question)
+        if self.use_query_cache:
+            query_cache_string = await self.fetch_queries_from_cache(question)
+        else:
+            query_cache_string = None
+
+        if query_cache_string is not None and (
+            self.use_query_cache and not self.pre_run_query_cache
+        ):
             query_prompt = f"""First look at the provided CACHED QUERIES AND SCHEMAS below, to see if you can use them to formulate a SQL query.
 
             {query_cache_string}
 
             If you can't the above or adjust a previous generated SQL query, use the 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain.
             """
-        elif self.use_query_cache and self.pre_run_query_cache:
-            (
-                query_cache_string,
-                pre_fetched_results_string,
-            ) = await self.fetch_queries_from_cache(question)
+        elif query_cache_string is not None and (
+            self.use_query_cache and self.pre_run_query_cache
+        ):
             query_prompt = f"""First consider the PRE-FETCHED SQL query and the results from execution. Consider if you can use this data to answer the question without running another SQL query. If the data is sufficient, use it to answer the question instead of running a new query.
-
-            {pre_fetched_results_string}
-
-            If this data or query will not answer the question, look at the provided CACHED QUERIES AND SCHEMAS below, to see if you can use them to formulate a SQL query.
 
             {query_cache_string}
 

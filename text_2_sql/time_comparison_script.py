@@ -7,7 +7,6 @@ import dotenv
 import asyncio
 import time
 import matplotlib.pyplot as plt
-import numpy as np
 from semantic_kernel.connectors.ai.open_ai import (
     AzureChatCompletion,
 )
@@ -19,6 +18,7 @@ from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.prompt_template.prompt_template_config import PromptTemplateConfig
 import seaborn as sns
 import random
+from matplotlib.lines import Line2D
 
 logging.basicConfig(level=logging.INFO)
 
@@ -89,7 +89,7 @@ async def ask_question_to_prompt_kernel(
     """
 
     # Create important information prompt that contains the SQL database information.
-    engine_specific_rules = "Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error."
+    engine_specific_rules = "Use TOP X at the start of the query to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error. e.g. SELECT TOP 10 * FROM table_name"
     important_information_prompt = f"""
     [SQL DATABASE INFORMATION]
     {prompt_sql_plugin.system_prompt(engine_specific_rules=engine_specific_rules)}
@@ -127,13 +127,15 @@ async def ask_question_to_vector_kernel(
     """
 
     # Create important information prompt that contains the SQL database information.
-    engine_specific_rules = "Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error."
+    engine_specific_rules = "Use TOP X at the start of the query to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error. e.g. SELECT TOP 10 * FROM table_name"
     important_information_prompt = f"""
     [SQL DATABASE INFORMATION]
     {await vector_sql_plugin.system_prompt(
         engine_specific_rules=engine_specific_rules, question=question)}
     [END SQL DATABASE INFORMATION]
     """
+
+    arguments = KernelArguments()
 
     arguments = KernelArguments()
     arguments["chat_history"] = chat_history
@@ -152,17 +154,17 @@ async def ask_question_to_vector_kernel(
     logging.info("Answer: %s", answer)
 
 
-async def measure_time(question: str, scenario: str) -> float:
+async def measure_time(question: str, approach: str) -> float:
     history = ChatHistory()
 
     start_time = time.time()
-    if scenario == "Prompt":
+    if approach == "Prompt":
         await ask_question_to_prompt_kernel(question, history)
     else:
         await ask_question_to_vector_kernel(question, history)
     time_taken = time.time() - start_time
 
-    logging.info("Scenario: %s", scenario)
+    logging.info("Approach: %s", approach)
     logging.info("Question: %s", question)
     logging.info("Total Time: %s", time_taken)
     await asyncio.sleep(5)
@@ -171,7 +173,7 @@ async def measure_time(question: str, scenario: str) -> float:
 
 
 async def run_tests():
-    scenarios = ["Prompt", "Vector", "QueryCache", "PreRunQueryCache"]
+    approaches = ["Prompt", "Vector", "QueryCache", "PreFetchedQueryCache"]
 
     # Define your six questions
     questions = [
@@ -180,109 +182,99 @@ async def run_tests():
         "Which country did had the highest number of orders in June 2008?",
     ]
 
-    # Store average times for each question and scenario
-    average_times = {}
-    question_scenario_sets = []
+    # Store average times for each question and approach
+    timings = {}
+    question_approach_sets = []
 
-    for scenario in scenarios:
-        average_times[scenario] = {i: [] for i in range(len(questions))}
+    for approach in approaches:
+        timings[approach] = {i: [] for i in range(len(questions))}
 
-    for _ in range(2):
+    for _ in range(15):
         for q_num, question in enumerate(questions):
-            for scenario in scenarios:
-                question_scenario_sets.append((q_num, question, scenario))
+            for approach in approaches:
+                question_approach_sets.append((q_num, question, approach))
 
-    random.shuffle(question_scenario_sets)
+    random.shuffle(question_approach_sets)
 
-    for q_num, question, scenario in question_scenario_sets:
-        if scenario == "Vector" or scenario == "Prompt":
+    for q_num, question, approach in question_approach_sets:
+        if approach == "Vector" or approach == "Prompt":
             os.environ["Text2Sql__UseQueryCache"] = "False"
-            os.environ["Text2Sql__PreRunQueryCache"] = "False"
-        elif scenario == "QueryCache":
+            os.environ["Text2Sql__PreFetchedQueryCache"] = "False"
+        elif approach == "QueryCache":
             os.environ["Text2Sql__UseQueryCache"] = "True"
-            os.environ["Text2Sql__PreRunQueryCache"] = "False"
-        elif scenario == "PreRunQueryCache":
+            os.environ["Text2Sql__PreFetchedQueryCache"] = "False"
+        elif approach == "PreFetchedQueryCache":
             os.environ["Text2Sql__UseQueryCache"] = "True"
-            os.environ["Text2Sql__PreRunQueryCache"] = "True"
+            os.environ["Text2Sql__PreFetchedQueryCache"] = "True"
 
-        q_time = await measure_time(question, scenario)
-        logging.info("Average Time: %s", q_time)
-        average_times[scenario][q_num].append(q_time)
+        q_time = await measure_time(question, approach)
+        timings[approach][q_num].append(q_time)
 
-    normalised_average_times = {}
-    for scenario in scenarios:
-        normalised_average_times[scenario] = []
-        for q_num in range(len(questions)):
-            normalised_average_times[scenario].append(
-                np.median(average_times[scenario][q_num])
-            )
-
-    return normalised_average_times
+    return timings
 
 
 # Run the tests
-average_times = asyncio.run(run_tests())
+timings = asyncio.run(run_tests())
 
 
-def plot_average_times(average_times):
-    # Set width of bars
-    bar_width = 0.20
-
+def plot_boxplot_times(timings):
     # Use a seaborn color palette
     colors = sns.color_palette("Set2", 4)
 
-    # Set position of bars on x-axis
-    r1 = np.arange(3)
-    r2 = [x + bar_width for x in r1]
-    r3 = [x + bar_width for x in r2]
-    r4 = [x + bar_width for x in r3]
+    # Prepare data for each question
+    data = []
+    num_approaches = 4  # There are 4 approaches per question
 
-    plt.bar(
-        r1,
-        average_times["Prompt"],
-        color=colors[0],
-        width=bar_width,
-        edgecolor="grey",
-        label="Prompt-Based",
-    )
-    plt.bar(
-        r2,
-        average_times["Vector"],
-        color=colors[1],
-        width=bar_width,
-        edgecolor="grey",
-        label="Vector-Based",
-    )
-    plt.bar(
-        r3,
-        average_times["QueryCache"],
-        color=colors[2],
-        width=bar_width,
-        edgecolor="grey",
-        label="Vector-Based with Query Cache",
-    )
-    plt.bar(
-        r4,
-        average_times["PreRunQueryCache"],
-        color=colors[3],
-        width=bar_width,
-        edgecolor="grey",
-        label="Vector-Based with Pre-Run Query Cache",
+    for q_index in range(3):
+        for approach_label in [
+            "Prompt",
+            "Vector",
+            "QueryCache",
+            "PreFetchedQueryCache",
+        ]:
+            # Append times for each approach and question
+            data.append(timings[approach_label][q_index])
+
+    # Create box plot
+    plt.figure(figsize=(10, 6))
+
+    # Create box plot with specific colors per approach
+    sns.boxplot(data=data, palette=colors, showfliers=False)
+
+    # Set x-tick labels to be the questions (Q1, Q2, Q3), placed in the center of each group
+    question_ticks = [
+        i + num_approaches / 2 - 0.5 for i in range(0, len(data), num_approaches)
+    ]
+    plt.xticks(
+        ticks=question_ticks,
+        labels=["Q1", "Q2", "Q3"],
+        rotation=0,
+        ha="center",
     )
 
-    # Add labels and title
+    # Set title and axis labels
     plt.xlabel("Questions", fontweight="bold")
-    plt.ylabel("Average Time (seconds)", fontweight="bold")
-    plt.title("Average Response Time per Scenario for Known Questions")
+    plt.ylabel("Response Time (seconds)", fontweight="bold")
+    plt.title("Response Time Distribution per Question, Grouped by Approach")
 
-    # Add xticks on the middle of the group bars
-    plt.xticks([r + bar_width for r in range(3)], ["Q1", "Q2", "Q3"])
+    legend_elements = [
+        Line2D([0], [0], color=colors[0], lw=4, label="Prompt-Based"),
+        Line2D([0], [0], color=colors[1], lw=4, label="Vector-Based"),
+        Line2D([0], [0], color=colors[2], lw=4, label="Vector-Based with Query Cache"),
+        Line2D(
+            [0],
+            [0],
+            color=colors[3],
+            lw=4,
+            label="Vector-Based with Pre-Run Query Cache",
+        ),
+    ]
 
-    # Create legend & show graphic
-    plt.legend()
-    plt.savefig("images/average_response_time.png")
+    plt.legend(handles=legend_elements, title="Approaches", loc="upper right")
+
+    # Show the plot
+    plt.savefig("images/response_time_boxplot_grouped.png")
     plt.show()
 
 
-# Plot the average times
-plot_average_times(average_times)
+plot_boxplot_times(timings)
