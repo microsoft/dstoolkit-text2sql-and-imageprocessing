@@ -78,6 +78,9 @@ def clean_text(src_text: str) -> str:
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
 
+        # remove html tags
+        cleaned_text = re.sub(r"<.*?>", "", cleaned_text)
+
         # remove line breaks
         cleaned_text = re.sub(r"\n", "", cleaned_text)
 
