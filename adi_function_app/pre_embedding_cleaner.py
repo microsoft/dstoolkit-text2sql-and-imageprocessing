@@ -82,8 +82,11 @@ def clean_text(src_text: str) -> str:
         # remove html tags
         cleaned_text = re.sub(r"<.*?>", "", cleaned_text)
 
-        # remove line breaks
-        cleaned_text = re.sub(r"\n", "", cleaned_text)
+        # Replace newline characters with spaces
+        cleaned_text = re.sub(r"\n", " ", cleaned_text)
+
+        # Replace multiple whitespace characters with a single space
+        cleaned_text = re.sub(r"\s+", " ", cleaned_text)
 
         # remove stopwords
         tokens = word_tokenize(cleaned_text, "english")
