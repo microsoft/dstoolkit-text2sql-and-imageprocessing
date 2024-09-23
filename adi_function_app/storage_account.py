@@ -27,7 +27,7 @@ class StorageAccountHelper:
             return BlobServiceClient(account_url=endpoint, credential=credential)
         else:
             endpoint = os.environ.get("StorageAccount__ConnectionString")
-            return BlobServiceClient(account_url=endpoint)
+            return BlobServiceClient.from_connection_string(endpoint)
 
     async def add_metadata_to_blob(
         self, source: str, container: str, metadata: dict
