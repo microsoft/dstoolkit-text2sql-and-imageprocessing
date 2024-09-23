@@ -61,7 +61,6 @@ class VectorBasedSQLPlugin:
             logging.info("Entity: %s", select_from_entity)
             if select_from_entity.lower() in sql_statement_lower:
                 matching_entities.append(schema)
-                break
 
         return matching_entities
 
@@ -134,7 +133,7 @@ class VectorBasedSQLPlugin:
                     entity = schema["Entity"]
                     schema["SelectFromEntity"] = f"{database}.{entity}"
 
-                    self.schema[entity] = schema
+                    self.schemas[entity] = schema
 
         pre_fetched_results_string = ""
         if self.pre_run_query_cache and len(cached_schemas) > 0:
