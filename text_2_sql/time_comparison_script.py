@@ -273,14 +273,14 @@ def plot_average_times(average_times):
     # Add labels and title
     plt.xlabel("Questions", fontweight="bold")
     plt.ylabel("Average Time (seconds)", fontweight="bold")
-    plt.title("Average Response Time per Scenario")
+    plt.title("Average Response Time per Scenario for Known Questions")
 
     # Add xticks on the middle of the group bars
     plt.xticks([r + bar_width for r in range(3)], ["Q1", "Q2", "Q3"])
 
     # Create legend & show graphic
     plt.legend()
-    plt.savefig("average_response_time.png")
+    plt.savefig("images/average_response_time.png")
     plt.show()
 
 

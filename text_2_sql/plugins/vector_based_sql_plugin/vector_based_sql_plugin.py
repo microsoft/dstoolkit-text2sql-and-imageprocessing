@@ -25,7 +25,7 @@ class VectorBasedSQLPlugin:
         """
         self.entities = {}
         self.target_engine = target_engine
-        self.schemas = []
+        self.schemas = {}
         self.question = None
 
         self.use_query_cache = False
@@ -52,7 +52,7 @@ class VectorBasedSQLPlugin:
         sql_statement_lower = sql_statement.lower()
 
         # Iterate over each schema in the list
-        for schema in self.schemas:
+        for schema in self.schemas.values():
             logging.info("Schema: %s", schema)
             entity = schema["Entity"]
             database = os.environ["Text2Sql__DatabaseName"]
@@ -104,7 +104,7 @@ class VectorBasedSQLPlugin:
             database = os.environ["Text2Sql__DatabaseName"]
             schema["SelectFromEntity"] = f"{database}.{entity}"
 
-        self.schemas.extend(schemas)
+            self.schemas[entity] = schema
 
         return schemas
 
@@ -134,7 +134,7 @@ class VectorBasedSQLPlugin:
                     entity = schema["Entity"]
                     schema["SelectFromEntity"] = f"{database}.{entity}"
 
-                    self.schemas.append(schema)
+                    self.schema[entity] = schema
 
         pre_fetched_results_string = ""
         if self.pre_run_query_cache and len(cached_schemas) > 0:
@@ -173,7 +173,6 @@ class VectorBasedSQLPlugin:
         """
 
         self.question = question
-        self.schemas = []
 
         if engine_specific_rules:
             engine_specific_rules = f"""\n        The following {
