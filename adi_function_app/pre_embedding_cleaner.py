@@ -71,11 +71,10 @@ def clean_text(src_text: str) -> str:
     try:
         # Define specific patterns for each tag
         tag_patterns = {
-            "figurecontent": r"<!-- FigureContent=(.*?)-->",
+            "figurecontent": r"<!--.*?FigureContent=(.*?)-->",
             "figure": r"<figure>(.*?)</figure>",
             "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
-            "figcaption": r"<figcaption>(.*?)</figcaption>",
-            "figureidandcontent": r'<!--\s*FigureId="[^"]*"\s*FigureContent="[^"]*"\s*-->'
+            "figcaption": r"<figcaption>(.*?)</figcaption>"
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
 
