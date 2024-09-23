@@ -47,6 +47,10 @@ Using Auto-Function calling capabilities, the LLM is able to retrieve from the p
 
 For the query cache enabled approach, AI Search is used as a vector based cache, but any other cache that supports vector queries could be used, such as Redis.
 
+### Full Logical Flow for Vector Based Approach
+
+![Vector Based with Query Cache Logical Flow.](./images/Text2SQL%20Query%20Cache.png "Vector Based with Query Cache Logical Flow")
+
 ### Comparison of Iterations
 | | Common Text2SQL Approach | Prompt Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach With Query Cache |
 |-|-|-|-|-|
@@ -59,7 +63,7 @@ For the query cache enabled approach, AI Search is used as a vector based cache,
 | | Consumes a significant number of tokens as number of entities increases. | As number of entities increases, token usage will grow but at a lesser rate than Iteration 1. | | AI Search adds additional cost to the solution. |
 | | LLM struggled to differentiate which table to choose with the large amount of information passed. | | |
 
-#### Timing Comparison for Test Question Set
+### Timing Comparison for Test Question Set
 
 To compare the different in complete execution time, the following questions were tested 25 times each for 3 different modes.
 
@@ -207,10 +211,6 @@ This approach allows the system to scale without significantly increasing the nu
 If the query cache is enabled, we used a vector search to find the similar previously asked questions and the queries / schemas they map to. In the case of a high probability of a match, the results can be pre-run with the stored query and passed to the LLM alongside the query. If the results can answer the question, query generation can be skipped all together, speeding up the total execution time.
 
 In the case of an unknown question, there is a minor increase in latency but the query index cache could be pre-populated before it is released to users with common questions.
-
-### Full Flow Logic
-
-![Vector Based with Query Cache Logical Flow.](./images/Text2SQL%20Query%20Cache.png "Vector Based with Query Cache Logical Flow")
 
 ### vector_based_sql_plugin.py
 
