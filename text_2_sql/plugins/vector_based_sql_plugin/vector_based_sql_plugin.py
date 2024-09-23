@@ -34,6 +34,7 @@ class VectorBasedSQLPlugin:
         self.set_mode()
 
     def set_mode(self):
+        """Set the mode of the plugin based on the environment variables."""
         self.use_query_cache = (
             os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
         )
@@ -42,7 +43,16 @@ class VectorBasedSQLPlugin:
             os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
         )
 
-    def filter_schemas_against_statement(self, sql_statement):
+    def filter_schemas_against_statement(self, sql_statement: str) -> list[dict]:
+        """Filter the schemas against the SQL statement to find the matching entities.
+
+        Args:
+        ----
+            sql_statement (str): The SQL statement to filter the schemas against.
+
+        Returns:
+        -------
+            list[dict]: The list of matching entities."""
         matching_entities = []
 
         logging.info("SQL Statement: %s", sql_statement)
@@ -88,7 +98,16 @@ class VectorBasedSQLPlugin:
         logging.debug("Results: %s", results)
         return results
 
-    async def fetch_schemas_from_store(self, search: str):
+    async def fetch_schemas_from_store(self, search: str) -> list[dict]:
+        """Fetch the schemas from the store based on the search term.
+
+        Args:
+        ----
+            search (str): The search term to use to fetch the schemas.
+
+        Returns:
+        -------
+            list[dict]: The list of schemas fetched from the store."""
         schemas = await run_ai_search_query(
             search,
             ["DescriptionEmbedding"],
@@ -107,7 +126,17 @@ class VectorBasedSQLPlugin:
 
         return schemas
 
-    async def fetch_queries_from_cache(self, question: str):
+    async def fetch_queries_from_cache(self, question: str) -> str:
+        """Fetch the queries from the cache based on the question.
+
+        Args:
+        ----
+            question (str): The question to use to fetch the queries.
+
+        Returns:
+        -------
+            str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
+        """
         if not self.use_query_cache:
             return None
 
