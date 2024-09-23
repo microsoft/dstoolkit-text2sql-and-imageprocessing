@@ -6,7 +6,7 @@ The implementation is written for [Semantic Kernel](https://github.com/microsoft
 
 The sample provided works with Azure SQL Server, although it has been easily adapted to other SQL sources such as Snowflake.
 
-**Three iterations on the approache are provided for SQL query generation. A prompt based approach and a two vector database based approaches. See Multi-Shot Approach for more details**
+**Three iterations on the approach are provided for SQL query generation. A prompt based approach and a two vector database based approaches. See Multi-Shot Approach for more details**
 
 ## High Level Workflow
 
@@ -39,7 +39,7 @@ To solve these issues, a Multi-Shot approach is developed. Below is the iteratio
 Three different iterations are presented and code provided for:
  - **Iteration 2:** Injection of a brief description of the available entities is injected into the prompt. This limits the number of tokens used and avoids filling the prompt with confusing schema information.
  - **Iteration 3:** Indexing the entity definitions in a vector database, such as AI Search, and querying it to retrieve the most relevant entities for the key terms from the query.
-  - **Iteration 4:** Keeping an index of commonly asked questions and which schema / SQL query they resolve to. Additionally, indexing the entity definitions in a vector database, such as AI Search _(same as Iteration 3)_. First querying this index to see if a similar SQL query can be obtained. If not, falling back to the schema index, and querying it to retrieve the most relevant entities for the key terms from the query.
+  - **Iteration 4:** Keeping an index of commonly asked questions and which schema / SQL query they resolve to. Additionally, indexing the entity definitions in a vector database, such as AI Search _(same as Iteration 3)_. First querying this index to see if a similar SQL query can be obtained _(if high probability of exact SQL query match, the results can be pre-fetched)_. If not, falling back to the schema index, and querying it to retrieve the most relevant entities for the key terms from the query.
 
 All approaches limit the number of tokens used and avoids filling the prompt with confusing schema information.
 
@@ -54,24 +54,24 @@ For the query cache enabled approach, AI Search is used as a vector based cache,
 | | | | Scales well to multiple entities. | Scales well to multiple entities. |
 | | | | Uses a vector approach to detect the best fitting entity which is faster than using an LLM. Matching is offloaded to AI Search. | Uses a vector approach to detect the best fitting entity which is faster than using an LLM. Matching is offloaded to AI Search. |
 | | | | | Significantly faster to answer similar questions as best fitting entity detection is skipped. Observed tests resulted in almost half the time for final output compared to the previous iteration. |
-|**Disadvantages** | Slows down significantly as the number of entities increases. | Uses LLM to detect the best fitting entity which is slow compared to a vector approach. | Could be sped up without auto function calling for vector search, but passing whole query **may** reduce reduce matching performance. | Slower than other approaches for the first time a question with no similar questions in the cache is asked. |
-| | Consumes a significant number of tokens as number of entities increases. | As number of entities increases, token usage will grow but at a lesser rate than Iteration 1. | AI Search adds additional cost to the solution. | AI Search adds additional cost to the solution. |
+| | | | | Significantly faster execution time for known questions. Total execution time can be reduced by skipping the query generation step. |
+|**Disadvantages** | Slows down significantly as the number of entities increases. | Uses LLM to detect the best fitting entity which is slow compared to a vector approach. | AI Search adds additional cost to the solution. | Slower than other approaches for the first time a question with no similar questions in the cache is asked. |
+| | Consumes a significant number of tokens as number of entities increases. | As number of entities increases, token usage will grow but at a lesser rate than Iteration 1. | | AI Search adds additional cost to the solution. |
 | | LLM struggled to differentiate which table to choose with the large amount of information passed. | | |
 
 #### Timing Comparison for Test Question Set
 
-To compare the different in complete execution time, the following questions were tested 10 times each for 3 different scenarios.
+To compare the different in complete execution time, the following questions were tested 25 times each for 3 different modes.
 
-Scenarios:
+Modes:
 - Vector-Based Multi-Shot (Iteration 3)
 - Vector-Based Multi-Shot with Query Cache (Iteration 4)
 - Vector-Based Multi-shot with Pre Run Query Cache (Iteration 4)
 
 Questions:
+- What is the total revenue in June 2008?
 - Give me the total number of orders in 2008?
-- What is the top performing product by quantity of units sold?
-- Which country did we sell the most to in June 2008?
-- How many different product categories do we have?
+- Which country did had the highest number of orders in June 2008?
 
 ## Sample Output
 
@@ -117,13 +117,14 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 |----------------|---------------|
 | Classic Vest, S| Classic Vest  |
 
-## Provided Notebooks
+## Provided Notebooks & Scripts
 
 - `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
 - `./rag_with_vector_based_text_2_sql.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin to query the database.
 - `./rag_with_vector_based_text_2_sql_query_cache.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin, alongside the query cache, to query the database.
 - `./rag_with_ai_search_and_text_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
     - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
+- `./time_comparison_scripy.py` provides a utility script for performing time based comparisons between the different approaches.
 
 ## Data Dictionary
 
@@ -131,7 +132,7 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 
 To power the knowledge of the LLM, a data dictionary containing all the SQL views / table metadata is used. Whilst the LLM could query the database at runtime to find out the schemas for the database, storing them in a text file reduces the overall latency of the system and allows the metadata for each table to be adjusted in a form of prompt engineering.
 
-The data dictionary is stored in `./plugins/sql_plugin/entities.json`. Below is a sample entry for a view / table that we which to expose to the LLM. The Microsoft SQL Server [Adventure Works Database](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16) is used as an sample.
+The data dictionary is stored in `./data_dictionary/entities.json`. Below is a sample entry for a view / table that we which to expose to the LLM. The Microsoft SQL Server [Adventure Works Database](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16) is used as an sample.
 
 ```json
 {
@@ -203,6 +204,14 @@ This method is called by the Semantic Kernel framework automatically, when instr
 
 This approach allows the system to scale without significantly increasing the number of tokens used within the system prompt. Indexing and running an AI Search instance consumes additional cost, compared to the prompt based approach.
 
+If the query cache is enabled, we used a vector search to find the similar previously asked questions and the queries / schemas they map to. In the case of a high probability of a match, the results can be pre-run with the stored query and passed to the LLM alongside the query. If the results can answer the question, query generation can be skipped all together, speeding up the total execution time.
+
+In the case of an unknown question, there is a minor increase in latency but the query index cache could be pre-populated before it is released to users with common questions.
+
+### Full Flow Logic
+
+![Vector Based with Query Cache Logical Flow.](./images/Text2SQL%20Query%20Cache.png "Vector Based with Query Cache Logical Flow")
+
 ### vector_based_sql_plugin.py
 
 The `./plugins/vector_based_sql_plugin/vector_based_sql_plugin.py` contains 3 key methods to power the Vector Based Text2SQL engine.
@@ -217,7 +226,7 @@ This method simply returns a pre-made system prompt that contains optimised and 
 
 The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
 
-**If the query cache is enabled, the prompt is adjusted to instruct the LLM to look at the cached data first, before calling `get_entity_schema()`.**
+**If the query cache is enabled, the prompt is adjusted to instruct the LLM to look at the cached data and results first, before calling `get_entity_schema()`.**
 
 #### get_entity_schema()
 
@@ -227,7 +236,7 @@ The search text passed is vectorised against the entity level **Description** co
 
 #### run_ai_search_query()
 
-The vector based with query cache notebook uses the `run_ai_search_query()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
+The vector based with query cache uses the `run_ai_search_query()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
 
 ## Tips for good Text2SQL performance.
 
@@ -248,3 +257,4 @@ Below are some of the considerations that should be made before using this plugi
     - Consider limiting the permissions of the identity or connection string to only allow access to certain tables or perform certain query types.
 - If possible, run the queries under the identity of the end user so that any row or column level security is applied to the data.
 - Consider data masking for sensitive columns that you do not wish to be exposed.
+- The vector matching for the index could be run locally, rather than in an external service such as Azure AI Search. For speed of implementation, AI Search was used in this proof of concept.
