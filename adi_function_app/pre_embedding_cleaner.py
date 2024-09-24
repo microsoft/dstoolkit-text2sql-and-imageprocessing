@@ -71,15 +71,21 @@ def clean_text(src_text: str) -> str:
     try:
         # Define specific patterns for each tag
         tag_patterns = {
-            "figurecontent": r"<!-- FigureContent=(.*?)-->",
+            "figurecontent": r"<!--.*?FigureContent=(.*?)-->",
             "figure": r"<figure>(.*?)</figure>",
             "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
             "figcaption": r"<figcaption>(.*?)</figcaption>",
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
 
-        # remove line breaks
-        cleaned_text = re.sub(r"\n", "", cleaned_text)
+        # remove html tags
+        cleaned_text = re.sub(r"<.*?>", "", cleaned_text)
+
+        # Replace newline characters with spaces
+        cleaned_text = re.sub(r"\n", " ", cleaned_text)
+
+        # Replace multiple whitespace characters with a single space
+        cleaned_text = re.sub(r"\s+", " ", cleaned_text)
 
         # remove stopwords
         tokens = word_tokenize(cleaned_text, "english")

@@ -95,7 +95,7 @@ class AISearchEnvironment:
             SearchIndexerDataUserAssignedIdentity: The ai search user assigned identity
         """
         user_assigned_identity = SearchIndexerDataUserAssignedIdentity(
-            user_assigned_identity=os.environ.get(
+            resource_id=os.environ.get(
                 "AIService__AzureSearchOptions__Identity__FQName"
             )
         )
