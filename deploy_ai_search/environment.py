@@ -217,6 +217,13 @@ class AISearchEnvironment:
         This function returns function app keyphrase extractor name
         """
         return os.environ.get("FunctionApp__KeyPhraseExtractor__FunctionName")
+    
+    @property
+    def function_app_key_ocr_route(self) -> str:
+        """
+        This function returns function app keyphrase extractor name
+        """
+        return os.environ.get("FunctionApp__Ocr__FunctionName")
 
     @property
     def open_ai_embedding_dimensions(self) -> str:
@@ -249,6 +256,8 @@ class AISearchEnvironment:
             route = self.function_app_adi_route
         elif skill_type == "key_phrase_extraction":
             route = self.function_app_key_phrase_extractor_route
+        elif skill_type == "ocr":
+            route = self.function_app_key_ocr_route
         else:
             raise ValueError(f"Invalid skill type: {skill_type}")
 
