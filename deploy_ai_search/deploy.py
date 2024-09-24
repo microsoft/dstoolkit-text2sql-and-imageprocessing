@@ -4,6 +4,9 @@ import argparse
 from rag_documents import RagDocumentsAISearch
 from text_2_sql import Text2SqlAISearch
 from text_2_sql_query_cache import Text2SqlQueryCacheAISearch
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 
 def deploy_config(arguments: argparse.Namespace):

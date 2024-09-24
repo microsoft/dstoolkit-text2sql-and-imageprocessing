@@ -1,11 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 from semantic_kernel.functions import kernel_function
-import aioodbc
 from typing import Annotated
-import os
 import json
 import logging
+import os
+import aioodbc
 
 
 class PromptBasedSQLPlugin:
@@ -32,7 +32,8 @@ class PromptBasedSQLPlugin:
             for entity_object in entities:
                 entity = entity_object["Entity"]
                 entity_object["SelectFromEntity"] = f"{self.database}.{entity}"
-                self.entities[entity.lower()] = entity_object
+                entity_name = entity_object["EntityName"].lower()
+                self.entities[entity_name] = entity_object
 
     def system_prompt(self, engine_specific_rules: str | None = None) -> str:
         """Get the schemas for the database entities and provide a system prompt for the user.
@@ -54,9 +55,14 @@ class PromptBasedSQLPlugin:
         entity_descriptions = "\n\n        ".join(entity_descriptions)
 
         if engine_specific_rules:
-            engine_specific_rules = f"\n        The following {self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"
+            engine_specific_rules = f"""\n        The following {
+                self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"""
 
-        system_prompt = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query. Use the 'RunSQLQuery()' function to run the SQL query against the database.
+        system_prompt = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query.
+
+        Always then use the 'RunSQLQuery()' function to run the SQL query against the database. Never just return the SQL query as the answer.
+
+        Do not give the steps to the user in the response. Make sure to execute the SQL query and return the results in the response.
 
         You must always examine the provided {self.target_engine} entity descriptions to determine if they can answer the question.
 
@@ -111,7 +117,7 @@ class PromptBasedSQLPlugin:
         return json.dumps({entity_name: self.entities[entity_name.lower()]})
 
     @kernel_function(
-        description="Runs an SQL query against the SQL Database to extract information.",
+        description="Runs an SQL query against the SQL Database to extract information. This function must always be used during the answer generation process. Do not just return the SQL query as the answer.",
         name="RunSQLQuery",
     )
     async def run_sql_query(
