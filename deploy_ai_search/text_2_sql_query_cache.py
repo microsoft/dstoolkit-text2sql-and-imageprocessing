@@ -55,12 +55,6 @@ class Text2SqlQueryCacheAISearch(AISearch):
             SearchableField(
                 name="Query", type=SearchFieldDataType.String, filterable=True
             ),
-            SearchField(
-                name="QueryEmbedding",
-                type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-                vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
-                vector_search_profile_name=self.vector_search_profile_name,
-            ),
             ComplexField(
                 name="Schemas",
                 collection=True,

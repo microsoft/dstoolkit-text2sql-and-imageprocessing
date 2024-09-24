@@ -19,6 +19,8 @@ async def run_ai_search_query(
     index_name: str,
     semantic_config: str,
     top=5,
+    include_scores=False,
+    minimum_score: float = None,
 ):
     """Run the AI search query."""
     identity_type = get_identity_type()
@@ -38,7 +40,7 @@ async def run_ai_search_query(
 
     vector_query = VectorizedQuery(
         vector=embedding_vector,
-        k_nearest_neighbors=5,
+        k_nearest_neighbors=7,
         fields=",".join(vector_fields),
     )
 
@@ -63,11 +65,28 @@ async def run_ai_search_query(
             search_text=query,
             select=",".join(retrieval_fields),
             vector_queries=[vector_query],
+            query_type="semantic",
+            query_language="en-GB",
         )
 
-        combined_results = [
-            result async for results in results.by_page() async for result in results
-        ]
+        combined_results = []
+
+        async for result in results.by_page():
+            async for item in result:
+                if (
+                    minimum_score is not None
+                    and item["@search.reranker_score"] < minimum_score
+                ):
+                    continue
+
+                if include_scores is False:
+                    del item["@search.reranker_score"]
+                    del item["@search.score"]
+                    del item["@search.highlights"]
+                    del item["@search.captions"]
+
+                logging.info("Item: %s", item)
+                combined_results.append(item)
 
         logging.info("Results: %s", combined_results)
 
@@ -82,7 +101,7 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
 
     for field in vector_fields.keys():
         if field not in document.keys():
-            raise ValueError(f"Field {field} is not in the document.")
+            logging.error(f"Field {field} is not in the document.")
 
     identity_type = get_identity_type()
 
@@ -90,36 +109,42 @@ async def add_entry_to_index(document: dict, vector_fields: dict, index_name: st
 
     document["DateLastModified"] = datetime.now(timezone.utc)
 
-    async with AsyncAzureOpenAI(
-        # This is the default and can be omitted
-        api_key=os.environ["OpenAI__ApiKey"],
-        azure_endpoint=os.environ["OpenAI__Endpoint"],
-        api_version=os.environ["OpenAI__ApiVersion"],
-    ) as open_ai_client:
-        embeddings = await open_ai_client.embeddings.create(
-            model=os.environ["OpenAI__EmbeddingModel"], input=fields_to_embed.values()
+    try:
+        async with AsyncAzureOpenAI(
+            # This is the default and can be omitted
+            api_key=os.environ["OpenAI__ApiKey"],
+            azure_endpoint=os.environ["OpenAI__Endpoint"],
+            api_version=os.environ["OpenAI__ApiVersion"],
+        ) as open_ai_client:
+            embeddings = await open_ai_client.embeddings.create(
+                model=os.environ["OpenAI__EmbeddingModel"],
+                input=fields_to_embed.values(),
+            )
+
+            # Extract the embedding vector
+            for i, field in enumerate(vector_fields.values()):
+                document[field] = embeddings.data[i].embedding
+
+        document["Id"] = base64.urlsafe_b64encode(document["Question"].encode()).decode(
+            "utf-8"
         )
 
-        # Extract the embedding vector
-        for i, field in enumerate(vector_fields.values()):
-            document[field] = embeddings.data[i].embedding
-
-    document["Id"] = base64.b64encode(document["Question"].encode()).decode("utf-8")
-    logging.info("Document with embeddings: %s", document)
-
-    if identity_type == IdentityType.SYSTEM_ASSIGNED:
-        credential = DefaultAzureCredential()
-    elif identity_type == IdentityType.USER_ASSIGNED:
-        credential = DefaultAzureCredential(
-            managed_identity_client_id=os.environ["ClientID"]
-        )
-    else:
-        credential = AzureKeyCredential(
-            os.environ["AIService__AzureSearchOptions__Key"]
-        )
-    async with SearchClient(
-        endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
-        index_name=index_name,
-        credential=credential,
-    ) as search_client:
-        await search_client.upload_documents(documents=[document])
+        if identity_type == IdentityType.SYSTEM_ASSIGNED:
+            credential = DefaultAzureCredential()
+        elif identity_type == IdentityType.USER_ASSIGNED:
+            credential = DefaultAzureCredential(
+                managed_identity_client_id=os.environ["ClientID"]
+            )
+        else:
+            credential = AzureKeyCredential(
+                os.environ["AIService__AzureSearchOptions__Key"]
+            )
+        async with SearchClient(
+            endpoint=os.environ["AIService__AzureSearchOptions__Endpoint"],
+            index_name=index_name,
+            credential=credential,
+        ) as search_client:
+            await search_client.upload_documents(documents=[document])
+    except Exception as e:
+        logging.error("Failed to add item to index.")
+        logging.error("Error: %s", e)
