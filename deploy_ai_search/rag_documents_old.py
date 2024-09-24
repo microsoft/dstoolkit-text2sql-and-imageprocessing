@@ -60,9 +60,9 @@ class RagDocumentsAISearch(AISearch):
 
         fields = [
             SimpleField(name="Id", type=SearchFieldDataType.String, filterable=True),
-            SearchableField(
-                name="Title", type=SearchFieldDataType.String, filterable=True
-            ),
+            # SearchableField(
+            #     name="Title", type=SearchFieldDataType.String, filterable=True
+            # ),
             SearchableField(
                 name="ChunkId",
                 type=SearchFieldDataType.String,
@@ -76,11 +76,11 @@ class RagDocumentsAISearch(AISearch):
                 filterable=False,
                 facetable=False,
             ),
-            SearchableField(
-                name="Sections",
-                type=SearchFieldDataType.String,
-                collection=True,
-            ),
+            # SearchableField(
+            #     name="Sections",
+            #     type=SearchFieldDataType.String,
+            #     collection=True,
+            # ),
             SearchField(
                 name="ChunkEmbedding",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
@@ -97,22 +97,22 @@ class RagDocumentsAISearch(AISearch):
                 filterable=True,
                 facetable=True,
             ),
-            ComplexField(
-                name="Figures",
-                collection=True,
-                fields=[
-                    SimpleField(
-                        name="FigureId",
-                        type=SearchFieldDataType.String,
-                        collection=True,
-                    ),
-                    SimpleField(
-                        name="FigureUri",
-                        type=SearchFieldDataType.String,
-                        collection=True,
-                    ),
-                ],
-            ),
+            # ComplexField(
+            #     name="Figures",
+            #     collection=True,
+            #     fields=[
+            #         SimpleField(
+            #             name="FigureId",
+            #             type=SearchFieldDataType.String,
+            #             collection=True,
+            #         ),
+            #         SimpleField(
+            #             name="FigureUri",
+            #             type=SearchFieldDataType.String,
+            #             collection=True,
+            #         ),
+            #     ],
+            # ),
             SimpleField(
                 name="DateLastModified",
                 type=SearchFieldDataType.DateTimeOffset,
@@ -144,11 +144,11 @@ class RagDocumentsAISearch(AISearch):
         semantic_config = SemanticConfiguration(
             name=self.semantic_config_name,
             prioritized_fields=SemanticPrioritizedFields(
-                title_field=SemanticField(field_name="Title"),
+                # title_field=SemanticField(field_name="Title"),
                 content_fields=[SemanticField(field_name="Chunk")],
                 keywords_fields=[
                     SemanticField(field_name="Keywords"),
-                    SemanticField(field_name="Sections"),
+                    # SemanticField(field_name="Sections"),
                 ],
             ),
         )
@@ -171,20 +171,20 @@ class RagDocumentsAISearch(AISearch):
         )
 
         ocr_skill = self.get_ocr_skill(
-            "/document/normalized_images/*", "/document/normalized_images/*"
+            "/document/extracted_normalized_images/*", "/document/extracted_normalized_images/*"
         )
 
-        merge_skill = self.get_merge_skill(
+        merge_skill = self.get_merge_skill( 
             "/document",
             [
-                "/document/content",
-                "/document/normalized_images/*/text",
-                "/document/normalized_images/*/contentOffset",
+                "/document/extracted_content",
+                "/document/extracted_normalized_images/*/text",
+                "/document/extracted_normalized_images/*/contentOffset",
             ],  
         )
 
         text_split_skill = self.get_text_split_skill(
-            "/document", "/document/merged_content/content"
+            "/document", "/document/merged_content"
         )
 
         pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
@@ -199,7 +199,7 @@ class RagDocumentsAISearch(AISearch):
             "/document/pages/*", "/document/pages/*/cleanedChunk"
         )
 
-        if self.enable_page_by_chunking:
+        if self.enable_page_by_chunking:    
             skills = [
                 adi_skill,
                 pre_embedding_cleaner_skill,
@@ -227,26 +227,26 @@ class RagDocumentsAISearch(AISearch):
                 name="ChunkEmbedding",
                 source="/document/pages/*/vector",
             ),
-            InputFieldMappingEntry(name="Title", source="/document/Title"),
+            # InputFieldMappingEntry(name="Title", source="/document/Title"),
             InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
             InputFieldMappingEntry(
                 name="Keywords", source="/document/pages/*/keywords"
             ),
-            InputFieldMappingEntry(
-                name="Sections", source="/document/pages/*/cleanedSections"
-            ),
-            InputFieldMappingEntry(
-                name="Figures",
-                source_context="/document/pages/*/figures/*",
-                inputs=[
-                    InputFieldMappingEntry(
-                        name="FigureId", source="/document/pages/*/figures/*/figureId"
-                    ),
-                    InputFieldMappingEntry(
-                        name="FigureUri", source="/document/pages/*/figures/*/figureUri"
-                    ),
-                ],
-            ),
+            # InputFieldMappingEntry(
+            #     name="Sections", source="/document/pages/*/cleanedSections"
+            # ),
+            # InputFieldMappingEntry(
+            #     name="Figures",
+            #     source_context="/document/pages/*/figures/*",
+            #     inputs=[
+            #         InputFieldMappingEntry(
+            #             name="FigureId", source="/document/pages/*/figures/*/figureId"
+            #         ),
+            #         InputFieldMappingEntry(
+            #             name="FigureUri", source="/document/pages/*/figures/*/figureUri"
+            #         ),
+            #     ],
+            # ),
             InputFieldMappingEntry(
                 name="DateLastModified", source="/document/DateLastModified"
             ),
