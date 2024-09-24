@@ -14,7 +14,7 @@ from azure.search.documents.indexes.models import (
     FieldMapping,
     IndexingParameters,
     IndexingParametersConfiguration,
-    SearchIndexerIndexProjections,
+    SearchIndexerIndexProjection,
     SearchIndexerIndexProjectionSelector,
     SearchIndexerIndexProjectionsParameters,
     IndexProjectionMode,
@@ -199,7 +199,7 @@ class RagDocumentsAISearch(AISearch):
 
         return skills
 
-    def get_index_projections(self) -> SearchIndexerIndexProjections:
+    def get_index_projections(self) -> SearchIndexerIndexProjection:
         """This function returns the index projections for rag document."""
         mappings = [
             InputFieldMappingEntry(name="Chunk", source="/document/pages/*/chunk"),
@@ -241,7 +241,7 @@ class RagDocumentsAISearch(AISearch):
                 ]
             )
 
-        index_projections = SearchIndexerIndexProjections(
+        index_projections = SearchIndexerIndexProjection(
             selectors=[
                 SearchIndexerIndexProjectionSelector(
                     target_index_name=self.index_name,

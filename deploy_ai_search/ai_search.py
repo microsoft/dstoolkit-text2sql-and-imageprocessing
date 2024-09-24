@@ -14,7 +14,7 @@ from azure.search.documents.indexes.models import (
     WebApiSkill,
     AzureOpenAIEmbeddingSkill,
     AzureOpenAIVectorizer,
-    AzureOpenAIParameters,
+    AzureOpenAIVectorizerParameters,
     SearchIndexer,
     SearchIndexerSkillset,
     SearchIndexerDataContainer,
@@ -24,7 +24,7 @@ from azure.search.documents.indexes.models import (
     InputFieldMappingEntry,
     SynonymMap,
     SplitSkill,
-    SearchIndexerIndexProjections,
+    SearchIndexerIndexProjection,
     BlobIndexerParsingMode,
 )
 from azure.core.exceptions import HttpResponseError
@@ -146,7 +146,7 @@ class AISearch(ABC):
 
         return None
 
-    def get_index_projections(self) -> SearchIndexerIndexProjections:
+    def get_index_projections(self) -> SearchIndexerIndexProjection:
         """Get the index projections for the indexer."""
 
         return None
@@ -353,9 +353,9 @@ class AISearch(ABC):
             name="Vector Skill",
             description="Skill to generate embeddings",
             context=context,
-            deployment_id=self.environment.open_ai_embedding_deployment,
+            deployment_name=self.environment.open_ai_embedding_deployment,
             model_name=self.environment.open_ai_embedding_model,
-            resource_uri=self.environment.open_ai_endpoint,
+            resource_url=self.environment.open_ai_endpoint,
             inputs=embedding_skill_inputs,
             outputs=embedding_skill_outputs,
             dimensions=self.environment.open_ai_embedding_dimensions,
@@ -430,10 +430,10 @@ class AISearch(ABC):
             VectorSearch: The vector search configuration
         """
 
-        open_ai_params = AzureOpenAIParameters(
-            resource_uri=self.environment.open_ai_endpoint,
+        open_ai_params = AzureOpenAIVectorizerParameters(
+            resource_url=self.environment.open_ai_endpoint,
             model_name=self.environment.open_ai_embedding_model,
-            deployment_id=self.environment.open_ai_embedding_deployment,
+            deployment_name=self.environment.open_ai_embedding_deployment,
         )
 
         if self.environment.identity_type == IdentityType.KEY:
@@ -451,13 +451,13 @@ class AISearch(ABC):
                 VectorSearchProfile(
                     name=self.vector_search_profile_name,
                     algorithm_configuration_name=self.algorithm_name,
-                    vectorizer=self.vectorizer_name,
+                    vectorizer_name=self.vectorizer_name,
                 )
             ],
             vectorizers=[
                 AzureOpenAIVectorizer(
-                    name=self.vectorizer_name,
-                    azure_open_ai_parameters=open_ai_params,
+                    vectorizer_name=self.vectorizer_name,
+                    parameters=open_ai_params,
                 ),
             ],
         )
@@ -497,7 +497,7 @@ class AISearch(ABC):
             name=self.skillset_name,
             description="Skillset to chunk documents and generating embeddings",
             skills=skills,
-            index_projections=index_projections,
+            index_projection=index_projections,
         )
 
         self._search_indexer_client.create_or_update_skillset(skillset)
