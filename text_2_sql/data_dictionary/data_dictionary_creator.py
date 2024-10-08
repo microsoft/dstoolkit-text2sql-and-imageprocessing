@@ -182,9 +182,13 @@ class DataDictionaryCreator(ABC):
                 self.extract_distinct_values_sql_query(entity, column)
             )
 
-            column.distinct_values = [value[column.name] for value in distinct_values]
+            column.distinct_values = [
+                value[column.name]
+                for value in distinct_values
+                if value[column.name] is not None
+            ]
         except Exception as e:
-            logging.error(f"Error extracting distinct values for {column.name}")
+            logging.error(f"Error extracting values for {column.name}")
             logging.error(e)
 
     async def generate_column_description(self, entity: EntityItem, column: ColumnItem):
@@ -197,7 +201,7 @@ class DataDictionaryCreator(ABC):
         The description should be a brief summary of the column as a whole. The description should be 3-5 sentences long. Apply NO formatting to the description. The description should be in plain text without line breaks or special characters.
         '"""
 
-        if column.distinct_values is not None:
+        if column.distinct_values is not None and len(column.distinct_values) > 0:
             column_description_system_prompt += """If there is a pattern in the distinct values of the column, mention it in the description. E.g. 'The column contains a list of currency codes in the format 'USD', 'EUR', 'GBP'.
 
             Do not list all distinct values in the description. The distinct values will be listed separately. The description should be a brief summary of the column as a whole and any insights drawn from the distinct values."""
