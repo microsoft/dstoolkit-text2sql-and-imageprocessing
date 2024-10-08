@@ -9,6 +9,9 @@ from dotenv import find_dotenv, load_dotenv
 import logging
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+from environment import IdentityType, get_identity_type
+from openai import AsyncAzureOpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 logging.basicConfig(level=logging.INFO)
 
@@ -42,7 +45,8 @@ class EntityItem(BaseModel):
     entity: str = Field(..., alias="Entity")
     description: Optional[str] = Field(..., alias="Description")
     name: str = Field(..., alias="Name", exclude=True)
-    schema: str = Field(..., alias="Schema", exclude=True)
+    entity_schema: str = Field(..., alias="Schema", exclude=True)
+    entity_name: Optional[str] = Field(default=None, alias="EntityName")
 
     columns: Optional[list[ColumnItem]] = Field(
         ..., alias="Columns", default_factory=list
@@ -60,7 +64,7 @@ class EntityItem(BaseModel):
         return cls(
             entity=entity,
             name=result["Entity"],
-            schema=result["EntitySchema"],
+            entity_schema=result["EntitySchema"],
             description=result["Description"],
         )
 
@@ -73,6 +77,7 @@ class DataDictionaryCreator(ABC):
         entities: list[str] = None,
         excluded_entities: list[str] = None,
         single_file: bool = False,
+        generate_descriptions: bool = True,
     ):
         """A method to initialize the DataDictionaryCreator class.
 
@@ -80,11 +85,13 @@ class DataDictionaryCreator(ABC):
             entities (list[str], optional): A list of entities to extract. Defaults to None. If None, all entities are extracted.
             excluded_entities (list[str], optional): A list of entities to exclude. Defaults to None.
             single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
+            generate_descriptions (bool, optional): A flag to indicate if descriptions should be generated. Defaults to True.
         """
 
         self.entities = entities
         self.excluded_entities = excluded_entities
         self.single_file = single_file
+        self.generate_descriptions = generate_descriptions
 
         load_dotenv(find_dotenv())
 
@@ -199,12 +206,99 @@ class DataDictionaryCreator(ABC):
 
         return columns
 
+    async def send_request_to_llm(self, system_prompt, input):
+        """A method to use GPT to generate a description for an entity."""
+
+        MAX_TOKENS = 2000
+
+        api_version = os.environ["OpenAI__ApiVersion"]
+        model = os.environ["OpenAI__CompletionDeployment"]
+
+        if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
+            token_provider = get_bearer_token_provider(
+                DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+            )
+            api_key = None
+        elif get_identity_type() == IdentityType.USER_ASSIGNED:
+            token_provider = get_bearer_token_provider(
+                DefaultAzureCredential(
+                    managed_identity_client_id=os.environ["FunctionApp__ClientId"]
+                ),
+                "https://cognitiveservices.azure.com/.default",
+            )
+            api_key = None
+        else:
+            token_provider = None
+            api_key = os.environ["OpenAI__ApiKey"]
+
+        async with AsyncAzureOpenAI(
+            api_key=api_key,
+            api_version=api_version,
+            azure_ad_token_provider=token_provider,
+            azure_endpoint=os.environ.get("OpenAI__Endpoint"),
+        ) as client:
+            response = await client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt,
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": input,
+                            },
+                        ],
+                    },
+                ],
+                max_tokens=MAX_TOKENS,
+            )
+
+        return response.choices[0].message.content
+
     async def build_entity_entry(self, entity: EntityItem):
         """A method to build an entity entry."""
 
         logging.info(f"Building entity entry for {entity.entity}")
 
         columns = await self.extract_columns_with_definitions(entity)
+
+        if self.generate_descriptions:
+            name_system_prompt = """You are an expert in SQL Entity analysis. You must generate a human readable name for this SQL Entity. This name will be used to select the most appropriate SQL entity to answer a given question. E.g. 'Sales Data', 'Customer Information', 'Product Catalog'."""
+
+            name_input = f"""Provide a human readable name for the {
+                entity.entity} entity."""
+
+            description_system_prompt = """You are an expert in SQL Entity analysis. You must generate a brief description for this SQL Entity. This description will be used to select the most appropriate SQL entity to answer a given question. Make sure to include key details of what data is contained in this entity.
+
+            Add information on what sort of questions can be answered using this entity.
+
+            DO NOT list the columns in the description. The columns will be listed separately. The description should be a brief summary of the entity as a whole.
+
+            The description should be 3-5 sentences long. Apply NO formatting to the description. The description should be in plain text without line breaks or special characters."""
+
+            description_input = f"""Describe the {entity.entity} entity. The {
+                entity.entity} entity contains the following columns: {', '.join([column.name for column in columns])}."""
+
+            if entity.description is not None:
+                existing_description_string = f"""Use this existing description to aid your understanding: {
+                    entity.description}"""
+
+                name_input += existing_description_string
+                description_input += existing_description_string
+
+            name = await self.send_request_to_llm(name_system_prompt, name_input)
+            logging.info(f"Name for {entity.entity}: {name}")
+            entity.entity_name = name
+
+            description = await self.send_request_to_llm(
+                description_system_prompt, description_input
+            )
+            logging.info(f"Description for {entity.entity}: {description}")
+            entity.description = description
 
         entity.columns = columns
 

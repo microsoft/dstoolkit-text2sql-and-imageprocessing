@@ -77,7 +77,7 @@ LEFT JOIN
     AND ep.class = 1
     AND ep.name = 'MS_Description'
 WHERE
-    c.TABLE_SCHEMA = '{entity.schema}'
+    c.TABLE_SCHEMA = '{entity.entity_schema}'
     AND c.TABLE_NAME = '{entity.name}';"""
 
 
