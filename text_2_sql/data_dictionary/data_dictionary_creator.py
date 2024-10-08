@@ -196,15 +196,16 @@ class DataDictionaryCreator(ABC):
 
         # TODO: Avoid sending all values if cardinality it too high
 
-        column_description_system_prompt = """You are an expert in SQL Entity analysis. You must generate a brief description for this SQL Column. This description will be used to select the most appropriate SQL entity to answer a given question. Make sure to include key details of what data is contained in this column.
+        column_description_system_prompt = """You are an expert in SQL Entity analysis. You must generate a brief description for this SQL Column. This description will be used to generate a SQL query with the correct values. Make sure to include a description of the data contained in this column.
 
         The description should be a brief summary of the column as a whole. The description should be 3-5 sentences long. Apply NO formatting to the description. The description should be in plain text without line breaks or special characters.
-        '"""
+
+        You will use this description later to generate a SQL query. Make sure it will be useful for this purpose in determining the values that should be used in the query and any filtering that should be applied."""
 
         if column.distinct_values is not None and len(column.distinct_values) > 0:
-            column_description_system_prompt += """If there is a pattern in the distinct values of the column, mention it in the description. E.g. 'The column contains a list of currency codes in the format 'USD', 'EUR', 'GBP'.
+            column_description_system_prompt += """Do not list all distinct values in the description or provide a list of samples. The distinct values and samples will be listed separately. The description should be a brief summary of the column as a whole and any insights drawn from the distinct values.
 
-            Do not list all distinct values in the description. The distinct values will be listed separately. The description should be a brief summary of the column as a whole and any insights drawn from the distinct values."""
+            e.g. If there is a pattern in the distinct values of the column, such as a common format, mention it in the description. The dsecription might include: 'The column contains a list of currency codes in the ISO 4217 format. 'USD' for US Dollar, 'EUR' for Euro, 'GBP' for Pound Sterling."""
             stringifed_distinct_values = [
                 str(value) for value in column.distinct_values
             ]
