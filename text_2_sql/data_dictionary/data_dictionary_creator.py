@@ -1,11 +1,28 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from abc import ABC, abstractmethod
 import aioodbc
 import os
 import asyncio
+import json
+from dotenv import find_dotenv, load_dotenv
 
 
 class DataDictionaryCreator(ABC):
     """An abstract class to extract data dictionary information from a database."""
+
+    def __init__(self, entities: list[str] = None, single_file: bool = False):
+        """A method to initialize the DataDictionaryCreator class.
+
+        Args:
+            entities (list[str], optional): A list of entities to extract. Defaults to None. If None, all entities are extracted.
+            single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
+        """
+
+        self.entities = entities
+        self.single_file = single_file
+
+        load_dotenv(find_dotenv())
 
     @property
     @abstractmethod
@@ -46,12 +63,19 @@ class DataDictionaryCreator(ABC):
         return results
 
     async def extract_entities_with_descriptions(self):
+        """A method to extract entities with descriptions from a database."""
         table_entities = await self.query_entities(
             self.extract_table_entities_sql_query
         )
         view_entities = await self.query_entities(self.extract_view_entities_sql_query)
 
         all_entities = table_entities + view_entities
+
+        # Filter entities if entities is not None
+        if self.entities:
+            all_entities = [
+                entity for entity in all_entities if entity["Entity"] in self.entities
+            ]
 
         return all_entities
 
@@ -80,3 +104,29 @@ class DataDictionaryCreator(ABC):
             column["DistinctValues"] = distinct_values_for_column
 
         return columns
+
+    async def build_entity_entry(self, entity):
+        """A method to build an entity entry."""
+        columns = await self.extract_columns_with_definitions(entity["Entity"], schema)
+
+        return {"Entity": entity, "Schema": schema, "Columns": columns}
+
+    async def build_data_dictionary(self):
+        """A method to build a data dictionary from a database. Writes to file."""
+        entities = await self.extract_entities_with_descriptions()
+
+        entity_tasks = []
+        for entity in entities:
+            entity_tasks.append(self.build_entity_entry(entity))
+
+        data_dictionary = await asyncio.gather(*entity_tasks)
+
+        # Save data dictionary to file
+        if self.single_file:
+            with open("entities.json", "w", encoding="utf-8") as f:
+                json.dump(data_dictionary, f)
+        else:
+            for entity in data_dictionary:
+                file_name = f"{entity['Entity']}.json"
+                with open(file_name, "w", encoding="utf-8") as f:
+                    json.dump(entity, f)
