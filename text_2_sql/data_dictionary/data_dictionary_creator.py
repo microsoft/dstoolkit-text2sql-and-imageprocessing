@@ -187,6 +187,43 @@ class DataDictionaryCreator(ABC):
             logging.error(f"Error extracting distinct values for {column.name}")
             logging.error(e)
 
+    async def generate_column_description(self, entity: EntityItem, column: ColumnItem):
+        """A method to generate a description for a column in a database."""
+
+        # TODO: Avoid sending all values if cardinality it too high
+
+        column_description_system_prompt = """You are an expert in SQL Entity analysis. You must generate a brief description for this SQL Column. This description will be used to select the most appropriate SQL entity to answer a given question. Make sure to include key details of what data is contained in this column.
+
+        The description should be a brief summary of the column as a whole. The description should be 3-5 sentences long. Apply NO formatting to the description. The description should be in plain text without line breaks or special characters.
+        '"""
+
+        if column.distinct_values is not None:
+            column_description_system_prompt += """If there is a pattern in the distinct values of the column, mention it in the description. E.g. 'The column contains a list of currency codes in the format 'USD', 'EUR', 'GBP'.
+
+            Do not list all distinct values in the description. The distinct values will be listed separately. The description should be a brief summary of the column as a whole and any insights drawn from the distinct values."""
+            stringifed_distinct_values = [
+                str(value) for value in column.distinct_values
+            ]
+
+            column_description_input = f"""Describe the {column.name} column in the {entity.entity} entity. The {
+                column.name} column contains the following distinct values: {', '.join(stringifed_distinct_values)}."""
+        else:
+            column_description_input = f"""Describe the {
+                column.name} column in the {entity.entity} entity."""
+
+        if column.definition is not None:
+            existing_description_string = f"""Use this existing description to aid your understanding: {
+                column.definition}"""
+
+            column_description_input += existing_description_string
+
+        description = await self.send_request_to_llm(
+            column_description_system_prompt, column_description_input
+        )
+        logging.info(f"Description for {column.name}: {description}")
+
+        column.definition = description
+
     async def extract_columns_with_definitions(
         self, entity: EntityItem
     ) -> list[ColumnItem]:
@@ -197,12 +234,21 @@ class DataDictionaryCreator(ABC):
         )
 
         distinct_value_tasks = []
+        description_tasks = []
         for column in columns:
             distinct_value_tasks.append(
                 self.extract_column_distinct_values(entity, column)
             )
 
+            if self.generate_descriptions:
+                description_tasks.append(
+                    self.generate_column_description(entity, column)
+                )
+
         await asyncio.gather(*distinct_value_tasks)
+
+        if self.generate_descriptions:
+            await asyncio.gather(*description_tasks)
 
         return columns
 
@@ -259,48 +305,50 @@ class DataDictionaryCreator(ABC):
 
         return response.choices[0].message.content
 
+    async def generate_entity_description(self, entity: EntityItem):
+        """A method to generate a description for an entity."""
+        name_system_prompt = """You are an expert in SQL Entity analysis. You must generate a human readable name for this SQL Entity. This name will be used to select the most appropriate SQL entity to answer a given question. E.g. 'Sales Data', 'Customer Information', 'Product Catalog'."""
+
+        name_input = f"""Provide a human readable name for the {
+            entity.entity} entity."""
+
+        description_system_prompt = """You are an expert in SQL Entity analysis. You must generate a brief description for this SQL Entity. This description will be used to select the most appropriate SQL entity to answer a given question. Make sure to include key details of what data is contained in this entity.
+
+        Add information on what sort of questions can be answered using this entity.
+
+        DO NOT list the columns in the description. The columns will be listed separately. The description should be a brief summary of the entity as a whole.
+
+        The description should be 3-5 sentences long. Apply NO formatting to the description. The description should be in plain text without line breaks or special characters."""
+
+        description_input = f"""Describe the {entity.entity} entity. The {
+            entity.entity} entity contains the following columns: {', '.join([column.name for column in entity.columns])}."""
+
+        if entity.description is not None:
+            existing_description_string = f"""Use this existing description to aid your understanding: {
+                entity.description}"""
+
+            name_input += existing_description_string
+            description_input += existing_description_string
+
+        name = await self.send_request_to_llm(name_system_prompt, name_input)
+        logging.info(f"Name for {entity.entity}: {name}")
+        entity.entity_name = name
+
+        description = await self.send_request_to_llm(
+            description_system_prompt, description_input
+        )
+        logging.info(f"Description for {entity.entity}: {description}")
+        entity.description = description
+
     async def build_entity_entry(self, entity: EntityItem):
         """A method to build an entity entry."""
 
         logging.info(f"Building entity entry for {entity.entity}")
 
         columns = await self.extract_columns_with_definitions(entity)
-
-        if self.generate_descriptions:
-            name_system_prompt = """You are an expert in SQL Entity analysis. You must generate a human readable name for this SQL Entity. This name will be used to select the most appropriate SQL entity to answer a given question. E.g. 'Sales Data', 'Customer Information', 'Product Catalog'."""
-
-            name_input = f"""Provide a human readable name for the {
-                entity.entity} entity."""
-
-            description_system_prompt = """You are an expert in SQL Entity analysis. You must generate a brief description for this SQL Entity. This description will be used to select the most appropriate SQL entity to answer a given question. Make sure to include key details of what data is contained in this entity.
-
-            Add information on what sort of questions can be answered using this entity.
-
-            DO NOT list the columns in the description. The columns will be listed separately. The description should be a brief summary of the entity as a whole.
-
-            The description should be 3-5 sentences long. Apply NO formatting to the description. The description should be in plain text without line breaks or special characters."""
-
-            description_input = f"""Describe the {entity.entity} entity. The {
-                entity.entity} entity contains the following columns: {', '.join([column.name for column in columns])}."""
-
-            if entity.description is not None:
-                existing_description_string = f"""Use this existing description to aid your understanding: {
-                    entity.description}"""
-
-                name_input += existing_description_string
-                description_input += existing_description_string
-
-            name = await self.send_request_to_llm(name_system_prompt, name_input)
-            logging.info(f"Name for {entity.entity}: {name}")
-            entity.entity_name = name
-
-            description = await self.send_request_to_llm(
-                description_system_prompt, description_input
-            )
-            logging.info(f"Description for {entity.entity}: {description}")
-            entity.description = description
-
         entity.columns = columns
+        if self.generate_descriptions:
+            await self.generate_entity_description(entity)
 
         return entity
 
