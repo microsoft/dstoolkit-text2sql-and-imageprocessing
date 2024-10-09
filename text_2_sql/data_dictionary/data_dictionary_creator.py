@@ -13,6 +13,7 @@ from environment import IdentityType, get_identity_type
 from openai import AsyncAzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import random
+import re
 
 logging.basicConfig(level=logging.INFO)
 
@@ -184,7 +185,7 @@ class DataDictionaryCreator(ABC):
             )
 
             column.distinct_values = [
-                value[column.name]
+                re.sub("\s+", "", value[column.name])
                 for value in distinct_values
                 if value[column.name] is not None
             ]

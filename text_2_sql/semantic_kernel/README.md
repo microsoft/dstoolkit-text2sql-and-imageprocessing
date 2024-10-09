@@ -11,6 +11,8 @@ The implementation is written for [Semantic Kernel](https://github.com/microsoft
     - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
 - `./time_comparison_script.py` provides a utility script for performing time based comparisons between the different approaches.
 
+## Plugins
+
 ### prompt_based_sql_plugin.py
 
 The `./plugins/prompt_based_sql_plugin/prompt_based_sql_plugin.py` contains 3 key methods to power the Prompt Based Text2SQL engine.

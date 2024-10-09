@@ -200,7 +200,6 @@ The following environmental variables control the behaviour of the Vector Based 
 
 | | Common Text2SQL Approach | Prompt Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach With Query Cache |
 |-|-|-|-|-|
-|**Code Availability**| | | | |
 | Semantic Kernel | Yes :heavy_check_mark: | Yes :heavy_check_mark: | Yes :heavy_check_mark: | Yes :heavy_check_mark: |
 | LangChain | | | | |
 | AutoGen | | | | | |
