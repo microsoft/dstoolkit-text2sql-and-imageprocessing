@@ -184,11 +184,15 @@ class DataDictionaryCreator(ABC):
                 self.extract_distinct_values_sql_query(entity, column)
             )
 
-            column.distinct_values = [
-                re.sub("\s+", "", value[column.name])
-                for value in distinct_values
-                if value[column.name] is not None
-            ]
+            column.distinct_values = []
+            for value in distinct_values:
+                if value[column.name] is not None:
+                    if isinstance(value[column.name], str):
+                        column.distinct_values.append(
+                            re.sub(r"[\t\n\r\f\v]+", "", value[column.name])
+                        )
+                    else:
+                        column.distinct_values.append(value[column.name])
         except Exception as e:
             logging.error(f"Error extracting values for {column.name}")
             logging.error(e)
