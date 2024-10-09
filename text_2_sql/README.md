@@ -175,7 +175,7 @@ Below is a sample entry for a view / table that we which to expose to the LLM. T
 }
 ```
 
-See `./data_dictionary` for more details on how the data dictionary is structured and ways to automatically generate it.
+See `./data_dictionary` for more details on how the data dictionary is structured and ways to **automatically generate it**.
 
 ## Prompt Based SQL Plugin (Iteration 2)
 
