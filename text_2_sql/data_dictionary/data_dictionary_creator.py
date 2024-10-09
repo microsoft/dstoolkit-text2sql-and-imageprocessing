@@ -12,6 +12,7 @@ from typing import Optional
 from environment import IdentityType, get_identity_type
 from openai import AsyncAzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+import random
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,13 +23,13 @@ class ColumnItem(BaseModel):
     name: str = Field(..., alias="Name")
     type: str = Field(..., alias="Type")
     definition: Optional[str] = Field(..., alias="Definition")
-    distinct_values: Optional[list[str]] = Field(
+    distinct_values: Optional[list[any]] = Field(
         None, alias="DistinctValues", exclude=True
     )
-    allowed_values: Optional[list[str]] = Field(None, alias="AllowedValues")
-    sample_values: Optional[list[str]] = Field(None, alias="SampleValues")
+    allowed_values: Optional[list[any]] = Field(None, alias="AllowedValues")
+    sample_values: Optional[list[any]] = Field(None, alias="SampleValues")
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
     @classmethod
     def from_sql_row(cls, row, columns):
@@ -191,6 +192,11 @@ class DataDictionaryCreator(ABC):
             logging.error(f"Error extracting values for {column.name}")
             logging.error(e)
 
+        if column.distinct_values is not None and len(column.distinct_values) > 5:
+            column.sample_values = random.sample(column.distinct_values, 5)
+        elif column.distinct_values is not None:
+            column.sample_values = column.distinct_values
+
     async def generate_column_description(self, entity: EntityItem, column: ColumnItem):
         """A method to generate a description for a column in a database."""
 
@@ -202,16 +208,18 @@ class DataDictionaryCreator(ABC):
 
         You will use this description later to generate a SQL query. Make sure it will be useful for this purpose in determining the values that should be used in the query and any filtering that should be applied."""
 
-        if column.distinct_values is not None and len(column.distinct_values) > 0:
-            column_description_system_prompt += """Do not list all distinct values in the description or provide a list of samples. The distinct values and samples will be listed separately. The description should be a brief summary of the column as a whole and any insights drawn from the distinct values.
+        if column.sample_values is not None and len(column.sample_values) > 0:
+            column_description_system_prompt += """Do not list all sample values in the description or provide a list of samples. The sample values will be listed separately. The description should be a brief summary of the column as a whole and any insights drawn from the sample values.
 
-            e.g. If there is a pattern in the distinct values of the column, such as a common format, mention it in the description. The dsecription might include: 'The column contains a list of currency codes in the ISO 4217 format. 'USD' for US Dollar, 'EUR' for Euro, 'GBP' for Pound Sterling."""
-            stringifed_distinct_values = [
-                str(value) for value in column.distinct_values
-            ]
+            If there is a pattern in the sample values of the column, such as a common format or that the values are common abbreviations, mention it in the description. The description might include: The column contains a list of currency codes in the ISO 4217 format. 'USD' for US Dollar, 'EUR' for Euro, 'GBP' for Pound Sterling.
 
-            column_description_input = f"""Describe the {column.name} column in the {entity.entity} entity. The {
-                column.name} column contains the following distinct values: {', '.join(stringifed_distinct_values)}."""
+            If you think the sample values belong to a specific standard, you can mention it in the description. e.g. The column contains a list of country codes in the ISO 3166-1 alpha-2 format. 'US' for United States, 'GB' for United Kingdom, 'FR' for France. Including the specific standard format code can help the user understand the data better.
+
+            If you think the sample values are not representative of the column as a whole, you can provide a more general description of the column without mentioning the sample values."""
+            stringifed_sample_values = [str(value) for value in column.sample_values]
+
+            column_description_input = f"""Describe the {column.name} column in the {entity.entity} entity. The following sample values are provided from {
+                column.name}: {', '.join(stringifed_sample_values)}."""
         else:
             column_description_input = f"""Describe the {
                 column.name} column in the {entity.entity} entity."""
@@ -371,9 +379,13 @@ class DataDictionaryCreator(ABC):
         if self.single_file:
             logging.info("Saving data dictionary to entities.json")
             with open("entities.json", "w", encoding="utf-8") as f:
-                json.dump(data_dictionary.model_dump(by_alias=True), f, indent=4)
+                json.dump(
+                    data_dictionary.model_dump(by_alias=True), f, indent=4, default=str
+                )
         else:
             for entity in data_dictionary:
                 logging.info(f"Saving data dictionary for {entity.entity}")
                 with open(f"{entity.entity}.json", "w", encoding="utf-8") as f:
-                    json.dump(entity.model_dump(by_alias=True), f, indent=4)
+                    json.dump(
+                        entity.model_dump(by_alias=True), f, indent=4, default=str
+                    )
