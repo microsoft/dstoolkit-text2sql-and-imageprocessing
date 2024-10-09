@@ -18,6 +18,7 @@ from azure.search.documents.indexes.models import (
     BlobIndexerDataToExtract,
     IndexerExecutionEnvironment,
     BlobIndexerParsingMode,
+    FieldMappingFunction,
 )
 from ai_search import AISearch
 from environment import (
@@ -28,7 +29,12 @@ from environment import (
 class Text2SqlAISearch(AISearch):
     """This class is used to deploy the sql index."""
 
-    def __init__(self, suffix: str | None = None, rebuild: bool | None = False):
+    def __init__(
+        self,
+        suffix: str | None = None,
+        rebuild: bool | None = False,
+        single_data_dictionary: bool | None = False,
+    ):
         """Initialize the Text2SqlAISearch class. This class implements the deployment of the sql index.
 
         Args:
@@ -38,7 +44,10 @@ class Text2SqlAISearch(AISearch):
         self.indexer_type = IndexerType.TEXT_2_SQL
         super().__init__(suffix, rebuild)
 
-        self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
+        if single_data_dictionary:
+            self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
+        else:
+            self.parsing_mode = BlobIndexerParsingMode.JSON
 
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for sql index.
@@ -47,10 +56,15 @@ class Text2SqlAISearch(AISearch):
             list[SearchableField]: The index fields for sql index"""
 
         fields = [
+            SimpleField(
+                name="Id",
+                type=SearchFieldDataType.String,
+                key=True,
+                analyzer_name="keyword",
+            ),
             SearchableField(
                 name="Entity",
                 type=SearchFieldDataType.String,
-                key=True,
                 analyzer_name="keyword",
             ),
             SearchableField(
@@ -76,15 +90,17 @@ class Text2SqlAISearch(AISearch):
                     SearchableField(name="Name", type=SearchFieldDataType.String),
                     SearchableField(name="Definition", type=SearchFieldDataType.String),
                     SearchableField(name="Type", type=SearchFieldDataType.String),
-                    SimpleField(
+                    SearchableField(
                         name="AllowedValues",
                         type=SearchFieldDataType.String,
                         collection=True,
+                        searchable=False,
                     ),
-                    SimpleField(
+                    SearchableField(
                         name="SampleValues",
                         type=SearchFieldDataType.String,
                         collection=True,
+                        searchable=False,
                     ),
                 ],
             ),
@@ -190,6 +206,14 @@ class Text2SqlAISearch(AISearch):
                 )
             ],
             output_field_mappings=[
+                FieldMapping(
+                    source_field_name="/document/Entity",
+                    target_field_name="Id",
+                    mapping_function=FieldMappingFunction(
+                        name="base64Encode",
+                        parameters={"useHttpServerUtilityUrlTokenEncode": False},
+                    ),
+                ),
                 FieldMapping(
                     source_field_name="/document/Entity", target_field_name="Entity"
                 ),
