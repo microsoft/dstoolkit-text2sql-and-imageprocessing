@@ -1,0 +1,68 @@
+{
+  "Columns": [
+    {
+      "AllowedValues": null,
+      "Definition": "The ProductModelID column in the SalesLT.ProductModelProductDescription entity contains unique numerical identifiers for different product models. These values are integers and are used to link product descriptions to their corresponding product models within the database. The IDs do not follow a specific sequential order and are likely assigned based on a predefined schema or during the creation of product models.",
+      "Name": "ProductModelID",
+      "SampleValues": [
+        103,
+        110,
+        39,
+        85,
+        37
+      ],
+      "Type": "int"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The ProductDescriptionID column in the SalesLT.ProductModelProductDescription entity contains unique numerical identifiers assigned to each product description. The values appear to be integers typically starting from a specific range and are used to reference detailed descriptions of products within the database. Each ID uniquely identifies an entry in the product description table to ensure consistency and accuracy in product-related information.",
+      "Name": "ProductDescriptionID",
+      "SampleValues": [
+        1900,
+        1634,
+        1519,
+        1438,
+        1964
+      ],
+      "Type": "int"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The Culture column in the SalesLT.ProductModelProductDescription entity contains language and region codes commonly used for localization and internationalization purposes. The values appear to follow ISO 639-1 language codes and may include an additional region or script designation using a hyphen. These codes help identify the language or cultural context for product descriptions, enhancing the ability to cater to diverse markets.",
+      "Name": "Culture",
+      "SampleValues": [
+        "fr    ",
+        "en    ",
+        "th    ",
+        "ar    ",
+        "zh-cht"
+      ],
+      "Type": "nchar"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The rowguid column in the SalesLT.ProductModelProductDescription entity contains unique identifier values for each row. These values follow the standard UUID (Universal Unique Identifier) format which consists of 32 alphanumeric characters separated into five groups by hyphens, typically in the format 8-4-4-4-12. This ensures that each entry in the column is globally unique, providing a reliable way to distinguish individual records in the database.",
+      "Name": "rowguid",
+      "SampleValues": [
+        "52D0E73D-BFBF-4CD8-A8B8-52FC0AF423D8",
+        "AB93B739-E95E-4C4A-A570-B93349EA678C",
+        "AAB952AE-55D8-4D0F-B63A-1250B7666AE8",
+        "26966676-DD7B-4CE9-8DE7-79F97B8A5DC9",
+        "4AA960B3-4CC8-4F01-BB82-989ADBD4D036"
+      ],
+      "Type": "uniqueidentifier"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The ModifiedDate column in the SalesLT.ProductModelProductDescription entity contains timestamp values indicating the date and time when each record was last modified. The values follow a standard datetime format, typically including both the date and the exact time of modification down to seconds. This column is useful for tracking changes and updates to the records over time.",
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2007-06-01 00:00:00"
+      ],
+      "Type": "datetime"
+    }
+  ],
+  "Description": "The SalesLT.ProductModelProductDescription entity links product models to their descriptions, capturing details about the culture/language of the description. It includes metadata such as a unique identifier and the date of the last modification. This entity can be used to answer questions regarding the specific descriptions available for different product models, including which languages those descriptions are provided in.",
+  "Entity": "SalesLT.ProductModelProductDescription",
+  "EntityName": "'Product Model and Description Mapping'"
+}

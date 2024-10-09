@@ -1,0 +1,66 @@
+{
+  "Columns": [
+    {
+      "AllowedValues": null,
+      "Definition": "The ProductModelID column in the SalesLT.ProductModel entity contains unique identifiers for different product models. Each value in this column is a distinct integer that serves as the primary key for the product model records in the database. These identifiers are used to link product models to other related data within the database.",
+      "Name": "ProductModelID",
+      "SampleValues": [
+        72,
+        73,
+        24,
+        116,
+        6
+      ],
+      "Type": "int"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The Name column in the SalesLT.ProductModel entity contains product names typically composed of a brand abbreviation followed by a descriptive term and, occasionally, a numerical differentiator. The names often describe the type and specific model of various bicycle components or related products. This structured naming convention aids in easy identification and categorization of the products within the inventory.",
+      "Name": "Name",
+      "SampleValues": [
+        "Touring Pedal",
+        "HL Road Seat/Saddle 2",
+        "HL Mountain Frame",
+        "ML Mountain Front Wheel",
+        "LL Mountain Handlebars"
+      ],
+      "Type": "nvarchar"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The CatalogDescription column in the SalesLT.ProductModel entity contains text descriptions of product models as they are showcased in the product catalog. This column typically includes detailed information about the product features, specifications, and other relevant details that help customers understand the product better. The data in this column is often used for creating product listings and marketing materials.",
+      "Name": "CatalogDescription",
+      "SampleValues": null,
+      "Type": "xml"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The rowguid column in the SalesLT.ProductModel entity contains unique identifier values in the standard GUID (Globally Unique Identifier) format. Each value is a 128-bit integer used to distinctly identify records within the table. These GUIDs ensure that each entry can be uniquely referenced, which is particularly useful in distributed systems and for maintaining data integrity.",
+      "Name": "rowguid",
+      "SampleValues": [
+        "E7B00DFF-8136-4947-B503-994584CC89E7",
+        "5CEFBB6E-3B7E-414F-AC1B-8F6DF741FB21",
+        "45FE0D77-6645-473C-A116-1232BAEA8D43",
+        "C88D1136-A8BB-46BB-94AA-8C1854F813CC",
+        "0D3A6AD7-6891-4DE9-B14F-E1A841EB220C"
+      ],
+      "Type": "uniqueidentifier"
+    },
+    {
+      "AllowedValues": null,
+      "Definition": "The ModifiedDate column in the SalesLT.ProductModel entity contains timestamps indicating when each product model was last modified. The entries are represented in the standard timestamp format of 'YYYY-MM-DD HH:MM:SS.FFFFFF', capturing both date and time at a high precision level. This information is essential for tracking changes and maintaining historical accuracy of modifications within the product models.",
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2009-05-16 16:34:29.027000",
+        "2006-11-20 09:56:38.273000",
+        "2009-05-16 16:34:28.997000",
+        "2009-05-16 16:34:29.010000",
+        "2005-06-01 00:00:00"
+      ],
+      "Type": "datetime"
+    }
+  ],
+  "Description": "The SalesLT.ProductModel entity contains information about different product models within the organization. It includes details such as the unique identifier for each product model, the name of the model, and a description used in the product catalog. Additionally, it tracks the last modification date and a globally unique identifier (GUID) for each record. This entity can be used to answer questions related to identifying, describing, and managing product models, as well as tracking changes made to the product models over time.",
+  "Entity": "SalesLT.ProductModel",
+  "EntityName": "Product Model Information"
+}

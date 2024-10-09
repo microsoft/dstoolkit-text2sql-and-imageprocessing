@@ -1,0 +1,5 @@
+aioodbc
+azure-identity
+python-dotenv
+pydantic
+openai

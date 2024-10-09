@@ -27,7 +27,9 @@ class PromptBasedSQLPlugin:
 
     def load_entities(self):
         """Load the views from the JSON file and formats into common memory dictionary."""
-        with open("./data_dictionary/entities.json", "r", encoding="utf-8") as file:
+        with open(
+            "../data_dictionary/manual_samples/entities.json", "r", encoding="utf-8"
+        ) as file:
             entities = json.load(file)
             for entity_object in entities:
                 entity = entity_object["Entity"]

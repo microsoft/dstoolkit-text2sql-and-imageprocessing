@@ -77,15 +77,17 @@ class Text2SqlQueryCacheAISearch(AISearch):
                             SearchableField(
                                 name="Type", type=SearchFieldDataType.String
                             ),
-                            SimpleField(
+                            SearchableField(
                                 name="AllowedValues",
                                 type=SearchFieldDataType.String,
                                 collection=True,
+                                searchable=False,
                             ),
-                            SimpleField(
+                            SearchableField(
                                 name="SampleValues",
                                 type=SearchFieldDataType.String,
                                 collection=True,
+                                searchable=False,
                             ),
                         ],
                     ),
