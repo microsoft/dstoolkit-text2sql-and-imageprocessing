@@ -120,13 +120,29 @@ class DataDictionaryCreator(ABC):
     def extract_distinct_values_sql_query(
         self, entity: EntityItem, column: ColumnItem
     ) -> str:
-        """A method to extract distinct values from a column in a database."""
+        """A method to extract distinct values from a column in a database. Can be sub-classed if needed.
+
+        Args:
+            entity (EntityItem): The entity to extract distinct values from.
+            column (ColumnItem): The column to extract distinct values from.
+
+        Returns:
+            str: The SQL query to extract distinct values from a column.
+        """
         return f"""SELECT DISTINCT {column.name} FROM {entity.entity} ORDER BY {column.name} DESC;"""
 
     async def query_entities(
         self, sql_query: str, cast_to: any = None
     ) -> list[EntityItem]:
-        """A method to query a database for entities. Can be sub-classed if needed."""
+        """A method to query a database for entities. Can be sub-classed if needed.
+
+        Args:
+            sql_query (str): The SQL query to run.
+            cast_to (any, optional): The class to cast the results to. Defaults to None.
+
+        Returns:
+            list[EntityItem]: The list of entities.
+        """
         connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
 
         logging.info(f"Running query: {sql_query}")
@@ -147,8 +163,11 @@ class DataDictionaryCreator(ABC):
 
         return results
 
-    async def extract_entities_with_descriptions(self):
-        """A method to extract entities with descriptions from a database."""
+    async def extract_entities_with_descriptions(self) -> list[EntityItem]:
+        """A method to extract entities with descriptions from a database.
+
+        Returns:
+            list[EntityItem]: The list of entities."""
         table_entities = await self.query_entities(
             self.extract_table_entities_sql_query, cast_to=EntityItem
         )
@@ -177,7 +196,12 @@ class DataDictionaryCreator(ABC):
     async def extract_column_distinct_values(
         self, entity: EntityItem, column: ColumnItem
     ):
-        """A method to extract distinct values from a column in a database."""
+        """A method to extract distinct values from a column in a database.
+
+        Args:
+            entity (EntityItem): The entity to extract distinct values from.
+            column (ColumnItem): The column to extract distinct values from.
+        """
 
         try:
             distinct_values = await self.query_entities(
@@ -187,6 +211,7 @@ class DataDictionaryCreator(ABC):
             column.distinct_values = []
             for value in distinct_values:
                 if value[column.name] is not None:
+                    # Remove any whitespace characters
                     if isinstance(value[column.name], str):
                         column.distinct_values.append(
                             re.sub(r"[\t\n\r\f\v]+", "", value[column.name])
@@ -197,15 +222,18 @@ class DataDictionaryCreator(ABC):
             logging.error(f"Error extracting values for {column.name}")
             logging.error(e)
 
+        # Handle large set of distinct values
         if column.distinct_values is not None and len(column.distinct_values) > 5:
             column.sample_values = random.sample(column.distinct_values, 5)
         elif column.distinct_values is not None:
             column.sample_values = column.distinct_values
 
     async def generate_column_description(self, entity: EntityItem, column: ColumnItem):
-        """A method to generate a description for a column in a database."""
+        """A method to generate a description for a column in a database.
 
-        # TODO: Avoid sending all values if cardinality it too high
+        Args:
+            entity (EntityItem): The entity the column belongs to.
+            column (ColumnItem): The column to generate a description for."""
 
         column_description_system_prompt = """You are an expert in SQL Entity analysis. You must generate a brief description for this SQL Column. This description will be used to generate a SQL query with the correct values. Make sure to include a description of the data contained in this column.
 
@@ -245,7 +273,13 @@ class DataDictionaryCreator(ABC):
     async def extract_columns_with_definitions(
         self, entity: EntityItem
     ) -> list[ColumnItem]:
-        """A method to extract column information from a database."""
+        """A method to extract column information from a database.
+
+        Args:
+            entity (EntityItem): The entity to extract columns from.
+
+        Returns:
+            list[ColumnItem]: The list of columns."""
 
         columns = await self.query_entities(
             self.extract_columns_sql_query(entity), cast_to=ColumnItem
@@ -270,8 +304,15 @@ class DataDictionaryCreator(ABC):
 
         return columns
 
-    async def send_request_to_llm(self, system_prompt, input):
-        """A method to use GPT to generate a description for an entity."""
+    async def send_request_to_llm(self, system_prompt: str, input: str):
+        """A method to use GPT to generate a description for an entity.
+
+        Args:
+            system_prompt (str): The system prompt to use.
+            input (str): The input to use.
+
+        Returns:
+            str: The generated description."""
 
         MAX_TOKENS = 2000
 
@@ -324,7 +365,10 @@ class DataDictionaryCreator(ABC):
         return response.choices[0].message.content
 
     async def generate_entity_description(self, entity: EntityItem):
-        """A method to generate a description for an entity."""
+        """A method to generate a description for an entity.
+
+        Args:
+            entity (EntityItem): The entity to generate a description for."""
         name_system_prompt = """You are an expert in SQL Entity analysis. You must generate a human readable name for this SQL Entity. This name will be used to select the most appropriate SQL entity to answer a given question. E.g. 'Sales Data', 'Customer Information', 'Product Catalog'."""
 
         name_input = f"""Provide a human readable name for the {
@@ -358,8 +402,14 @@ class DataDictionaryCreator(ABC):
         logging.info(f"Description for {entity.entity}: {description}")
         entity.description = description
 
-    async def build_entity_entry(self, entity: EntityItem):
-        """A method to build an entity entry."""
+    async def build_entity_entry(self, entity: EntityItem) -> EntityItem:
+        """A method to build an entity entry.
+
+        Args:
+            entity (EntityItem): The entity to build an entry for.
+
+        Returns:
+            EntityItem: The entity entry."""
 
         logging.info(f"Building entity entry for {entity.entity}")
 
