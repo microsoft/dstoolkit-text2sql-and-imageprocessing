@@ -2,8 +2,6 @@
 
 This portion of the repo contains code to implement a multi-shot approach to Text2SQL generation. This code can be integrated into a RAG application to allow the application to intelligently switch between different data sources (SQL, AI Search etc) to answer the question with the best possible information.
 
-The implementation is written for [Semantic Kernel](https://github.com/microsoft/semantic-kernel) in Python, although it can easily be adapted for C# or another framework such as LangChain.
-
 The sample provided works with Azure SQL Server, although it has been easily adapted to other SQL sources such as Snowflake.
 
 **Three iterations on the approach are provided for SQL query generation. A prompt based approach and a two vector database based approaches. See Multi-Shot Approach for more details**
@@ -68,6 +66,10 @@ As the query cache is shared between users (no data is stored in the cache), a n
 |**Disadvantages** | Slows down significantly as the number of entities increases. | Uses LLM to detect the best fitting entity which is slow compared to a vector approach. | AI Search adds additional cost to the solution. | Slower than other approaches for the first time a question with no similar questions in the cache is asked. |
 | | Consumes a significant number of tokens as number of entities increases. | As number of entities increases, token usage will grow but at a lesser rate than Iteration 1. | | AI Search adds additional cost to the solution. |
 | | LLM struggled to differentiate which table to choose with the large amount of information passed. | | |
+|**Code Availability**| | | | |
+| Semantic Kernel | Yes :heavy_check_mark: | Yes :heavy_check_mark: | Yes :heavy_check_mark: | Yes :heavy_check_mark: |
+| LangChain | | | | |
+| AutoGen | | | | | |
 
 ### Complete Execution Time Comparison for Approaches
 
@@ -140,22 +142,13 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 |----------------|---------------|
 | Classic Vest, S| Classic Vest  |
 
-## Provided Notebooks & Scripts
-
-- `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
-- `./rag_with_vector_based_text_2_sql.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin to query the database.
-- `./rag_with_vector_based_text_2_sql_query_cache.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin, alongside the query cache, to query the database.
-- `./rag_with_ai_search_and_text_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
-    - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
-- `./time_comparison_script.py` provides a utility script for performing time based comparisons between the different approaches.
-
 ## Data Dictionary
 
 ### entities.json
 
 To power the knowledge of the LLM, a data dictionary containing all the SQL views / table metadata is used. Whilst the LLM could query the database at runtime to find out the schemas for the database, storing them in a text file reduces the overall latency of the system and allows the metadata for each table to be adjusted in a form of prompt engineering.
 
-The data dictionary is stored in `./data_dictionary/samples/entities.json`. Below is a sample entry for a view / table that we which to expose to the LLM. The Microsoft SQL Server [Adventure Works Database](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16) is used as an sample.
+Below is a sample entry for a view / table that we which to expose to the LLM. The Microsoft SQL Server [Adventure Works Database](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16) is used as an sample.
 
 ```json
 {
@@ -182,44 +175,13 @@ The data dictionary is stored in `./data_dictionary/samples/entities.json`. Belo
 }
 ```
 
-#### Property Definitions
-- **EntityName** is a human readable name for the entity.
-- **Entity** is the actual name for the entity that is used in the SQL query.
-- **Description** provides a comprehensive description of what information the entity contains.
-- **Columns** contains a list of the columns exposed for querying. Each column contains:
-    - **Definition** a short definition of what information the column contains. Here you can add extra metadata to **prompt engineer** the LLM to select the right columns or interpret the data in the column correctly.
-    - **Name** is the actual column name.
-    - **Type** is the datatype for the column.
-    - **SampleValues (optional)** is a list of sample values that are in the column. This is useful for instructing the LLM of what format the data may be in.
-    - **AllowedValues (optional)** is a list of absolute allowed values for the column. This instructs the LLM only to use these values if filtering against this column.
-
-A full data dictionary must be built for all the views / tables you which to expose to the LLM. The metadata provide directly influences the accuracy of the Text2SQL component.
+See `./data_dictionary` for more details on how the data dictionary is structured and ways to automatically generate it.
 
 ## Prompt Based SQL Plugin (Iteration 2)
 
 This approach works well for a small number of entities (tested on up to 20 entities with hundreds of columns). It performed well on the testing, with correct metadata, we achieved 100% accuracy on the test set.
 
 Whilst a simple and high performing approach, the downside of this approach is the increase in number of tokens as the number of entities increases. Additionally, we found that the LLM started to get "confused" on which columns belong to which entities as the number of entities increased.
-
-### prompt_based_sql_plugin.py
-
-The `./plugins/prompt_based_sql_plugin/prompt_based_sql_plugin.py` contains 3 key methods to power the Prompt Based Text2SQL engine.
-
-#### system_prompt()
-
-This method takes the loaded `entities.json` file and generates a system prompt based on it. Here, the **EntityName** and **Description** are used to build a list of available entities for the LLM to select.
-
-This is then inserted into a pre-made Text2SQL generation prompt that already contains optimised and working instructions for the LLM. This system prompt for the plugin is added to the main prompt file at runtime.
-
-The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
-
-#### get_entity_schema()
-
-This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to fetch the full schema definitions for a given entity. This returns a JSON string of the chosen entity which allows the LLM to understand the column definitions and their associated metadata. This can be called in parallel for multiple entities.
-
-#### run_sql_query()
-
-This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
 
 ## Vector Based SQL Plugin (Iterations 3 & 4)
 
@@ -234,39 +196,16 @@ The following environmental variables control the behaviour of the Vector Based 
 - **Text2Sql__UseQueryCache** - controls whether the query cached index is checked before using the standard schema index.
 - **Text2Sql__PreRunQueryCache** - controls whether the top result from the query cache index (if enabled) is pre-fetched against the data source to include the results in the prompt.
 
-### vector_based_sql_plugin.py
+## Code Availability
 
-The `./plugins/vector_based_sql_plugin/vector_based_sql_plugin.py` contains 3 key methods to power the Vector Based Text2SQL engine.
+| | Common Text2SQL Approach | Prompt Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach With Query Cache |
+|-|-|-|-|-|
+|**Code Availability**| | | | |
+| Semantic Kernel | Yes :heavy_check_mark: | Yes :heavy_check_mark: | Yes :heavy_check_mark: | Yes :heavy_check_mark: |
+| LangChain | | | | |
+| AutoGen | | | | | |
 
-#### Indexing
-
-`./deploy_ai_search/text_2_sql.py` & `./deploy_ai_search/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search/README.md`.
-
-#### system_prompt()
-
-This method simply returns a pre-made system prompt that contains optimised and working instructions for the LLM. This system prompt for the plugin is added to the main prompt file at runtime.
-
-The **target_engine** is passed to the prompt, along with **engine_specific_rules** to ensure that the SQL queries generated work on the target engine.
-
-**If the query cache is enabled, the prompt is adjusted to instruct the LLM to look at the cached data and results first, before calling `get_entity_schema()`.**
-
-#### get_entity_schema()
-
-This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to search the AI Search instance with the given text. The LLM is able to pass the key terms from the user query, and retrieve a ranked list of the most suitable entities to answer the question.
-
-The search text passed is vectorised against the entity level **Description** columns. A hybrid Semantic Reranking search is applied against the **EntityName**, **Entity**, **Columns/Name** fields.
-
-#### fetch_queries_from_cache()
-
-The vector based with query cache uses the `fetch_queries_from_cache()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
-
-If the score of the top result is higher than the defined threshold, the query will be executed against the target data source and the results included in the prompt. This allows us to prompt the LLM to evaluated whether it can use these results to answer the question, **without further SQL Query generation** to speed up the process.
-
-#### run_sql_query()
-
-This method is called by the Semantic Kernel framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
-
-Additionally, if any of the cache functionality is enabled, this method will update the query cache index based on the SQL query run, and the schemas used in execution.
+See the relevant directory for the code in the provided framework.
 
 ## Tips for good Text2SQL performance.
 
