@@ -7,3 +7,5 @@ python-dotenv
 matplotlib
 numpy
 seaborn
+pydantic
+openai
