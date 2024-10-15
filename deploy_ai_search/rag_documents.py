@@ -101,15 +101,17 @@ class RagDocumentsAISearch(AISearch):
                 name="Figures",
                 collection=True,
                 fields=[
-                    SimpleField(
+                    SearchableField(
                         name="FigureId",
                         type=SearchFieldDataType.String,
                         collection=True,
+                        searchable=False,
                     ),
-                    SimpleField(
+                    SearchableField(
                         name="FigureUri",
                         type=SearchFieldDataType.String,
                         collection=True,
+                        searchable=False,
                     ),
                 ],
             ),

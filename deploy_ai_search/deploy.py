@@ -23,7 +23,9 @@ def deploy_config(arguments: argparse.Namespace):
         )
     elif arguments.index_type == "text_2_sql":
         index_config = Text2SqlAISearch(
-            suffix=arguments.suffix, rebuild=arguments.rebuild
+            suffix=arguments.suffix,
+            rebuild=arguments.rebuild,
+            single_data_dictionary=arguments.single_data_dictionary,
         )
     elif arguments.index_type == "text_2_sql_query_cache":
         index_config = Text2SqlQueryCacheAISearch(
@@ -57,6 +59,12 @@ if __name__ == "__main__":
         type=bool,
         required=False,
         help="Whether want to enable chunking by page in adi skill, if no value is passed considered False",
+    )
+    parser.add_argument(
+        "--single_data_dictionary",
+        type=bool,
+        required=False,
+        help="Whether or not a single data dictionary file should be uploaded, or one per entity",
     )
     parser.add_argument(
         "--suffix",
