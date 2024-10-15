@@ -1,0 +1,11 @@
+langchain	
+azure-search
+azure-search-documents==11.6.0b5
+aioodbc
+azure-identity
+python-dotenv
+matplotlib
+numpy
+seaborn
+pydantic
+openai
