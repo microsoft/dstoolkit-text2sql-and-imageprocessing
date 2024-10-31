@@ -2,13 +2,7 @@
 # Licensed under the MIT License.
 import logging
 import json
-import nltk
 import re
-from nltk.tokenize import word_tokenize
-
-nltk.download("punkt")
-nltk.download("stopwords")
-nltk.download("punkt_tab")
 
 
 def get_section(cleaned_text: str) -> list:
@@ -69,38 +63,28 @@ def clean_text(src_text: str) -> str:
         str: The clean text."""
 
     try:
+        logging.info(f"Input text: {src_text}")
+        if len(src_text) == 0:
+            logging.error("Input text is empty")
+            raise ValueError("Input text is empty")
+
         # Define specific patterns for each tag
         tag_patterns = {
-            "figurecontent": r"<!--.*?FigureContent=(.*?)-->",
+            "figurecontent": r"<!-- FigureContent=(.*?)-->",
             "figure": r"<figure>(.*?)</figure>",
             "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
             "figcaption": r"<figcaption>(.*?)</figcaption>",
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
 
-        # remove html tags
-        cleaned_text = re.sub(r"<.*?>", "", cleaned_text)
+        # Updated regex to keep Unicode letters, punctuation, whitespace, currency symbols, and percentage signs,
+        # while also removing non-printable characters
+        cleaned_text = re.sub(r"[^\p{L}\p{P}\s\p{Sc}%\x20-\x7E]", "", cleaned_text)
 
-        # Replace newline characters with spaces
-        cleaned_text = re.sub(r"\n", " ", cleaned_text)
-
-        # Replace multiple whitespace characters with a single space
-        cleaned_text = re.sub(r"\s+", " ", cleaned_text)
-
-        # remove stopwords
-        tokens = word_tokenize(cleaned_text, "english")
-        stop_words = nltk.corpus.stopwords.words("english")
-        filtered_tokens = [word for word in tokens if word not in stop_words]
-        cleaned_text = " ".join(filtered_tokens)
-
-        # remove special characters
-        cleaned_text = re.sub(r"[^a-zA-Z\s]", "", cleaned_text)
-
-        # remove extra white spaces
-        cleaned_text = " ".join([word for word in cleaned_text.split()])
-
-        # case normalization
-        cleaned_text = cleaned_text.lower()
+        logging.info(f"Cleaned text: {cleaned_text}")
+        if len(cleaned_text) == 0:
+            logging.error("Cleaned text is empty")
+            raise ValueError("Cleaned text is empty")
     except Exception as e:
         logging.error(f"An error occurred in clean_text: {e}")
         return ""

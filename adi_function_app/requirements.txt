@@ -9,7 +9,7 @@ pandas
 azure-identity
 openpyxl
 regex
-nltk==3.9.1
+tenacity
 bs4
 azure-search
 azure-search-documents
