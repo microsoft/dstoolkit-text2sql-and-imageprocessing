@@ -92,7 +92,8 @@ def update_figure_description(
     """
 
     # Define the new string to replace the old content
-    new_string = f'<!-- FigureId="{figure_id}" FigureContent="{img_description}" -->'
+    new_string = f"""<!-- FigureId="{figure_id}
+        " FigureContent="{img_description}" -->"""
 
     # Calculate the end index of the content to be replaced
     end_index = offset + length
@@ -538,9 +539,6 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
             except ValueError as inner_e:
                 logging.error(inner_e)
                 logging.error(
-                    f"Failed to analyze the document with Azure Document Intelligence: {e}"
-                )
-                logging.error(
                     "Failed to analyse %s with Azure Document Intelligence.", blob
                 )
                 await storage_account_helper.add_metadata_to_blob(
@@ -607,7 +605,14 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                         )
                     }
                     for future in concurrent.futures.as_completed(futures):
-                        cleaned_result.append(future.result())
+                        result = future.result()
+                        if len(result["content"]) == 0:
+                            logging.error(
+                                "No content found in the cleaned result for slide %s.",
+                                result["pageNumber"],
+                            )
+                        else:
+                            cleaned_result.append(result)
 
             else:
                 markdown_content = result.content
