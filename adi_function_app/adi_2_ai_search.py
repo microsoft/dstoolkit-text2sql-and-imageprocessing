@@ -14,7 +14,6 @@ import re
 import asyncio
 import logging
 from storage_account import StorageAccountHelper
-import concurrent.futures
 import json
 from openai import AsyncAzureOpenAI
 from typing import Union
@@ -22,7 +21,7 @@ import openai
 from environment import IdentityType, get_identity_type
 
 
-def build_and_clean_markdown_for_response(
+async def build_and_clean_markdown_for_response(
     markdown_text: str,
     figures: dict,
     page_no: int = None,
@@ -591,28 +590,32 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                 ]
                 content_with_figures = await asyncio.gather(*content_with_figures_tasks)
 
-                with concurrent.futures.ProcessPoolExecutor() as executor:
-                    futures = {
-                        executor.submit(
-                            build_and_clean_markdown_for_response,
+                build_and_clean_markdown_for_response_tasks = []
+
+                for extracted_page_content, page_number in zip(
+                    content_with_figures, page_numbers
+                ):
+                    build_and_clean_markdown_for_response_tasks.append(
+                        build_and_clean_markdown_for_response(
                             extracted_page_content[0],
                             extracted_page_content[1],
                             page_number,
                             True,
-                        ): extracted_page_content
-                        for extracted_page_content, page_number in zip(
-                            content_with_figures, page_numbers
                         )
-                    }
-                    for future in concurrent.futures.as_completed(futures):
-                        result = future.result()
-                        if len(result["content"]) == 0:
-                            logging.error(
-                                "No content found in the cleaned result for slide %s.",
-                                result["pageNumber"],
-                            )
-                        else:
-                            cleaned_result.append(result)
+                    )
+
+                build_and_clean_markdown_for_response_results = await asyncio.gather(
+                    *build_and_clean_markdown_for_response_tasks
+                )
+
+                for result in build_and_clean_markdown_for_response_results:
+                    if len(result["content"]) == 0:
+                        logging.error(
+                            "No content found in the cleaned result for slide %s.",
+                            result["pageNumber"],
+                        )
+                    else:
+                        cleaned_result.append(result)
 
             else:
                 markdown_content = result.content
@@ -629,7 +632,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                     page_number=None,
                 )
 
-                cleaned_result = build_and_clean_markdown_for_response(
+                cleaned_result = await build_and_clean_markdown_for_response(
                     extracted_content, figures, remove_irrelevant_figures=True
                 )
         except Exception as e:
