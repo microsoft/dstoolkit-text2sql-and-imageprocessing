@@ -40,7 +40,7 @@ async def build_and_clean_markdown_for_response(
     """
 
     output_dict = {}
-    comment_patterns = r"<!-- PageNumber=\"[^\"]*\" -->|<!-- PageHeader=\"[^\"]*\" -->|<!-- PageFooter=\"[^\"]*\" -->|<!-- PageBreak -->"
+    comment_patterns = r"<!-- PageNumber=\"[^\"]*\" -->|<!-- PageHeader=\"[^\"]*\" -->|<!-- PageFooter=\"[^\"]*\" -->|<!-- PageBreak -->|<!-- Footnote=\"[^\"]*\" -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
 
     # Remove irrelevant figures
@@ -52,18 +52,7 @@ async def build_and_clean_markdown_for_response(
 
     logging.info(f"Cleaned Text: {cleaned_text}")
 
-    markdown_without_figure_content = re.sub(
-        r"<!-- FigureContent=\"[^\"]*\" -->", "", cleaned_text, flags=re.DOTALL
-    )
-
-    combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
-    doc_metadata = re.findall(
-        combined_pattern, markdown_without_figure_content, re.DOTALL
-    )
-    doc_metadata = [match for group in doc_metadata for match in group if match]
-
     output_dict["content"] = cleaned_text
-    output_dict["sections"] = doc_metadata
 
     output_dict["figures"] = figures
 

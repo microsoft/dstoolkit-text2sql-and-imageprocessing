@@ -5,7 +5,7 @@ import json
 import re
 
 
-def get_section(cleaned_text: str) -> list:
+def get_sections(cleaned_text: str) -> list:
     """
     Returns the section details from the content
 
@@ -52,7 +52,7 @@ def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     return text
 
 
-def clean_text(src_text: str) -> str:
+def clean_text_with_section_extraction(src_text: str) -> tuple[str, str]:
     """This function performs following cleanup activities on the text, remove all unicode characters
     remove line spacing,remove stop words, normalize characters
 
@@ -77,6 +77,8 @@ def clean_text(src_text: str) -> str:
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
 
+        sections = get_sections(cleaned_text)
+
         # Updated regex to keep Unicode letters, punctuation, whitespace, currency symbols, and percentage signs,
         # while also removing non-printable characters
         cleaned_text = re.sub(r"[^\p{L}\p{P}\s\p{Sc}%\x20-\x7E]", "", cleaned_text)
@@ -88,7 +90,7 @@ def clean_text(src_text: str) -> str:
     except Exception as e:
         logging.error(f"An error occurred in clean_text: {e}")
         return ""
-    return cleaned_text
+    return cleaned_text, sections
 
 
 async def process_pre_embedding_cleaner(record: dict) -> dict:
@@ -114,19 +116,17 @@ async def process_pre_embedding_cleaner(record: dict) -> dict:
 
         # scenarios when page by chunking is enabled
         if isinstance(record["data"]["chunk"], dict):
-            cleaned_record["data"]["cleanedChunk"] = clean_text(
-                record["data"]["chunk"]["content"]
-            )
+            (
+                cleaned_record["data"]["cleanedChunk"],
+                cleaned_record["data"]["sections"],
+            ) = clean_text_with_section_extraction(record["data"]["chunk"]["content"])
             cleaned_record["data"]["chunk"] = record["data"]["chunk"]["content"]
-            cleaned_record["data"]["cleanedSections"] = clean_sections(
-                record["data"]["chunk"]["sections"]
-            )
         else:
-            cleaned_record["data"]["cleanedChunk"] = clean_text(record["data"]["chunk"])
+            (
+                cleaned_record["data"]["cleanedChunk"],
+                cleaned_record["data"]["sections"],
+            ) = clean_text_with_section_extraction(record["data"]["chunk"])
             cleaned_record["data"]["chunk"] = record["data"]["chunk"]
-            cleaned_record["data"]["cleanedSections"] = get_section(
-                record["data"]["chunk"]
-            )
 
     except Exception as e:
         logging.error("string cleanup Error: %s", e)

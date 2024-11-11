@@ -220,9 +220,7 @@ class AISearch(ABC):
         pre_embedding_cleaner_skill_outputs = [
             OutputFieldMappingEntry(name="cleanedChunk", target_name="cleanedChunk"),
             OutputFieldMappingEntry(name="chunk", target_name="chunk"),
-            OutputFieldMappingEntry(
-                name="cleanedSections", target_name="cleanedSections"
-            ),
+            OutputFieldMappingEntry(name="sections", target_name="sections"),
         ]
 
         pre_embedding_cleaner_skill = WebApiSkill(

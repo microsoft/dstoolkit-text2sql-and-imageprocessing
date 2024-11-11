@@ -24,15 +24,13 @@ Once the Markdown is obtained, several steps are carried out:
 
 1. **Extraction of images / charts**. The figures identified are extracted from the original document and passed to a multi-modal model (gpt4o in this case) for analysis. We obtain a description and summary of the chart / image to infer the meaning of the figure. This allows us to index and perform RAG analysis the information that is visually obtainable from a chart, without it being explicitly mentioned in the text surrounding. The information is added back into the original chart.
 
-2. **Extraction of sections and headers**. The sections and headers are extracted from the document and returned additionally to the indexer under a separate field. This allows us to store them as a separate field in the index and therefore surface the most relevant chunks.
-
-3. **Cleaning of Markdown**. The final markdown content is cleaned of any characters or unsupported Markdown elements that we do not want in the chunk e.g. non-relevant images.
+2. **Cleaning of Markdown**. The final markdown content is cleaned of any characters or unsupported Markdown elements that we do not want in the chunk e.g. non-relevant images.
 
 Page wise analysis in ADI is used to avoid splitting tables / figures across multiple chunks, when the chunking is performed.
 
 The properties returned from the ADI Custom Skill are then used to perform the following skills:
 
-- Pre-vectorisation cleaning
+- Pre-vectorisation cleaning. This stage is important as we extract the section information in this step from the headers in the document. Additionally, we remove any Markdown tags or characters that would cause an embedding error.
 - Keyphrase extraction
 - Vectorisation
 
@@ -43,7 +41,6 @@ Using the [Phi-3 Technical Report: A Highly Capable Language Model Locally on Yo
 ```json
 {
     "content": "\n<table>\n<caption>Table 1: Comparison results on RepoQA benchmark.</caption>\n<tr>\n<th>Model</th>\n<th>Ctx Size</th>\n<th>Python</th>\n<th>C++</th>\n<th>Rust</th>\n<th>Java</th>\n<th>TypeScript</th>\n<th>Average</th>\n</tr>\n<tr>\n<td>gpt-4O-2024-05-13</td>\n<td>128k</td>\n<td>95</td>\n<td>80</td>\n<td>85</td>\n<td>96</td>\n<td>97</td>\n<td>90.6</td>\n</tr>\n<tr>\n<td>gemini-1.5-flash-latest</td>\n<td>1000k</td>\n<td>93</td>\n<td>79</td>\n<td>87</td>\n<td>94</td>\n<td>97</td>\n<td>90</td>\n</tr>\n<tr>\n<td>Phi-3.5-MoE</td>\n<td>128k</td>\n<td>89</td>\n<td>74</td>\n<td>81</td>\n<td>88</td>\n<td>95</td>\n<td>85</td>\n</tr>\n<tr>\n<td>Phi-3.5-Mini</td>\n<td>128k</td>\n<td>86</td>\n<td>67</td>\n<td>73</td>\n<td>77</td>\n<td>82</td>\n<td>77</td>\n</tr>\n<tr>\n<td>Llama-3.1-8B-Instruct</td>\n<td>128k</td>\n<td>80</td>\n<td>65</td>\n<td>73</td>\n<td>76</td>\n<td>63</td>\n<td>71</td>\n</tr>\n<tr>\n<td>Mixtral-8x7B-Instruct-v0.1</td>\n<td>32k</td>\n<td>66</td>\n<td>65</td>\n<td>64</td>\n<td>71</td>\n<td>74</td>\n<td>68</td>\n</tr>\n<tr>\n<td>Mixtral-8x22B-Instruct-v0.1</td>\n<td>64k</td>\n<td>60</td>\n<td>67</td>\n<td>74</td>\n<td>83</td>\n<td>55</td>\n<td>67.8</td>\n</tr>\n</table>\n\n\nsuch as Arabic, Chinese, Russian, Ukrainian, and Vietnamese, with average MMLU-multilingual scores\nof 55.4 and 47.3, respectively. Due to its larger model capacity, phi-3.5-MoE achieves a significantly\nhigher average score of 69.9, outperforming phi-3.5-mini.\n\nMMLU(5-shot) MultiLingual\n\nPhi-3-mini\n\nPhi-3.5-mini\n\nPhi-3.5-MoE\n\n\n<!-- FigureContent=\"**Technical Analysis of Figure 4: Comparison of phi-3-mini, phi-3.5-mini and phi-3.5-MoE on MMLU-Multilingual tasks**\n\n1. **Overview:**\n   - The image is a bar chart comparing the performance of three different models—phi-3-mini, phi-3.5-mini, and phi-3.5-MoE—on MMLU-Multilingual tasks across various languages.\n\n2. **Axes:**\n   - The x-axis represents the languages in which the tasks were performed. The languages listed are: Arabic, Chinese, Dutch, French, German, Italian, Russian, Spanish, Ukrainian, Vietnamese, and English.\n   - The y-axis represents the performance, likely measured in percentage or score, ranging from 0 to 90.\n\n3. **Legend:**\n   - The chart uses three different colors to represent the three models:\n     - Orange bars represent the phi-3-mini model.\n     - Green bars represent the phi-3.5-mini model.\n     - Blue bars represent the phi-3.5-MoE model.\n\n4. **Data Interpretation:**\n   - Across all languages, the phi-3.5-MoE (blue bars) consistently outperforms the other two models, showing the highest bars.\n   - The phi-3.5-mini (green bars) shows better performance than the phi-3-mini (orange bars) in most languages, but not at the level of phi-3.5-MoE.\n\n5. **Language-specific Insights:**\n   - **Arabic**: phi-3.5-MoE shows significantly higher performance compared to the other two models, with phi-3.5-mini outperforming phi-3-mini.\n   - **Chinese**: A similar trend is observed as in Arabic, with phi-3.5-MoE leading by a wide margin.\n   - **Dutch**: Performance is roughly similar between phi-3.5-mini and phi-3.5-MoE, with phi-3.5-MoE being slightly better.\n   - **French**: A clear distinction in performance, with phi-3.5-MoE far exceeding the other two.\n   - **German**: phi-3.5-MoE leads, followed by phi-3.5-mini, while phi-3-mini lags significantly behind.\n   - **Italian**: The performance gap narrows between phi-3.5-mini and phi-3.5-MoE, but the latter is still superior.\n   - **Russian**: phi-3.5-MoE shows noticeably higher performance.\n   - **Spanish**: The performance trend is consistent with the previous languages, with phi-3.5-MoE leading.\n   - **Ukrainian**: A substantial lead by phi-3.5-MoE.\n   - **Vietnamese**: An anomaly where all models show closer performance, yet phi-3.5-MoE still leads.\n   - **English**: The highest performance is seen in English, with phi-3.5-MoE nearly reaching the maximum score.\n\n6. **Conclusion:**\n   - The phi-3.5-MoE model consistently outperforms the phi-3-mini and phi-3.5-mini models across all MMLU-Multilingual tasks.\n   - The phi-3.5-mini model shows a general improvement over the phi-3-mini, but the improvement is not as significant as phi-3.5-MoE.\n\nThis structured analysis provides a comprehensive understanding of the comparative performance of the mentioned models across multilingual tasks.\" -->\n\n\n We evaluate the phi-3.5-mini and phi-3.5-MoE models on two long-context understanding tasks:\nRULER [HSK+24] and RepoQA [LTD+24]. As shown in Tables 1 and 2, both phi-3.5-MoE and phi-\n3.5-mini outperform other open-source models with larger sizes, such as Llama-3.1-8B, Mixtral-8x7B,\nand Mixtral-8x22B, on the RepoQA task, and achieve comparable performance to Llama-3.1-8B on\nthe RULER task. However, we observe a significant performance drop when testing the 128K context\nwindow on the RULER task. We suspect this is due to the lack of high-quality long-context data in\nmid-training, an issue we plan to address in the next version of the model release.\n\n In the table 3, we present a detailed evaluation of the phi-3.5-mini and phi-3.5-MoE models\ncompared with recent SoTA pretrained language models, such as GPT-4o-mini, Gemini-1.5 Flash, and\nopen-source models like Llama-3.1-8B and the Mistral models. The results show that phi-3.5-mini\nachieves performance comparable to much larger models like Mistral-Nemo-12B and Llama-3.1-8B, while\nphi-3.5-MoE significantly outperforms other open-source models, offers performance comparable to\nGemini-1.5 Flash, and achieves above 90% of the average performance of GPT-4o-mini across various\nlanguage benchmarks.\n\n\n\n\n",
-    "sections": [],
     "page_number": 7
 }
 ```
@@ -133,16 +130,10 @@ If `chunk_by_page` header is `True` (recommended):
                 "extracted_content": [
                     {
                         "page_number": 1,
-                        "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1>"
-                        ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 1>"
                     },
                     {
                         "page_number": 2,
-                        "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 2>"
-                        ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 2>"
                     }
                 ]
@@ -154,16 +145,10 @@ If `chunk_by_page` header is `True` (recommended):
                 "extracted_content": [
                     {
                         "page_number": 1,
-                        "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1>"
-                        ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 2>"
                     },
                     {
                         "page_number": 2,
-                        "sections": [
-                            "<LIST OF DETECTED HEADINGS AND SECTIONS FOR PAGE NUMBER 1>"
-                        ],
                         "content": "<CLEANED MARKDOWN CONTENT FOR PAGE NUMBER 2>"
                     }
                 ]
@@ -182,9 +167,6 @@ If `chunk_by_page` header is `False`:
             "recordId": "0",
             "data": {
                 "extracted_content": {
-                    "sections": [
-                        "<LIST OF DETECTED HEADINGS AND SECTIONS FOR THE ENTIRE DOCUMENT>"
-                    ],
                     "content": "<CLEANED MARKDOWN CONTENT FOR THE ENTIRE DOCUMENT>"
                 }
             }
@@ -193,9 +175,6 @@ If `chunk_by_page` header is `False`:
             "recordId": "1",
             "data": {
                 "extracted_content": {
-                    "sections": [
-                        "<LIST OF DETECTED HEADINGS AND SECTIONS FOR THE ENTIRE DOCUMENT>"
-                    ],
                     "content": "<CLEANED MARKDOWN CONTENT FOR THE ENTIRE DOCUMENT>"
                 }
             }
