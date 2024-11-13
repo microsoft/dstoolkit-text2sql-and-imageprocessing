@@ -26,7 +26,7 @@ from environment import (
 )
 
 
-class Text2SqlAISearch(AISearch):
+class Text2SqlSchemaStoreAISearch(AISearch):
     """This class is used to deploy the sql index."""
 
     def __init__(
@@ -41,7 +41,7 @@ class Text2SqlAISearch(AISearch):
             suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
-        self.indexer_type = IndexerType.TEXT_2_SQL
+        self.indexer_type = IndexerType.TEXT_2_SQL_SCHEMA_STORE
         super().__init__(suffix, rebuild)
 
         if single_data_dictionary:
@@ -63,33 +63,34 @@ class Text2SqlAISearch(AISearch):
                 analyzer_name="keyword",
             ),
             SearchableField(
+                name="EntityName", type=SearchFieldDataType.String, filterable=True
+            ),
+            SearchableField(
                 name="Entity",
                 type=SearchFieldDataType.String,
                 analyzer_name="keyword",
             ),
             SearchableField(
-                name="EntityName", type=SearchFieldDataType.String, filterable=True
-            ),
-            SearchableField(
-                name="Description",
+                name="Definition",
                 type=SearchFieldDataType.String,
                 sortable=False,
                 filterable=False,
                 facetable=False,
             ),
             SearchField(
-                name="DescriptionEmbedding",
+                name="DefinitionEmbedding",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                 vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
                 vector_search_profile_name=self.vector_search_profile_name,
+                hidden=True,
             ),
             ComplexField(
                 name="Columns",
                 collection=True,
                 fields=[
-                    SearchableField(name="Name", type=SearchFieldDataType.String),
+                    SearchableField(name="ColumnName", type=SearchFieldDataType.String),
                     SearchableField(name="Definition", type=SearchFieldDataType.String),
-                    SearchableField(name="Type", type=SearchFieldDataType.String),
+                    SearchableField(name="DataType", type=SearchFieldDataType.String),
                     SearchableField(
                         name="AllowedValues",
                         type=SearchFieldDataType.String,
@@ -102,6 +103,11 @@ class Text2SqlAISearch(AISearch):
                         collection=True,
                         searchable=False,
                     ),
+                    SearchableField(
+                        name="JoinableEntities",
+                        type=SearchFieldDataType.String,
+                        collection=True,
+                    ),
                 ],
             ),
             SearchableField(
@@ -110,6 +116,39 @@ class Text2SqlAISearch(AISearch):
                 collection=True,
                 hidden=True,
                 # This is needed to enable semantic searching against the column names as complex field types are not used.
+            ),
+            SearchableField(
+                name="ColumnDefinitions",
+                type=SearchFieldDataType.String,
+                collection=True,
+                hidden=True,
+                # This is needed to enable semantic searching against the column names as complex field types are not used.
+            ),
+            ComplexField(
+                name="ImmediateRelationships",
+                collection=True,
+                fields=[
+                    SearchableField(
+                        name="ImmediateRelationshipName",
+                        type=SearchFieldDataType.String,
+                    ),
+                    SearchableField(
+                        name="ImmediateRelationshipEntity",
+                        type=SearchFieldDataType.String,
+                    ),
+                    ComplexField(
+                        name="ForeignKeys",
+                        collection=True,
+                        fields=[
+                            SearchableField(
+                                name="SourceColumnName", type=SearchFieldDataType.String
+                            ),
+                            SearchableField(
+                                name="TargetColumnName", type=SearchFieldDataType.String
+                            ),
+                        ],
+                    ),
+                ],
             ),
             SimpleField(
                 name="DateLastModified",
@@ -131,7 +170,8 @@ class Text2SqlAISearch(AISearch):
             prioritized_fields=SemanticPrioritizedFields(
                 title_field=SemanticField(field_name="EntityName"),
                 content_fields=[
-                    SemanticField(field_name="Description"),
+                    SemanticField(field_name="Definition"),
+                    SemanticField(field_name="ColumnDefinitions"),
                 ],
                 keywords_fields=[
                     SemanticField(field_name="ColumnNames"),
@@ -151,7 +191,7 @@ class Text2SqlAISearch(AISearch):
             list: The skillsets  used in the indexer"""
 
         embedding_skill = self.get_vector_skill(
-            "/document", "/document/Description", target_name="DescriptionEmbedding"
+            "/document", "/document/Definition", target_name="DefinitionEmbedding"
         )
 
         skills = [embedding_skill]
@@ -222,12 +262,12 @@ class Text2SqlAISearch(AISearch):
                     target_field_name="EntityName",
                 ),
                 FieldMapping(
-                    source_field_name="/document/Description",
-                    target_field_name="Description",
+                    source_field_name="/document/Definition",
+                    target_field_name="Definition",
                 ),
                 FieldMapping(
-                    source_field_name="/document/DescriptionEmbedding",
-                    target_field_name="DescriptionEmbedding",
+                    source_field_name="/document/DefinitionEmbedding",
+                    target_field_name="DefinitionEmbedding",
                 ),
                 FieldMapping(
                     source_field_name="/document/Columns",
@@ -236,6 +276,10 @@ class Text2SqlAISearch(AISearch):
                 FieldMapping(
                     source_field_name="/document/Columns/*/Name",
                     target_field_name="ColumnNames",
+                ),
+                FieldMapping(
+                    source_field_name="/document/Columns/*/Definition",
+                    target_field_name="ColumnDefinitions",
                 ),
                 FieldMapping(
                     source_field_name="/document/DateLastModified",
