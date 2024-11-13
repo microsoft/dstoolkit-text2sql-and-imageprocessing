@@ -22,7 +22,7 @@ class ColumnItem(BaseModel):
     """A class to represent a column item."""
 
     name: str = Field(..., alias="Name")
-    type: str = Field(..., alias="Type")
+    data_type: str = Field(..., alias="DataType")
     definition: Optional[str] = Field(..., alias="Definition")
     distinct_values: Optional[list[any]] = Field(
         None, alias="DistinctValues", exclude=True
@@ -37,7 +37,9 @@ class ColumnItem(BaseModel):
         """A method to create a ColumnItem from a SQL row."""
         result = dict(zip(columns, row))
         return cls(
-            name=result["Name"], type=result["Type"], definition=result["Definition"]
+            name=result["Name"],
+            type=result["DataType"],
+            definition=result["Definition"],
         )
 
 
@@ -45,7 +47,7 @@ class EntityItem(BaseModel):
     """A class to represent an entity item."""
 
     entity: str = Field(..., alias="Entity")
-    description: Optional[str] = Field(..., alias="Description")
+    definition: Optional[str] = Field(..., alias="Definition")
     name: str = Field(..., alias="Name", exclude=True)
     entity_schema: str = Field(..., alias="Schema", exclude=True)
     entity_name: Optional[str] = Field(default=None, alias="EntityName")
@@ -67,7 +69,7 @@ class EntityItem(BaseModel):
             entity=entity,
             name=result["Entity"],
             entity_schema=result["EntitySchema"],
-            description=result["Description"],
+            definition=result["Definition"],
         )
 
 
@@ -102,20 +104,20 @@ class DataDictionaryCreator(ABC):
     def extract_table_entities_sql_query(self) -> str:
         """An abstract property to extract table entities from a database.
 
-        Must return 3 columns: Entity, EntitySchema, Description."""
+        Must return 3 columns: Entity, EntitySchema, Definition."""
 
     @property
     @abstractmethod
     def extract_view_entities_sql_query(self) -> str:
         """An abstract property to extract view entities from a database.
 
-        Must return 3 columns: Entity, EntitySchema, Description."""
+        Must return 3 columns: Entity, EntitySchema, Definition."""
 
     @abstractmethod
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """An abstract method to extract column information from a database.
 
-        Must return 3 columns: Name, Type, Definition."""
+        Must return 3 columns: Name, DataType, Definition."""
 
     def extract_distinct_values_sql_query(
         self, entity: EntityItem, column: ColumnItem

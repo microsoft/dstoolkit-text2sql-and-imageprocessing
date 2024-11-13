@@ -52,7 +52,7 @@ WHERE
         return """SELECT
     v.TABLE_NAME AS Entity,
     v.TABLE_SCHEMA AS EntitySchema,
-    CAST(ep.value AS NVARCHAR(500)) AS Description
+    CAST(ep.value AS NVARCHAR(500)) AS Definition
 FROM
     INFORMATION_SCHEMA.VIEWS v
 LEFT JOIN
@@ -66,7 +66,7 @@ LEFT JOIN
         """A property to extract column information from a SQL Server database."""
         return f"""SELECT
     c.COLUMN_NAME AS Name,
-    c.DATA_TYPE AS Type,
+    c.DATA_TYPE AS DataType,
     CAST(ep.value AS NVARCHAR(500)) AS Definition
 FROM
     INFORMATION_SCHEMA.COLUMNS c

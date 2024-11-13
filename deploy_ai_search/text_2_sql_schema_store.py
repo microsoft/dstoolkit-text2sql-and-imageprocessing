@@ -88,7 +88,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                 name="Columns",
                 collection=True,
                 fields=[
-                    SearchableField(name="ColumnName", type=SearchFieldDataType.String),
+                    SearchableField(name="Name", type=SearchFieldDataType.String),
                     SearchableField(name="Definition", type=SearchFieldDataType.String),
                     SearchableField(name="DataType", type=SearchFieldDataType.String),
                     SearchableField(
@@ -125,7 +125,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                 # This is needed to enable semantic searching against the column names as complex field types are not used.
             ),
             ComplexField(
-                name="ImmediateRelationships",
+                name="ImmediateEntityRelationships",
                 collection=True,
                 fields=[
                     SearchableField(
@@ -149,6 +149,11 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                         ],
                     ),
                 ],
+            ),
+            SimpleField(
+                name="CompleteEntityRelationships",
+                type=SearchFieldDataType.String,
+                collection=True,
             ),
             SimpleField(
                 name="DateLastModified",

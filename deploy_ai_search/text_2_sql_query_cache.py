@@ -53,7 +53,7 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             SearchableField(
-                name="Query", type=SearchFieldDataType.String, filterable=True
+                name="SQLQuery", type=SearchFieldDataType.String, filterable=True
             ),
             ComplexField(
                 name="Schemas",
@@ -69,13 +69,13 @@ class Text2SqlQueryCacheAISearch(AISearch):
                         collection=True,
                         fields=[
                             SearchableField(
-                                name="Name", type=SearchFieldDataType.String
+                                name="ColumnName", type=SearchFieldDataType.String
                             ),
                             SearchableField(
-                                name="Definition", type=SearchFieldDataType.String
+                                name="ColumnDefinition", type=SearchFieldDataType.String
                             ),
                             SearchableField(
-                                name="Type", type=SearchFieldDataType.String
+                                name="DataType", type=SearchFieldDataType.String
                             ),
                             SearchableField(
                                 name="AllowedValues",
