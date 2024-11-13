@@ -78,6 +78,7 @@ class DataDictionaryCreator(ABC):
         self,
         entities: list[str] = None,
         excluded_entities: list[str] = None,
+        excluded_schemas: list[str] = None,
         single_file: bool = False,
         generate_descriptions: bool = True,
     ):
@@ -86,12 +87,14 @@ class DataDictionaryCreator(ABC):
         Args:
             entities (list[str], optional): A list of entities to extract. Defaults to None. If None, all entities are extracted.
             excluded_entities (list[str], optional): A list of entities to exclude. Defaults to None.
+            excluded_schemas (list[str], optional): A list of schemas to exclude. Defaults to None.
             single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
             generate_descriptions (bool, optional): A flag to indicate if descriptions should be generated. Defaults to True.
         """
 
         self.entities = entities
         self.excluded_entities = excluded_entities
+        self.excluded_schemas = excluded_schemas
         self.single_file = single_file
         self.generate_descriptions = generate_descriptions
 
@@ -189,6 +192,7 @@ class DataDictionaryCreator(ABC):
                 entity
                 for entity in all_entities
                 if entity.entity not in self.excluded_entities
+                and entity.entity_schema not in self.excluded_schemas
             ]
 
         return all_entities

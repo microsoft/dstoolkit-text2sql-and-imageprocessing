@@ -21,10 +21,10 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         if excluded_entities is None:
             excluded_entities = []
 
-        excluded_entities.extend(
-            ["dbo.BuildVersion", "dbo.ErrorLog", "sys.database_firewall_rules"]
+        excluded_schemas = ["dbo", "sys"]
+        return super().__init__(
+            entities, excluded_entities, excluded_schemas, single_file
         )
-        return super().__init__(entities, excluded_entities, single_file)
 
     """A class to extract data dictionary information from a SQL Server database."""
 
