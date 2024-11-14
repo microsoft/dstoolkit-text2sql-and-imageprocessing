@@ -1,7 +1,7 @@
 {
     "Entity": "SalesLT.vProductAndDescription",
-    "Definition": "The SalesLT.vProductAndDescription entity provides detailed information about products, including their unique identifier (ProductID), name, product model, and associated descriptions in different cultures. This entity is useful for queries that require product details along with multilingual descriptions. It can answer questions related to product identification, model specifications, and cultural descriptions of products for localization purposes.",
-    "EntityName": "Product and Description Information",
+    "Definition": "The SalesLT.vProductAndDescription entity provides a comprehensive view of product information along with their descriptions in different cultures. It includes details such as the product ID and name, the product model, the culture code indicating the language or region, and the product description tailored to that particular culture. This entity is useful for questions related to product details, multilingual product descriptions, and product model information.",
+    "EntityName": "Product Information and Descriptions",
     "Database": "AdventureWorksLT",
     "Warehouse": null,
     "EntityRelationships": [],
@@ -10,66 +10,66 @@
         {
             "Name": "ProductID",
             "DataType": "int",
-            "Definition": "The column ProductID in the SalesLT.vProductAndDescription entity contains unique numeric identifiers for each product in the system. Each value in this column represents a specific product and is used to differentiate and reference individual products within the database. The values are whole numbers and there is no specific pattern or order to the numbering.",
+            "Definition": "The ProductID column in the SalesLT.vProductAndDescription entity contains unique numeric identifiers for each product. The values in this column are whole numbers that serve as primary keys to distinguish individual products in the database. Each number corresponds to a specific product's details and description within the SalesLT.vProductAndDescription entity.",
             "AllowedValues": null,
             "SampleValues": [
-                764,
-                826,
-                986,
-                911,
-                805
+                995,
+                889,
+                904,
+                909,
+                724
             ]
         },
         {
             "Name": "Name",
             "DataType": "nvarchar",
-            "Definition": "The Name column in the SalesLT.vProductAndDescription entity contains product names that describe various items. The values typically include the product type and additional attributes such as color, size, or specific model descriptions. The format often involves a combination of text and numbers, indicating various characteristics of the products, such as size in inches or specific variations of the item. This column helps identify and differentiate products within the sales inventory.",
+            "Definition": "The Name column in the SalesLT.vProductAndDescription entity contains descriptive names of various products. The values include specific product details such as type, model, color, and size. These names are typically composed of multiple parts describing different attributes of the product, often separated by commas or hyphens. The data in this column helps identify and differentiate products based on their unique features and specifications.",
             "AllowedValues": null,
             "SampleValues": [
-                "Road-750 Black, 44",
-                "HL Touring Handlebars",
-                "LL Touring Frame - Yellow, 54",
-                "Mountain Bike Socks, M",
-                "HL Road Frame - Black, 48"
+                "Rear Derailleur",
+                "Sport-100 Helmet, Red",
+                "HL Road Frame - Red, 58",
+                "ML Road Frame - Red, 58",
+                "LL Road Rear Wheel"
             ]
         },
         {
             "Name": "ProductModel",
             "DataType": "nvarchar",
-            "Definition": "The ProductModel column in the SalesLT.vProductAndDescription entity contains the names of different product models. These names are generally descriptive of the product and often include details such as the type and specific features of the product. The values can include combinations of product categories, model names, and specific attributes, potentially reflecting variations designed for different uses or specifications. This column helps in identifying and differentiating between various products available in the inventory.",
+            "Definition": "The ProductModel column in the SalesLT.vProductAndDescription entity contains the names of various product models sold. Each value represents the model name of a product, which can include different types of items such as bicycles and bicycle components. The values are descriptive and may include combinations of letters, numbers, and hyphens to distinguish between different product models. The names are specific and indicative of the product's type or series within a broader category.",
             "AllowedValues": null,
             "SampleValues": [
-                "ML Mountain Pedal",
-                "ML Touring Seat/Saddle",
-                "Road-150",
-                "Water Bottle",
-                "HL Mountain Tire"
+                "All-Purpose Bike Stand",
+                "Road-450",
+                "LL Crankset",
+                "Mountain-200",
+                "LL Headset"
             ]
         },
         {
             "Name": "Culture",
             "DataType": "nchar",
-            "Definition": "The Culture column in the SalesLT.vProductAndDescription entity contains language culture codes used to represent specific languages or language variants. These codes typically follow the ISO 639-1 standard for language codes, which use two-letter abbreviations, and can also include additional specifications such as region or script variants. Examples include 'ar' for Arabic, 'he' for Hebrew, 'fr' for French, 'en' for English, and 'zh-cht' for Traditional Chinese. This column helps in identifying the appropriate language or cultural version of the product description.",
+            "Definition": "The Culture column in the SalesLT.vProductAndDescription entity contains language codes that identify the culture or locale associated with product descriptions. The values follow a pattern of two-letter lowercase codes, which likely correspond to the ISO 639-1 standard for language codes. Examples include 'ar' for Arabic, 'en' for English, 'th' for Thai, 'he' for Hebrew, and 'fr' for French. These codes are used to localize product information for different regions and languages.",
             "AllowedValues": null,
             "SampleValues": [
                 "ar    ",
-                "he    ",
-                "fr    ",
                 "en    ",
-                "zh-cht"
+                "th    ",
+                "he    ",
+                "fr    "
             ]
         },
         {
             "Name": "Description",
             "DataType": "nvarchar",
-            "Definition": "The Description column in the SalesLT.vProductAndDescription entity contains product descriptions in various languages. These descriptions provide details about the products, including their features, uses, and benefits. The text in this column can include phrases that highlight the product's quality, material, design, and specific target audience. The text is generally descriptive and aims to offer potential customers valuable information about the product.",
+            "Definition": "The Description column in the SalesLT.vProductAndDescription entity contains detailed textual descriptions of various products. These descriptions provide information about the features, specifications, and unique selling points of the products. The values in this column are multilingual, indicating that the product descriptions are available in different languages, catering to a diverse customer base.",
             "AllowedValues": null,
             "SampleValues": [
-                "\u05d8\u05d1\u05e2\u05ea \u05e0\u05d8\u05d5\u05dc\u05ea \u05ea\u05d1\u05e8\u05d9\u05d2 \u05de\u05e1\u05e4\u05e7\u05ea \u05d0\u05d9\u05db\u05d5\u05ea \u05d1\u05de\u05d7\u05d9\u05e8 \u05d7\u05e1\u05db\u05d5\u05e0\u05d9.",
-                "\u0623\u0646\u0628\u0648\u0628\u0629 \u0645\u062a\u0639\u062f\u062f\u0629 \u0627\u0644\u0623\u063a\u0631\u0627\u0636.",
-                "\u05de\u05e1\u05d2\u05e8\u05ea \u05d4- HL \u05de\u05d0\u05dc\u05d5\u05de\u05d9\u05e0\u05d9\u05d5\u05dd \u05de\u05e2\u05d5\u05e6\u05d1\u05ea \u05d1\u05d4\u05ea\u05d0\u05de\u05d4 \u05d4\u05df \u05dc\u05de\u05e8\u05d0\u05d4 \u05d8\u05d5\u05d1 \u05d5\u05d4\u05df \u05dc\u05d7\u05d5\u05d6\u05e7; \u05d4\u05d9\u05d0 \u05ea\u05e2\u05de\u05d5\u05d3 \u05d1\u05d0\u05ea\u05d2\u05e8\u05d9\u05dd \u05d4\u05de\u05d7\u05de\u05d9\u05e8\u05d9\u05dd \u05d1\u05d9\u05d5\u05ea\u05e8 \u05e9\u05dc \u05e8\u05db\u05d9\u05d1\u05d4 \u05d9\u05d5\u05de\u05d9\u05d5\u05de\u05d9\u05ea. \u05d2\u05d9\u05e8\u05e1\u05d4 \u05dc\u05d2\u05d1\u05e8\u05d9\u05dd.",
-                "\u9ad8\u5f3a\u5ea6\u7684\u66f2\u81c2\u3002",
-                "\u7537\u58eb\u516b\u62fc\u7247\u7ade\u8d5b\u7528\u8fd0\u52a8\u77ed\u88e4 \u2013 \u6c28\u7eb6\u6750\u8d28\u3001\u5f39\u6027\u8170\u5e26\u5e76\u5e26\u817f\u5939\u3002"
+                "High-performance carbon road fork with curved legs.",
+                "Chaque cadre est fabriqu\u00e9 artisanalement dans notre atelier de Bordeaux afin d'obtenir le diam\u00e8tre et l'\u00e9paisseur adapt\u00e9s \u00e0 un v\u00e9lo tout-terrain de premier choix. Le cadre en aluminium soud\u00e9 \u00e0 chaud pr\u00e9sente un tube d'un plus grand diam\u00e8tre, afin d'absorber les bosses.",
+                "\u0e1b\u0e23\u0e30\u0e2a\u0e34\u0e17\u0e18\u0e34\u0e20\u0e32\u0e1e\u0e01\u0e32\u0e23\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e17\u0e35\u0e48\u0e40\u0e2b\u0e19\u0e37\u0e2d\u0e01\u0e27\u0e48\u0e32",
+                "\u05de\u05db\u05e0\u05e1\u05d9 \u05d2\u05d1\u05e8\u05d9\u05dd \u05e7\u05e6\u05e8\u05d9\u05dd \u05dc\u05ea\u05d7\u05e8\u05d5\u05d9\u05d5\u05ea, 8 \u05d7\u05dc\u05e7\u05d9\u05dd \u2013 \u05e2\u05e9\u05d5\u05d9\u05d9\u05dd \u05e1\u05e4\u05e0\u05d3\u05e7\u05e1 \u05e2\u05dd \u05d7\u05d2\u05d5\u05e8\u05d4 \u05d0\u05dc\u05e1\u05d8\u05d9\u05ea \u05d5\u05d4\u05d9\u05d3\u05d5\u05e7 \u05e8\u05d2\u05dc\u05d9\u05d9\u05dd.",
+                "\u0e08\u0e38\u0e4a\u0e1a\u0e22\u0e32\u0e07\u0e1c\u0e19\u0e36\u0e01\u0e14\u0e49\u0e27\u0e22\u0e15\u0e19\u0e40\u0e2d\u0e07"
             ]
         }
     ]

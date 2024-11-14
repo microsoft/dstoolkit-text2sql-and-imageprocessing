@@ -1,6 +1,6 @@
 {
     "Entity": "SalesLT.Customer",
-    "Definition": "The SalesLT.Customer entity contains information about customers including their personal details, contact information, and authentication data. It tracks individual names, company associations, and salesperson assignments as well as security details for customer logins. This entity is useful for answering questions related to customer identity, contact preferences, sales assignments, and tracking modifications or updates to customer records.",
+    "Definition": "The SalesLT.Customer entity contains information about individual customers, including both personal details and contact information. It includes unique identifiers, names, company affiliations, and communication details such as email and phone number. This entity can be used to answer questions related to customer identification, contact methods, sales representative assignments, and the recent activity or updates regarding customer information.",
     "EntityName": "Customer Information",
     "Database": "AdventureWorksLT",
     "Warehouse": null,
@@ -11,24 +11,12 @@
                 {
                     "Column": "CustomerID",
                     "ForeignColumn": "CustomerID"
-                },
-                {
-                    "Column": "CustomerID",
-                    "ForeignColumn": "CustomerID"
                 }
             ]
         },
         {
             "ForeignEntity": "SalesLT.SalesOrderHeader",
             "ForeignKeys": [
-                {
-                    "Column": "CustomerID",
-                    "ForeignColumn": "CustomerID"
-                },
-                {
-                    "Column": "CustomerID",
-                    "ForeignColumn": "CustomerID"
-                },
                 {
                     "Column": "CustomerID",
                     "ForeignColumn": "CustomerID"
@@ -47,20 +35,20 @@
         {
             "Name": "CustomerID",
             "DataType": "int",
-            "Definition": "The CustomerID column in the SalesLT.Customer entity contains unique numerical identifiers assigned to each customer. These values are integers and are used to distinguish and reference individual customers within the database. The numeric values do not follow a particular sequence, indicating they may be system-generated and assigned according to specific business logic or rules.",
+            "Definition": "The CustomerID column in the SalesLT.Customer entity contains unique numeric identifiers assigned to each customer. These identifiers are integers that vary significantly in value, likely indicating they are auto-incremented or assigned sequentially. This column is used to uniquely distinguish each customer in the database, aiding in the management and retrieval of customer data.",
             "AllowedValues": null,
             "SampleValues": [
-                181,
-                30040,
-                383,
-                38,
-                185
+                30022,
+                340,
+                208,
+                397,
+                29553
             ]
         },
         {
             "Name": "NameStyle",
             "DataType": "bit",
-            "Definition": "The NameStyle column in the SalesLT.Customer entity contains Boolean values that indicate whether the customer name is stored in a special format. The value 'False' means that the customer's name is stored in a standard format. This column helps differentiate between names that might require unique formatting and those that follow the regular format.",
+            "Definition": "The NameStyle column in the SalesLT.Customer entity contains boolean values indicating the style of the customer's name. 'False' typically suggests that the name is formatted in the default or standard style, while 'True' would suggest a non-standard formatting. The column is used to distinguish between different formatting conventions in the customer's name data.",
             "AllowedValues": null,
             "SampleValues": [
                 false
@@ -69,7 +57,7 @@
         {
             "Name": "Title",
             "DataType": "nvarchar",
-            "Definition": "The Title column in the SalesLT.Customer entity contains a list of honorifics or titles used to address individuals. These are commonly used prefixes that denote the gender or marital status of the customer, such as 'Mr.' for males, 'Ms.' for females, and other equivalent titles. The values in this column are typically abbreviated and offer a formal way to refer to the customers.",
+            "Definition": "The Title column in the SalesLT.Customer entity contains honorific titles used to address individuals respectfully. The values are typically common abbreviations for titles such as 'Mr.' for Mister, 'Ms.' for Miss, 'Sr.' for Se\u00f1or, and 'Sra.' for Se\u00f1ora. The column helps in identifying the form of address appropriate for male and female customers.",
             "AllowedValues": null,
             "SampleValues": [
                 "Sra.",
@@ -81,46 +69,46 @@
         {
             "Name": "FirstName",
             "DataType": "nvarchar",
-            "Definition": "The FirstName column in the SalesLT.Customer entity contains the first names of customers. It generally includes a variety of common first names and does not follow a specific pattern or format. The values are typically presented as capitalized proper nouns.",
+            "Definition": "The FirstName column in the SalesLT.Customer entity contains the given names of customers. These values can include a variety of international names and may include hyphens or other special characters. The names may be of any gender and vary in length. This column represents individual customer first names, which can come from diverse cultural and linguistic backgrounds.",
             "AllowedValues": null,
             "SampleValues": [
-                "Brenda",
-                "Juanita",
-                "Kari",
-                "Kirk",
-                "Kara"
+                "Yao-Qiang",
+                "Thomas",
+                "Jill",
+                "Jean",
+                "Jinghao"
             ]
         },
         {
             "Name": "MiddleName",
             "DataType": "nvarchar",
-            "Definition": "The column contains the middle initials of customers. Each value is a single uppercase letter followed by a period, representing the initial of the customer's middle name. This column helps to uniquely identify individuals by providing an additional character from their full name.",
+            "Definition": "The MiddleName column in the SalesLT.Customer entity contains the middle initial of customers' names. The values are typically a single letter, sometimes followed by a period. This pattern suggests the column is used to store abbreviated middle names of customers. The data is useful for identifying individuals more precisely in records where middle names are provided.",
             "AllowedValues": null,
             "SampleValues": [
-                "D.",
-                "A.",
+                "J.",
+                "M",
                 "C.",
-                "R.",
-                "N."
+                "L.",
+                "K."
             ]
         },
         {
             "Name": "LastName",
             "DataType": "nvarchar",
-            "Definition": "The LastName column in the SalesLT.Customer entity contains the surnames of customers. The values in this column are typically English surnames but can include surnames from various cultural backgrounds. The values are stored as text strings and each entry represents the family or last name of a customer.",
+            "Definition": "The LastName column in the SalesLT.Customer entity contains the last names of customers. The values are typically capitalized and consist of alphabetic characters. This column is used to store the family or surname of each customer, which is a common format for identifying individuals in a customer database.",
             "AllowedValues": null,
             "SampleValues": [
-                "Jordan",
-                "Krow",
-                "Trau",
-                "Goldstein",
-                "Carmody"
+                "Farino",
+                "Hamilton",
+                "Irwin",
+                "Coffman",
+                "Brewer"
             ]
         },
         {
             "Name": "Suffix",
             "DataType": "nvarchar",
-            "Definition": "The Suffix column in the SalesLT.Customer entity contains suffixes used in customer names. These suffixes indicate titles or generational identifiers such as Sr. for Senior, Jr. for Junior, PhD for Doctor of Philosophy, and Roman numerals like II and IV. These identifiers are often appended at the end of the customer's last name to provide additional information about their status, education level, or generational position.",
+            "Definition": "The Suffix column in the SalesLT.Customer entity contains titles or honorifics that are appended to the end of customers' names. These suffixes often denote generational order (e.g., Jr., II, IV) or academic and professional qualifications (e.g., PhD, Sr.). The values are generally abbreviated forms of formal titles and follow common naming conventions.",
             "AllowedValues": null,
             "SampleValues": [
                 "Sr.",
@@ -133,105 +121,105 @@
         {
             "Name": "CompanyName",
             "DataType": "nvarchar",
-            "Definition": "The CompanyName column in the SalesLT.Customer entity contains the names of companies that are customers. The names generally reflect the type of business or industry the company operates in, such as manufacturing, transportation, and fitness supplies. This column likely includes a variety of company names representing different sectors and regions. The information is primarily used to identify and catalog the customers' businesses.",
+            "Definition": "The CompanyName column in the SalesLT.Customer entity contains the names of companies or businesses that are customers of the organization. The values typically represent the official or trade names of these companies, often including references to the industry or specific type of retail, such as bike stores or department stores. The names are generally descriptive and help identify the nature and focus of the businesses.",
             "AllowedValues": null,
             "SampleValues": [
-                "Transportation Options",
-                "Regional Manufacturing",
-                "National Manufacturing",
-                "Running and Cycling Gear",
-                "Fitness Supplies"
+                "Trendy Department Stores",
+                "Number One Bike Co.",
+                "Fifth Bike Store",
+                "Bike World",
+                "Great Bicycle Supply"
             ]
         },
         {
             "Name": "SalesPerson",
             "DataType": "nvarchar",
-            "Definition": "The SalesPerson column in the SalesLT.Customer entity contains the names of sales representatives associated with each customer. The values follow a pattern consisting of a domain prefix 'adventure-works\\' followed by the first name of the salesperson and a numeric suffix. This format indicates the salesperson's unique identifier within the adventure-works domain, representing individual sales personnel.",
+            "Definition": "The SalesPerson column in the SalesLT.Customer entity contains identifiers for sales representatives. The values follow a specific pattern consisting of a domain prefix 'adventure-works\\' followed by the sales representative's name and a numeric suffix. This format is used to uniquely identify individual salespersons in the Adventure Works organization.",
             "AllowedValues": null,
             "SampleValues": [
-                "adventure-works\\jos\u00e91",
-                "adventure-works\\linda3",
-                "adventure-works\\david8",
+                "adventure-works\\jillian0",
                 "adventure-works\\garrett1",
-                "adventure-works\\shu0"
+                "adventure-works\\david8",
+                "adventure-works\\pamela0",
+                "adventure-works\\jae0"
             ]
         },
         {
             "Name": "EmailAddress",
             "DataType": "nvarchar",
-            "Definition": "The EmailAddress column in the SalesLT.Customer entity contains email addresses associated with individual customers. The values follow a common format of local-part followed by the domain name \"adventure-works.com.\" Each local-part typically includes a first name followed by a numeral. The data is used to identify and communicate with customers via email.",
+            "Definition": "The EmailAddress column in the SalesLT.Customer entity contains the email addresses of customers. The values follow a specific format, typically comprising the customer's first name or a variation of it, followed by a numerical digit and the domain \"adventure-works.com\". This structured format helps in identifying and organizing customer communication effectively.",
             "AllowedValues": null,
             "SampleValues": [
-                "william1@adventure-works.com",
-                "marjorie0@adventure-works.com",
-                "della0@adventure-works.com",
-                "linda7@adventure-works.com",
-                "erin1@adventure-works.com"
+                "twanna0@adventure-works.com",
+                "joseph4@adventure-works.com",
+                "chris6@adventure-works.com",
+                "victor0@adventure-works.com",
+                "lindsey0@adventure-works.com"
             ]
         },
         {
             "Name": "Phone",
             "DataType": "nvarchar",
-            "Definition": "The Phone column in the SalesLT.Customer entity contains customer phone numbers. The values typically include a sequence of digits separated by dashes, and may sometimes include country code prefixes or parentheses for area codes. The format varies slightly but generally follows standard phone number conventions, indicating regional and local numbers.",
+            "Definition": "The Phone column in the SalesLT.Customer entity contains phone numbers associated with each customer. The phone numbers follow a specific format consisting of a three-digit area code, followed by a three-digit central office code, and a four-digit subscriber number (e.g., 103-555-0151). This format is likely consistent across all entries in the column. The values do not appear to conform to any international phone number format and seem to be fictional phone numbers without specific geographical significance.",
             "AllowedValues": null,
             "SampleValues": [
-                "158-555-0154",
-                "554-555-0110",
-                "1 (11) 500 555-0115",
-                "994-555-0194",
-                "990-555-0141"
+                "103-555-0151",
+                "718-555-0152",
+                "362-555-0162",
+                "290-555-0196",
+                "912-555-0149"
             ]
         },
         {
             "Name": "PasswordHash",
             "DataType": "varchar",
-            "Definition": "The PasswordHash column in the SalesLT.Customer entity contains hashed representations of customer passwords. These hash values are used for securely storing user passwords to prevent unauthorized access. The values are typically a result of applying a cryptographic hash function to user passwords, ensuring that the original passwords cannot be easily retrieved. The hashed values are stored in a format such as Base64 encoding, which is evident from the sample values provided.",
+            "Definition": "The PasswordHash column in the SalesLT.Customer entity contains hashed passwords for customers. The values are encoded in a string format, likely using Base64 encoding, which represents the hashed version of the customers' passwords. The hashes are used to securely store passwords in the database, ensuring that the original passwords are not stored directly. The length and characteristics of the sample values suggest that a consistent hashing algorithm and encoding method are used.",
             "AllowedValues": null,
             "SampleValues": [
-                "NLAR7H8spiCb/C0qY+3qkJm3VuoSOqDw7yspRc1CTTg=",
-                "YYTwMHBzX9ZM2XoYAzTo7bVfsHm05BO3Sl1+sokcRjM=",
-                "o1GVo3vExeNzo0/ctdRGf2eDK3uzTlcUbr18tN+Slf8=",
-                "muiJ85PHJTw5ocOM+yS+gq+w8REzzCOfzXZNFyDZniI=",
-                "6eApe0lB1ZkvyJB3Uo3LaYGV8sm2/NE9fUHXM7a0RYU="
+                "miuh5Po0s3jNnKrMwmuROEApoKFRWumb1K1EMP0hGB0=",
+                "20rlqqjWOPLBi7oYKBrHMzouHcYl6OknJcV+yc0zQKo=",
+                "0ZfPkEBplSrQkVpmgzrlfblSeTpJ4CJwJu7aVWOuOSM=",
+                "cvqeC4fJcKwJ9jlluiWvK5/MyuSi8neLnjFDGdvzJy4=",
+                "haGTwCpR1pahJRX/490ASvk+bkWOZv828Z8Krd0XO50="
             ]
         },
         {
             "Name": "PasswordSalt",
             "DataType": "varchar",
-            "Definition": "The PasswordSalt column in the SalesLT.Customer entity contains cryptographic salt values used in conjunction with passwords to enhance security. Each value is a unique and randomly generated string, likely encoded in Base64 format, which helps protect against dictionary attacks and rainbow table attacks by adding an additional layer of complexity to the hashed passwords.",
+            "Definition": "The PasswordSalt column in the SalesLT.Customer entity contains unique random strings used as additional input to hash functions to ensure password security. The values are typically base64-encoded strings, enhancing the security of stored passwords by making them less vulnerable to attacks such as rainbow table lookups. This increases the overall security of customer authentication by adding an extra layer of complexity to the password hashing process.",
             "AllowedValues": null,
             "SampleValues": [
-                "wmfLAOE=",
-                "Ze2j4rQ=",
-                "jA7oD80=",
-                "qUowBt4=",
-                "l32Vf08="
+                "oOIbGSo=",
+                "n/q5ims=",
+                "GR7idhc=",
+                "lkPNcdI=",
+                "aOFmjMY="
             ]
         },
         {
             "Name": "rowguid",
             "DataType": "uniqueidentifier",
-            "Definition": "The rowguid column in the SalesLT.Customer entity contains unique identifier values in the form of globally unique identifiers (GUIDs). These values are represented in a standard 36-character string format, including hyphens, following the pattern of 8-4-4-4-12 characters. The purpose of this column is to uniquely identify each customer record without duplication, ensuring consistency and integrity of data.",
+            "Definition": "The rowguid column in the SalesLT.Customer entity contains unique identifier values for each customer. These values are in the format of a GUID (Globally Unique Identifier), which is a 128-bit value typically represented as 32 hexadecimal digits separated by hyphens. The GUID values are used to ensure the uniqueness of each customer record across the entire database. This column is commonly used in replication and for merging data from different sources.",
             "AllowedValues": null,
             "SampleValues": [
-                "C610F872-6183-4D98-ADA3-E3A5B1A3588D",
-                "9DEF17D4-B251-405F-A854-70A33DEBBBE9",
-                "5F5BE7AD-3CD2-481C-93D2-66208B113DF8",
-                "0C316F6F-5D54-41FD-86A3-6ECAF31A01DD",
-                "8C81DD5F-EA36-47B0-A5F1-7583BC5DABC2"
+                "0631F720-A96D-4505-A07C-11A954A67F6B",
+                "A2098F7B-3D3A-4894-90D7-C79C118845D5",
+                "36702D8C-0756-4B16-B0DA-8C97103D8B90",
+                "69AE5D43-31BE-4B76-BFBB-5A23C4788BBC",
+                "B143978A-3FC9-4077-A70A-DB4DFACEDC79"
             ]
         },
         {
             "Name": "ModifiedDate",
             "DataType": "datetime",
-            "Definition": "The ModifiedDate column in the SalesLT.Customer entity contains the date and time when the customer record was last updated. The values follow the format YYYY-MM-DD HH:MM:SS, indicating year, month, day, and the exact time of the modification. This column is used to track changes to customer records over time. The dates reflect when modifications occurred within the system.",
+            "Definition": "The ModifiedDate column in the SalesLT.Customer entity contains the date and time when a customer record was last updated. The values follow the format of 'YYYY-MM-DD HH:MM:SS', indicating the precise timestamp of the modification. This information is crucial for tracking changes and understanding the recency of the data in the customer records.",
             "AllowedValues": null,
             "SampleValues": [
                 "2005-11-01 00:00:00",
-                "2007-03-01 00:00:00",
-                "2006-10-01 00:00:00",
-                "2007-05-01 00:00:00",
-                "2007-04-01 00:00:00"
+                "2005-09-01 00:00:00",
+                "2005-08-01 00:00:00",
+                "2005-12-01 00:00:00",
+                "2007-09-01 00:00:00"
             ]
         }
     ]

@@ -1,7 +1,7 @@
 {
     "Entity": "SalesLT.SalesOrderDetail",
-    "Definition": "The SalesLT.SalesOrderDetail entity contains detailed information about individual items within a sales order. Each record represents a specific product ordered, including its quantity, unit price, any applicable discount, and the total line amount for that product. This entity can be used to answer questions related to the contents of sales orders, such as identifying which products were sold, the quantity of each product ordered, pricing details, and discounts applied. It is useful for analyzing order composition, calculating total sales revenue, and tracking order modifications.",
-    "EntityName": "Sales Order Details",
+    "Definition": "The SalesLT.SalesOrderDetail entity contains detailed information about individual items within sales orders. This entity includes data on the sales order ID, the specific details of each order item such as quantity, product ID, unit price, and any discounts applied. It also includes calculated fields such as the line total for each order item. This entity can be used to answer questions related to the specifics of sales transactions, such as which products were purchased in each order, the quantity of each product ordered, and the total price of each order item.",
+    "EntityName": "Sales Line Items Information",
     "Database": "AdventureWorksLT",
     "Warehouse": null,
     "EntityRelationships": [
@@ -20,10 +20,6 @@
                 {
                     "Column": "SalesOrderID",
                     "ForeignColumn": "SalesOrderID"
-                },
-                {
-                    "Column": "SalesOrderID",
-                    "ForeignColumn": "SalesOrderID"
                 }
             ]
         }
@@ -38,72 +34,72 @@
         {
             "Name": "SalesOrderID",
             "DataType": "int",
-            "Definition": "The SalesOrderID column in the SalesLT.SalesOrderDetail entity contains unique identifiers for each sales order. These values are integers and are likely automatically generated. Each SalesOrderID associates a sales order with its specific details, enabling tracking and management of sales transactions within the database. The column ensures that each sales order detail can be linked back to its corresponding sales order in the system.",
+            "Definition": "The SalesOrderID column in the SalesLT.SalesOrderDetail entity contains unique numerical identifiers for each sales order. Each value represents a specific sales order, ensuring that each order can be individually referenced and tracked. The values are in a sequential numeric format, indicating the progression and uniqueness of each sales transaction within the database.",
             "AllowedValues": null,
             "SampleValues": [
-                71895,
-                71898,
-                71902,
-                71846,
-                71935
+                71938,
+                71784,
+                71935,
+                71923,
+                71946
             ]
         },
         {
             "Name": "SalesOrderDetailID",
             "DataType": "int",
-            "Definition": "The SalesOrderDetailID column in the SalesLT.SalesOrderDetail entity contains unique identifier values for each sales order detail record. The values in this column are numeric and appear to be sequentially assigned, acting as a primary key for the sales order details. Each value represents a specific line item within a sales order, ensuring that each record can be uniquely identified and referenced.",
+            "Definition": "The SalesOrderDetailID column in the SalesLT.SalesOrderDetail entity contains unique identifier values for each sales order detail record. The values are numeric and are used to distinguish each order detail entry within the database. These identifiers are essential for maintaining data integrity and enabling efficient querying and data manipulation within the sales order system.",
             "AllowedValues": null,
             "SampleValues": [
-                110741,
-                111031,
-                113140,
-                113246,
-                113254
+                110735,
+                113231,
+                110686,
+                113257,
+                113307
             ]
         },
         {
             "Name": "OrderQty",
             "DataType": "smallint",
-            "Definition": "The OrderQty column in the SalesLT.SalesOrderDetail entity contains numerical values representing the quantity of items ordered in each sales transaction. The values are integers and typically reflect the number of units of a product ordered in a specific sales order detail. This column helps in understanding the volume of items being purchased in individual transactions.",
+            "Definition": "The OrderQty column in the SalesLT.SalesOrderDetail entity contains the quantity of items ordered for each sales order detail. This column represents integer values indicating how many units of a product were included in a specific order. The values are numeric and can vary, showing the specific amount ordered for each line item within a sales order.",
             "AllowedValues": null,
             "SampleValues": [
-                10,
-                13,
-                25,
-                14,
-                12
+                11,
+                9,
+                16,
+                23,
+                1
             ]
         },
         {
             "Name": "ProductID",
             "DataType": "int",
-            "Definition": "The ProductID column in the SalesLT.SalesOrderDetail entity contains unique numeric identifiers for products associated with sales orders. Each value represents a specific product in the product catalog. The values are integers and are used to link each sales order detail to its corresponding product.",
+            "Definition": "The ProductID column in the SalesLT.SalesOrderDetail entity contains numerical identifiers for products. Each value in this column represents a unique product associated with a sales order detail, used to link sales order records to specific products within the inventory. The identifiers are likely integer numbers and may not follow any specific sequential order.",
             "AllowedValues": null,
             "SampleValues": [
-                925,
                 884,
-                797,
-                865,
-                875
+                961,
+                926,
+                944,
+                896
             ]
         },
         {
             "Name": "UnitPrice",
             "DataType": "money",
-            "Definition": "The UnitPrice column in the SalesLT.SalesOrderDetail entity contains the price per unit of items sold. The values are represented as decimal numbers, indicating the cost in a specific currency with four decimal places. This column is used to track the selling price of individual products within each sales order detail.",
+            "Definition": "The UnitPrice column in the SalesLT.SalesOrderDetail entity contains the unit prices of products sold in individual sales transactions. The values are represented as decimal numbers, likely indicating the price per unit of a product in a given currency. The prices can vary widely depending on the product and its specifications. The decimal format suggests precision is important for these financial values.",
             "AllowedValues": null,
             "SampleValues": [
-                "24.2940",
-                "37.1520",
-                "430.5630",
-                "158.4300",
-                "72.1620"
+                "2.9940",
+                "72.0000",
+                "31.5840",
+                "31.3142",
+                "40.5942"
             ]
         },
         {
             "Name": "UnitPriceDiscount",
             "DataType": "money",
-            "Definition": "The UnitPriceDiscount column in the SalesLT.SalesOrderDetail entity contains decimal values representing the discount applied to the unit price of an item in a sales order. The values are expressed as fractions of the unit price, where 1.0000 would represent a 100% discount and 0.0000 indicates no discount. The pattern shows values typically ranging between 0 and 1, representing various percentage discounts applied to the items sold.",
+            "Definition": "The UnitPriceDiscount column in the SalesLT.SalesOrderDetail entity contains numerical values representing the discount applied to the unit price of a product. The values are in decimal format where each value indicates the proportion of the discount relative to the unit price. For instance, a value of 0.4000 indicates a 40% discount, while a value of 0.0000 indicates no discount.",
             "AllowedValues": null,
             "SampleValues": [
                 "0.4000",
@@ -116,33 +112,33 @@
         {
             "Name": "LineTotal",
             "DataType": "numeric",
-            "Definition": "The LineTotal column in the SalesLT.SalesOrderDetail entity contains the total cost for each sales order line item. The values are represented as decimal numbers, reflecting the monetary amount in a currency format to several decimal places. This column is used to calculate the total price for individual line items within a sales order, including any applicable discounts or adjustments.",
+            "Definition": "The LineTotal column in the SalesLT.SalesOrderDetail entity contains the total price for each sales order line item. The values represent the monetary amount calculated by multiplying the unit price by the quantity ordered, potentially including any discounts applied. The values are represented as decimal numbers, which can vary greatly depending on the quantity and price of the items ordered. This column is important for financial and sales reporting within the database.",
             "AllowedValues": null,
             "SampleValues": [
-                "971.982000",
-                "149.016000",
-                "187.872000",
-                "10.992000",
-                "111.762000"
+                "23.952000",
+                "923.388000",
+                "218.682000",
+                "13769.940000",
+                "269.946000"
             ]
         },
         {
             "Name": "rowguid",
             "DataType": "uniqueidentifier",
-            "Definition": "The column rowguid in the SalesLT.SalesOrderDetail entity contains unique identifier values in the form of globally unique identifiers (GUIDs). Each value in this column is a 36-character string that follows the UUID (universally unique identifier) standard, typically consisting of alphanumeric characters separated by hyphens. This column is used to ensure each row in the table can be uniquely identified across different systems or databases.",
+            "Definition": "The rowguid column in the SalesLT.SalesOrderDetail entity contains unique identifier values for each sales order detail entry. These values are in the form of GUIDs (Globally Unique Identifiers) which are 128-bit numbers typically represented in hexadecimal and are used to uniquely identify records. This ensures that each entry in the SalesOrderDetail table can be uniquely referenced across any system. The values follow a standard GUID format, e.g., 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'.",
             "AllowedValues": null,
             "SampleValues": [
-                "6781A019-346F-4F87-A8A3-4727A2528B2E",
-                "5CA4F84A-BAFE-485C-B7AD-897F741F76CE",
-                "DA8F6556-76DE-42AD-8A9A-9664B87B3078",
-                "B9961E3A-66A8-466F-941B-14A6858E1EB3",
-                "4778038A-7634-44FF-9D24-91B1E4B50A4C"
+                "281D1C72-EC9A-4E76-93B8-F83217A26A2E",
+                "BFBD21A7-253A-411A-9FE7-56884370529E",
+                "686999FB-42E6-4D00-9A14-83FFA86833E3",
+                "61EFC1C5-71CE-4537-9EDE-723DD776A042",
+                "FDEDAB25-D27E-4D66-BB57-6A699846C3E9"
             ]
         },
         {
             "Name": "ModifiedDate",
             "DataType": "datetime",
-            "Definition": "The ModifiedDate column in the SalesLT.SalesOrderDetail entity contains the date and time when a sales order detail was last modified. The values in this column follow the standard SQL datetime format 'YYYY-MM-DD HH:MM:SS'. This column is used to track changes and updates made to each sales order detail, indicating the most recent modification.",
+            "Definition": "The ModifiedDate column in the SalesLT.SalesOrderDetail entity contains timestamp values indicating when each record was last updated. The values are in the 'YYYY-MM-DD HH:MI:SS' format. This column helps in tracking the modification history of sales order details. It is essential for auditing and maintaining data integrity by recording the precise date and time of the latest changes.",
             "AllowedValues": null,
             "SampleValues": [
                 "2008-06-01 00:00:00"

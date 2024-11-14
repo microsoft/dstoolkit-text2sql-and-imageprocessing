@@ -1,6 +1,6 @@
 {
     "Entity": "SalesLT.SalesOrderHeader",
-    "Definition": "The SalesLT.SalesOrderHeader entity contains information about sales orders placed by customers. It includes details such as the order ID, dates related to the order (order date, due date, ship date), the status of the order, and the customer and address information. It also captures payment and shipping details, as well as financial totals like subtotal, tax amount, freight, and total due. This entity is useful for answering questions related to sales order histories, order processing statuses, customer purchase patterns, and financial analysis of sales transactions.",
+    "Definition": "The SalesLT.SalesOrderHeader entity contains summarized information about each sales order, including details such as order dates, status, shipping information, customer identification, and financial totals. It helps track the progression of a sales order from creation to shipment and invoicing. This entity is useful for answering questions related to sales order processing, such as the status of an order, shipping methods used, customer order details, and the total due amounts for sales transactions.",
     "EntityName": "Sales Order Information",
     "Database": "AdventureWorksLT",
     "Warehouse": null,
@@ -8,10 +8,6 @@
         {
             "ForeignEntity": "SalesLT.SalesOrderDetail",
             "ForeignKeys": [
-                {
-                    "Column": "SalesOrderID",
-                    "ForeignColumn": "SalesOrderID"
-                },
                 {
                     "Column": "SalesOrderID",
                     "ForeignColumn": "SalesOrderID"
@@ -26,10 +22,6 @@
                     "ForeignColumn": "AddressID"
                 },
                 {
-                    "Column": "BillToAddressID",
-                    "ForeignColumn": "AddressID"
-                },
-                {
                     "Column": "ShipToAddressID",
                     "ForeignColumn": "AddressID"
                 }
@@ -38,10 +30,6 @@
         {
             "ForeignEntity": "SalesLT.Customer",
             "ForeignKeys": [
-                {
-                    "Column": "CustomerID",
-                    "ForeignColumn": "CustomerID"
-                },
                 {
                     "Column": "CustomerID",
                     "ForeignColumn": "CustomerID"
@@ -59,20 +47,20 @@
         {
             "Name": "SalesOrderID",
             "DataType": "int",
-            "Definition": "The SalesOrderID column in the SalesLT.SalesOrderHeader entity contains unique identifiers for each sales order. The values in this column are integers and increment sequentially. This column serves as the primary key for the sales order records, ensuring each sales order can be uniquely identified and referenced within the database.",
+            "Definition": "The SalesOrderID column in the SalesLT.SalesOrderHeader entity contains unique identifiers for sales orders. These identifiers are numeric and sequential, indicating that each sales order is assigned a unique number upon creation to track and manage individual sales transactions. The values do not follow any specific pattern other than being unique and incrementally assigned.",
             "AllowedValues": null,
             "SampleValues": [
-                71917,
+                71846,
+                71832,
+                71938,
                 71897,
-                71796,
-                71885,
-                71782
+                71923
             ]
         },
         {
             "Name": "RevisionNumber",
             "DataType": "tinyint",
-            "Definition": "The RevisionNumber column in the SalesLT.SalesOrderHeader entity represents the version or revision of the sales order. Each time an order is modified, the RevisionNumber is incremented to indicate the most recent version. The values in this column are integers and typically start from 0, incrementing by 1 with each revision made to the sales order. This helps in tracking changes and maintaining the history of modifications to a sales order.",
+            "Definition": "The RevisionNumber column in the SalesLT.SalesOrderHeader entity contains integer values that indicate the number of times a sales order has been revised. This column is used to track changes or updates made to the original sales order after its initial creation. The values in this column help identify the version history of each sales order to maintain an accurate record of modifications. A higher number signifies more revisions have been made.",
             "AllowedValues": null,
             "SampleValues": [
                 2
@@ -81,7 +69,7 @@
         {
             "Name": "OrderDate",
             "DataType": "datetime",
-            "Definition": "The OrderDate column in the SalesLT.SalesOrderHeader entity contains the date and time when each sales order was placed. The values are represented in the standard SQL datetime format, typically including both the date and the time in the format 'YYYY-MM-DD HH:MM:SS'. This column is used to track and record the exact timestamp of each sales transaction.\n",
+            "Definition": "The OrderDate column in the SalesLT.SalesOrderHeader entity contains the dates and times when sales orders were placed. The data follows the standard datetime format 'YYYY-MM-DD HH:MM:SS'. This column is used to record the precise date and time for each order, and it may be used for chronological sorting, filtering orders within specific time frames, or analyzing sales trends over time.",
             "AllowedValues": null,
             "SampleValues": [
                 "2008-06-01 00:00:00"
@@ -90,7 +78,7 @@
         {
             "Name": "DueDate",
             "DataType": "datetime",
-            "Definition": "The DueDate column in the SalesLT.SalesOrderHeader entity contains the date and time by which the sales order is expected to be completed or delivered. The values in this column follow the standard date-time format 'YYYY-MM-DD HH:MI:SS', indicating the specific due date and time. This column is crucial for tracking the expected fulfillment dates of sales orders.",
+            "Definition": "The DueDate column in the SalesLT.SalesOrderHeader entity contains the date and time by which the sales order is due to be completed or delivered. The values in this column are in the datetime format 'YYYY-MM-DD HH:MM:SS'. This data assists in tracking when sales orders need to be fulfilled by, and ensures timely delivery or completion of orders. Notably, the time portion of the data often appears as '00:00:00', indicating that the primary focus is on the date rather than a specific time of day.",
             "AllowedValues": null,
             "SampleValues": [
                 "2008-06-13 00:00:00"
@@ -99,7 +87,7 @@
         {
             "Name": "ShipDate",
             "DataType": "datetime",
-            "Definition": "The ShipDate column in the SalesLT.SalesOrderHeader entity contains the dates when sales orders were shipped. The values in this column are stored in a datetime format indicating the precise date and time of shipment. The format includes the year, month, day, hour, minute, and second. This column is used to track and manage the shipment dates of orders for reporting and logistical purposes.",
+            "Definition": "The ShipDate column in the SalesLT.SalesOrderHeader entity contains the date and time when the shipment of an order was processed. The values in this column are in the datetime format, typically in the YYYY-MM-DD HH:MI:SS layout. This column is used to track when orders have been shipped to customers.",
             "AllowedValues": null,
             "SampleValues": [
                 "2008-06-08 00:00:00"
@@ -108,7 +96,7 @@
         {
             "Name": "Status",
             "DataType": "tinyint",
-            "Definition": "The Status column in the SalesLT.SalesOrderHeader entity likely indicates the current state or phase of a sales order. The values in this column are numerical and each number represents a specific status code that corresponds to a particular stage in the sales process. For instance, a status value of 5 may represent a specific stage, such as 'completed' or 'shipped', depending on the business context and defined status code mappings. The column helps in tracking and managing the progression of sales orders through different stages from initiation to completion.",
+            "Definition": "The Status column in the SalesLT.SalesOrderHeader entity represents the current state or condition of the sales order. The values in this column are numeric codes, such as '5', that indicate different statuses of the sales order. These statuses are likely defined by a specific business logic which assigns meaning to each numeric code, identifying different stages in the sales order processing workflow.",
             "AllowedValues": null,
             "SampleValues": [
                 5
@@ -117,7 +105,7 @@
         {
             "Name": "OnlineOrderFlag",
             "DataType": "bit",
-            "Definition": "The OnlineOrderFlag column in the SalesLT.SalesOrderHeader entity indicates whether a sales order was placed online. This column contains boolean values where 'True' denotes an order placed through an online platform, and 'False' indicates an order placed through other means. This flag helps to differentiate between online and offline sales transactions.",
+            "Definition": "The OnlineOrderFlag column in the SalesLT.SalesOrderHeader entity indicates whether a sales order was placed online or not. The values are typically boolean, with 'True' representing orders placed online and 'False' representing orders not placed online. This column helps to identify the source of the sales order for tracking and analysis purposes.",
             "AllowedValues": null,
             "SampleValues": [
                 false
@@ -126,85 +114,85 @@
         {
             "Name": "SalesOrderNumber",
             "DataType": "nvarchar",
-            "Definition": "The SalesOrderNumber column in the SalesLT.SalesOrderHeader entity contains unique identifiers for sales orders. Each identifier is prefixed with 'SO' followed by a sequence of digits. This pattern helps distinguish sales orders and makes them easily recognizable and sortable. These sales order numbers are typically used to reference specific transactions throughout the sales and fulfillment processes.",
+            "Definition": "The SalesOrderNumber column in the SalesLT.SalesOrderHeader entity contains unique alphanumeric identifiers for sales orders. Each sales order number starts with the prefix 'SO' followed by a sequence of digits. This pattern ensures that each sales order can be individually tracked and referenced within the system. The column helps in uniquely identifying and managing sales orders within the database.",
             "AllowedValues": null,
             "SampleValues": [
-                "SO71923",
-                "SO71867",
-                "SO71780",
-                "SO71815",
-                "SO71845"
+                "SO71858",
+                "SO71936",
+                "SO71816",
+                "SO71885",
+                "SO71867"
             ]
         },
         {
             "Name": "PurchaseOrderNumber",
             "DataType": "nvarchar",
-            "Definition": "The PurchaseOrderNumber column in the SalesLT.SalesOrderHeader entity contains unique identifiers for purchase orders. The values in this column follow a specific format, starting with the prefix \"PO\" followed by a series of digits. This column is used to track and reference individual purchase orders within the sales order system.",
+            "Definition": "The PurchaseOrderNumber column in the SalesLT.SalesOrderHeader entity contains alphanumeric codes representing unique purchase order numbers assigned to each sales order. The values follow a pattern that starts with the prefix 'PO' followed by a sequence of digits. These purchase order numbers are used to track and reference sales transactions.",
             "AllowedValues": null,
             "SampleValues": [
-                "PO17052159664",
-                "PO5713190501",
-                "PO2378131604",
-                "PO5539125166",
-                "PO6119130779"
+                "PO29111718",
+                "PO3770176273",
+                "PO8671170385",
+                "PO10353140756",
+                "PO2697119362"
             ]
         },
         {
             "Name": "AccountNumber",
             "DataType": "nvarchar",
-            "Definition": "The AccountNumber column in the SalesLT.SalesOrderHeader entity contains a unique identifier for each sales order, formatted as a string with numeric sections separated by hyphens. The format appears to be consistent, following a pattern of '10-4020-XXXXXX' where 'X' represents a series of digits. This standardized format helps in maintaining a structured and organized system for referencing sales orders.",
+            "Definition": "The AccountNumber column in the SalesLT.SalesOrderHeader entity contains alphanumeric identifiers for customer accounts. The values follow a specific pattern, typically consisting of a numeric sequence formatted as '10-4020-XXXXXX', where 'XXXXXX' is a unique six-digit number. This column is used to link sales orders to particular customer accounts within the system.",
             "AllowedValues": null,
             "SampleValues": [
+                "10-4020-000649",
+                "10-4020-000223",
+                "10-4020-000502",
                 "10-4020-000276",
-                "10-4020-000088",
-                "10-4020-000304",
-                "10-4020-000016",
-                "10-4020-000006"
+                "10-4020-000609"
             ]
         },
         {
             "Name": "CustomerID",
             "DataType": "int",
-            "Definition": "The CustomerID column in the SalesLT.SalesOrderHeader entity contains unique identifiers for customers who made purchases. The values are integers and each number corresponds to a specific customer in the database. These IDs are used to link sales orders to the respective customers who placed them.",
+            "Definition": "The CustomerID column in the SalesLT.SalesOrderHeader entity contains unique numeric identifiers assigned to each customer. The values in this column are integers that uniquely distinguish one customer from another within the sales order header records. This column is used to link sales orders to the corresponding customer information. Each CustomerID represents a specific customer in the database.",
             "AllowedValues": null,
             "SampleValues": [
-                29584,
-                29485,
-                29932,
-                29957,
-                29922
+                29975,
+                30113,
+                29531,
+                29938,
+                29584
             ]
         },
         {
             "Name": "ShipToAddressID",
             "DataType": "int",
-            "Definition": "The ShipToAddressID column in the SalesLT.SalesOrderHeader entity contains numerical identifiers that correspond to specific shipping addresses within the database. Each value in this column uniquely represents a different address to which sales orders are shipped. This column is used to reference the address details stored in another related table, helping to maintain normalized data and efficient database management. The values are integers and are likely used as foreign keys connecting sales orders to shipping address records.",
+            "Definition": "The ShipToAddressID column in the SalesLT.SalesOrderHeader entity contains unique identifier numbers for shipping addresses used in sales orders. These identifier numbers are likely assigned sequentially or based on some internal addressing schema. The column facilitates linking each sales order to a specific shipping address within the database. The values in this column are integers and do not follow any externally recognized standard.",
             "AllowedValues": null,
             "SampleValues": [
-                1026,
-                993,
-                1090,
-                649,
-                669
+                635,
+                660,
+                992,
+                1086,
+                649
             ]
         },
         {
             "Name": "BillToAddressID",
             "DataType": "int",
-            "Definition": "The BillToAddressID column in the SalesLT.SalesOrderHeader entity contains numeric identifiers that correspond to the addresses where the bills are sent for each sales order. These identifiers are unique and serve as foreign keys linking to an address table, which provides detailed billing address information. Each value in this column uniquely identifies a specific billing address associated with a sales order.",
+            "Definition": "The BillToAddressID column in the SalesLT.SalesOrderHeader entity contains integer values that represent unique identifiers for billing addresses associated with sales orders. Each value corresponds to a specific address recorded in a related address table. The integers are used to link the sales order records to their respective billing address records, ensuring accurate invoicing and customer identification.",
             "AllowedValues": null,
             "SampleValues": [
-                1038,
-                640,
-                1058,
-                1034,
-                649
+                652,
+                651,
+                635,
+                669,
+                653
             ]
         },
         {
             "Name": "ShipMethod",
             "DataType": "nvarchar",
-            "Definition": "The ShipMethod column in the SalesLT.SalesOrderHeader entity contains the shipping method used for delivering the sales orders. This column typically includes the names or identifiers of various shipping carriers or services. Based on the sample value provided, it seems that shipping methods are described in a format that includes a carrier name followed by a numerical identifier or service level. This information is used to indicate how orders are shipped to customers, helping in logistics and tracking.",
+            "Definition": "The ShipMethod column in the SalesLT.SalesOrderHeader entity contains the names of shipping methods used for orders. The values represent different shipping options available for delivering products to customers. These values are generally descriptive and may include specific transport types or service levels provided by the shipping company. The values typically follow a pattern of descriptive shipping terms like \"CARGO TRANSPORT\" with added numerical identifiers to distinguish various methods.",
             "AllowedValues": null,
             "SampleValues": [
                 "CARGO TRANSPORT 5"
@@ -213,86 +201,86 @@
         {
             "Name": "CreditCardApprovalCode",
             "DataType": "varchar",
-            "Definition": "The CreditCardApprovalCode column in the SalesLT.SalesOrderHeader entity contains the unique approval codes provided by credit card processors for transactions. These codes confirm that the credit card payment has been authorized and successfully processed for each sales order. The data in this column is typically alphanumeric and linked to individual sales transactions, ensuring that each credit card payment is verified.",
+            "Definition": "The CreditCardApprovalCode column in the SalesLT.SalesOrderHeader entity contains the approval codes received from credit card companies when a customer's credit card transaction is authorized. This column typically holds alphanumeric strings that represent the unique approval identifier for each transaction. These codes are used to verify that the credit card payment was successfully processed and authorized.",
             "AllowedValues": null,
             "SampleValues": []
         },
         {
             "Name": "SubTotal",
             "DataType": "money",
-            "Definition": "The SubTotal column in the SalesLT.SalesOrderHeader entity contains the pre-tax sales amount for each sales order. These values are represented as decimal numbers indicating the sum of the item prices before any taxes or additional fees are applied. The values vary significantly, indicating a range of sales order totals from small to large amounts.",
+            "Definition": "The SubTotal column in the SalesLT.SalesOrderHeader entity represents the total amount for a sales order before taxes and shipping are applied. The values in this column are numeric and likely represent monetary amounts with up to four decimal places, indicating precision in the currency calculation. This column is used to calculate the preliminary cost of an order, reflecting the aggregate price of all items included in the order.",
             "AllowedValues": null,
             "SampleValues": [
-                "106.5408",
-                "98278.6910",
-                "78.8100",
-                "13823.7083",
-                "1059.3100"
+                "88812.8625",
+                "2453.7645",
+                "2137.2310",
+                "246.7392",
+                "74058.8078"
             ]
         },
         {
             "Name": "TaxAmt",
             "DataType": "money",
-            "Definition": "The TaxAmt column in the SalesLT.SalesOrderHeader entity contains the tax amount applied to each sales order. The values in this column are numeric and represent the monetary amount of tax in a sales transaction. The amounts can vary widely, likely depending on the total sale price and applicable tax rates. This column is essential for financial calculations and reporting related to sales taxes.",
+            "Definition": "The TaxAmt column in the SalesLT.SalesOrderHeader entity contains the total tax amount applied to each sales order. The values are represented as decimal numbers with up to four decimal places. These amounts indicate the monetary tax applied to the sales order in the corresponding currency of the transaction.",
             "AllowedValues": null,
             "SampleValues": [
-                "265.9421",
-                "44.0309",
-                "1014.8712",
-                "6708.6741",
-                "8684.9465"
+                "19.7391",
+                "1105.8967",
+                "8684.9465",
+                "91.3263",
+                "1014.8712"
             ]
         },
         {
             "Name": "Freight",
             "DataType": "money",
-            "Definition": "The Freight column in the SalesLT.SalesOrderHeader entity contains numerical values representing the cost of shipping for each sales order. The values are given in a monetary format with up to four decimal places. These values can vary significantly depending on the size, weight, and destination of the shipment. The column helps track the shipping expenses associated with each order in the sales ledger.",
+            "Definition": "The Freight column in the SalesLT.SalesOrderHeader entity contains numerical values representing the freight cost associated with each sales order. The values are likely to be in a currency format, indicating the monetary amount charged for shipping and handling. This column includes a wide range of values, reflecting the variability in freight charges depending on factors such as order size, weight, and shipping method. The values can be fractional, showing precision in the cost calculations.",
             "AllowedValues": null,
             "SampleValues": [
-                "50.4085",
-                "1599.5247",
+                "60.3918",
+                "0.9738",
+                "1440.8659",
                 "61.3441",
-                "13.7597",
-                "84.9541"
+                "345.5927"
             ]
         },
         {
             "Name": "TotalDue",
             "DataType": "money",
-            "Definition": "The TotalDue column in the SalesLT.SalesOrderHeader entity represents the total monetary amount due for each sales order. The values in this column are numeric and denote the final amount that needs to be paid, including any taxes and additional charges. The values can vary significantly, reflecting differing sizes and quantities of orders. This column is crucial for financial reporting and analysis related to sales transactions.",
+            "Definition": "The TotalDue column in the SalesLT.SalesOrderHeader entity contains the final amount payable for a sales order after all calculations, including taxes, discounts, and additional charges, have been applied. The values in this column are expressed as decimal numbers representing monetary amounts. It is used to track the total revenue generated from each sales order and is crucial for financial reporting and analysis.",
             "AllowedValues": null,
             "SampleValues": [
-                "14017.9083",
-                "87.0851",
-                "86222.8072",
-                "3754.9733",
-                "608.1766"
+                "1170.5376",
+                "108597.9536",
+                "70698.9922",
+                "3293.7761",
+                "14017.9083"
             ]
         },
         {
             "Name": "Comment",
             "DataType": "nvarchar",
-            "Definition": "The Comment column in the SalesLT.SalesOrderHeader entity contains text notes or remarks related to a specific sales order. These comments are typically entered by sales representatives or customer service personnel to provide additional context or information about the order. The data in this column can include special instructions, customer preferences, or any other relevant details that need to be communicated. This column may also be null if no comments were made for the order.",
+            "Definition": "The Comment column in the SalesLT.SalesOrderHeader entity contains optional textual notes or remarks provided by customers or sales representatives about specific sales orders. This may include special instructions, delivery notes, or any other relevant information related to the order. The data in this column is typically used to provide additional context or details that are not covered by other columns in the sales order header.",
             "AllowedValues": null,
             "SampleValues": []
         },
         {
             "Name": "rowguid",
             "DataType": "uniqueidentifier",
-            "Definition": "The rowguid column in the SalesLT.SalesOrderHeader entity contains unique identifier values for each record in the form of a globally unique identifier (GUID). These GUIDs are typically 128-bit numbers represented as a string of hexadecimal digits in a specific pattern, including dashes. This ensures that every value in the column is unique, which is useful for identifying records distinctly within the table.",
+            "Definition": "The rowguid column in the SalesLT.SalesOrderHeader entity contains unique identifier values in the UUID/GUID (Universally Unique Identifier/Globally Unique Identifier) format. Each value in this column is a 36-character string including hyphens, following the standard UUID format. This column is likely used to ensure distinctiveness and aid in the unique identification of each sales order record within the database.",
             "AllowedValues": null,
             "SampleValues": [
-                "31D41E8F-6F43-4CAE-BEE3-3CCCB262F231",
-                "625D76FC-C26F-4149-BF24-939FB2BCCD77",
-                "BB3FEE84-C8BF-4DD2-BCCA-675AB6A11C38",
-                "96F84D24-3355-43D2-B5A3-55E97C17E58C",
-                "7033C6EC-B12C-45BC-BD96-56EFDE4C7DD0"
+                "F1BE45A5-5C57-4A50-93C6-5F8BE44CB7CB",
+                "E3C189E7-98DE-4C40-B6C2-0D1D13F9BB33",
+                "7DB2329E-6446-42A8-8915-9C8370B68ED8",
+                "917EF5BA-F32D-4563-8588-66DB0BCDC846",
+                "BB3FEE84-C8BF-4DD2-BCCA-675AB6A11C38"
             ]
         },
         {
             "Name": "ModifiedDate",
             "DataType": "datetime",
-            "Definition": "The ModifiedDate column in the SalesLT.SalesOrderHeader entity contains timestamp values indicating the date and time when each sales order record was last updated. The format of the data is typically in 'YYYY-MM-DD HH:MM:SS'. This column helps track changes and maintain the history of updates made to sales order records.",
+            "Definition": "The ModifiedDate column in the SalesLT.SalesOrderHeader entity contains the timestamps of when each sales order record was last updated. The data is in the format 'YYYY-MM-DD HH:MM:SS'. This indicates the date and time when changes were made to the respective records in the sales order header. This column helps in tracking the modification history of the sales orders.",
             "AllowedValues": null,
             "SampleValues": [
                 "2008-06-08 00:00:00"

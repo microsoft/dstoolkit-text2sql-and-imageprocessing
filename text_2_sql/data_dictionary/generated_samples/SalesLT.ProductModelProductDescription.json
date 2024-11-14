@@ -1,7 +1,7 @@
 {
     "Entity": "SalesLT.ProductModelProductDescription",
-    "Definition": "The SalesLT.ProductModelProductDescription entity represents the relationship between product models and their descriptions, capturing the cultural variations of the product descriptions. It includes identification details of product models and descriptions, along with cultural information that specifies the language and region for the description. Questions that can be answered using this entity include finding product descriptions based on cultural context, associating product models with their respective descriptions, and tracking the modifications made to product descriptions over time.",
-    "EntityName": "Product Model and Description Data",
+    "Definition": "The SalesLT.ProductModelProductDescription entity links product models to their descriptions across different cultures. It holds data about the association between a product model and its corresponding description, including which language or culture the description pertains to. This entity is useful for answering questions related to the multilingual descriptions of product models, tracking modifications, and ensuring cultural relevance in product information.",
+    "EntityName": "Product Model and Description Association",
     "Database": "AdventureWorksLT",
     "Warehouse": null,
     "EntityRelationships": [
@@ -20,10 +20,6 @@
                 {
                     "Column": "ProductModelID",
                     "ForeignColumn": "ProductModelID"
-                },
-                {
-                    "Column": "ProductModelID",
-                    "ForeignColumn": "ProductModelID"
                 }
             ]
         }
@@ -38,59 +34,59 @@
         {
             "Name": "ProductModelID",
             "DataType": "int",
-            "Definition": "The ProductModelID column in the SalesLT.ProductModelProductDescription entity contains numerical identifiers that represent different product models. Each ID is unique and corresponds to a specific product model within the database. The values in this column are integers and do not follow a specific pattern beyond being unique identifiers. These IDs are used to link product models with their descriptions and other related information.",
+            "Definition": "The ProductModelID column in the SalesLT.ProductModelProductDescription entity contains numeric identifiers that correspond to specific product models. Each unique ProductModelID represents a distinct product model and is used to link product descriptions to their respective models. The values are integers, and they appear to be sequential, serving as foreign keys to other related tables that provide additional details about the product models.",
             "AllowedValues": null,
             "SampleValues": [
-                78,
-                27,
-                55,
-                22,
-                35
+                1,
+                91,
+                47,
+                3,
+                40
             ]
         },
         {
             "Name": "ProductDescriptionID",
             "DataType": "int",
-            "Definition": "The ProductDescriptionID column in the SalesLT.ProductModelProductDescription entity contains unique numeric identifiers assigned to different product descriptions. Each value in this column corresponds to a specific product description and ensures that each description can be uniquely referenced in the database. The values are integer numbers, and there is no specific pattern or standard format beyond being unique identifiers.",
+            "Definition": "The ProductDescriptionID column in the SalesLT.ProductModelProductDescription entity contains unique numeric identifiers for product descriptions. These identifiers are used to link specific product models to their respective descriptions in the database. The values are integers with no apparent pattern, indicating each product description's distinct entry in the system.",
             "AllowedValues": null,
             "SampleValues": [
-                1649,
-                1665,
-                554,
-                1910,
-                1929
+                1799,
+                1862,
+                1905,
+                1825,
+                1426
             ]
         },
         {
             "Name": "Culture",
             "DataType": "nchar",
-            "Definition": "The Culture column in the SalesLT.ProductModelProductDescription entity contains culture or locale codes representing different languages and regions. These codes are often in the format of a two-letter language code, optionally followed by a hyphen and a variant or region code, indicating specific language and region combinations. For example, 'en' represents English, 'fr' represents French, and 'zh-cht' represents Traditional Chinese. These codes help in identifying and managing product descriptions in multiple languages and locales.",
+            "Definition": "The Culture column in the SalesLT.ProductModelProductDescription entity contains codes representing different cultures or languages. The values follow an abbreviation format, where some are two-letter language codes (e.g., 'he' for Hebrew, 'fr' for French, 'th' for Thai) and others follow a language-region format (e.g., 'zh-cht' for Traditional Chinese). These codes are used to indicate the language in which the product description is provided.",
             "AllowedValues": null,
             "SampleValues": [
-                "ar    ",
+                "he    ",
                 "fr    ",
-                "th    ",
                 "zh-cht",
-                "en    "
+                "th    ",
+                "ar    "
             ]
         },
         {
             "Name": "rowguid",
             "DataType": "uniqueidentifier",
-            "Definition": "The rowguid column in the SalesLT.ProductModelProductDescription entity contains unique identifier values in the form of GUIDs (Globally Unique Identifiers). These values are 36-character strings, including hyphens, and follow the typical GUID format such as CBD361D0-B753-439C-86C8-11BA0ED91BB2. Each value is distinct and is used to uniquely identify a row within the table.",
+            "Definition": "The column rowguid in the SalesLT.ProductModelProductDescription entity contains globally unique identifier (GUID) values in the standard 36-character format. These values are used to uniquely identify each record in the table and ensure that each record can be distinctly referenced. The GUIDs are generated in a standard format that includes hexadecimal characters separated by hyphens. This column helps maintain the uniqueness of records across the database and may be used for tasks that require unique entity identification.",
             "AllowedValues": null,
             "SampleValues": [
-                "CBD361D0-B753-439C-86C8-11BA0ED91BB2",
-                "EC20F340-5E99-4360-86D1-543273A1EE7D",
-                "10BBC606-98EF-4B02-93AE-ADFD6AC4B59A",
-                "50018DBD-0A1B-42D3-B258-813FE1738731",
-                "6C85FBF6-C8C2-4A7D-8851-8C3220A6EB5E"
+                "C07515EF-9092-4BDD-BA2A-A49AB7FD98D3",
+                "284B8A07-645B-48EB-B4C0-F8EAE2A44DDB",
+                "C00AB8B7-1451-4A28-AF77-621A2D6F0674",
+                "77117A9F-3529-4E90-965A-17F306A5A6C7",
+                "40B7B7EF-0816-4BD2-A9A8-D7533D635D16"
             ]
         },
         {
             "Name": "ModifiedDate",
             "DataType": "datetime",
-            "Definition": "The ModifiedDate column in the SalesLT.ProductModelProductDescription entity contains timestamp values indicating the date and time when the record was last modified. The timestamps follow the YYYY-MM-DD HH:MM:SS format, which is common in SQL datetime data types. This column helps track changes and updates to the product model descriptions within the database, allowing for auditing and historical analysis of modifications.",
+            "Definition": "The ModifiedDate column in the SalesLT.ProductModelProductDescription entity contains the date and time when the corresponding record was last updated. The values are in the format 'YYYY-MM-DD HH:MM:SS' which includes both the date and the precise time of modification. This provides a time-stamp for tracking changes to the records and ensuring data is current as of the last update.",
             "AllowedValues": null,
             "SampleValues": [
                 "2007-06-01 00:00:00"
