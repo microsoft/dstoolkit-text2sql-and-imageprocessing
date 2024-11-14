@@ -152,6 +152,9 @@ class DataDictionaryCreator(ABC):
         self.entity_relationships = {}
         self.relationship_graph = nx.DiGraph()
 
+        self.warehouse = None
+        self.database = None
+
         load_dotenv(find_dotenv())
 
     @property
@@ -320,6 +323,11 @@ class DataDictionaryCreator(ABC):
                 for entity in all_entities
                 if entity.entity not in self.excluded_entities
             ]
+
+        # Add warehouse and database to entities
+        for entity in all_entities:
+            entity.warehouse = self.warehouse
+            entity.database = self.database
 
         return all_entities
 

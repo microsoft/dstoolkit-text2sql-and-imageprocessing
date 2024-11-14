@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
+import os
 
 
 class SqlServerDataDictionaryCreator(DataDictionaryCreator):
@@ -24,7 +25,10 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         excluded_entities.extend(
             ["dbo.BuildVersion", "dbo.ErrorLog", "sys.database_firewall_rules"]
         )
-        return super().__init__(entities, excluded_entities, single_file)
+        cls = super().__init__(entities, excluded_entities, single_file)
+        cls.database = os.environ["Text2Sql__DatabaseName"]
+
+        return cls
 
     """A class to extract data dictionary information from a SQL Server database."""
 
