@@ -49,11 +49,11 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             ComplexField(
-                name="Decomposition",
+                name="SqlQueryDecomposition",
                 collection=True,
                 fields=[
                     SearchableField(
-                        name="SQLQuery",
+                        name="SqlQuery",
                         type=SearchFieldDataType.String,
                         filterable=True,
                     ),
