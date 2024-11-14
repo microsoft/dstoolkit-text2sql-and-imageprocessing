@@ -1,0 +1,292 @@
+{
+  "Columns": [
+    {
+      "AllowedValues": null,
+      "DataType": "int",
+      "Definition": "The ProductModelID column in the SalesLT.vProductModelCatalogDescription entity contains integer values that serve as unique identifiers for different product models. Each number corresponds to a specific product model in the catalog, linking products to their respective descriptions and details. The values appear to be sequential or arbitrarily assigned numerical IDs.",
+      "Name": "ProductModelID",
+      "SampleValues": [
+        34,
+        28,
+        23,
+        19,
+        25
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Name column in the SalesLT.vProductModelCatalogDescription entity contains the names of various product models. These names typically follow a pattern where they include a product category or type, followed by a numeric value. The product categories may include terms like 'Road', 'Touring', and 'Mountain', which describe the type of product, while the numeric value likely indicates the model or series number within that category. This pattern helps in identifying and distinguishing different models in the catalog.",
+      "Name": "Name",
+      "SampleValues": [
+        "Road-450",
+        "Touring-1000",
+        "Mountain-500",
+        "Road-150",
+        "Mountain-100"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Summary column in the SalesLT.vProductModelCatalogDescription entity contains brief descriptions of various bicycle models. These descriptions highlight key features, benefits, and design elements of the bikes, such as performance, comfort, aerodynamics, and suitability for different types of riding conditions. The text is meant to provide potential customers with a quick overview of what to expect from each bike model. The descriptions often use marketing language to emphasize the unique selling points of each product.",
+      "Name": "Summary",
+      "SampleValues": [
+        "A true multi-sport bike that offers streamlined riding and a revolutionary design.       Aerodynamic design lets you ride with the pros, and the gearing will conquer hilly roads.                        ",
+        "Our top-of-the-line competition mountain bike. Performance-enhancing options include the innovative HL Frame,super-smooth front suspension, and traction for all terrain.                        ",
+        "The plush custom saddle keeps you riding all day, and there's plenty of space to add panniers and bike bags to the newly-redesigned carrier.This bike has great stability when fully-loaded.                        ",
+        "Suitable for any type of riding, on or off-road.Fits any budget. Smooth-shifting with a comfortable ride.                        ",
+        "Travel in style and comfort. Designed for maximum comfort and safety.Wide gear range takes on all hills. High-tech aluminum alloy construction provides durability without added weight.                        "
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Manufacturer column in the SalesLT.vProductModelCatalogDescription entity contains the name of the manufacturer responsible for producing the products. It stores textual data representing the company name that manufactures the products listed in the catalog. This column typically includes the brand or corporate names of the product manufacturers.",
+      "Name": "Manufacturer",
+      "SampleValues": [
+        "AdventureWorks"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Copyright column in the SalesLT.vProductModelCatalogDescription entity contains the year in which the copyright for a product model catalog description was established. The values are typically formatted as four-digit years, such as '2002'. This column helps to identify the year associated with the copyright information for the catalog description, which is important for legal and documentation purposes.",
+      "Name": "Copyright",
+      "SampleValues": [
+        "2002"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The ProductURL column in the SalesLT.vProductModelCatalogDescription entity contains URLs pointing to product details on the Adventure Works website. These URLs are prefixed with \"HTTP://www.Adventure-works.com\" and follow the standard URL format. The column is used to provide web links where customers can find more information about various products offered by Adventure Works.",
+      "Name": "ProductURL",
+      "SampleValues": [
+        "HTTP://www.Adventure-works.com"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The WarrantyPeriod column in the SalesLT.vProductModelCatalogDescription entity contains the duration of the warranty offered for a product. The values in this column are expressed in terms of years and typically include a numeric value followed by the word 'year' or 'years'. The data represents the length of time for which the warranty is valid from the date of purchase.",
+      "Name": "WarrantyPeriod",
+      "SampleValues": [
+        "4 years",
+        "3 years",
+        "1 year"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The WarrantyDescription column in the SalesLT.vProductModelCatalogDescription entity contains descriptions of the warranty coverage provided for the product models. The descriptions typically include information about the type of warranty, such as parts and labor coverage. The values in this column are detailed and may vary depending on the specific warranty terms offered for each product model. This column helps customers understand what aspects of the product are covered under warranty and the extent of the coverage.",
+      "Name": "WarrantyDescription",
+      "SampleValues": [
+        "parts and labor"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The NoOfYears column in the SalesLT.vProductModelCatalogDescription entity contains information about the duration in years for which a particular product model is valid or has been in service. The values follow a consistent format, indicating the length of time in numerical form followed by the word 'years'. This column helps in identifying the age or valid period of product models in a straightforward and standardized manner.",
+      "Name": "NoOfYears",
+      "SampleValues": [
+        "7 years",
+        "5 years",
+        "3 years",
+        "10 years"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The MaintenanceDescription column in the SalesLT.vProductModelCatalogDescription entity contains text descriptions related to maintenance availability for products. The descriptions typically inform customers about the availability of maintenance contracts or services and where they can be obtained, such as through dealers or AdventureWorks retail stores. The content of this column is usually a sentence or two in length, detailing the options for purchasing maintenance services.",
+      "Name": "MaintenanceDescription",
+      "SampleValues": [
+        "maintenance contract available through your dealer or any AdventureWorks retail store.",
+        "maintenance contact available through dealer or any Adventure Works Cycles retail store.",
+        "maintenance contact available through dealer"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Wheel column in the SalesLT.vProductModelCatalogDescription entity contains descriptions of various types of bicycle wheels. The descriptions provide details about the wheel's characteristics and performance attributes, such as durability, performance, material composition, and suitability for different types of riders. The information is intended to help consumers make informed decisions about the type of wheel that best meets their needs. The content typically emphasizes features like strength, stability, performance, aerodynamics, and material quality.",
+      "Name": "Wheel",
+      "SampleValues": [
+        "Strong wheels with double-walled rims.",
+        "Stable, durable wheels suitable for novice riders.",
+        "High performance wheels.",
+        "Excellent aerodynamic rims guarantee a smooth ride.",
+        "Aluminum alloy rim with stainless steel spokes; built for speed on our high quality rubber tires."
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Saddle column in the SalesLT.vProductModelCatalogDescription entity contains descriptions of various types of bicycle saddles. The descriptions typically highlight specific features such as material, design, and comfort aspects. Descriptive phrases commonly include details about weight, anatomical design, pressure relief, and added comfort measures. These detailed sentences help potential customers understand the unique selling points of each saddle model available.",
+      "Name": "Saddle",
+      "SampleValues": [
+        "Lightweight  kevlar racing saddle.",
+        "Cut-out shell  for a more comfortable ride.",
+        "Anatomic design and made from durable leather for a full-day of riding in comfort.",
+        "New design  relieves pressure for long rides.",
+        "Comfortable saddle with bump absorping rubber bumpers."
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Pedal column in the SalesLT.vProductModelCatalogDescription entity contains descriptions of various types of pedals used in bicycles. These descriptions typically highlight specific features and benefits of the pedals, such as adjustable tension, platform size, and usability. The descriptions are in plain text and are designed to provide potential buyers with detailed information to aid in their purchasing decision.",
+      "Name": "Pedal",
+      "SampleValues": [
+        "Top-of-the-line clipless pedals with adjustable tension.",
+        "Expanded platform so you can ride in any shoes; great for all-around riding.",
+        "A stable pedal for all-day riding."
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The BikeFrame column in the SalesLT.vProductModelCatalogDescription entity contains textual descriptions of different types of bike frames. These descriptions highlight various attributes and features of the bicycle frames such as the material used (commonly aluminum), quality, manufacturing process, and specific design characteristics aimed at enhancing comfort and performance. The descriptions often emphasize aspects like custom-shaping, heat-treatment, welding, and innovative design to convey both the durability and the technological advancements incorporated in the bike frames.",
+      "Name": "BikeFrame",
+      "SampleValues": [
+        "The aluminum frame is custom-shaped for both good looks and strength;it will withstand the most rigorous challenges of daily riding.",
+        "Our lightest and best quality  aluminum frame made from the newest alloy;it is welded and heat-treated for strength.Our innovative design results in maximum comfort and performance.",
+        "Our best value frame utilizing the same, ground-breaking technology as the ML aluminum frame.",
+        "Each frame is hand-crafted in our Bothell facility to the optimum diameterand wall-thickness required of a premium mountain frame.The heat-treated welded aluminum frame has a larger diameter tube that absorbs the bumps.",
+        "aluminum alloy  frame                     and features a lightweight down-tube milled to the perfect diameter for optimal strength."
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Crankset column in the SalesLT.vProductModelCatalogDescription entity contains descriptions of various features and attributes of bicycle cranksets. The values are composed of text phrases highlighting specific aspects such as material, performance, and quality of the crankset. The descriptions may vary in length and detail, but generally provide information about the construction, durability, and functionality of the crankset components.",
+      "Name": "Crankset",
+      "SampleValues": [
+        " Triple crankset; alumunim crank arm; flawless shifting. ",
+        " Super rigid spindle. ",
+        " High-strength crank arm. "
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The PictureAngle column in the SalesLT.vProductModelCatalogDescription entity contains text values that describe the angle from which a product picture is taken. This is likely used to identify different perspectives or viewpoints of a product, such as \"front\", \"side\", \"back\", etc. The values help differentiate pictures based on their angle, assisting users in understanding the visual presentation of the product.",
+      "Name": "PictureAngle",
+      "SampleValues": [
+        "front"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The PictureSize column in the SalesLT.vProductModelCatalogDescription entity contains the size specification of a product's picture. The values in this column indicate the designated size of the images associated with product models in the catalog. The size is typically described using simple terms such as 'small,' which suggests that there might be other possible values like 'medium' or 'large' to represent different image dimensions. This information is used to categorize and manage different image sizes for products in the catalog.",
+      "Name": "PictureSize",
+      "SampleValues": [
+        "small"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The ProductPhotoID column in the SalesLT.vProductModelCatalogDescription entity contains unique numeric identifiers for product photos. Each value corresponds to a specific product photo and is used to link the product model to its associated images. The values are integers with no apparent sequential order and serve as primary keys to reference the product photos stored in another table. This column helps in organizing and retrieving the correct photo for each product model in the catalog.",
+      "Name": "ProductPhotoID",
+      "SampleValues": [
+        "87",
+        "126",
+        "118",
+        "111",
+        "1"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Material column in the SalesLT.vProductModelCatalogDescription entity contains the primary material description of a product. The values typically represent different types of materials used in the product's construction, such as various metals or alloys. The values may contain common industrial materials and their variations. The pattern in the sample values suggests that the entries may include common materials used in manufacturing, with potential misspellings or variations.",
+      "Name": "Material",
+      "SampleValues": [
+        "Aluminum Alloy",
+        "Aluminum",
+        "Almuminum Alloy"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Color column in the SalesLT.vProductModelCatalogDescription entity contains descriptions of the color availability of products. The values indicate whether products are available in a wide range of colors, all colors, or specific exclusions such as not including metallic colors. The descriptions are in sentence form and provide information on the color options of the products.",
+      "Name": "Color",
+      "SampleValues": [
+        "Available in most colors.",
+        "Available in most colors",
+        "Available in all colors.",
+        "Available in all colors except metallic."
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The ProductLine column in the SalesLT.vProductModelCatalogDescription entity contains the categories or types of bicycles available in the catalog. The values indicate different models of bicycles such as Touring bike, Road bike, and Mountain bike. This column helps in classifying products based on their intended use or design, providing useful information for organizing and filtering the product list in the sales catalog.",
+      "Name": "ProductLine",
+      "SampleValues": [
+        "Touring bike",
+        "Road bike",
+        "Mountain bike"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Style column in the SalesLT.vProductModelCatalogDescription entity contains information about the gender-specific style designation of a product. Common values include terms indicating whether a product is intended for men, women, or unisex use. The values provide insight into the target demographic for the product's design and aesthetic.",
+      "Name": "Style",
+      "SampleValues": [
+        "Unisex",
+        "Men's"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The RiderExperience column in the SalesLT.vProductModelCatalogDescription entity contains descriptions of rider skill levels that a particular product model is suitable for. These descriptions range from different experience levels such as Novice, Intermediate, Advanced, and Professional. The values are combinations of these skill levels indicating the span of rider expertise the product caters to. This helps in categorizing products based on the level of rider proficiency they are designed for.",
+      "Name": "RiderExperience",
+      "SampleValues": [
+        "Novice to Intermediate riders",
+        "Novice to Advanced riders",
+        "Intermediate to Professional riders",
+        "Intermediate to Advanced riders",
+        "Advanced to Professional riders"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the SalesLT.vProductModelCatalogDescription entity contains unique identifier values in the UUID (Universal Unique Identifier) format. Each value is a 128-bit number used to uniquely identify information within the database. The values follow the standard UUID format, which consists of five groups of hexadecimal digits separated by hyphens. This column is typically used for ensuring the uniqueness of records across tables and databases.",
+      "Name": "rowguid",
+      "SampleValues": [
+        "866DBAD3-5999-4329-BEAC-D826D959D9A1",
+        "FCA0665B-B956-489A-A5EC-6F0B4AA14D02",
+        "94FFB702-0CBC-4E3F-B840-C51F0D11C8F6",
+        "AA10D9E6-E33F-4DA8-ACE1-992FCD6BB171",
+        "52E7F2C1-DBFF-4518-927D-C7D46F9ED32E"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the SalesLT.vProductModelCatalogDescription entity contains timestamps indicating the last date and time when the corresponding product model catalog description was modified. The values are in the format of YYYY-MM-DD HH:MM:SS.SSSSSS. This column helps in tracking changes and updates made to the product model catalog descriptions.",
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2006-11-20 09:56:38.273000",
+        "2005-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": null,
+  "Database": "AdventureWorksLT",
+  "Definition": "The SalesLT.vProductModelCatalogDescription entity contains detailed information regarding product models, including descriptions, manufacturer details, warranty information, and specifications related to bicycle components and features. This entity serves to provide comprehensive catalog descriptions useful for product listings and marketing materials. It can answer questions related to the attributes and features of specific product models, such as warranty details, material and color options, or the components involved in a particular bicycle model.",
+  "Entity": "SalesLT.vProductModelCatalogDescription",
+  "EntityName": "Product Model Catalog Description Information",
+  "EntityRelationships": null,
+  "Warehouse": null
+}

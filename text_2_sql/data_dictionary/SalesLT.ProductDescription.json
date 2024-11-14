@@ -1,0 +1,80 @@
+{
+  "Columns": [
+    {
+      "AllowedValues": null,
+      "DataType": "int",
+      "Definition": "The ProductDescriptionID column in the SalesLT.ProductDescription entity contains unique numeric identifiers for each product description. These values are integers and help in uniquely identifying and referencing specific product descriptions within the database. Each ProductDescriptionID is unique and serves as a key to distinguish one product description record from another.",
+      "Name": "ProductDescriptionID",
+      "SampleValues": [
+        1387,
+        1448,
+        1712,
+        1479,
+        1391
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Description column in the SalesLT.ProductDescription entity contains detailed textual descriptions of products. These descriptions provide specific information about the product's features, benefits, usage, or durability. The content of the descriptions may vary in language, indicating that the descriptions are catered to a diverse customer base. The purpose of this column is to give prospective buyers a better understanding of the product to assist in their purchasing decision.",
+      "Name": "Description",
+      "SampleValues": [
+        "\u062a\u0645\u0646\u0639 \u0627\u0644\u062e\u0631\u0637\u0648\u0634\u0629 \u0645\u062d\u0643\u0645\u0629 \u0627\u0644\u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u0623\u0648\u0633\u0627\u062e \u0645\u0646 \u0627\u0644\u062f\u062e\u0648\u0644.",
+        "For true trail addicts.  An extremely durable bike that will go anywhere and keep you in control on challenging terrain - without breaking your budget.",
+        "\u516c\u8def\u8d8a\u91ce\u4e24\u7528\u7684\u5168\u529f\u80fd\u8f66\u628a\u3002",
+        "\u0639\u0644\u0628 \u062e\u0641\u064a\u0641\u0629 \u0627\u0644\u0648\u0632\u0646\u060c \u0648\u0645\u0642\u0627\u0648\u0645\u0629 \u0644\u0644\u0631\u064a\u062d\u060c \u062a\u0646\u0627\u0633\u0628 \u062d\u062c\u0645 \u0627\u0644\u062c\u064a\u0628.",
+        "Cuissards r\u00e9sistants \u00e0 l'usure pour utilisation intensive, doubl\u00e9s \u00e0 l'int\u00e9rieur en Spandex, sans couture, peau de chamois anti-bact\u00e9rie pour un meilleur confort."
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the SalesLT.ProductDescription entity contains globally unique identifier (GUID) values. Each value is a unique 128-bit number used to identify records in the table, ensuring there are no duplicates. The format of these values is a standard GUID format: 32 hexadecimal characters displayed in five groups separated by hyphens (8-4-4-4-12). This column is typically used for scenarios requiring unique identifiers that are unique across different databases.",
+      "Name": "rowguid",
+      "SampleValues": [
+        "BAC5D6F9-8C13-4DDD-9B85-AD65F9820FD5",
+        "3452CDE5-DE87-4992-B75E-F5BD1982C0AF",
+        "F07E5B84-4CA8-4276-84A6-FC071A4C44E7",
+        "12C887D5-3875-4E5E-B291-5A592B061392",
+        "C5458DF7-44A0-47F8-8053-D252C5C6E564"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the SalesLT.ProductDescription entity contains timestamps indicating the most recent date and time when a product description was modified. The values follow a pattern of including both date and time components, typically using the format 'YYYY-MM-DD HH:MM:SS.sss'. This column helps track changes or updates made to product descriptions over time, which can be useful for auditing and historical data purposes.",
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2008-03-11 10:32:17.973000",
+        "2007-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.ProductCategory",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer"
+  ],
+  "Database": "AdventureWorksLT",
+  "Definition": "The SalesLT.ProductDescription entity contains detailed information about product descriptions within a sales system. This entity includes unique identifiers for each product description along with the description text itself. It also tracks the date and time when the product description was last modified, as well as a globally unique identifier (GUID) for each entry. This entity can be used to answer questions related to specific product descriptions, their updates, and historical modifications.",
+  "Entity": "SalesLT.ProductDescription",
+  "EntityName": "Product Descriptions",
+  "EntityRelationships": [
+    {
+      "ForeignEntity": "SalesLT.ProductModelProductDescription",
+      "ForeignKeys": [
+        {
+          "Column": "ProductDescriptionID",
+          "ForeignColumn": "ProductDescriptionID"
+        }
+      ]
+    }
+  ],
+  "Warehouse": null
+}

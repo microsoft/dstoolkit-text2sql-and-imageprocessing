@@ -1,0 +1,76 @@
+{
+  "Columns": [
+    {
+      "AllowedValues": null,
+      "DataType": "int",
+      "Definition": "The ProductID column in the SalesLT.vProductAndDescription entity contains unique numerical identifiers for products. These identifiers are integers and each number corresponds to a specific product in the product catalog. The values are used to distinguish between different products and are likely used as primary keys to facilitate database operations related to product data.",
+      "Name": "ProductID",
+      "SampleValues": [
+        808,
+        988,
+        872,
+        773,
+        948
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Name column in the SalesLT.vProductAndDescription entity contains the names of various products. These product names often include descriptors such as size, color, and specification details. The values in this column are typically formatted as descriptive text strings, indicating product type and other attributes such as size (e.g., S, L, 54) and color (e.g., Blue). The information in this column can be used to identify and differentiate various products in the inventory.",
+      "Name": "Name",
+      "SampleValues": [
+        "Racing Socks, L",
+        "HL Touring Frame - Blue, 54",
+        "LL Mountain Tire",
+        "HL Mountain Rear Wheel",
+        "Half-Finger Gloves, S"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The ProductModel column in the SalesLT.vProductAndDescription entity contains the names of various product models. The values are descriptive names indicating the type and purpose of the products, such as cycling equipment and clothing. The product model names often include keywords that describe the primary use, features, or target users of the products. These names help in identifying and differentiating between different product models within the catalog.",
+      "Name": "ProductModel",
+      "SampleValues": [
+        "Mountain Bottle Cage",
+        "HL Touring Frame",
+        "Half-Finger Gloves",
+        "Classic Vest",
+        "ML Headset"
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nchar",
+      "Definition": "The Culture column in the SalesLT.vProductAndDescription entity contains culture codes that specify the language and regional formatting for product descriptions. The values are generally represented by a two-letter or a combination of letters and hyphen codes, denoting different languages and cultural contexts, such as 'en' for English, 'ar' for Arabic, 'fr' for French, 'zh-cht' for Traditional Chinese, and 'he' for Hebrew. These culture codes are used to ensure localized and culturally appropriate product information.",
+      "Name": "Culture",
+      "SampleValues": [
+        "en    ",
+        "ar    ",
+        "fr    ",
+        "zh-cht",
+        "he    "
+      ]
+    },
+    {
+      "AllowedValues": null,
+      "DataType": "nvarchar",
+      "Definition": "The Description column in the SalesLT.vProductAndDescription entity contains detailed product descriptions written in various languages. These descriptions provide specific features, benefits, and characteristics of the products, often highlighting unique aspects such as material, design, functionality, and advantages. The descriptions are intended to assist customers in understanding the products better and making informed purchasing decisions. The multi-language nature of the entries suggests a diverse international market for the products.",
+      "Name": "Description",
+      "SampleValues": [
+        "\u771f\u6b63\u7684\u591a\u9879\u8fd0\u52a8\u81ea\u884c\u8f66\uff0c\u9a91\u4e58\u81ea\u5982\uff0c\u8bbe\u8ba1\u65b0\u9896\u3002\u7b26\u5408\u7a7a\u6c14\u52a8\u529b\u5b66\u7684\u8bbe\u8ba1\u7ed9\u60a8\u5e26\u6765\u4e13\u4e1a\u8f66\u624b\u7684\u4f53\u9a8c\uff0c\u6781\u4f73\u7684\u4f20\u52a8\u88c5\u7f6e\u53ef\u4ee5\u8f7b\u6613\u5f81\u670d\u9661\u5ced\u7684\u8def\u9762\u3002",
+        "Strong rear wheel with double-walled rim.",
+        "Tr\u00e8s pratique. Tient dans la poche. Corps en aluminium. 11,2\u00a0bars.",
+        "Carries 4 bikes securely; steel construction, fits 2\" receiver hitch.",
+        "\u0e40\u0e1a\u0e32\u0e30\u0e19\u0e31\u0e48\u0e07\u0e2b\u0e38\u0e49\u0e21\u0e1e\u0e34\u0e40\u0e28\u0e29\u0e0a\u0e48\u0e27\u0e22\u0e43\u0e2b\u0e49\u0e04\u0e38\u0e13\u0e02\u0e35\u0e48\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e2a\u0e1a\u0e32\u0e22\u0e15\u0e25\u0e2d\u0e14\u0e17\u0e31\u0e49\u0e07\u0e27\u0e31\u0e19 \u0e15\u0e30\u0e41\u0e01\u0e23\u0e07\u0e2d\u0e2d\u0e01\u0e41\u0e1a\u0e1a\u0e43\u0e2b\u0e21\u0e48 \u0e21\u0e35\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48\u0e40\u0e2b\u0e25\u0e37\u0e2d\u0e40\u0e1f\u0e37\u0e2d\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e15\u0e30\u0e01\u0e23\u0e49\u0e32\u0e41\u0e25\u0e30\u0e01\u0e23\u0e30\u0e40\u0e1b\u0e4b\u0e32 \u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e21\u0e31\u0e48\u0e19\u0e04\u0e07 \u0e41\u0e21\u0e49\u0e02\u0e13\u0e30\u0e1a\u0e23\u0e23\u0e17\u0e38\u0e01\u0e02\u0e2d\u0e07"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": null,
+  "Database": "AdventureWorksLT",
+  "Definition": "The SalesLT.vProductAndDescription entity provides a comprehensive view that combines product information with their descriptions across different cultures. It includes data on the product ID, name, model, culture code, and description. This entity is useful for answering questions related to product details, multilingual product descriptions, and cultural variations of product descriptions. It is particularly helpful for businesses looking to understand and manage their product offerings in various cultural contexts.",
+  "Entity": "SalesLT.vProductAndDescription",
+  "EntityName": "Product and Description Details",
+  "EntityRelationships": null,
+  "Warehouse": null
+}

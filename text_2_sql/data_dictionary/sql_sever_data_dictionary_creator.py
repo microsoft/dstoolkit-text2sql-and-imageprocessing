@@ -86,7 +86,9 @@ WHERE
     def extract_entity_relationships_sql_query(self) -> str:
         """A property to extract entity relationships from a SQL Server database."""
         return """SELECT
+            fk_schema.name AS EntitySchema,
             fk_tab.name AS Entity,
+            pk_schema.name AS ForeignEntitySchema,
             pk_tab.name AS ForeignEntity,
             fk_col.name AS [Column],
             pk_col.name AS ForeignColumn
@@ -97,13 +99,17 @@ WHERE
         INNER JOIN
             sys.tables AS fk_tab ON fk_tab.object_id = fk.parent_object_id
         INNER JOIN
+            sys.schemas AS fk_schema ON fk_tab.schema_id = fk_schema.schema_id
+        INNER JOIN
             sys.tables AS pk_tab ON pk_tab.object_id = fk.referenced_object_id
+        INNER JOIN
+            sys.schemas AS pk_schema ON pk_tab.schema_id = pk_schema.schema_id
         INNER JOIN
             sys.columns AS fk_col ON fkc.parent_object_id = fk_col.object_id AND fkc.parent_column_id = fk_col.column_id
         INNER JOIN
             sys.columns AS pk_col ON fkc.referenced_object_id = pk_col.object_id AND fkc.referenced_column_id = pk_col.column_id
         ORDER BY
-            Entity, ForeignEntity;
+            EntitySchema, Entity, ForeignEntitySchema, ForeignEntity;
         """
 
 
