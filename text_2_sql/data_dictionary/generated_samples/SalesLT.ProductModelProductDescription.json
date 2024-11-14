@@ -1,68 +1,100 @@
 {
-  "Columns": [
-    {
-      "AllowedValues": null,
-      "Definition": "The ProductModelID column in the SalesLT.ProductModelProductDescription entity contains unique numerical identifiers for different product models. These values are integers and are used to link product descriptions to their corresponding product models within the database. The IDs do not follow a specific sequential order and are likely assigned based on a predefined schema or during the creation of product models.",
-      "Name": "ProductModelID",
-      "SampleValues": [
-        103,
-        110,
-        39,
-        85,
-        37
-      ],
-      "Type": "int"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The ProductDescriptionID column in the SalesLT.ProductModelProductDescription entity contains unique numerical identifiers assigned to each product description. The values appear to be integers typically starting from a specific range and are used to reference detailed descriptions of products within the database. Each ID uniquely identifies an entry in the product description table to ensure consistency and accuracy in product-related information.",
-      "Name": "ProductDescriptionID",
-      "SampleValues": [
-        1900,
-        1634,
-        1519,
-        1438,
-        1964
-      ],
-      "Type": "int"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The Culture column in the SalesLT.ProductModelProductDescription entity contains language and region codes commonly used for localization and internationalization purposes. The values appear to follow ISO 639-1 language codes and may include an additional region or script designation using a hyphen. These codes help identify the language or cultural context for product descriptions, enhancing the ability to cater to diverse markets.",
-      "Name": "Culture",
-      "SampleValues": [
-        "fr    ",
-        "en    ",
-        "th    ",
-        "ar    ",
-        "zh-cht"
-      ],
-      "Type": "nchar"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The rowguid column in the SalesLT.ProductModelProductDescription entity contains unique identifier values for each row. These values follow the standard UUID (Universal Unique Identifier) format which consists of 32 alphanumeric characters separated into five groups by hyphens, typically in the format 8-4-4-4-12. This ensures that each entry in the column is globally unique, providing a reliable way to distinguish individual records in the database.",
-      "Name": "rowguid",
-      "SampleValues": [
-        "52D0E73D-BFBF-4CD8-A8B8-52FC0AF423D8",
-        "AB93B739-E95E-4C4A-A570-B93349EA678C",
-        "AAB952AE-55D8-4D0F-B63A-1250B7666AE8",
-        "26966676-DD7B-4CE9-8DE7-79F97B8A5DC9",
-        "4AA960B3-4CC8-4F01-BB82-989ADBD4D036"
-      ],
-      "Type": "uniqueidentifier"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The ModifiedDate column in the SalesLT.ProductModelProductDescription entity contains timestamp values indicating the date and time when each record was last modified. The values follow a standard datetime format, typically including both the date and the exact time of modification down to seconds. This column is useful for tracking changes and updates to the records over time.",
-      "Name": "ModifiedDate",
-      "SampleValues": [
-        "2007-06-01 00:00:00"
-      ],
-      "Type": "datetime"
-    }
-  ],
-  "Description": "The SalesLT.ProductModelProductDescription entity links product models to their descriptions, capturing details about the culture/language of the description. It includes metadata such as a unique identifier and the date of the last modification. This entity can be used to answer questions regarding the specific descriptions available for different product models, including which languages those descriptions are provided in.",
-  "Entity": "SalesLT.ProductModelProductDescription",
-  "EntityName": "'Product Model and Description Mapping'"
+    "Entity": "SalesLT.ProductModelProductDescription",
+    "Definition": "The SalesLT.ProductModelProductDescription entity represents the relationship between product models and their descriptions, capturing the cultural variations of the product descriptions. It includes identification details of product models and descriptions, along with cultural information that specifies the language and region for the description. Questions that can be answered using this entity include finding product descriptions based on cultural context, associating product models with their respective descriptions, and tracking the modifications made to product descriptions over time.",
+    "EntityName": "Product Model and Description Data",
+    "Database": "AdventureWorksLT",
+    "Warehouse": null,
+    "EntityRelationships": [
+        {
+            "ForeignEntity": "SalesLT.ProductDescription",
+            "ForeignKeys": [
+                {
+                    "Column": "ProductDescriptionID",
+                    "ForeignColumn": "ProductDescriptionID"
+                }
+            ]
+        },
+        {
+            "ForeignEntity": "SalesLT.ProductModel",
+            "ForeignKeys": [
+                {
+                    "Column": "ProductModelID",
+                    "ForeignColumn": "ProductModelID"
+                },
+                {
+                    "Column": "ProductModelID",
+                    "ForeignColumn": "ProductModelID"
+                }
+            ]
+        }
+    ],
+    "CompleteEntityRelationshipsGraph": [
+        "SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+        "SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.ProductCategory",
+        "SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
+        "SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
+    ],
+    "Columns": [
+        {
+            "Name": "ProductModelID",
+            "DataType": "int",
+            "Definition": "The ProductModelID column in the SalesLT.ProductModelProductDescription entity contains numerical identifiers that represent different product models. Each ID is unique and corresponds to a specific product model within the database. The values in this column are integers and do not follow a specific pattern beyond being unique identifiers. These IDs are used to link product models with their descriptions and other related information.",
+            "AllowedValues": null,
+            "SampleValues": [
+                78,
+                27,
+                55,
+                22,
+                35
+            ]
+        },
+        {
+            "Name": "ProductDescriptionID",
+            "DataType": "int",
+            "Definition": "The ProductDescriptionID column in the SalesLT.ProductModelProductDescription entity contains unique numeric identifiers assigned to different product descriptions. Each value in this column corresponds to a specific product description and ensures that each description can be uniquely referenced in the database. The values are integer numbers, and there is no specific pattern or standard format beyond being unique identifiers.",
+            "AllowedValues": null,
+            "SampleValues": [
+                1649,
+                1665,
+                554,
+                1910,
+                1929
+            ]
+        },
+        {
+            "Name": "Culture",
+            "DataType": "nchar",
+            "Definition": "The Culture column in the SalesLT.ProductModelProductDescription entity contains culture or locale codes representing different languages and regions. These codes are often in the format of a two-letter language code, optionally followed by a hyphen and a variant or region code, indicating specific language and region combinations. For example, 'en' represents English, 'fr' represents French, and 'zh-cht' represents Traditional Chinese. These codes help in identifying and managing product descriptions in multiple languages and locales.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "ar    ",
+                "fr    ",
+                "th    ",
+                "zh-cht",
+                "en    "
+            ]
+        },
+        {
+            "Name": "rowguid",
+            "DataType": "uniqueidentifier",
+            "Definition": "The rowguid column in the SalesLT.ProductModelProductDescription entity contains unique identifier values in the form of GUIDs (Globally Unique Identifiers). These values are 36-character strings, including hyphens, and follow the typical GUID format such as CBD361D0-B753-439C-86C8-11BA0ED91BB2. Each value is distinct and is used to uniquely identify a row within the table.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "CBD361D0-B753-439C-86C8-11BA0ED91BB2",
+                "EC20F340-5E99-4360-86D1-543273A1EE7D",
+                "10BBC606-98EF-4B02-93AE-ADFD6AC4B59A",
+                "50018DBD-0A1B-42D3-B258-813FE1738731",
+                "6C85FBF6-C8C2-4A7D-8851-8C3220A6EB5E"
+            ]
+        },
+        {
+            "Name": "ModifiedDate",
+            "DataType": "datetime",
+            "Definition": "The ModifiedDate column in the SalesLT.ProductModelProductDescription entity contains timestamp values indicating the date and time when the record was last modified. The timestamps follow the YYYY-MM-DD HH:MM:SS format, which is common in SQL datetime data types. This column helps track changes and updates to the product model descriptions within the database, allowing for auditing and historical analysis of modifications.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "2007-06-01 00:00:00"
+            ]
+        }
+    ]
 }
