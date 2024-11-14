@@ -155,7 +155,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                 ],
             ),
             SimpleField(
-                name="CompleteEntityRelationshipGraph",
+                name="CompleteEntityRelationshipsGraph",
                 type=SearchFieldDataType.String,
                 collection=True,
             ),
@@ -271,6 +271,14 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                     target_field_name="EntityName",
                 ),
                 FieldMapping(
+                    source_field_name="/document/Database",
+                    target_field_name="Database",
+                ),
+                FieldMapping(
+                    source_field_name="/document/Warehouse",
+                    target_field_name="Warehouse",
+                ),
+                FieldMapping(
                     source_field_name="/document/Definition",
                     target_field_name="Definition",
                 ),
@@ -291,12 +299,12 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                     target_field_name="ColumnDefinitions",
                 ),
                 FieldMapping(
-                    source_field_name="/document/ImmediateEntityRelationships",
-                    target_field_name="ImmediateEntityRelationships",
+                    source_field_name="/document/EntityRelationships",
+                    target_field_name="EntityRelationships",
                 ),
                 FieldMapping(
-                    source_field_name="/document/CompleteEntityRelationships",
-                    target_field_name="CompleteEntityRelationships",
+                    source_field_name="/document/CompleteEntityRelationshipsGraph",
+                    target_field_name="CompleteEntityRelationshipsGraph",
                 ),
                 FieldMapping(
                     source_field_name="/document/DateLastModified",
