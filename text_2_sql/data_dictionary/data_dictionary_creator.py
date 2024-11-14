@@ -23,21 +23,17 @@ class ForeignKeyRelationship(BaseModel):
     column: str = Field(..., alias="Column")
     foreign_column: str = Field(..., alias="ForeignColumn")
 
-    model_config = ConfigDict(populate_by_name=True,
-                              arbitrary_types_allowed=True)
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
 
 class EntityRelationship(BaseModel):
     entity: str = Field(..., alias="Entity", exclude=True)
     entity_schema: str = Field(..., alias="Schema", exclude=True)
     foreign_entity: str = Field(..., alias="ForeignEntity")
-    foreign_entity_schema: str = Field(...,
-                                       alias="ForeignSchema", exclude=True)
-    foreign_keys: list[ForeignKeyRelationship] = Field(
-        ..., alias="ForeignKeys")
+    foreign_entity_schema: str = Field(..., alias="ForeignSchema", exclude=True)
+    foreign_keys: list[ForeignKeyRelationship] = Field(..., alias="ForeignKeys")
 
-    model_config = ConfigDict(populate_by_name=True,
-                              arbitrary_types_allowed=True)
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
     def pivot(self):
         """A method to pivot the entity relationship."""
@@ -65,9 +61,11 @@ class EntityRelationship(BaseModel):
         result = dict(zip(columns, row))
 
         entity = "{EntitySchema}.{Entity}".format(
-            EntitySchema=result['EntitySchema'], Entity=result['Entity'])
+            EntitySchema=result["EntitySchema"], Entity=result["Entity"]
+        )
         foreign_entity = "{ForeignEntitySchema}.{ForeignEntity}".format(
-            ForeignEntitySchema=result['ForeignEntitySchema'], ForeignEntity=result['ForeignEntity']
+            ForeignEntitySchema=result["ForeignEntitySchema"],
+            ForeignEntity=result["ForeignEntity"],
         )
         return cls(
             entity=entity,
@@ -95,8 +93,7 @@ class ColumnItem(BaseModel):
     allowed_values: Optional[list[any]] = Field(None, alias="AllowedValues")
     sample_values: Optional[list[any]] = Field(None, alias="SampleValues")
 
-    model_config = ConfigDict(populate_by_name=True,
-                              arbitrary_types_allowed=True)
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
     @classmethod
     def from_sql_row(cls, row, columns):
@@ -121,11 +118,11 @@ class EntityItem(BaseModel):
     warehouse: Optional[str] = Field(default=None, alias="Warehouse")
 
     entity_relationships: Optional[list[EntityRelationship]] = Field(
-        None, alias="EntityRelationships"
+        alias="EntityRelationships", default_factory=list
     )
 
     complete_entity_relationships_graph: Optional[list[str]] = Field(
-        None, alias="CompleteEntityRelationshipsGraph"
+        alias="CompleteEntityRelationshipsGraph", default_factory=list
     )
 
     columns: Optional[list[ColumnItem]] = Field(
@@ -206,7 +203,8 @@ class DataDictionaryCreator(ABC):
     def extract_entity_relationships_sql_query(self) -> str:
         """An abstract method to extract entity relationships from a database.
 
-        Must return 6 columns: EntitySchema, Entity, ForeignEntitySchema, ForeignEntity, Column, ForeignColumn."""
+        Must return 6 columns: EntitySchema, Entity, ForeignEntitySchema, ForeignEntity, Column, ForeignColumn.
+        """
 
     def extract_distinct_values_sql_query(
         self, entity: EntityItem, column: ColumnItem
@@ -272,7 +270,10 @@ class DataDictionaryCreator(ABC):
                     relationship.foreign_entity: relationship
                 }
             else:
-                if relationship.foreign_entity not in self.entity_relationships[relationship.entity]:
+                if (
+                    relationship.foreign_entity
+                    not in self.entity_relationships[relationship.entity]
+                ):
                     self.entity_relationships[relationship.entity][
                         relationship.foreign_entity
                     ] = relationship
@@ -286,7 +287,10 @@ class DataDictionaryCreator(ABC):
                     relationship.entity: relationship.pivot()
                 }
             else:
-                if relationship.entity not in self.entity_relationships[relationship.foreign_entity]:
+                if (
+                    relationship.entity
+                    not in self.entity_relationships[relationship.foreign_entity]
+                ):
                     self.entity_relationships[relationship.foreign_entity][
                         relationship.entity
                     ] = relationship.pivot()
@@ -308,7 +312,7 @@ class DataDictionaryCreator(ABC):
         self, entity: str, path=None, result=None, visited=None
     ) -> nx.DiGraph:
         if entity not in self.relationship_graph:
-            return None
+            return []
 
         if path is None:
             path = [entity]
@@ -320,14 +324,20 @@ class DataDictionaryCreator(ABC):
         # Mark the current node as visited
         visited.add(entity)
 
-        # For each successor (neighbor in the directed path)
-        for successor in self.relationship_graph.successors(entity):
-            if successor not in visited:
+        successors = list(self.relationship_graph.successors(entity))
+        successors_not_visited = [
+            successor for successor in successors if successor not in visited
+        ]
+        if len(successors_not_visited) == 0 and len(path) > 1:
+            # Add the complete path to the result as a string
+            result.append(" -> ".join(path))
+        else:
+            # For each successor (neighbor in the directed path)
+            for successor in successors_not_visited:
                 new_path = path + [successor]
                 # Add the path as a string
-                result.append(" -> ".join(new_path))
                 self.get_entity_relationships_from_graph(
-                    successor, new_path, result, visited
+                    successor, new_path, result, visited.copy()
                 )
 
         return result
@@ -423,8 +433,7 @@ class DataDictionaryCreator(ABC):
             If you think the sample values belong to a specific standard, you can mention it in the definition. e.g. The column contains a list of country codes in the ISO 3166-1 alpha-2 format. 'US' for United States, 'GB' for United Kingdom, 'FR' for France. Including the specific standard format code can help the user understand the data better.
 
             If you think the sample values are not representative of the column as a whole, you can provide a more general definition of the column without mentioning the sample values."""
-            stringifed_sample_values = [str(value)
-                                        for value in column.sample_values]
+            stringifed_sample_values = [str(value) for value in column.sample_values]
 
             column_definition_input = f"""Describe the {column.name} column in the {entity.entity} entity. The following sample values are provided from {
                 column.name}: {', '.join(stringifed_sample_values)}."""
@@ -469,9 +478,7 @@ class DataDictionaryCreator(ABC):
             )
 
             if self.generate_definitions:
-                definition_tasks.append(
-                    self.generate_column_definition(entity, column)
-                )
+                definition_tasks.append(self.generate_column_definition(entity, column))
 
         await asyncio.gather(*distinct_value_tasks)
 

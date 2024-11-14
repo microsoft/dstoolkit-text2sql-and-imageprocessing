@@ -154,7 +154,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                     ),
                 ],
             ),
-            SimpleField(
+            SearchableField(
                 name="CompleteEntityRelationshipsGraph",
                 type=SearchFieldDataType.String,
                 collection=True,
@@ -303,7 +303,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                     target_field_name="EntityRelationships",
                 ),
                 FieldMapping(
-                    source_field_name="/document/CompleteEntityRelationshipsGraph",
+                    source_field_name="/document/CompleteEntityRelationshipsGraph/*",
                     target_field_name="CompleteEntityRelationshipsGraph",
                 ),
                 FieldMapping(
