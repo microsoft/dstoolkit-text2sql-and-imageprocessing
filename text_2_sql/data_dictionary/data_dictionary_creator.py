@@ -53,6 +53,14 @@ class EntityRelationship(BaseModel):
 
     def add_foreign_key(self, foreign_key: ForeignKeyRelationship):
         """A method to add a foreign key to the entity relationship."""
+
+        for existing_foreign_key in self.foreign_keys:
+            if (
+                existing_foreign_key.column == foreign_key.column
+                and existing_foreign_key.foreign_column == foreign_key.foreign_column
+            ):
+                return
+
         self.foreign_keys.append(foreign_key)
 
     @classmethod
@@ -328,6 +336,11 @@ class DataDictionaryCreator(ABC):
         successors_not_visited = [
             successor for successor in successors if successor not in visited
         ]
+
+        if len(path) == 1 and entity in successors:
+            # We can do a self join on the entity in this case but we don't want to propagate this
+            result.append(f"{entity} -> {entity}")
+
         if len(successors_not_visited) == 0 and len(path) > 1:
             # Add the complete path to the result as a string
             result.append(" -> ".join(path))
