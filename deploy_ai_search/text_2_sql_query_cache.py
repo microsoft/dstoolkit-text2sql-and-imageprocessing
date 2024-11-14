@@ -49,7 +49,7 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             ComplexField(
-                name="Queries",
+                name="Decomposition",
                 collection=True,
                 fields=[
                     SearchableField(
@@ -71,11 +71,11 @@ class Text2SqlQueryCacheAISearch(AISearch):
                                 collection=True,
                                 fields=[
                                     SearchableField(
-                                        name="ColumnName",
+                                        name="Name",
                                         type=SearchFieldDataType.String,
                                     ),
                                     SearchableField(
-                                        name="ColumnDefinition",
+                                        name="Definition",
                                         type=SearchFieldDataType.String,
                                     ),
                                     SearchableField(

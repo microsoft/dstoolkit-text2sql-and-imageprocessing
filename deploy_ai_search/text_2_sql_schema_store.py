@@ -71,6 +71,14 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                 analyzer_name="keyword",
             ),
             SearchableField(
+                name="Database",
+                type=SearchFieldDataType.String,
+            ),
+            SearchableField(
+                name="Warehouse",
+                type=SearchFieldDataType.String,
+            ),
+            SearchableField(
                 name="Definition",
                 type=SearchFieldDataType.String,
                 sortable=False,
@@ -129,11 +137,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                 collection=True,
                 fields=[
                     SearchableField(
-                        name="ImmediateRelationshipName",
-                        type=SearchFieldDataType.String,
-                    ),
-                    SearchableField(
-                        name="ImmediateRelationshipEntity",
+                        name="Name",
                         type=SearchFieldDataType.String,
                     ),
                     ComplexField(
