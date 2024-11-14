@@ -25,10 +25,8 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         excluded_entities.extend(
             ["dbo.BuildVersion", "dbo.ErrorLog", "sys.database_firewall_rules"]
         )
-        cls = super().__init__(entities, excluded_entities, single_file)
-        cls.database = os.environ["Text2Sql__DatabaseName"]
-
-        return cls
+        super().__init__(entities, excluded_entities, single_file)
+        self.database = os.environ["Text2Sql__DatabaseName"]
 
     """A class to extract data dictionary information from a SQL Server database."""
 
@@ -85,12 +83,12 @@ WHERE
     AND c.TABLE_NAME = '{entity.name}';"""
 
     @property
-    def extract_entity_relationships_sql_query() -> str:
+    def extract_entity_relationships_sql_query(self) -> str:
         """A property to extract entity relationships from a SQL Server database."""
         return """SELECT
             fk_tab.name AS Entity,
             pk_tab.name AS ForeignEntity,
-            fk_col.name AS Column,
+            fk_col.name AS [Column],
             pk_col.name AS ForeignColumn
         FROM
             sys.foreign_keys AS fk

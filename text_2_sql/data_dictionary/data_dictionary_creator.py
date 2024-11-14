@@ -20,18 +20,24 @@ logging.basicConfig(level=logging.INFO)
 
 
 class ForeignKeyRelationship(BaseModel):
-    source_column: str = Field(..., alias="Column")
+    column: str = Field(..., alias="Column")
     foreign_column: str = Field(..., alias="ForeignColumn")
+
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
 
 class EntityRelationship(BaseModel):
+    entity: str = Field(..., alias="Entity")
     foreign_entity: str = Field(..., alias="ForeignEntity")
     foreign_keys: list[ForeignKeyRelationship] = Field(..., alias="ForeignKeys")
 
-    def pivot(self, entity: str):
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+
+    def pivot(self):
         """A method to pivot the entity relationship."""
         return EntityRelationship(
-            foreign_entity=entity,
+            entity=self.foreign_entity,
+            foreign_entity=self.entity,
             foreign_keys=[
                 ForeignKeyRelationship(
                     source_column=foreign_key.foreign_column,
@@ -53,7 +59,7 @@ class EntityRelationship(BaseModel):
             foreign_entity=result["ForeignEntity"],
             foreign_keys=[
                 ForeignKeyRelationship(
-                    source_column=result["Column"],
+                    column=result["Column"],
                     foreign_column=result["ForeignColumn"],
                 )
             ],
@@ -100,7 +106,7 @@ class EntityItem(BaseModel):
         None, alias="EntityRelationships"
     )
 
-    complete_entity_relationship_graph = Optional[str] = Field(
+    complete_entity_relationship_graph: Optional[str] = Field(
         None, alias="CompleteEntityRelationshipGraph"
     )
 
