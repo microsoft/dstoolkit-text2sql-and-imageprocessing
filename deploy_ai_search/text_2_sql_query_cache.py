@@ -52,42 +52,52 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
-            SearchableField(
-                name="SQLQuery", type=SearchFieldDataType.String, filterable=True
-            ),
             ComplexField(
-                name="Schemas",
+                name="Queries",
                 collection=True,
                 fields=[
                     SearchableField(
-                        name="Entity",
+                        name="SQLQuery",
                         type=SearchFieldDataType.String,
                         filterable=True,
                     ),
                     ComplexField(
-                        name="Columns",
+                        name="Schemas",
                         collection=True,
                         fields=[
                             SearchableField(
-                                name="ColumnName", type=SearchFieldDataType.String
-                            ),
-                            SearchableField(
-                                name="ColumnDefinition", type=SearchFieldDataType.String
-                            ),
-                            SearchableField(
-                                name="DataType", type=SearchFieldDataType.String
-                            ),
-                            SearchableField(
-                                name="AllowedValues",
+                                name="Entity",
                                 type=SearchFieldDataType.String,
-                                collection=True,
-                                searchable=False,
+                                filterable=True,
                             ),
-                            SearchableField(
-                                name="SampleValues",
-                                type=SearchFieldDataType.String,
+                            ComplexField(
+                                name="Columns",
                                 collection=True,
-                                searchable=False,
+                                fields=[
+                                    SearchableField(
+                                        name="ColumnName",
+                                        type=SearchFieldDataType.String,
+                                    ),
+                                    SearchableField(
+                                        name="ColumnDefinition",
+                                        type=SearchFieldDataType.String,
+                                    ),
+                                    SearchableField(
+                                        name="DataType", type=SearchFieldDataType.String
+                                    ),
+                                    SearchableField(
+                                        name="AllowedValues",
+                                        type=SearchFieldDataType.String,
+                                        collection=True,
+                                        searchable=False,
+                                    ),
+                                    SearchableField(
+                                        name="SampleValues",
+                                        type=SearchFieldDataType.String,
+                                        collection=True,
+                                        searchable=False,
+                                    ),
+                                ],
                             ),
                         ],
                     ),
