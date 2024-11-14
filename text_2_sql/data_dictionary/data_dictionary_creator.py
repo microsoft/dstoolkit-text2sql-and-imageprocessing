@@ -14,8 +14,50 @@ from openai import AsyncAzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import random
 import re
+import networkx as nx
 
 logging.basicConfig(level=logging.INFO)
+
+
+class ForeignKeyRelationship(BaseModel):
+    source_column: str = Field(..., alias="Column")
+    foreign_column: str = Field(..., alias="ForeignColumn")
+
+
+class EntityRelationship(BaseModel):
+    foreign_entity: str = Field(..., alias="ForeignEntity")
+    foreign_keys: list[ForeignKeyRelationship] = Field(..., alias="ForeignKeys")
+
+    def pivot(self, entity: str):
+        """A method to pivot the entity relationship."""
+        return EntityRelationship(
+            foreign_entity=entity,
+            foreign_keys=[
+                ForeignKeyRelationship(
+                    source_column=foreign_key.foreign_column,
+                    foreign_column=foreign_key.source_column,
+                )
+                for foreign_key in self.foreign_keys
+            ],
+        )
+
+    def add_foreign_key(self, foreign_key: ForeignKeyRelationship):
+        """A method to add a foreign key to the entity relationship."""
+        self.foreign_keys.append(foreign_key)
+
+    @classmethod
+    def from_sql_row(cls, row, columns):
+        """A method to create an EntityRelationship from a SQL row."""
+        result = dict(zip(columns, row))
+        return cls(
+            foreign_entity=result["ForeignEntity"],
+            foreign_keys=[
+                ForeignKeyRelationship(
+                    source_column=result["Column"],
+                    foreign_column=result["ForeignColumn"],
+                )
+            ],
+        )
 
 
 class ColumnItem(BaseModel):
@@ -38,7 +80,7 @@ class ColumnItem(BaseModel):
         result = dict(zip(columns, row))
         return cls(
             name=result["Name"],
-            type=result["DataType"],
+            data_type=result["DataType"],
             definition=result["Definition"],
         )
 
@@ -51,6 +93,16 @@ class EntityItem(BaseModel):
     name: str = Field(..., alias="Name", exclude=True)
     entity_schema: str = Field(..., alias="Schema", exclude=True)
     entity_name: Optional[str] = Field(default=None, alias="EntityName")
+    database: Optional[str] = Field(default=None, alias="Database")
+    warehouse: Optional[str] = Field(default=None, alias="Warehouse")
+
+    entity_relationships: Optional[list[EntityRelationship]] = Field(
+        None, alias="EntityRelationships"
+    )
+
+    complete_entity_relationship_graph = Optional[str] = Field(
+        None, alias="CompleteEntityRelationshipGraph"
+    )
 
     columns: Optional[list[ColumnItem]] = Field(
         ..., alias="Columns", default_factory=list
@@ -97,6 +149,9 @@ class DataDictionaryCreator(ABC):
         self.single_file = single_file
         self.generate_descriptions = generate_descriptions
 
+        self.entity_relationships = {}
+        self.relationship_graph = nx.DiGraph()
+
         load_dotenv(find_dotenv())
 
     @property
@@ -118,6 +173,13 @@ class DataDictionaryCreator(ABC):
         """An abstract method to extract column information from a database.
 
         Must return 3 columns: Name, DataType, Definition."""
+
+    @property
+    @abstractmethod
+    def extract_entity_relationships_sql_query(self) -> str:
+        """An abstract method to extract entity relationships from a database.
+
+        Must return 4 columns: Entity, ForeignEntity, Column, ForeignColumn."""
 
     def extract_distinct_values_sql_query(
         self, entity: EntityItem, column: ColumnItem
@@ -164,6 +226,72 @@ class DataDictionaryCreator(ABC):
                         results.append(dict(zip(columns, row)))
 
         return results
+
+    async def extract_entity_relationships(self) -> list[EntityRelationship]:
+        """A method to extract entity relationships from a database.
+
+        Returns:
+            list[EntityRelationships]: The list of entity relationships."""
+
+        relationships = await self.query_entities(
+            self.extract_entity_relationships_sql_query, cast_to=EntityRelationship
+        )
+
+        # Duplicate relationships to create a complete graph
+
+        for relationship in relationships:
+            if relationship.entity not in self.entity_relationships:
+                self.entity_relationships[relationship.entity] = {
+                    relationship.foreign_entity: relationship
+                }
+            else:
+                self.entity_relationships[relationship.entity][
+                    relationship.foreign_entity
+                ].add_foreign_key(relationship.foreign_keys[0])
+
+            if relationship.foreign_entity not in self.entity_relationships:
+                self.entity_relationships[relationship.foreign_entity] = {
+                    relationship.entity: relationship.pivot()
+                }
+            else:
+                self.entity_relationships[relationship.foreign_entity][
+                    relationship.entity
+                ].add_foreign_key(relationship.pivot().foreign_keys[0])
+
+    async def build_entity_relationship_graph(self) -> nx.DiGraph:
+        """A method to build a complete entity relationship graph."""
+
+        for entity, foreign_entities in self.entity_relationships.items():
+            for foreign_entity, relationship in foreign_entities.items():
+                self.relationship_graph.add_edge(
+                    entity, foreign_entity, relationship=relationship
+                )
+
+    def get_entity_relationships_from_graph(
+        self, entity: str, path=None, result=None, visited=None
+    ) -> nx.DiGraph:
+        if entity not in self.relationship_graph:
+            return None
+
+        if path is None:
+            path = []
+        if result is None:
+            result = []
+        if visited is None:
+            visited = set()
+
+        # Mark the current node as visited
+        visited.add(entity)
+
+        # For each successor (neighbor in the directed path)
+        for successor in self.relationship_graph.successors(entity):
+            new_path = path + [f"{entity} -> {successor}"]
+            result.append(" -> ".join(new_path))  # Add the path as a string
+            self.get_entity_relationships_from_graph(
+                self.relationship_graph, successor, new_path, result, visited
+            )
+
+        return result
 
     async def extract_entities_with_descriptions(self) -> list[EntityItem]:
         """A method to extract entities with descriptions from a database.
@@ -420,11 +548,26 @@ class DataDictionaryCreator(ABC):
         if self.generate_descriptions:
             await self.generate_entity_description(entity)
 
+        # add in relationships
+        if entity.entity in self.entity_relationships:
+            entity.entity_relationships = list(
+                self.entity_relationships[entity.entity].values()
+            )
+
+        # add in the graph traversal
+        entity.complete_entity_relationship_graph = (
+            self.get_entity_relationships_from_graph(entity.entity)
+        )
+
         return entity
 
     async def create_data_dictionary(self):
         """A method to build a data dictionary from a database. Writes to file."""
         entities = await self.extract_entities_with_descriptions()
+
+        await self.extract_entity_relationships()
+
+        await self.build_entity_relationship_graph()
 
         entity_tasks = []
         for entity in entities:

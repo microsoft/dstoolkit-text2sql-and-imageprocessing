@@ -34,7 +34,7 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         return """SELECT
     t.TABLE_NAME AS Entity,
     t.TABLE_SCHEMA AS EntitySchema,
-    CAST(ep.value AS NVARCHAR(500)) AS Description
+    CAST(ep.value AS NVARCHAR(500)) AS Definition
 FROM
     INFORMATION_SCHEMA.TABLES t
 LEFT JOIN
@@ -79,6 +79,30 @@ LEFT JOIN
 WHERE
     c.TABLE_SCHEMA = '{entity.entity_schema}'
     AND c.TABLE_NAME = '{entity.name}';"""
+
+    @property
+    def extract_entity_relationships_sql_query() -> str:
+        """A property to extract entity relationships from a SQL Server database."""
+        return """SELECT
+            fk_tab.name AS Entity,
+            pk_tab.name AS ForeignEntity,
+            fk_col.name AS Column,
+            pk_col.name AS ForeignColumn
+        FROM
+            sys.foreign_keys AS fk
+        INNER JOIN
+            sys.foreign_key_columns AS fkc ON fk.object_id = fkc.constraint_object_id
+        INNER JOIN
+            sys.tables AS fk_tab ON fk_tab.object_id = fk.parent_object_id
+        INNER JOIN
+            sys.tables AS pk_tab ON pk_tab.object_id = fk.referenced_object_id
+        INNER JOIN
+            sys.columns AS fk_col ON fkc.parent_object_id = fk_col.object_id AND fkc.parent_column_id = fk_col.column_id
+        INNER JOIN
+            sys.columns AS pk_col ON fkc.referenced_object_id = pk_col.object_id AND fkc.referenced_column_id = pk_col.column_id
+        ORDER BY
+            Entity, ForeignEntity;
+        """
 
 
 if __name__ == "__main__":

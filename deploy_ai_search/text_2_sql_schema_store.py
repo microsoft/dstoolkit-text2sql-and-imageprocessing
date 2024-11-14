@@ -133,11 +133,11 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                 # This is needed to enable semantic searching against the column names as complex field types are not used.
             ),
             ComplexField(
-                name="ImmediateEntityRelationships",
+                name="EntityRelationships",
                 collection=True,
                 fields=[
                     SearchableField(
-                        name="Name",
+                        name="ForeignEntity",
                         type=SearchFieldDataType.String,
                     ),
                     ComplexField(
@@ -145,17 +145,17 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                         collection=True,
                         fields=[
                             SearchableField(
-                                name="SourceColumnName", type=SearchFieldDataType.String
+                                name="Column", type=SearchFieldDataType.String
                             ),
                             SearchableField(
-                                name="TargetColumnName", type=SearchFieldDataType.String
+                                name="ForeignColumn", type=SearchFieldDataType.String
                             ),
                         ],
                     ),
                 ],
             ),
             SimpleField(
-                name="CompleteEntityRelationships",
+                name="CompleteEntityRelationshipGraph",
                 type=SearchFieldDataType.String,
                 collection=True,
             ),
