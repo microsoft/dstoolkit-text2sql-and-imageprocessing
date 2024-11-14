@@ -15,13 +15,13 @@ The associated scripts in this portion of the repository contains pre-built scri
 
 ## Steps for Text2SQL Index Deployment
 
-### Entity Schema Index
+### Schema Store Index
 
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
-2. Adjust `text_2_sql.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
+2. Adjust `text_2_sql_schema_store.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
 3. Run `deploy.py` with the following args:
 
-    - `index_type text_2_sql`. This selects the `Text2SQLAISearch` sub class.
+    - `index_type text_2_sql_schema_store`. This selects the `Text2SQLSchemaStoreAISearch` sub class.
     - `rebuild`. Whether to delete and rebuild the index.
     - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
     - `single_data_dictionary`. Optional parameter that controls whether you will be uploading a single data dictionary, or a data dictionary file per entity. By default, this is set to False.

@@ -48,7 +48,8 @@ class AISearch(ABC):
         """
 
         if not hasattr(self, "indexer_type"):
-            self.indexer_type = None  # Needed to help mypy understand that indexer_type is defined in the child class
+            # Needed to help mypy understand that indexer_type is defined in the child class
+            self.indexer_type = None
             raise ValueError("indexer_type is not defined in the child class.")
 
         if rebuild is not None:
@@ -126,12 +127,13 @@ class AISearch(ABC):
         Returns:
             list[SearchableField]: The index fields"""
 
-    @abstractmethod
     def get_semantic_search(self) -> SemanticSearch:
         """Get the semantic search configuration for the indexer.
 
         Returns:
             SemanticSearch: The semantic search configuration"""
+
+        return None
 
     def get_skills(self) -> list:
         """Get the skillset for the indexer.

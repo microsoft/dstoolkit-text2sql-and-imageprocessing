@@ -143,7 +143,7 @@ class VectorBasedSQLPlugin:
         cached_schemas = await run_ai_search_query(
             question,
             ["QuestionEmbedding"],
-            ["Question", "Query", "Schemas"],
+            ["Question", "SqlQueryDecomposition", "Schemas"],
             os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
             os.environ[
                 "AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"
@@ -172,17 +172,27 @@ class VectorBasedSQLPlugin:
             if cached_schemas[0]["@search.reranker_score"] > 2.75:
                 logging.info("Score is greater than 3")
 
-                sql_query = cached_schemas[0]["Query"]
-                schemas = cached_schemas[0]["Schemas"]
+                sql_queries = cached_schemas[0]["SqlQueryDecomposition"]
+                query_result_store = {}
 
-                logging.info("SQL Query: %s", sql_query)
+                query_tasks = []
 
-                # Run the SQL query
-                sql_result = await self.query_execution(sql_query)
-                logging.info("SQL Query Result: %s", sql_result)
+                for sql_query in sql_queries:
+                    logging.info("SQL Query: %s", sql_query)
 
-                pre_fetched_results_string = f"""[BEGIN PRE-FETCHED RESULTS FOR SQL QUERY = '{sql_query}']\n{
-                    json.dumps(sql_result, default=str)}\nSchema={json.dumps(schemas, default=str)}\n[END PRE-FETCHED RESULTS FOR SQL QUERY]\n"""
+                    # Run the SQL query
+                    query_tasks.append(self.query_execution(sql_query["SqlQuery"]))
+
+                sql_results = await asyncio.gather(*query_tasks)
+
+                for sql_query, sql_result in zip(sql_queries, sql_results):
+                    query_result_store[sql_query["SqlQuery"]] = {
+                        "result": sql_result,
+                        "schemas": sql_queries["schemas"],
+                    }
+
+                pre_fetched_results_string = f"""[BEGIN PRE-FETCHED RESULTS FOR CACHED SQL QUERIES]\n{
+                    json.dumps(query_result_store, default=str)}\n[END PRE-FETCHED RESULTS FOR CACHED SQL QUERIES]\n"""
 
                 return pre_fetched_results_string
 
@@ -330,8 +340,10 @@ class VectorBasedSQLPlugin:
 
                 entry = {
                     "Question": self.question,
-                    "Query": sql_query,
-                    "Schemas": cleaned_schemas,
+                    "SqlQueryDecomposition": {
+                        "SqlQuery": sql_query,
+                        "Schemas": cleaned_schemas,
+                    },
                 }
             except Exception as e:
                 logging.error("Error: %s", e)

@@ -1,45 +1,49 @@
 {
-  "Columns": [
-    {
-      "AllowedValues": null,
-      "Definition": "The ParentProductCategoryName column in the SalesLT.vGetAllCategories entity contains the names of the primary categories of products. The values in this column categorize products into broad groups such as Components, Clothing, Bikes, and Accessories. This column helps in identifying and grouping related products under a common parent category.",
-      "Name": "ParentProductCategoryName",
-      "SampleValues": [
-        "Components",
-        "Clothing",
-        "Bikes",
-        "Accessories"
-      ],
-      "Type": "nvarchar"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The ProductCategoryName column in the SalesLT.vGetAllCategories entity contains names of product categories related to cycling accessories and equipment. This column includes various types of product categories such as frames, derailleurs, headsets, and other related items. The names are descriptive, indicating specific categories within the cycling industry.",
-      "Name": "ProductCategoryName",
-      "SampleValues": [
-        "Mountain Frames",
-        "Derailleurs",
-        "Headsets",
-        "Pumps",
-        "Bottles and Cages"
-      ],
-      "Type": "nvarchar"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The ProductCategoryID column in the SalesLT.vGetAllCategories entity contains numerical identifiers for different product categories. These IDs are unique integers assigned to each category to facilitate easy referencing in queries and reports. The values are distinct and correspond to various product categories within the dataset.",
-      "Name": "ProductCategoryID",
-      "SampleValues": [
-        24,
-        31,
-        10,
-        16,
-        39
-      ],
-      "Type": "int"
-    }
-  ],
-  "Description": "The SalesLT.vGetAllCategories entity provides detailed information about product categories, including the names of parent product categories and specific product categories, along with their unique identification numbers. This entity is useful for retrieving comprehensive hierarchical data on product categories within a sales system. It can be especially helpful for questions related to product categorization, understanding category relationships, and organizing product data based on category hierarchy.",
-  "Entity": "SalesLT.vGetAllCategories",
-  "EntityName": "Product Categories Overview"
+    "Entity": "SalesLT.vGetAllCategories",
+    "Definition": "The SalesLT.vGetAllCategories entity contains information about product categories and their hierarchical relationships. It includes both parent and child product category names as well as unique identifiers for each product category. This entity can be used to answer questions related to the structure and organization of product categories, such as finding all subcategories under a specific parent category or identifying the parent category of a given product category.",
+    "EntityName": "Product Category Information",
+    "Database": "AdventureWorksLT",
+    "Warehouse": null,
+    "EntityRelationships": [],
+    "CompleteEntityRelationshipsGraph": [],
+    "Columns": [
+        {
+            "Name": "ParentProductCategoryName",
+            "DataType": "nvarchar",
+            "Definition": "The ParentProductCategoryName column in the SalesLT.vGetAllCategories entity contains the names of the primary categories for products. These categories are broad classifications that group related products together. Sample values indicate that the entries generally represent major product categories, such as Components, Clothing, Bikes, and Accessories. This column helps in identifying and organizing products at a high-level classification within the product hierarchy.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "Components",
+                "Clothing",
+                "Bikes",
+                "Accessories"
+            ]
+        },
+        {
+            "Name": "ProductCategoryName",
+            "DataType": "nvarchar",
+            "Definition": "The ProductCategoryName column in the SalesLT.vGetAllCategories entity contains the names of various product categories. These category names represent different parts and accessories related to cycling, such as bike components and apparel. The values are descriptive and specific to the type of product or accessory they denote. This column helps in categorizing products for better organization and retrieval in the database.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "Fenders",
+                "Saddles",
+                "Handlebars",
+                "Bottom Brackets",
+                "Vests"
+            ]
+        },
+        {
+            "Name": "ProductCategoryID",
+            "DataType": "int",
+            "Definition": "The ProductCategoryID column in the SalesLT.vGetAllCategories entity contains unique numeric identifiers assigned to different product categories. Each number corresponds to a specific category such as clothing, accessories, or equipment. These identifiers are used to distinguish and organize products into their respective categories within the database.",
+            "AllowedValues": null,
+            "SampleValues": [
+                39,
+                38,
+                17,
+                41,
+                36
+            ]
+        }
+    ]
 }

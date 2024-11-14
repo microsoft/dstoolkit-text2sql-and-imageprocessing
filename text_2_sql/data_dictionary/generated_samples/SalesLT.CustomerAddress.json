@@ -1,69 +1,99 @@
 {
-  "Columns": [
-    {
-      "AllowedValues": null,
-      "Definition": "The CustomerID column in the SalesLT.CustomerAddress entity contains unique numerical identifiers assigned to customers. Each value is an integer and serves as a key to distinguish one customer from another. These IDs are crucial for linking customer information with their respective addresses and other related data within the database. The values are randomly assigned and do not follow a discernible sequential pattern.",
-      "Name": "CustomerID",
-      "SampleValues": [
-        30115,
-        29969,
-        29871,
-        30051,
-        30039
-      ],
-      "Type": "int"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The AddressID column in the SalesLT.CustomerAddress entity contains unique numeric identifiers for each address associated with a customer. The values are integers and are likely assigned sequentially or randomly generated to maintain uniqueness. This column serves as the primary key for addressing records in the table.",
-      "Name": "AddressID",
-      "SampleValues": [
-        478,
-        893,
-        865,
-        644,
-        589
-      ],
-      "Type": "int"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The AddressType column in the SalesLT.CustomerAddress entity contains types of addresses associated with customers. It includes designations such as 'Shipping' and 'Main Office', indicating the purpose or function of the address. This column helps categorize the addresses for various customer-related operations, such as shipping destinations or principal business locations.",
-      "Name": "AddressType",
-      "SampleValues": [
-        "Shipping",
-        "Main Office"
-      ],
-      "Type": "nvarchar"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The rowguid column in the SalesLT.CustomerAddress entity contains uniqueidentifier values in the GUID format. These values are unique for each row and are typically used to provide a unique reference for each customer address. The format consists of a series of alphanumeric characters grouped into five sections separated by hyphens, ensuring each identifier is distinct across the database.",
-      "Name": "rowguid",
-      "SampleValues": [
-        "882C6728-41E4-4BA5-9B26-F1341A0BFB11",
-        "D2500013-41B3-40CE-9135-8EA6C762D1BB",
-        "88D1889D-E045-40CC-A9CE-51C8614947E5",
-        "C6078B9A-2F95-4029-BE72-511345BE2A9A",
-        "33AA20BE-4DB5-42E4-83C6-64F377BE8E6C"
-      ],
-      "Type": "uniqueidentifier"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The ModifiedDate column in the SalesLT.CustomerAddress entity stores date and time information indicating when a record was last updated. The values follow the YYYY-MM-DD HH:MI:SS format. This column is useful for tracking the most recent changes made to customer addresses.",
-      "Name": "ModifiedDate",
-      "SampleValues": [
-        "2006-11-01 00:00:00",
-        "2007-05-01 00:00:00",
-        "2006-01-01 00:00:00",
-        "2007-03-01 00:00:00",
-        "2007-02-01 00:00:00"
-      ],
-      "Type": "datetime"
-    }
-  ],
-  "Description": "The SalesLT.CustomerAddress entity stores the relationship between customers and their addresses, specifying the type of address (e.g., billing or shipping) for each customer. It includes identifiers for both the customer and address, as well as metadata for tracking changes. This entity can be used to answer questions about where customers reside, the types of addresses associated with customers, and when address information was last updated.",
-  "Entity": "SalesLT.CustomerAddress",
-  "EntityName": "Customer Address Information"
+    "Entity": "SalesLT.CustomerAddress",
+    "Definition": "The SalesLT.CustomerAddress entity represents the relationship between customers and their addresses within the sales database. It contains key information about which addresses are associated with which customers, including the type of address (such as billing or shipping). This entity is useful for understanding and maintaining customer address records, ensuring accurate and up-to-date address information for each customer. It can be used to answer questions related to customer address assignments, address type categorization, and modification history of these records.",
+    "EntityName": "Customer Address Information",
+    "Database": "AdventureWorksLT",
+    "Warehouse": null,
+    "EntityRelationships": [
+        {
+            "ForeignEntity": "SalesLT.Address",
+            "ForeignKeys": [
+                {
+                    "Column": "AddressID",
+                    "ForeignColumn": "AddressID"
+                }
+            ]
+        },
+        {
+            "ForeignEntity": "SalesLT.Customer",
+            "ForeignKeys": [
+                {
+                    "Column": "CustomerID",
+                    "ForeignColumn": "CustomerID"
+                }
+            ]
+        }
+    ],
+    "CompleteEntityRelationshipsGraph": [
+        "SalesLT.CustomerAddress -> SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+        "SalesLT.CustomerAddress -> SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+        "SalesLT.CustomerAddress -> SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.Customer",
+        "SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+        "SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+        "SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.Address"
+    ],
+    "Columns": [
+        {
+            "Name": "CustomerID",
+            "DataType": "int",
+            "Definition": "The CustomerID column in the SalesLT.CustomerAddress entity contains unique identifiers for customers. Each value is an integer that uniquely identifies a customer within the database, ensuring that each customer can be distinctively referenced. These identifiers are likely autogenerated and do not follow a specific pattern other than being unique numeric values.",
+            "AllowedValues": null,
+            "SampleValues": [
+                29522,
+                29937,
+                29761,
+                29843,
+                29728
+            ]
+        },
+        {
+            "Name": "AddressID",
+            "DataType": "int",
+            "Definition": "The AddressID column in the SalesLT.CustomerAddress entity contains unique numeric identifiers for each address associated with customers. The values in this column are integers and serve as primary keys to uniquely distinguish different address records within the table. The identifiers do not follow a specific sequence but ensure that each address has a distinct identifier for reference purposes.",
+            "AllowedValues": null,
+            "SampleValues": [
+                643,
+                867,
+                810,
+                993,
+                601
+            ]
+        },
+        {
+            "Name": "AddressType",
+            "DataType": "nvarchar",
+            "Definition": "The AddressType column in the SalesLT.CustomerAddress entity contains descriptions of the type of address associated with a customer. The values can indicate different purposes for the address, such as \"Shipping\" for shipping addresses and \"Main Office\" for primary business locations. These descriptions help categorize the addresses based on their usage within the organization.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "Shipping",
+                "Main Office"
+            ]
+        },
+        {
+            "Name": "rowguid",
+            "DataType": "uniqueidentifier",
+            "Definition": "The column rowguid in the SalesLT.CustomerAddress entity contains unique identifier values in the GUID (Globally Unique Identifier) format. These values are typically used to uniquely identify rows in the table, ensuring that each row can be distinctly referenced. The GUIDs follow a standardized 32-character hexadecimal format, divided into five groups separated by hyphens.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "0B887414-135A-43F6-94DC-60A220362C6D",
+                "5F9605D9-90C5-448B-9E38-13E53BD965F0",
+                "4CAA058D-61F5-4A49-9167-D1E57DCAC9CE",
+                "81390AF7-D4D0-4F4D-AF42-AB21F5713F14",
+                "F49E2C74-9BB9-462E-BCAA-67370F4D74A9"
+            ]
+        },
+        {
+            "Name": "ModifiedDate",
+            "DataType": "datetime",
+            "Definition": "The ModifiedDate column in the SalesLT.CustomerAddress entity contains the date and time when the record was last updated. The values are in the format of 'YYYY-MM-DD HH:MM:SS', indicating both the date and time of modification. This column is used to track and audit changes made to customer address records over time.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "2006-03-01 00:00:00",
+                "2005-09-01 00:00:00",
+                "2005-10-01 00:00:00",
+                "2006-01-01 00:00:00",
+                "2005-08-01 00:00:00"
+            ]
+        }
+    ]
 }

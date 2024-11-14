@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 import argparse
 from rag_documents import RagDocumentsAISearch
-from text_2_sql import Text2SqlAISearch
+from text_2_sql_schema_store import Text2SqlSchemaStoreAISearch
 from text_2_sql_query_cache import Text2SqlQueryCacheAISearch
 import logging
 
@@ -20,8 +20,8 @@ def deploy_config(arguments: argparse.Namespace):
             rebuild=arguments.rebuild,
             enable_page_by_chunking=arguments.enable_page_chunking,
         )
-    elif arguments.index_type == "text_2_sql":
-        index_config = Text2SqlAISearch(
+    elif arguments.index_type == "text_2_sql_schema_store":
+        index_config = Text2SqlSchemaStoreAISearch(
             suffix=arguments.suffix,
             rebuild=arguments.rebuild,
             single_data_dictionary=arguments.single_data_dictionary,

@@ -1,67 +1,99 @@
 {
-  "Columns": [
-    {
-      "AllowedValues": null,
-      "Definition": "The ProductCategoryID column in the SalesLT.ProductCategory entity contains numeric identifiers for various product categories. The values are unique integers that correspond to specific categories within the product catalog. This column is typically used to link products to their respective categories for organizational and reporting purposes.",
-      "Name": "ProductCategoryID",
-      "SampleValues": [
-        36,
-        32,
-        37,
-        22,
-        26
-      ],
-      "Type": "int"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The ParentProductCategoryID column in the SalesLT.ProductCategory entity contains integer values that represent the hierarchical parent category of a product category. These values typically correspond to the unique identifiers of parent categories, indicating the structure and relationship between different product categories within the database. The values are numeric and seem to be used to link to higher-level categories that help in organizing products into a hierarchical taxonomy.",
-      "Name": "ParentProductCategoryID",
-      "SampleValues": [
-        4,
-        3,
-        2,
-        1
-      ],
-      "Type": "int"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The Name column in the SalesLT.ProductCategory entity contains names of various product categories related to cycling and outdoor sports. The values in this column represent different types of product groupings such as equipment, gear, and apparel. Each name provides a general description of the category, helping to classify products in the inventory under identifiable groups.",
-      "Name": "Name",
-      "SampleValues": [
-        "Mountain Frames",
-        "Bottles and Cages",
-        "Shorts",
-        "Road Bikes",
-        "Wheels"
-      ],
-      "Type": "nvarchar"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The rowguid column in the SalesLT.ProductCategory entity contains unique identifier (GUID) values for each product category. These values follow the standard GUID format, which consists of 32 hexadecimal digits arranged in groups separated by hyphens, such as '9B7DFF41-9FA3-4776-8DEF-2C9A48C8B779'. This column is typically used to ensure the uniqueness of each row within the table and can serve as a primary key or for replication purposes. The values are randomly generated and do not follow a sequential order.",
-      "Name": "rowguid",
-      "SampleValues": [
-        "9B7DFF41-9FA3-4776-8DEF-2C9A48C8B779",
-        "3EF2C725-7135-4C85-9AE6-AE9A3BDD9283",
-        "6D24AC07-7A84-4849-864A-865A14125BC9",
-        "701019C3-09FE-4949-8386-C6CE686474E5",
-        "CFBDA25C-DF71-47A7-B81B-64EE161AA37C"
-      ],
-      "Type": "uniqueidentifier"
-    },
-    {
-      "AllowedValues": null,
-      "Definition": "The ModifiedDate column in the SalesLT.ProductCategory entity contains timestamps indicating when a record was last updated. The values follow the standard date and time format 'YYYY-MM-DD HH:MM:SS'. This column is typically used for tracking the most recent changes or modifications made to a product category record.",
-      "Name": "ModifiedDate",
-      "SampleValues": [
-        "2002-06-01 00:00:00"
-      ],
-      "Type": "datetime"
-    }
-  ],
-  "Description": "The SalesLT.ProductCategory entity contains information about different product categories within the sales database. It includes details such as the category ID, parent category ID for hierarchical structuring, category name, unique identifier, and the date the entry was last modified. This entity is useful for answering questions related to product category organization, identifying parent-child category relationships, and tracking the modifications of category details over time.",
-  "Entity": "SalesLT.ProductCategory",
-  "EntityName": "Product Category Information"
+    "Entity": "SalesLT.ProductCategory",
+    "Definition": "The SalesLT.ProductCategory entity contains information about the different categories of products in the sales database. This entity includes details such as the unique identifier for each category, the identifier for parent categories, the name of the category, and metadata like the last modification date. Questions that can be answered using this entity include identifying all product categories, understanding the hierarchical structure of product categories, and tracking when categories were last updated.",
+    "EntityName": "Product Category Data",
+    "Database": "AdventureWorksLT",
+    "Warehouse": null,
+    "EntityRelationships": [
+        {
+            "ForeignEntity": "SalesLT.Product",
+            "ForeignKeys": [
+                {
+                    "Column": "ProductCategoryID",
+                    "ForeignColumn": "ProductCategoryID"
+                }
+            ]
+        },
+        {
+            "ForeignEntity": "SalesLT.ProductCategory",
+            "ForeignKeys": [
+                {
+                    "Column": "ParentProductCategoryID",
+                    "ForeignColumn": "ProductCategoryID"
+                },
+                {
+                    "Column": "ProductCategoryID",
+                    "ForeignColumn": "ParentProductCategoryID"
+                }
+            ]
+        }
+    ],
+    "CompleteEntityRelationshipsGraph": [
+        "SalesLT.ProductCategory -> SalesLT.ProductCategory",
+        "SalesLT.ProductCategory -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+        "SalesLT.ProductCategory -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
+        "SalesLT.ProductCategory -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
+    ],
+    "Columns": [
+        {
+            "Name": "ProductCategoryID",
+            "DataType": "int",
+            "Definition": "The ProductCategoryID column in the SalesLT.ProductCategory entity contains unique identifiers for different product categories. Each value represents a specific category of products within the database. These identifiers are numeric and typically range from single-digit to multi-digit numbers. The values in this column are used to categorize and differentiate products for organization and retrieval purposes.",
+            "AllowedValues": null,
+            "SampleValues": [
+                24,
+                36,
+                25,
+                9,
+                10
+            ]
+        },
+        {
+            "Name": "ParentProductCategoryID",
+            "DataType": "int",
+            "Definition": "The ParentProductCategoryID column in the SalesLT.ProductCategory entity contains numerical identifiers that represent the parent product category ID for each product category. These values are integers and indicate a hierarchical structure within product categories, where each ID points to another category that serves as its parent in the hierarchy. The column helps to establish and navigate the relationships between broader and more specific product categories.",
+            "AllowedValues": null,
+            "SampleValues": [
+                4,
+                3,
+                2,
+                1
+            ]
+        },
+        {
+            "Name": "Name",
+            "DataType": "nvarchar",
+            "Definition": "The Name column in the SalesLT.ProductCategory entity contains the names of various product categories. The values are descriptive terms representing different categories of products sold, such as types of accessories, apparel, and bicycle parts. The names are generally concise, composed of one or two words, and provide a quick reference to the type of product group.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "Locks",
+                "Jerseys",
+                "Road Frames",
+                "Components",
+                "Wheels"
+            ]
+        },
+        {
+            "Name": "rowguid",
+            "DataType": "uniqueidentifier",
+            "Definition": "The rowguid column in the SalesLT.ProductCategory entity contains unique identifier values (GUIDs) for each product category. The values are in the standard 36-character UUID format, which includes alphanumeric characters separated by hyphens. This column is typically used to ensure each product category entry has a globally unique identifier for database operations and synchronization purposes. The GUID format aids in preventing duplication and maintaining data integrity across systems.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "43B445C8-B820-424E-A1D5-90D81DA0B46F",
+                "6D24AC07-7A84-4849-864A-865A14125BC9",
+                "5515F857-075B-4F9A-87B7-43B4997077B3",
+                "5DEB3E55-9897-4416-B18A-515E970BC2D1",
+                "A9E54089-8A1E-4CF5-8646-E3801F685934"
+            ]
+        },
+        {
+            "Name": "ModifiedDate",
+            "DataType": "datetime",
+            "Definition": "The ModifiedDate column in the SalesLT.ProductCategory entity contains timestamps indicating the last date and time a product category record was modified. The values in this column are in the datetime format 'YYYY-MM-DD HH:MM:SS' and include both date and time components down to the second. This column is useful for tracking changes and updates to product category records over time.",
+            "AllowedValues": null,
+            "SampleValues": [
+                "2002-06-01 00:00:00"
+            ]
+        }
+    ]
 }

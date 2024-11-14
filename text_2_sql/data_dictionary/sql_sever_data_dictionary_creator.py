@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
+import os
 
 
 class SqlServerDataDictionaryCreator(DataDictionaryCreator):
@@ -24,7 +25,8 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         excluded_entities.extend(
             ["dbo.BuildVersion", "dbo.ErrorLog", "sys.database_firewall_rules"]
         )
-        return super().__init__(entities, excluded_entities, single_file)
+        super().__init__(entities, excluded_entities, single_file)
+        self.database = os.environ["Text2Sql__DatabaseName"]
 
     """A class to extract data dictionary information from a SQL Server database."""
 
@@ -34,7 +36,7 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         return """SELECT
     t.TABLE_NAME AS Entity,
     t.TABLE_SCHEMA AS EntitySchema,
-    CAST(ep.value AS NVARCHAR(500)) AS Description
+    CAST(ep.value AS NVARCHAR(500)) AS Definition
 FROM
     INFORMATION_SCHEMA.TABLES t
 LEFT JOIN
@@ -52,7 +54,7 @@ WHERE
         return """SELECT
     v.TABLE_NAME AS Entity,
     v.TABLE_SCHEMA AS EntitySchema,
-    CAST(ep.value AS NVARCHAR(500)) AS Description
+    CAST(ep.value AS NVARCHAR(500)) AS Definition
 FROM
     INFORMATION_SCHEMA.VIEWS v
 LEFT JOIN
@@ -66,7 +68,7 @@ LEFT JOIN
         """A property to extract column information from a SQL Server database."""
         return f"""SELECT
     c.COLUMN_NAME AS Name,
-    c.DATA_TYPE AS Type,
+    c.DATA_TYPE AS DataType,
     CAST(ep.value AS NVARCHAR(500)) AS Definition
 FROM
     INFORMATION_SCHEMA.COLUMNS c
@@ -79,6 +81,36 @@ LEFT JOIN
 WHERE
     c.TABLE_SCHEMA = '{entity.entity_schema}'
     AND c.TABLE_NAME = '{entity.name}';"""
+
+    @property
+    def extract_entity_relationships_sql_query(self) -> str:
+        """A property to extract entity relationships from a SQL Server database."""
+        return """SELECT
+            fk_schema.name AS EntitySchema,
+            fk_tab.name AS Entity,
+            pk_schema.name AS ForeignEntitySchema,
+            pk_tab.name AS ForeignEntity,
+            fk_col.name AS [Column],
+            pk_col.name AS ForeignColumn
+        FROM
+            sys.foreign_keys AS fk
+        INNER JOIN
+            sys.foreign_key_columns AS fkc ON fk.object_id = fkc.constraint_object_id
+        INNER JOIN
+            sys.tables AS fk_tab ON fk_tab.object_id = fk.parent_object_id
+        INNER JOIN
+            sys.schemas AS fk_schema ON fk_tab.schema_id = fk_schema.schema_id
+        INNER JOIN
+            sys.tables AS pk_tab ON pk_tab.object_id = fk.referenced_object_id
+        INNER JOIN
+            sys.schemas AS pk_schema ON pk_tab.schema_id = pk_schema.schema_id
+        INNER JOIN
+            sys.columns AS fk_col ON fkc.parent_object_id = fk_col.object_id AND fkc.parent_column_id = fk_col.column_id
+        INNER JOIN
+            sys.columns AS pk_col ON fkc.referenced_object_id = pk_col.object_id AND fkc.referenced_column_id = pk_col.column_id
+        ORDER BY
+            EntitySchema, Entity, ForeignEntitySchema, ForeignEntity;
+        """
 
 
 if __name__ == "__main__":

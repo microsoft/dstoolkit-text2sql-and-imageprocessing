@@ -281,7 +281,7 @@ class RagDocumentsAISearch(AISearch):
         indexer_parameters = IndexingParameters(
             batch_size=batch_size,
             configuration=IndexingParametersConfiguration(
-                data_to_extract=BlobIndexerDataToExtract.ALL_METADATA,
+                data_to_extract=BlobIndexerDataToExtract.STORAGE_METADATA,
                 query_timeout=None,
                 execution_environment=execution_environment,
                 fail_on_unprocessable_document=False,
