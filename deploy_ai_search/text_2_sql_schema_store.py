@@ -291,6 +291,14 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                     target_field_name="ColumnDefinitions",
                 ),
                 FieldMapping(
+                    source_field_name="/document/ImmediateEntityRelationships",
+                    target_field_name="ImmediateEntityRelationships",
+                ),
+                FieldMapping(
+                    source_field_name="/document/CompleteEntityRelationships",
+                    target_field_name="CompleteEntityRelationships",
+                ),
+                FieldMapping(
                     source_field_name="/document/DateLastModified",
                     target_field_name="DateLastModified",
                 ),
