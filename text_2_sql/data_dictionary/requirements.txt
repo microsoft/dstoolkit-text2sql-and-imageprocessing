@@ -4,3 +4,4 @@ python-dotenv
 pydantic
 openai
 snowflake-connector-python
+networkx

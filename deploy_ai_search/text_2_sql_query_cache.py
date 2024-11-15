@@ -5,10 +5,6 @@ from azure.search.documents.indexes.models import (
     SearchFieldDataType,
     SearchField,
     SearchableField,
-    SemanticField,
-    SemanticPrioritizedFields,
-    SemanticConfiguration,
-    SemanticSearch,
     SimpleField,
     ComplexField,
 )
@@ -52,42 +48,52 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 vector_search_dimensions=self.environment.open_ai_embedding_dimensions,
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
-            SearchableField(
-                name="Query", type=SearchFieldDataType.String, filterable=True
-            ),
             ComplexField(
-                name="Schemas",
+                name="SqlQueryDecomposition",
                 collection=True,
                 fields=[
                     SearchableField(
-                        name="Entity",
+                        name="SqlQuery",
                         type=SearchFieldDataType.String,
                         filterable=True,
                     ),
                     ComplexField(
-                        name="Columns",
+                        name="Schemas",
                         collection=True,
                         fields=[
                             SearchableField(
-                                name="Name", type=SearchFieldDataType.String
-                            ),
-                            SearchableField(
-                                name="Definition", type=SearchFieldDataType.String
-                            ),
-                            SearchableField(
-                                name="Type", type=SearchFieldDataType.String
-                            ),
-                            SearchableField(
-                                name="AllowedValues",
+                                name="Entity",
                                 type=SearchFieldDataType.String,
-                                collection=True,
-                                searchable=False,
+                                filterable=True,
                             ),
-                            SearchableField(
-                                name="SampleValues",
-                                type=SearchFieldDataType.String,
+                            ComplexField(
+                                name="Columns",
                                 collection=True,
-                                searchable=False,
+                                fields=[
+                                    SearchableField(
+                                        name="Name",
+                                        type=SearchFieldDataType.String,
+                                    ),
+                                    SearchableField(
+                                        name="Definition",
+                                        type=SearchFieldDataType.String,
+                                    ),
+                                    SearchableField(
+                                        name="DataType", type=SearchFieldDataType.String
+                                    ),
+                                    SearchableField(
+                                        name="AllowedValues",
+                                        type=SearchFieldDataType.String,
+                                        collection=True,
+                                        searchable=False,
+                                    ),
+                                    SearchableField(
+                                        name="SampleValues",
+                                        type=SearchFieldDataType.String,
+                                        collection=True,
+                                        searchable=False,
+                                    ),
+                                ],
                             ),
                         ],
                     ),
@@ -101,23 +107,3 @@ class Text2SqlQueryCacheAISearch(AISearch):
         ]
 
         return fields
-
-    def get_semantic_search(self) -> SemanticSearch:
-        """This function returns the semantic search configuration for sql index
-
-        Returns:
-            SemanticSearch: The semantic search configuration"""
-
-        semantic_config = SemanticConfiguration(
-            name=self.semantic_config_name,
-            prioritized_fields=SemanticPrioritizedFields(
-                title_field=SemanticField(field_name="Question"),
-                keywords_fields=[
-                    SemanticField(field_name="Query"),
-                ],
-            ),
-        )
-
-        semantic_search = SemanticSearch(configurations=[semantic_config])
-
-        return semantic_search

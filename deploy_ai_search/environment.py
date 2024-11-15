@@ -12,7 +12,7 @@ class IndexerType(Enum):
     """The type of the indexer"""
 
     RAG_DOCUMENTS = "rag-documents"
-    TEXT_2_SQL = "text-2-sql"
+    TEXT_2_SQL_SCHEMA_STORE = "text-2-sql-schema-store"
     TEXT_2_SQL_QUERY_CACHE = "text-2-sql-query-cache"
 
 

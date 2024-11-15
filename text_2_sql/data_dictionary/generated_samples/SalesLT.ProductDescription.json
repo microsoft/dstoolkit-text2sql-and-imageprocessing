@@ -2,55 +2,73 @@
   "Columns": [
     {
       "AllowedValues": null,
-      "Definition": "The ProductDescriptionID column in the SalesLT.ProductDescription entity contains unique identifier values for each product description. These values are integers and appear to be sequential or randomly assigned without a specific pattern. This column serves as a primary key to uniquely identify and reference each product description entry in the table.",
+      "DataType": "int",
+      "Definition": "The ProductDescriptionID column in the SalesLT.ProductDescription entity contains unique numeric identifiers for each product description. Each value in this column is an integer that serves as a primary key to distinguish one product description from another. The values do not follow a specific format other than being positive integers and are used to reference specific product descriptions within the database.",
       "Name": "ProductDescriptionID",
       "SampleValues": [
-        1532,
-        1606,
-        1573,
-        1146,
-        1766
-      ],
-      "Type": "int"
+        1569,
+        1832,
+        1763,
+        1707,
+        2003
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The Description column in the SalesLT.ProductDescription entity contains detailed textual descriptions of various bicycle products and their components. These descriptions are multilingual, indicating that products cater to a diverse, international market. The content typically highlights the key features, materials, and uses of the items, such as aerodynamic rims, ergonomic gel seats, and high-performance carbon forks.",
+      "DataType": "nvarchar",
+      "Definition": "The Description column in the SalesLT.ProductDescription entity contains detailed product descriptions in various languages. These descriptions provide specific information about the product\u2019s features and benefits, such as durability, functionality, and design. The descriptions appear to cater to a global market, offering text in languages like Chinese, Arabic, Thai, English, and French. This diversity indicates that the column is used to store localized product descriptions for different regions or customer bases.",
       "Name": "Description",
       "SampleValues": [
-        "Clipless pedals - aluminum.",
-        "\u0642\u0636\u064a\u0628 \u0642\u064a\u0627\u062f\u0629 \u0645\u0644\u0627\u0626\u0645 \u0644\u0643\u0627\u0641\u0629 \u0627\u0644\u0623\u063a\u0631\u0627\u0636 \u0639\u0644\u0649 \u0627\u0644\u0637\u0631\u0642 \u0627\u0644\u0645\u0645\u0647\u062f\u0629 \u0648\u063a\u064a\u0631 \u0627\u0644\u0645\u0645\u0647\u062f\u0629.",
-        "Aerodynamic rims for smooth riding.",
-        "\u05de\u05d5\u05e9\u05d1 \u05d2'\u05dc \u05e0\u05d5\u05d7 \u05d1\u05e2\u05dc \u05e2\u05d9\u05e6\u05d5\u05d1 \u05d0\u05e8\u05d2\u05d5\u05e0\u05d5\u05de\u05d9.",
-        "Fourche pour route en carbone hautes performances avec bras incurv\u00e9s."
-      ],
-      "Type": "nvarchar"
+        "\u94a2\u4e1d\u6491\u8f6e\u5708\u5916\u80ce\u7684\u4ef7\u683c\u4fbf\u5b9c\uff0c\u8f6e\u80ce\u9762\u5374\u4e0e\u4ef7\u683c\u66f4\u8d35\u7684\u8f6e\u80ce\u540c\u6837\u51fa\u8272\u3002",
+        "\u0644\u0639\u0627\u0634\u0642\u064a \u0642\u064a\u0627\u062f\u0629 \u0627\u0644\u062f\u0631\u0627\u062c\u0627\u062a \u0641\u064a \u0627\u0644\u0645\u0645\u0631\u0627\u062a \u063a\u064a\u0631 \u0627\u0644\u0645\u0645\u0647\u062f\u0629. \u062f\u0631\u0627\u062c\u0629 \u0634\u062f\u064a\u062f\u0629 \u0627\u0644\u062a\u062d\u0645\u0644 \u064a\u0645\u0643\u0646\u0643 \u0627\u0644\u0627\u0646\u0637\u0644\u0627\u0642 \u0628\u0647\u0627 \u0625\u0644\u0649 \u0623\u064a \u0645\u0643\u0627\u0646 \u0628\u0645\u0627 \u062a\u0648\u0641\u0631\u0647 \u0644\u0643 \u0645\u0646 \u062a\u062d\u0643\u0645 \u0639\u0644\u0649 \u0627\u0644\u0637\u0631\u0642 \u0627\u0644\u0648\u0639\u0631\u0629\u060c \u0643\u0644 \u0647\u0630\u0627 \u062f\u0648\u0646 \u0623\u0646 \u062a\u062a\u062c\u0627\u0648\u0632 \u0645\u064a\u0632\u0627\u0646\u064a\u062a\u0643.",
+        "\u0e01\u0e32\u0e23\u0e2d\u0e2d\u0e01\u0e41\u0e1a\u0e1a\u0e17\u0e35\u0e48\u0e21\u0e31\u0e48\u0e19\u0e04\u0e07 \u0e23\u0e31\u0e1a\u0e41\u0e23\u0e07\u0e01\u0e23\u0e30\u0e41\u0e17\u0e01\u0e41\u0e25\u0e30\u0e43\u0e2b\u0e49\u0e01\u0e32\u0e23\u0e04\u0e27\u0e1a\u0e04\u0e38\u0e21\u0e17\u0e35\u0e48\u0e41\u0e21\u0e48\u0e19\u0e22\u0e33",
+        "Triple crankset; alumunim crank arm; flawless shifting.",
+        "Un v\u00e9ritable v\u00e9lo multi-sports, qui offre une conduite optimis\u00e9e et une ligne r\u00e9volutionnaire. Sa ligne a\u00e9rodynamique vous permet de l'utiliser en course et ses vitesses de gravir les cols."
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The rowguid column in the SalesLT.ProductDescription entity contains unique identifiers for each product description. The values in this column are in the format of GUIDs (Globally Unique Identifiers), which are 128-bit numbers represented as a series of hexadecimal digits separated by hyphens. Each GUID ensures a unique identity for a record within the table, commonly used to maintain uniqueness in a distributed system or across different databases.",
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the SalesLT.ProductDescription entity contains unique identifier values for each product description. These values are in the form of GUIDs (Globally Unique Identifiers), ensuring that each entry is distinct and can be reliably used to identify and reference specific product descriptions within the database. The pattern of the sample values indicates they are in the standard 36-character GUID format, including hyphens separating sections of hexadecimal digits.",
       "Name": "rowguid",
       "SampleValues": [
-        "B9F94C67-9B0A-42D4-BE78-9401AC9AA833",
-        "08CEBACE-523F-4FB9-937C-43C8D457520B",
-        "F8DE509E-C18F-4FE6-8DAC-6F49F1103E32",
-        "581CC0DC-284C-4370-A2D3-25F2D5382D8C",
-        "4AAE6D4F-8320-4F32-99DE-BB3B1B13F1EF"
-      ],
-      "Type": "uniqueidentifier"
+        "A400C418-2DEF-490D-98BB-BDF8B7D47853",
+        "4F5E9527-565D-462E-88C0-6453FE86EA7A",
+        "853B8535-E4A6-4C17-B2AC-9E05DA2D6ECD",
+        "E11A3C2A-B074-48F9-8226-16D65C2F91C2",
+        "07ADF9DE-A65D-46D3-9FE3-4F7D49691066"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The ModifiedDate column in the SalesLT.ProductDescription entity contains timestamp values representing the date and time when a product description was last modified. The values follow the SQL datetime format, typically including both date and time components down to fractions of a second. This column is useful for tracking and filtering records based on their most recent updates.",
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the SalesLT.ProductDescription entity contains the date and time when the product description record was last updated. The values are in the format of YYYY-MM-DD HH:MM:SS.nnnnnn, which includes the date followed by the time down to microseconds. This column helps track changes and updates to the product description records over time.",
       "Name": "ModifiedDate",
       "SampleValues": [
         "2008-03-11 10:32:17.973000",
         "2007-06-01 00:00:00"
-      ],
-      "Type": "datetime"
+      ]
     }
   ],
-  "Description": "The SalesLT.ProductDescription entity contains data related to the descriptions of products, including unique identifiers and timestamps for modifications. This entity is essential for understanding the textual details associated with different products. It can be used to answer questions about the specific descriptions of products, when these descriptions were last modified, and to track changes through globally unique identifiers.",
+  "CompleteEntityRelationshipsGraph": [
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.ProductCategory",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
+    "SalesLT.ProductDescription -> SalesLT.ProductModelProductDescription -> SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
+  ],
+  "Database": "AdventureWorksLT",
+  "Definition": "The SalesLT.ProductDescription entity contains details about product descriptions used in a sales database. It uniquely identifies each product description with a ProductDescriptionID, stores the actual description text, and includes metadata such as a unique rowguid and the date the record was last modified. This entity can be used to answer questions related to the specific descriptions of products, track historical changes to product descriptions, or generate reports that include detailed product information for sales and marketing purposes.",
   "Entity": "SalesLT.ProductDescription",
-  "EntityName": "Product Descriptions"
+  "EntityName": "Product Descriptions",
+  "EntityRelationships": [
+    {
+      "ForeignEntity": "SalesLT.ProductModelProductDescription",
+      "ForeignKeys": [
+        {
+          "Column": "ProductDescriptionID",
+          "ForeignColumn": "ProductDescriptionID"
+        }
+      ]
+    }
+  ],
+  "Warehouse": null
 }

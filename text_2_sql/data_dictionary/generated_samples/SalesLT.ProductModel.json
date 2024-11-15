@@ -2,65 +2,93 @@
   "Columns": [
     {
       "AllowedValues": null,
-      "Definition": "The ProductModelID column in the SalesLT.ProductModel entity contains unique identifiers for different product models. Each value in this column is a distinct integer that serves as the primary key for the product model records in the database. These identifiers are used to link product models to other related data within the database.",
+      "DataType": "int",
+      "Definition": "The ProductModelID column in the SalesLT.ProductModel entity contains unique identifier numbers for different product models. These values are integers and are used to distinguish and reference various product models within the database. Each product model has a distinct ProductModelID which is used in various queries and joins to uniquely identify the model.",
       "Name": "ProductModelID",
       "SampleValues": [
-        72,
-        73,
-        24,
-        116,
-        6
-      ],
-      "Type": "int"
+        13,
+        57,
+        95,
+        20,
+        117
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The Name column in the SalesLT.ProductModel entity contains product names typically composed of a brand abbreviation followed by a descriptive term and, occasionally, a numerical differentiator. The names often describe the type and specific model of various bicycle components or related products. This structured naming convention aids in easy identification and categorization of the products within the inventory.",
+      "DataType": "nvarchar",
+      "Definition": "The Name column in the SalesLT.ProductModel entity contains names of product models. These names typically include descriptive terms related to the product type and often feature a combination of words and numbers. The values may include elements such as the product category, model specifications, or unique identifiers. The format of the names varies, ranging from simple descriptive names to more specific and detailed descriptions.",
       "Name": "Name",
       "SampleValues": [
-        "Touring Pedal",
-        "HL Road Seat/Saddle 2",
-        "HL Mountain Frame",
-        "ML Mountain Front Wheel",
-        "LL Mountain Handlebars"
-      ],
-      "Type": "nvarchar"
+        "Touring Tire",
+        "Sport-100",
+        "Road-750",
+        "LL Mountain Seat/Saddle 1",
+        "All-Purpose Bike Stand"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The CatalogDescription column in the SalesLT.ProductModel entity contains text descriptions of product models as they are showcased in the product catalog. This column typically includes detailed information about the product features, specifications, and other relevant details that help customers understand the product better. The data in this column is often used for creating product listings and marketing materials.",
+      "DataType": "xml",
+      "Definition": "The CatalogDescription column in the SalesLT.ProductModel entity contains textual data that provides a detailed description of the product models available in the catalog. This includes information such as features, specifications, and usage details, which helps customers understand the product better. The data in this column is typically lengthy and formatted in XML or JSON to support rich text descriptions. This column is useful for generating product literature and online catalog pages.",
       "Name": "CatalogDescription",
-      "SampleValues": null,
-      "Type": "xml"
+      "SampleValues": null
     },
     {
       "AllowedValues": null,
-      "Definition": "The rowguid column in the SalesLT.ProductModel entity contains unique identifier values in the standard GUID (Globally Unique Identifier) format. Each value is a 128-bit integer used to distinctly identify records within the table. These GUIDs ensure that each entry can be uniquely referenced, which is particularly useful in distributed systems and for maintaining data integrity.",
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the SalesLT.ProductModel entity contains unique identifier values in the form of GUIDs (Globally Unique Identifiers). These GUIDs are used to ensure that each record in the ProductModel table can be uniquely identified across different tables, databases, and servers, providing a reliable way to distinguish each product model entry. The values follow the standard GUID format, consisting of 32 hexadecimal characters separated by hyphens into five groups.",
       "Name": "rowguid",
       "SampleValues": [
+        "D71BD21C-239E-4C2B-98A3-101962D6B2D3",
+        "3CDF61D6-6209-436F-B235-82E8F159208B",
+        "3494E8FF-7DAF-4860-ABF6-97842048E272",
         "E7B00DFF-8136-4947-B503-994584CC89E7",
-        "5CEFBB6E-3B7E-414F-AC1B-8F6DF741FB21",
-        "45FE0D77-6645-473C-A116-1232BAEA8D43",
-        "C88D1136-A8BB-46BB-94AA-8C1854F813CC",
-        "0D3A6AD7-6891-4DE9-B14F-E1A841EB220C"
-      ],
-      "Type": "uniqueidentifier"
+        "0434F63A-A361-4D0B-A9FC-8AC2A866CE85"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The ModifiedDate column in the SalesLT.ProductModel entity contains timestamps indicating when each product model was last modified. The entries are represented in the standard timestamp format of 'YYYY-MM-DD HH:MM:SS.FFFFFF', capturing both date and time at a high precision level. This information is essential for tracking changes and maintaining historical accuracy of modifications within the product models.",
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the SalesLT.ProductModel entity contains timestamp values indicating the date and time when each product model record was last modified. The values follow the standard SQL datetime format, including both date and time components, down to fractions of a second. This column is likely used to track changes and updates to product model records for auditing purposes.",
       "Name": "ModifiedDate",
       "SampleValues": [
-        "2009-05-16 16:34:29.027000",
-        "2006-11-20 09:56:38.273000",
-        "2009-05-16 16:34:28.997000",
         "2009-05-16 16:34:29.010000",
-        "2005-06-01 00:00:00"
-      ],
-      "Type": "datetime"
+        "2005-06-01 00:00:00",
+        "2002-05-02 00:00:00",
+        "2009-05-16 16:34:29.027000",
+        "2009-05-16 16:34:29.043000"
+      ]
     }
   ],
-  "Description": "The SalesLT.ProductModel entity contains information about different product models within the organization. It includes details such as the unique identifier for each product model, the name of the model, and a description used in the product catalog. Additionally, it tracks the last modification date and a globally unique identifier (GUID) for each record. This entity can be used to answer questions related to identifying, describing, and managing product models, as well as tracking changes made to the product models over time.",
+  "CompleteEntityRelationshipsGraph": [
+    "SalesLT.ProductModel -> SalesLT.Product -> SalesLT.ProductCategory",
+    "SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
+    "SalesLT.ProductModel -> SalesLT.Product -> SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address",
+    "SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription"
+  ],
+  "Database": "AdventureWorksLT",
+  "Definition": "The SalesLT.ProductModel entity contains information about different product models within a company's product catalog. It includes details such as the unique identifier for each product model, the name of the product model, and a description of the product model as listed in the catalog. This entity also includes a globally unique identifier and the date the record was last modified. Questions that can be answered using this entity include identifying product model names, retrieving specific product model descriptions, and tracking the last modification dates of product models.",
   "Entity": "SalesLT.ProductModel",
-  "EntityName": "Product Model Information"
+  "EntityName": "Product Model Information",
+  "EntityRelationships": [
+    {
+      "ForeignEntity": "SalesLT.Product",
+      "ForeignKeys": [
+        {
+          "Column": "ProductModelID",
+          "ForeignColumn": "ProductModelID"
+        }
+      ]
+    },
+    {
+      "ForeignEntity": "SalesLT.ProductModelProductDescription",
+      "ForeignKeys": [
+        {
+          "Column": "ProductModelID",
+          "ForeignColumn": "ProductModelID"
+        }
+      ]
+    }
+  ],
+  "Warehouse": null
 }

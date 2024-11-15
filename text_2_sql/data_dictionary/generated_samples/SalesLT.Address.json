@@ -2,121 +2,154 @@
   "Columns": [
     {
       "AllowedValues": null,
-      "Definition": "The AddressID column in the SalesLT.Address entity contains unique numeric identifiers for each address record in the database. The values are integers and are uniquely assigned to each address, ensuring that no two addresses share the same AddressID. This column acts as the primary key for the Address entity, facilitating indexing and efficient retrieval of address records.",
+      "DataType": "int",
+      "Definition": "The AddressID column in the SalesLT.Address entity contains unique numeric identifiers for each address record in the database. These values are sequential integers that uniquely distinguish one address from another within the entity. This column is likely used as a primary key, ensuring that each address can be uniquely and efficiently referenced.",
       "Name": "AddressID",
       "SampleValues": [
-        667,
-        674,
-        893,
-        506,
-        561
-      ],
-      "Type": "int"
+        612,
+        903,
+        1013,
+        864,
+        756
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The AddressLine1 column in the SalesLT.Address entity contains street addresses used to identify the location of various entities. The values in this column may include street names, numbers, and sometimes the name of a place or building such as a mall or marketplace. The format of the addresses can vary, including numeric street addresses and named locations. The data is primarily used for mailing and location identification purposes.",
+      "DataType": "nvarchar",
+      "Definition": "The AddressLine1 column in the SalesLT.Address entity contains the primary address information for a location. This column typically includes the street address, building number, and potentially additional location-specific information such as road names or special indicators. The values follow common address formats, including numerical street addresses and named locations, which may include abbreviations or directional indicators. The data is used to identify the first line in a two-part address structure, providing essential location details for correspondence or delivery purposes.",
       "Name": "AddressLine1",
       "SampleValues": [
-        "2574 Milton Park",
-        "White Mountain Mall",
-        "Vista Marketplace",
-        "2505 Gateway Drive",
-        "6333 Cote Vertu"
-      ],
-      "Type": "nvarchar"
+        "2520 Flanders Road",
+        "250333 Southport Road, S.W.",
+        "9909 W. Ventura Boulevard",
+        "99-3 Forest Works",
+        "Kansas City Factory Outlet"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The AddressLine2 column in the SalesLT.Address entity typically contains additional address information that complements the primary address line. The values may include PO boxes, apartment numbers, suite numbers, floor numbers, or other secondary address details. This column is used to provide further specificity to a mailing address beyond the main street address.",
+      "DataType": "nvarchar",
+      "Definition": "The AddressLine2 column in the SalesLT.Address entity contains secondary address information such as specific floor numbers, PO Box numbers, or additional details that supplement the primary address. The values typically provide more precise location details within a larger building or specify post office box numbers. The pattern in the sample values includes specific mentions of floors and post office boxes, often using common abbreviations like \"PO\" or \"P.O. Box\".",
       "Name": "AddressLine2",
       "SampleValues": [
-        "Box 8033",
+        "19th Floor",
+        "Floor 7",
         "PO Box 4023",
-        "Edward Way",
-        "Ste 1071",
-        "19th Floor"
-      ],
-      "Type": "nvarchar"
+        "P.O. Box 803",
+        "Box 8033"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The City column in the SalesLT.Address entity contains names of cities where the addresses are located. The values in this column are generally proper nouns representing various geographical locations. The city names are diverse and do not follow any apparent pattern or standard. These values will mostly be unique or may have limited repetition based on the addresses stored in the database.",
+      "DataType": "nvarchar",
+      "Definition": "The City column in the SalesLT.Address entity contains the names of cities where the addresses are located. This column includes a variety of city names, which can be from any geographical location. The names are represented in a plain text format, without any specific pattern or standard format. The data in this column is used to identify the city component of an address within the SalesLT.Address entity.",
       "Name": "City",
       "SampleValues": [
-        "Carrollton",
-        "Etobicoke",
-        "Burnaby",
-        "Waterloo",
-        "Great Falls"
-      ],
-      "Type": "nvarchar"
+        "Kanata",
+        "Federal Way",
+        "Abingdon",
+        "Cambridge",
+        "Ferguson"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The StateProvince column in the SalesLT.Address entity contains names of states and provinces for various addresses. The values can include both U.S. states and Canadian provinces, as indicated by sample values such as Missouri, Montana, British Columbia, Quebec, and Wyoming. This column is likely used to specify the regional subdivision within a country for each address.",
+      "DataType": "nvarchar",
+      "Definition": "The StateProvince column in the SalesLT.Address entity contains the names of states, provinces, or equivalent regions within various countries. These values are typically proper nouns representing administrative divisions such as Wyoming, Missouri, British Columbia, Montana, and Illinois. The data in this column is useful for identifying specific regions within a country for purposes such as shipping, billing, or demographic analysis.",
       "Name": "StateProvince",
       "SampleValues": [
+        "Wyoming",
         "Missouri",
-        "Montana",
         "British Columbia",
-        "Quebec",
-        "Wyoming"
-      ],
-      "Type": "nvarchar"
+        "Montana",
+        "Illinois"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The CountryRegion column in the SalesLT.Address entity contains the names of countries or regions associated with addresses. The values are represented as full names of countries or regions, such as \"United States\", \"United Kingdom\", and \"Canada\". This column likely stores the standard names of countries or regions where addresses are registered.",
+      "DataType": "nvarchar",
+      "Definition": "The CountryRegion column in the SalesLT.Address entity contains the names of countries or regions associated with specific addresses. The values are in full-text format, representing the commonly used names of countries or regions. This column is used to identify the geographic location tied to each address in the database.",
       "Name": "CountryRegion",
       "SampleValues": [
         "United States",
         "United Kingdom",
         "Canada"
-      ],
-      "Type": "nvarchar"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The PostalCode column in the SalesLT.Address entity contains postal codes from various regions. The values include a mix of formats, such as alphanumeric patterns typical of UK postal codes (e.g., SW8 4BG, L4 4HB) and numeric patterns that can represent US ZIP codes (e.g., 98036, 97123, 84065). This column likely stores postal codes that identify specific locations, which may vary in format depending on the country.",
+      "DataType": "nvarchar",
+      "Definition": "The PostalCode column in the SalesLT.Address entity contains the postal codes for addresses. The values in this column consist of various formats, including both alphanumeric and numeric strings, which correspond to postal codes from different countries, such as the UK and the US. The column does not adhere to a single standard format and includes postal codes for various regions.",
       "Name": "PostalCode",
       "SampleValues": [
-        "SW8 4BG",
-        "98036",
-        "L4 4HB",
-        "97123",
-        "84065"
-      ],
-      "Type": "nvarchar"
+        "W10 6BL",
+        "WA3 7BH",
+        "95501",
+        "49464",
+        "98045"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The column \"rowguid\" in the SalesLT.Address entity stores globally unique identifiers (GUIDs). These values are in the standard 32-character hexadecimal format divided into five groups separated by hyphens, following the common GUID notation. The unique nature of these identifiers helps ensure that each address entry can be distinctly recognized across different systems and databases.",
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the SalesLT.Address entity contains unique identifier values in the form of Globally Unique Identifiers (GUIDs). Each value is a 128-bit number represented as a string of hexadecimal characters, typically in the pattern of 8-4-4-4-12 (e.g., 00000000-0000-0000-0000-000000000000). This column is used to uniquely identify each record in the address table, ensuring that each entry can be distinctly referenced.",
       "Name": "rowguid",
       "SampleValues": [
-        "79972B72-7D84-4A33-AE27-44A5EFAEF39D",
-        "FBAC273F-934E-474F-9CCB-F96CA9AE889D",
-        "C1A9793E-50B5-431C-82DD-8B36ACC9AC4E",
-        "17A96F13-8658-4F02-A557-2BC4463ADE21",
-        "D9928CCC-FC35-435A-8A0F-6887813E0E06"
-      ],
-      "Type": "uniqueidentifier"
+        "CC91297C-567B-4186-96C8-2BA6F0875E73",
+        "0B49022D-8B49-4CF6-B0A3-46231CD48441",
+        "BD3035F6-4018-4E4C-8D70-6DD3F4FE8EB4",
+        "1A51283C-12BB-462E-A1B8-A0039C18E6D8",
+        "FF2BE5E9-7D22-4C1C-ACF8-199148E957AB"
+      ]
     },
     {
       "AllowedValues": null,
-      "Definition": "The ModifiedDate column in the SalesLT.Address entity contains timestamps indicating the last date and time a particular address record was updated. The values are in the format 'YYYY-MM-DD HH:MM:SS', which shows the date down to the second. This column is used to track changes and updates to address records over time, ensuring there is a history of modifications for auditing and data integrity purposes.",
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the SalesLT.Address entity contains timestamps indicating the last date and time when the address record was modified. The format follows the SQL standard datetime format 'YYYY-MM-DD HH:MM:SS'. This column helps track the history of changes made to address records.",
       "Name": "ModifiedDate",
       "SampleValues": [
-        "2006-12-01 00:00:00",
-        "2007-04-01 00:00:00",
-        "2006-09-01 00:00:00",
-        "2006-11-01 00:00:00",
-        "2007-09-01 00:00:00"
-      ],
-      "Type": "datetime"
+        "2007-02-01 00:00:00",
+        "2008-02-01 00:00:00",
+        "2007-08-01 00:00:00",
+        "2007-09-01 00:00:00",
+        "2007-04-01 00:00:00"
+      ]
     }
   ],
-  "Description": "The SalesLT.Address entity contains detailed information about physical addresses, including primary and secondary address lines, city, state or province, country or region, and postal code. It also includes unique identifiers such as AddressID and rowguid, alongside a timestamp for the last modification of the record. This entity can be used to answer questions related to the location details of customers or facilities, verify address information, or analyze the geographic distribution of sales or services.",
+  "CompleteEntityRelationshipsGraph": [
+    "SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+    "SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+    "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+    "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+    "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress"
+  ],
+  "Database": "AdventureWorksLT",
+  "Definition": "The SalesLT.Address entity contains information about physical addresses used by the organization. This entity includes details such as the address lines, city, state or province, country or region, and postal code. It also tracks unique identifiers and the last modified date for records. This entity can be used to answer questions related to the geographical distribution of customers, shipping details, and the most recent updates to address information.",
   "Entity": "SalesLT.Address",
-  "EntityName": "Customer Address Information"
+  "EntityName": "Address Information",
+  "EntityRelationships": [
+    {
+      "ForeignEntity": "SalesLT.CustomerAddress",
+      "ForeignKeys": [
+        {
+          "Column": "AddressID",
+          "ForeignColumn": "AddressID"
+        }
+      ]
+    },
+    {
+      "ForeignEntity": "SalesLT.SalesOrderHeader",
+      "ForeignKeys": [
+        {
+          "Column": "AddressID",
+          "ForeignColumn": "BillToAddressID"
+        },
+        {
+          "Column": "AddressID",
+          "ForeignColumn": "ShipToAddressID"
+        }
+      ]
+    }
+  ],
+  "Warehouse": null
 }
