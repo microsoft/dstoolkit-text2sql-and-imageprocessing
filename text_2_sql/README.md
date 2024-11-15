@@ -29,6 +29,7 @@ A common way to perform Text2SQL generation _(Iteration 1)_ is to provide the co
 
 - More tables / views significantly increases the number of tokens used within the prompt and the cost of inference.
 - More schema information can cause confusion with the LLM. In our original use case, when exceeding 5 complex tables / views, we found that the LLM could get confused between which columns belonged to which entity and as such, would generate invalid SQL queries.
+- Entity relationships between different tables is challenging for the LLM to understand.
 
 To solve these issues, a Multi-Shot approach is developed. Below is the iterations of development on the Text2SQL query component.
 
@@ -42,6 +43,8 @@ Three different iterations are presented and code provided for:
 All approaches limit the number of tokens used and avoids filling the prompt with confusing schema information.
 
 Using Auto-Function calling capabilities, the LLM is able to retrieve from the plugin the full schema information for the views / tables that it considers useful for answering the question. Once retrieved, the full SQL query can then be generated. The schemas for multiple views / tables can be retrieved to allow the LLM to perform joins and other complex queries.
+
+To improve the scalability and accuracy in SQL Query generation, the entity relationships within the database are stored within the vector store. This allows the LLM to use **entity relationship graph** to navigate complex system joins. See the details in `./data_dictionary` for more details.
 
 For the query cache enabled approach, AI Search is used as a vector based cache, but any other cache that supports vector queries could be used, such as Redis.
 
@@ -161,24 +164,63 @@ Below is a sample entry for a view / table that we which to expose to the LLM. T
 
 ```json
 {
-    "EntityName": "Get All Categories",
-    "Entity": "vGetAllCategories",
-    "Description": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
+    "Entity": "SalesLT.SalesOrderDetail",
+    "Definition": "The SalesLT.SalesOrderDetail entity contains detailed information about individual items within sales orders. This entity includes data on the sales order ID, the specific details of each order item such as quantity, product ID, unit price, and any discounts applied. It also includes calculated fields such as the line total for each order item. This entity can be used to answer questions related to the specifics of sales transactions, such as which products were purchased in each order, the quantity of each product ordered, and the total price of each order item.",
+    "EntityName": "Sales Line Items Information",
+    "Database": "AdventureWorksLT",
+    "Warehouse": null,
+    "EntityRelationships": [
+        {
+            "ForeignEntity": "SalesLT.Product",
+            "ForeignKeys": [
+                {
+                    "Column": "ProductID",
+                    "ForeignColumn": "ProductID"
+                }
+            ]
+        },
+        {
+            "ForeignEntity": "SalesLT.SalesOrderHeader",
+            "ForeignKeys": [
+                {
+                    "Column": "SalesOrderID",
+                    "ForeignColumn": "SalesOrderID"
+                }
+            ]
+        }
+    ],
+    "CompleteEntityRelationshipsGraph": [
+        "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+        "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+        "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
+        "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
+    ],
     "Columns": [
         {
-            "Definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
-            "Name": "ProductCategoryID",
-            "Type": "INT"
+            "Name": "SalesOrderID",
+            "DataType": "int",
+            "Definition": "The SalesOrderID column in the SalesLT.SalesOrderDetail entity contains unique numerical identifiers for each sales order. Each value represents a specific sales order, ensuring that each order can be individually referenced and tracked. The values are in a sequential numeric format, indicating the progression and uniqueness of each sales transaction within the database.",
+            "AllowedValues": null,
+            "SampleValues": [
+                71938,
+                71784,
+                71935,
+                71923,
+                71946
+            ]
         },
         {
-            "Definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
-            "Name": "ParentProductCategoryName",
-            "Type": "NVARCHAR(50)"
-        },
-        {
-            "Definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
-            "Name": "ProductCategoryName",
-            "Type": "NVARCHAR(50)"
+            "Name": "SalesOrderDetailID",
+            "DataType": "int",
+            "Definition": "The SalesOrderDetailID column in the SalesLT.SalesOrderDetail entity contains unique identifier values for each sales order detail record. The values are numeric and are used to distinguish each order detail entry within the database. These identifiers are essential for maintaining data integrity and enabling efficient querying and data manipulation within the sales order system.",
+            "AllowedValues": null,
+            "SampleValues": [
+                110735,
+                113231,
+                110686,
+                113257,
+                113307
+            ]
         }
     ]
 }
