@@ -2,24 +2,24 @@
   {
     "Columns": [
       {
+        "DataType": "INT",
         "Definition": "A unique identifier for each sales order ticket. This ID is auto-generated and serves as the primary key for the SalesOrderTicket table.",
-        "Name": "SalesOrderID",
-        "DataType": "INT"
+        "Name": "SalesOrderID"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date and time when the sales order was created. This is used to track when the order was initiated.",
-        "Name": "OrderDate",
-        "DataType": "DATETIME"
+        "Name": "OrderDate"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date by which the order is expected to be fulfilled or delivered. It helps in managing delivery timelines.",
-        "Name": "DueDate",
-        "DataType": "DATETIME"
+        "Name": "DueDate"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date when the order was shipped to the customer. This is used for tracking shipping and fulfillment status.",
-        "Name": "ShipDate",
-        "DataType": "DATETIME"
+        "Name": "ShipDate"
       },
       {
         "AllowedValues": [
@@ -27,26 +27,31 @@
           2,
           3
         ],
+        "DataType": "TINYINT",
         "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
-        "Name": "Status",
-        "DataType": "TINYINT"
+        "Name": "Status"
       },
       {
+        "DataType": "MONEY",
         "Definition": "The total amount due for the order, including all line items, taxes, and shipping charges.",
-        "Name": "TotalDue",
-        "DataType": "MONEY"
+        "Name": "TotalDue"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date and time when the sales order ticket record was last modified. This is used for tracking updates and changes to the order.",
-        "Name": "ModifiedDate",
-        "DataType": "DATETIME"
+        "Name": "ModifiedDate"
       }
     ],
+    "CompleteEntityRelationshipsGraph": [
+      "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+      "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+      "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
+      "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
+    ],
+    "Database": "AdventureWorksLT",
     "Definition": "This table stores detailed information about sales order tickets, including the order details, customer information, order status, and timestamps. It is used to manage and track sales orders throughout the order lifecycle, from creation to fulfillment.",
     "Entity": "SalesOrderDetail",
     "EntityName": "Sales Order Detail",
-    "Database": "AdventureWorksLT",
-    "Warehouse": null,
     "EntityRelationships": [
       {
         "ForeignEntity": "SalesLT.Product",
@@ -67,34 +72,29 @@
         ]
       }
     ],
-    "CompleteEntityRelationshipsGraph": [
-      "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
-      "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
-      "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
-      "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
-    ]
+    "Warehouse": null
   },
   {
     "Columns": [
       {
+        "DataType": "INT",
         "Definition": "A unique identifier for each sales order. This ID is auto-generated and serves as the primary key for the SalesOrderHeader table.",
-        "Name": "SalesOrderID",
-        "DataType": "INT"
+        "Name": "SalesOrderID"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date and time when the sales order was created. This field is used to track when the order was initiated.",
-        "Name": "OrderDate",
-        "DataType": "DATETIME"
+        "Name": "OrderDate"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date by which the order is expected to be fulfilled or delivered. It helps in managing delivery timelines.",
-        "Name": "DueDate",
-        "DataType": "DATETIME"
+        "Name": "DueDate"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date when the order was shipped to the customer. This is used for tracking shipping and fulfillment status.",
-        "Name": "ShipDate",
-        "DataType": "DATETIME"
+        "Name": "ShipDate"
       },
       {
         "AllowedValues": [
@@ -102,84 +102,90 @@
           2,
           3
         ],
+        "DataType": "TINYINT",
         "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
-        "Name": "Status",
-        "DataType": "TINYINT"
+        "Name": "Status"
       },
       {
         "AllowedValues": [
           "True",
           "False"
         ],
+        "DataType": "BIT",
         "Definition": "Indicates whether the order was placed online.",
-        "Name": "OnlineOrderFlag",
-        "DataType": "BIT"
+        "Name": "OnlineOrderFlag"
       },
       {
+        "DataType": "NVARCHAR(25)",
         "Definition": "A unique order number assigned to the sales order. This is used for tracking and identification purposes.",
-        "Name": "SalesOrderNumber",
-        "DataType": "NVARCHAR(25)"
+        "Name": "SalesOrderNumber"
       },
       {
+        "DataType": "NVARCHAR(25)",
         "Definition": "The purchase order number provided by the customer. This field links the sales order to the customer's purchase order.",
-        "Name": "PurchaseOrderNumber",
-        "DataType": "NVARCHAR(25)"
+        "Name": "PurchaseOrderNumber"
       },
       {
+        "DataType": "NVARCHAR(15)",
         "Definition": "The account number of the customer placing the order. This helps link the order to the customer's account.",
-        "Name": "AccountNumber",
-        "DataType": "NVARCHAR(15)"
+        "Name": "AccountNumber"
       },
       {
+        "DataType": "INT",
         "Definition": "A foreign key that links to the Customer table, representing the customer who placed the order.",
-        "Name": "CustomerID",
-        "DataType": "INT"
+        "Name": "CustomerID"
       },
       {
+        "DataType": "INT",
         "Definition": "A foreign key that links to the Address table, representing the shipping address for the order.",
-        "Name": "ShipToAddressID",
-        "DataType": "INT"
+        "Name": "ShipToAddressID"
       },
       {
+        "DataType": "INT",
         "Definition": "A foreign key that links to the Address table, representing the billing address for the order.",
-        "Name": "BillToAddressID",
-        "DataType": "INT"
+        "Name": "BillToAddressID"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The shipping method used for the order (e.g., UPS, FedEx). This field helps track shipping preferences.",
-        "Name": "ShipMethod",
-        "DataType": "NVARCHAR(50)"
+        "Name": "ShipMethod"
       },
       {
+        "DataType": "MONEY",
         "Definition": "The total cost of the order before taxes and shipping charges. This field is used to calculate the final total. The currency is pound sterling (GBP).",
-        "Name": "SubTotal",
-        "DataType": "MONEY"
+        "Name": "SubTotal"
       },
       {
+        "DataType": "MONEY",
         "Definition": "The tax amount applied to the order. This is calculated based on the order subtotal and applicable tax rates. The currency is pound sterling (GBP).",
-        "Name": "TaxAmt",
-        "DataType": "MONEY"
+        "Name": "TaxAmt"
       },
       {
+        "DataType": "MONEY",
         "Definition": "The shipping charge applied to the order. This field represents the cost of shipping the order to the customer. The currency is pound sterling (GBP).",
-        "Name": "Freight",
-        "DataType": "MONEY"
+        "Name": "Freight"
       },
       {
+        "DataType": "MONEY",
         "Definition": "The total amount due for the order, including all line items, taxes, and shipping charges. The currency is pound sterling (GBP).",
-        "Name": "TotalDue",
-        "DataType": "MONEY"
+        "Name": "TotalDue"
       },
       {
+        "DataType": "NVARCHAR(255)",
         "Definition": "Any additional comments or notes related to the sales order. This field can include special instructions or remarks.",
-        "Name": "Comment",
-        "DataType": "NVARCHAR(255)"
+        "Name": "Comment"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date and time when the sales order header record was last modified. This is used for tracking updates and changes to the order.",
-        "Name": "ModifiedDate",
-        "DataType": "DATETIME"
+        "Name": "ModifiedDate"
       }
+    ],
+    "CompleteEntityRelationshipsGraph": [
+      "SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+      "SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+      "SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
+      "SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
     ],
     "Definition": "This table contains high-level information about sales orders, including order dates, customer details, shipping information, and order status. It is used to manage and track sales orders from initiation to fulfillment.",
     "Entity": "SalesOrderHeader",
@@ -191,7 +197,7 @@
           {
             "Column": "SalesOrderID",
             "ForeignColumn": "SalesOrderID"
-          },
+          }
         ]
       },
       {
@@ -216,52 +222,52 @@
           }
         ]
       }
-    ],
-    "CompleteEntityRelationshipsGraph": [
-      "SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
-      "SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
-      "SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
-      "SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
     ]
   },
   {
     "Columns": [
       {
+        "DataType": "INT",
         "Definition": "A unique identifier for each address. This ID is auto-generated and serves as the primary key for the Address table.",
-        "Name": "AddressID",
-        "DataType": "INT"
+        "Name": "AddressID"
       },
       {
+        "DataType": "NVARCHAR(30)",
         "Definition": "The city in which the address is located. This is used to specify the city for the address.",
-        "Name": "City",
-        "DataType": "NVARCHAR(30)"
+        "Name": "City"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The state or province in which the address is located. This is used to specify the state or province for the address.",
-        "Name": "StateProvince",
-        "DataType": "NVARCHAR(50)"
+        "Name": "StateProvince"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The country or region in which the address is located. This is used to specify the country or region for the address.",
-        "Name": "CountryRegion",
-        "DataType": "NVARCHAR(50)"
+        "Name": "CountryRegion"
       },
       {
+        "DataType": "NVARCHAR(15)",
         "Definition": "The postal code associated with the address. This is used to specify the postal code for the address, which helps in geographical sorting and shipping.",
-        "Name": "PostalCode",
-        "DataType": "NVARCHAR(15)"
+        "Name": "PostalCode"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date and time when the address record was last modified. This is used for tracking updates and changes to the address information.",
-        "Name": "ModifiedDate",
-        "DataType": "DATETIME"
+        "Name": "ModifiedDate"
       }
     ],
+    "CompleteEntityRelationshipsGraph": [
+      "SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+      "SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+      "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
+      "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
+      "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress"
+    ],
+    "Database": "AdventureWorksLT",
     "Definition": "This table stores address information for customers, including street addresses, city, state, postal code, and country/region. It is used to maintain contact and shipping information for orders, as well as to manage customer locations.",
     "Entity": "Address",
     "EntityName": "Address",
-    "Database": "AdventureWorksLT",
-    "Warehouse": null,
     "EntityRelationships": [
       {
         "ForeignEntity": "SalesLT.CustomerAddress",
@@ -294,58 +300,53 @@
         ]
       }
     ],
-    "CompleteEntityRelationshipsGraph": [
-      "SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
-      "SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
-      "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
-      "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
-      "SalesLT.Address -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress"
-    ]
+    "Warehouse": null
   },
   {
     "Columns": [
       {
+        "DataType": "INT",
         "Definition": "A unique identifier for each product category. This ID is used to reference specific categories.",
-        "Name": "ProductCategoryID",
-        "DataType": "INT"
+        "Name": "ProductCategoryID"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The name of the parent product category. This represents the top-level category under which subcategories are grouped.",
-        "Name": "ParentProductCategoryName",
-        "DataType": "NVARCHAR(50)"
+        "Name": "ParentProductCategoryName"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The name of the product category. This can refer to either a top-level category or a subcategory, depending on the context.",
-        "Name": "ProductCategoryName",
-        "DataType": "NVARCHAR(50)"
+        "Name": "ProductCategoryName"
       }
     ],
+    "CompleteEntityRelationshipsGraph": [],
+    "Database": "AdventureWorksLT",
     "Definition": "This view provides a comprehensive list of all product categories and their corresponding subcategories in the SalesLT schema of the AdventureWorksLT database. It is used to understand the hierarchical structure of product categories, facilitating product organization and categorization.",
     "Entity": "vGetAllCategories",
     "EntityName": "Get All Categories",
-    "Database": "AdventureWorksLT",
-    "Warehouse": null,
     "EntityRelationships": [],
-    "CompleteEntityRelationshipsGraph": []
+    "Warehouse": null
   },
   {
     "Columns": [
       {
+        "DataType": "INT",
         "Definition": "A unique identifier for each product. This ID is used to distinguish individual products.",
-        "Name": "ProductID",
-        "DataType": "INT"
+        "Name": "ProductID"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The name of the product. This provides a brief and identifiable name for each product.",
-        "Name": "Name",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Name"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The model name associated with the product. This indicates the specific model type or version of the product.",
-        "Name": "ProductModel",
-        "DataType": "NVARCHAR(50)"
+        "Name": "ProductModel"
       },
       {
+        "DataType": "NVARCHAR(6)",
         "Definition": "The culture or language code for the product description. This is used to localize the product description, such as 'en' for English or 'fr' for French.",
         "Name": "Culture",
         "SampleValues": [
@@ -353,152 +354,151 @@
           "fr",
           "es",
           "de"
-        ],
-        "DataType": "NVARCHAR(6)"
+        ]
       },
       {
+        "DataType": "NVARCHAR(400)",
         "Definition": "A detailed description of the product. This text provides additional information about the product, which can vary based on the culture or language.",
-        "Name": "Definition",
-        "DataType": "NVARCHAR(400)"
+        "Name": "Definition"
       }
     ],
+    "CompleteEntityRelationshipsGraph": [],
+    "Database": "AdventureWorksLT",
     "Definition": "This view provides detailed information about products, including their names, associated product models, descriptions, and the specific culture or language of the description. It is useful for understanding product details and translating product descriptions for different cultures.",
     "Entity": "vProductAndDescription",
     "EntityName": "Product and Description",
-    "Database": "AdventureWorksLT",
-    "Warehouse": null,
     "EntityRelationships": [],
-    "CompleteEntityRelationshipsGraph": []
+    "Warehouse": null
   },
   {
     "Columns": [
       {
+        "DataType": "INT",
         "Definition": "A unique identifier for each product model. This ID is used to distinguish different product models.",
-        "Name": "ProductModelID",
-        "DataType": "INT"
+        "Name": "ProductModelID"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The name of the product model, providing a recognizable title for each model.",
-        "Name": "Name",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Name"
       },
       {
+        "DataType": "NVARCHAR(MAX)",
         "Definition": "A brief summary of the product model, highlighting key features and characteristics.",
-        "Name": "Summary",
-        "DataType": "NVARCHAR(MAX)"
+        "Name": "Summary"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The name of the manufacturer of the product model.",
-        "Name": "Manufacturer",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Manufacturer"
       },
       {
+        "DataType": "NVARCHAR(30)",
         "Definition": "Copyright information related to the product model, indicating the legal ownership of the product design and content.",
-        "Name": "Copyright",
-        "DataType": "NVARCHAR(30)"
+        "Name": "Copyright"
       },
       {
+        "DataType": "NVARCHAR(256)",
         "Definition": "The URL for the product model, providing a link to more information or to purchase the product.",
-        "Name": "ProductURL",
-        "DataType": "NVARCHAR(256)"
+        "Name": "ProductURL"
       },
       {
+        "DataType": "NVARCHAR(30)",
         "Definition": "The duration of the warranty period for the product model, specifying how long the warranty is valid.",
-        "Name": "WarrantyPeriod",
-        "DataType": "NVARCHAR(30)"
+        "Name": "WarrantyPeriod"
       },
       {
+        "DataType": "NVARCHAR(255)",
         "Definition": "A description of the warranty provided for the product model, detailing what is covered under the warranty.",
-        "Name": "WarrantyDescription",
-        "DataType": "NVARCHAR(255)"
+        "Name": "WarrantyDescription"
       },
       {
+        "DataType": "INT",
         "Definition": "The number of years the warranty is valid for the product model.",
-        "Name": "NoOfYears",
-        "DataType": "INT"
+        "Name": "NoOfYears"
       },
       {
+        "DataType": "NVARCHAR(MAX)",
         "Definition": "A description of the maintenance requirements and recommendations for the product model.",
-        "Name": "MaintenanceDescription",
-        "DataType": "NVARCHAR(MAX)"
+        "Name": "MaintenanceDescription"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "Details about the type of wheels used in the product model.",
-        "Name": "Wheel",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Wheel"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "Information about the saddle of the product model, such as material and design.",
-        "Name": "Saddle",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Saddle"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "Details regarding the pedal design and specifications of the product model.",
-        "Name": "Pedal",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Pedal"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "Description of the bike frame used in the product model, including material and type.",
-        "Name": "BikeFrame",
-        "DataType": "NVARCHAR(50)"
+        "Name": "BikeFrame"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "Information about the crankset of the product model, specifying its design and features.",
-        "Name": "Crankset",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Crankset"
       },
       {
+        "DataType": "NVARCHAR(20)",
         "Definition": "The angle at which the product model is photographed, providing a visual perspective of the product.",
-        "Name": "PictureAngle",
-        "DataType": "NVARCHAR(20)"
+        "Name": "PictureAngle"
       },
       {
+        "DataType": "NVARCHAR(20)",
         "Definition": "The size of the product model's picture, specifying dimensions or resolution.",
-        "Name": "PictureSize",
-        "DataType": "NVARCHAR(20)"
+        "Name": "PictureSize"
       },
       {
+        "DataType": "INT",
         "Definition": "An identifier linking to the product photo, which provides a visual representation of the product model.",
-        "Name": "ProductPhotoID",
-        "DataType": "INT"
+        "Name": "ProductPhotoID"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The material used in the construction of the product model, indicating durability and quality.",
-        "Name": "Material",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Material"
       },
       {
+        "DataType": "NVARCHAR(15)",
         "Definition": "The color of the product model, providing information about the appearance of the product.",
-        "Name": "Color",
-        "DataType": "NVARCHAR(15)"
+        "Name": "Color"
       },
       {
+        "DataType": "NVARCHAR(2)",
         "Definition": "A code representing the product line to which the model belongs, categorizing the product within a broader product range.",
-        "Name": "ProductLine",
-        "DataType": "NVARCHAR(2)"
+        "Name": "ProductLine"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "The style of the product model, indicating design and aesthetic aspects.",
-        "Name": "Style",
-        "DataType": "NVARCHAR(50)"
+        "Name": "Style"
       },
       {
+        "DataType": "NVARCHAR(50)",
         "Definition": "A description of the target rider's experience level for which the product model is designed, such as beginner, intermediate, or expert.",
-        "Name": "RiderExperience",
-        "DataType": "NVARCHAR(50)"
+        "Name": "RiderExperience"
       },
       {
+        "DataType": "DATETIME",
         "Definition": "The date and time when the product model information was last modified, indicating the currency of the data.",
-        "Name": "ModifiedDate",
-        "DataType": "DATETIME"
+        "Name": "ModifiedDate"
       }
     ],
+    "CompleteEntityRelationshipsGraph": [],
+    "Database": "AdventureWorksLT",
     "Definition": "This view provides detailed catalog information about product models, including descriptions, manufacturing details, warranty information, and specifications related to product design and features. It is useful for generating comprehensive product catalogs and providing detailed product information to customers.",
     "Entity": "vProductModelCatalogDescription",
     "EntityName": "Product Model Catalog Description",
-    "Database": "AdventureWorksLT",
-    "Warehouse": null,
     "EntityRelationships": [],
-    "CompleteEntityRelationshipsGraph": []
+    "Warehouse": null
   }
 ]
