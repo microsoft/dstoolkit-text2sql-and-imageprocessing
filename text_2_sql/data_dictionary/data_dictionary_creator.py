@@ -686,10 +686,14 @@ class DataDictionaryCreator(ABC):
         if self.single_file:
             logging.info("Saving data dictionary to entities.json")
             with open("entities.json", "w", encoding="utf-8") as f:
-                json.dump(
-                    data_dictionary.model_dump(
+                data_dictionary_dump = [
+                    entity.model_dump(
                         by_alias=True, exclude=self.excluded_fields_for_database_engine
-                    ),
+                    )
+                    for entity in data_dictionary
+                ]
+                json.dump(
+                    data_dictionary_dump,
                     f,
                     indent=4,
                     default=str,
