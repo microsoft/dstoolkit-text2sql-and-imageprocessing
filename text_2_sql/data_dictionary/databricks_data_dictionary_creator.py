@@ -7,7 +7,7 @@ import logging
 import os
 
 
-class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
+class DatabricksDataDictionaryCreator(DataDictionaryCreator):
     def __init__(
         self,
         entities: list[str] = None,
@@ -30,11 +30,11 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
         self.catalog = os.environ["Text2Sql__Databricks__Catalog"]
         self.database_engine = DatabaseEngine.DATABRICKS
 
-    """A class to extract data dictionary information from a Snowflake database."""
+    """A class to extract data dictionary information from Databricks Unity Catalog."""
 
     @property
     def extract_table_entities_sql_query(self) -> str:
-        """A property to extract table entities from a Snowflake database."""
+        """A property to extract table entities from Databricks Unity Catalog."""
         return f"""SELECT
             t.TABLE_NAME AS Entity,
             t.TABLE_SCHEMA AS EntitySchema,
@@ -47,7 +47,7 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
 
     @property
     def extract_view_entities_sql_query(self) -> str:
-        """A property to extract view entities from a Snowflake database."""
+        """A property to extract view entities from Databricks Unity Catalog."""
         return """SELECT
             v.TABLE_NAME AS Entity,
             v.TABLE_SCHEMA AS EntitySchema
@@ -58,7 +58,7 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             v.TABLE_CATALOG = '{self.catalog}'"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
-        """A property to extract column information from a Snowflake database."""
+        """A property to extract column information from Databricks Unity Catalog."""
         return f"""SELECT
             COLUMN_NAME AS Name,
             DATA_TYPE AS Type,
@@ -72,23 +72,43 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
 
     @property
     def extract_entity_relationships_sql_query(self) -> str:
-        """A property to extract entity relationships from a SQL Server database."""
-        return """SELECT
-            tc.table_schema AS EntitySchema,
-            tc.table_name AS Entity,
-            rc.unique_constraint_schema AS ForeignEntitySchema,
-            rc.unique_constraint_name AS ForeignEntityConstraint,
-            rc.constraint_name AS ForeignKeyConstraint
+        """A property to extract entity relationships from Databricks Unity Catalog."""
+        return f"""SELECT
+            fk_schema.TABLE_SCHEMA AS EntitySchema,
+            fk_tab.TABLE_NAME AS Entity,
+            pk_schema.TABLE_SCHEMA AS ForeignEntitySchema,
+            pk_tab.TABLE_NAME AS ForeignEntity,
+            fk_col.COLUMN_NAME AS [Column],
+            pk_col.COLUMN_NAME AS ForeignColumn
         FROM
-            information_schema.referential_constraints rc
-        JOIN
-            information_schema.table_constraints tc
-            ON rc.constraint_schema = tc.constraint_schema
-            AND rc.constraint_name = tc.constraint_name
+            INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS fk
+        INNER JOIN
+            INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS fkc
+            ON fk.constraint_name = fkc.constraint_name
+        INNER JOIN
+            INFORMATION_SCHEMA.TABLES AS fk_tab
+            ON fk_tab.TABLE_NAME = fkc.TABLE_NAME AND fk_tab.TABLE_SCHEMA = fkc.TABLE_SCHEMA
+        INNER JOIN
+            INFORMATION_SCHEMA.SCHEMATA AS fk_schema
+            ON fk_tab.TABLE_SCHEMA = fk_schema.TABLE_SCHEMA
+        INNER JOIN
+            INFORMATION_SCHEMA.TABLES AS pk_tab
+            ON pk_tab.TABLE_NAME = fkc.referenced_TABLE_NAME AND pk_tab.TABLE_SCHEMA = fkc.referenced_TABLE_SCHEMA
+        INNER JOIN
+            INFORMATION_SCHEMA.SCHEMATA AS pk_schema
+            ON pk_tab.TABLE_SCHEMA = pk_schema.TABLE_SCHEMA
+        INNER JOIN
+            INFORMATION_SCHEMA.COLUMNS AS fk_col
+            ON fkc.COLUMN_NAME = fk_col.COLUMN_NAME AND fkc.TABLE_NAME = fk_col.TABLE_NAME AND fkc.TABLE_SCHEMA = fk_col.TABLE_SCHEMA
+        INNER JOIN
+            INFORMATION_SCHEMA.COLUMNS AS pk_col
+            ON fkc.referenced_COLUMN_NAME = pk_col.COLUMN_NAME AND fkc.referenced_TABLE_NAME = pk_col.TABLE_NAME AND fkc.referenced_TABLE_SCHEMA = pk_col.TABLE_SCHEMA
         WHERE
-            tc.constraint_type = 'FOREIGN KEY'
+            fk.constraint_type = 'FOREIGN KEY'
+            AND fk_tab.TABLE_CATALOG = '{self.catalog}'
+            AND pk_tab.TABLE_CATALOG = '{self.catalog}'
         ORDER BY
-            EntitySchema, Entity, ForeignEntitySchema, ForeignEntityConstraint;
+            EntitySchema, Entity, ForeignEntitySchema, ForeignEntity;
         """
 
     async def query_entities(self, sql_query: str, cast_to: any = None) -> list[dict]:
@@ -143,5 +163,5 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
 
 
 if __name__ == "__main__":
-    data_dictionary_creator = SnowflakeDataDictionaryCreator()
+    data_dictionary_creator = DatabricksDataDictionaryCreator()
     asyncio.run(data_dictionary_creator.create_data_dictionary())

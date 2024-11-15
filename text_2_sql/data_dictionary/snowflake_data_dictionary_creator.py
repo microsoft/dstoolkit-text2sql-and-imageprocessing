@@ -67,7 +67,7 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
 
     @property
     def extract_entity_relationships_sql_query(self) -> str:
-        """A property to extract entity relationships from a SQL Server database."""
+        """A property to extract entity relationships from a Snowflake database."""
         return """SELECT
             tc.table_schema AS EntitySchema,
             tc.table_name AS Entity,
