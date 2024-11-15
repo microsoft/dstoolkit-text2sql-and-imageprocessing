@@ -111,11 +111,6 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                         collection=True,
                         searchable=False,
                     ),
-                    SearchableField(
-                        name="JoinableEntities",
-                        type=SearchFieldDataType.String,
-                        collection=True,
-                    ),
                 ],
             ),
             SearchableField(
