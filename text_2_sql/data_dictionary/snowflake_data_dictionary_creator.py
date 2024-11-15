@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem
+from data_dictionary_creator import DataDictionaryCreator, EntityItem, DatabaseEngine
 import asyncio
 import snowflake.connector
 import logging
@@ -25,9 +25,11 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             excluded_entities = []
 
         excluded_schemas = ["INFORMATION_SCHEMA"]
-        return super().__init__(
-            entities, excluded_entities, excluded_schemas, single_file
-        )
+        super().__init__(entities, excluded_entities, excluded_schemas, single_file)
+
+        self.database = os.environ["Text2Sql__DatabaseName"]
+        self.warehouse = os.environ["Text2Sql__Snowflake__Warehouse"]
+        self.database_engine = DatabaseEngine.SNOWFLAKE
 
     """A class to extract data dictionary information from a Snowflake database."""
 
