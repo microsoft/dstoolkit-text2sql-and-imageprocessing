@@ -2,7 +2,7 @@
 
 The associated scripts in this portion of the repository contains pre-built scripts to deploy the skillset with Azure Document Intelligence.
 
-## Steps for Rag Documents Index Deployment
+## Steps for Rag Documents Index Deployment (For Unstructured RAG)
 
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
 2. Adjust `rag_documents.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
@@ -13,7 +13,7 @@ The associated scripts in this portion of the repository contains pre-built scri
     - `rebuild`. Whether to delete and rebuild the index.
     - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
 
-## Steps for Text2SQL Index Deployment
+## Steps for Text2SQL Index Deployment (For Structured RAG)
 
 ### Schema Store Index
 
@@ -29,7 +29,7 @@ The associated scripts in this portion of the repository contains pre-built scri
 ### Query Cache Index
 
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
-2. Adjust `text_2_sql_query_cache.py` with any changes to the index. **There is no provided indexer or skillset for this cache, it is expected that application code will write directly to it.**
+2. Adjust `text_2_sql_query_cache.py` with any changes to the index. **There is no provided indexer or skillset for this cache, it is expected that application code will write directly to it. See the details in the Text2SQL README for different cache strategies.**
 3. Run `deploy.py` with the following args:
 
     - `index_type text_2_sql_query_cache`. This selects the `Text2SQLQueryCacheAISearch` sub class.
