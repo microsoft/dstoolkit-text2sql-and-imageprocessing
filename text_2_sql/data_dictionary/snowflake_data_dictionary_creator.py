@@ -24,7 +24,7 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
         if excluded_entities is None:
             excluded_entities = []
 
-        excluded_schemas = ["dbo", "sys"]
+        excluded_schemas = ["INFORMATION_SCHEMA"]
         return super().__init__(
             entities, excluded_entities, excluded_schemas, single_file
         )
@@ -35,33 +35,54 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
     def extract_table_entities_sql_query(self) -> str:
         """A property to extract table entities from a Snowflake database."""
         return """SELECT
-        t.TABLE_NAME AS Entity,
-        t.TABLE_SCHEMA AS EntitySchema,
-        t.COMMENT AS Description
-    FROM
-        INFORMATION_SCHEMA.TABLES t"""
+            t.TABLE_NAME AS Entity,
+            t.TABLE_SCHEMA AS EntitySchema,
+            t.COMMENT AS Definition
+        FROM
+            INFORMATION_SCHEMA.TABLES t"""
 
     @property
     def extract_view_entities_sql_query(self) -> str:
         """A property to extract view entities from a Snowflake database."""
         return """SELECT
-        v.TABLE_NAME AS Entity,
-        v.TABLE_SCHEMA AS EntitySchema,
-        v.COMMENT AS Description
-    FROM
-        INFORMATION_SCHEMA.VIEWS v"""
+            v.TABLE_NAME AS Entity,
+            v.TABLE_SCHEMA AS EntitySchema,
+            v.COMMENT AS Definition
+        FROM
+            INFORMATION_SCHEMA.VIEWS v"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """A property to extract column information from a Snowflake database."""
         return f"""SELECT
-        COLUMN_NAME AS Name,
-        DATA_TYPE AS Type,
-        COMMENT AS Definition
-    FROM
-        INFORMATION_SCHEMA.COLUMNS
-    WHERE
-        TABLE_SCHEMA = '{entity.entity_schema}'
-        AND TABLE_NAME = '{entity.name}';"""
+            COLUMN_NAME AS Name,
+            DATA_TYPE AS Type,
+            COMMENT AS Definition
+        FROM
+            INFORMATION_SCHEMA.COLUMNS
+        WHERE
+            TABLE_SCHEMA = '{entity.entity_schema}'
+            AND TABLE_NAME = '{entity.name}';"""
+
+    @property
+    def extract_entity_relationships_sql_query(self) -> str:
+        """A property to extract entity relationships from a SQL Server database."""
+        return """SELECT
+            tc.table_schema AS EntitySchema,
+            tc.table_name AS Entity,
+            rc.unique_constraint_schema AS ForeignEntitySchema,
+            rc.unique_constraint_name AS ForeignEntityConstraint,
+            rc.constraint_name AS ForeignKeyConstraint
+        FROM
+            information_schema.referential_constraints rc
+        JOIN
+            information_schema.table_constraints tc
+            ON rc.constraint_schema = tc.constraint_schema
+            AND rc.constraint_name = tc.constraint_name
+        WHERE
+            tc.constraint_type = 'FOREIGN KEY'
+        ORDER BY
+            EntitySchema, Entity, ForeignEntitySchema, ForeignEntityConstraint;
+        """
 
     async def query_entities(
         self, sql_query: str, cast_to: any = None
