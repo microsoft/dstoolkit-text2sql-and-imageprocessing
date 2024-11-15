@@ -55,6 +55,15 @@ As the query cache is shared between users (no data is stored in the cache), a n
 
 ![Vector Based with Query Cache Logical Flow.](./images/Text2SQL%20Query%20Cache.png "Vector Based with Query Cache Logical Flow")
 
+### Caching Strategy
+
+The cache strategy implementation is a simple way to prove that the system works. You can adopt several different strategies for cache population. Below are some of the strategies that could be used:
+
+- **Pre-population:** Run an offline pipeline to generate SQL queries for the known questions that you expect from the user to prevent a 'cold start' problem.
+- **Chat History Management Pipeline:** Run a real-time pipeline that logs the chat history to a database. Within this pipeline, analyse questions that are Text2SQL and generate the cache entry.
+- **Positive Indication System:** Only update the cache when a user positively reacts to a question e.g. a thumbs up from the UI or doesn't ask a follow up question.
+- **Always update:** Always add all questions into the cache when they are asked. The sample code in the repository currently implements this approach, but this could lead to poor SQL queries reaching the cache. One of the other caching strategies would be better production version.
+
 ### Comparison of Iterations
 | | Common Text2SQL Approach | Prompt Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach | Vector Based Multi-Shot Text2SQL Approach With Query Cache |
 |-|-|-|-|-|
