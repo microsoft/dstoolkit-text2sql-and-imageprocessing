@@ -86,39 +86,28 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
     def extract_entity_relationships_sql_query(self) -> str:
         """A property to extract entity relationships from a SQL Server database."""
         return """SELECT
-            fk_schema.schema_name AS EntitySchema,
-            fk_tab.table_name AS Entity,
-            pk_schema.schema_name AS ForeignEntitySchema,
-            pk_tab.table_name AS ForeignEntity,
-            fk_col.column_name AS [Column],
-            pk_col.column_name AS ForeignColumn
+            fk_schema.name AS EntitySchema,
+            fk_tab.name AS Entity,
+            pk_schema.name AS ForeignEntitySchema,
+            pk_tab.name AS ForeignEntity,
+            fk_col.name AS [Column],
+            pk_col.name AS ForeignColumn
         FROM
-            INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS fk
+            sys.foreign_keys AS fk
         INNER JOIN
-            INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS fkc
-            ON fk.constraint_name = fkc.constraint_name
+            sys.foreign_key_columns AS fkc ON fk.object_id = fkc.constraint_object_id
         INNER JOIN
-            INFORMATION_SCHEMA.TABLES AS fk_tab
-            ON fk_tab.table_name = fkc.table_name AND fk_tab.table_schema = fkc.table_schema
+            sys.tables AS fk_tab ON fk_tab.object_id = fk.parent_object_id
         INNER JOIN
-            INFORMATION_SCHEMA.SCHEMATA AS fk_schema
-            ON fk_tab.table_schema = fk_schema.schema_name
+            sys.schemas AS fk_schema ON fk_tab.schema_id = fk_schema.schema_id
         INNER JOIN
-            INFORMATION_SCHEMA.TABLES AS pk_tab
-            ON pk_tab.table_name = fkc.referenced_table_name AND pk_tab.table_schema = fkc.referenced_table_schema
+            sys.tables AS pk_tab ON pk_tab.object_id = fk.referenced_object_id
         INNER JOIN
-            INFORMATION_SCHEMA.SCHEMATA AS pk_schema
-            ON pk_tab.table_schema = pk_schema.schema_name
+            sys.schemas AS pk_schema ON pk_tab.schema_id = pk_schema.schema_id
         INNER JOIN
-            INFORMATION_SCHEMA.COLUMNS AS fk_col
-            ON fkc.column_name = fk_col.column_name AND fkc.table_name = fk_col.table_name AND fkc.table_schema = fk_col.table_schema
+            sys.columns AS fk_col ON fkc.parent_object_id = fk_col.object_id AND fkc.parent_column_id = fk_col.column_id
         INNER JOIN
-            INFORMATION_SCHEMA.COLUMNS AS pk_col
-            ON fkc.referenced_column_name = pk_col.column_name AND fkc.referenced_table_name = pk_col.table_name AND fkc.referenced_table_schema = pk_col.table_schema
-        WHERE
-            fk.constraint_type = 'FOREIGN KEY'
-            AND fk_tab.table_catalog = 'your_catalog_name'
-            AND pk_tab.table_catalog = 'your_catalog_name'
+            sys.columns AS pk_col ON fkc.referenced_object_id = pk_col.object_id AND fkc.referenced_column_id = pk_col.column_id
         ORDER BY
             EntitySchema, Entity, ForeignEntitySchema, ForeignEntity;
         """
