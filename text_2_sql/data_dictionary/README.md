@@ -93,8 +93,13 @@ A full data dictionary must be built for all the views / tables you which to exp
 
 Manually creating the `entities.json` is a time consuming exercise. To speed up generation, a mixture of SQL Queries and an LLM can be used to generate a initial version. Existing comments and descriptions in the database, can be combined with sample values to generate the necessary descriptions. Manual input can then be used to tweak it for the use case and any improvements.
 
-`data_dictionary_creator.py` contains a utility class that handles the automatic generation and selection of schemas from the source SQL database. It must be subclassed to the appropriate engine.
-
-`sql_server_data_dictionary_creator.py` contains a subclassed version of `data_dictionary_creator.py` that implements the SQL Server specific functionality to extract the entities.
+`data_dictionary_creator.py` contains a utility class that handles the automatic generation and selection of schemas from the source SQL database. It must be subclassed to the appropriate engine to handle engine specific queries and connection details.
 
 See `./generated_samples/` for an example output of the script. This can then be automatically indexed with the provided indexer for the **Vector-Based Approach**.
+
+The following Databases have pre-built scripts for them:
+
+- **Microsoft SQL Server:** `sql_server_data_dictionary_creator.py`
+- **Snowflake:** `snowflake_data_dictionary_creator.py`
+
+If there is no pre-built script for your database engine, take one of the above as a starting point and adjust it.
