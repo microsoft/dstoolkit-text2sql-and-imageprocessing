@@ -216,15 +216,20 @@ class AISearch(ABC):
             degree_of_parallelism = 16
 
         mark_up_cleaner_skill_inputs = [
-            InputFieldMappingEntry(name="chunk", source=source)
+            InputFieldMappingEntry(name="chunk", source=source),
+            InputFieldMappingEntry(
+                name="figure_storage_prefix", source="/document/metadata_storage_path"
+            ),
         ]
 
         mark_up_cleaner_skill_outputs = [
-            OutputFieldMappingEntry(name="cleaned_chunk", target_name="cleaned_chunk")
+            OutputFieldMappingEntry(name="cleaned_chunk", target_name="cleaned_chunk"),
+            OutputFieldMappingEntry(name="chunk", target_name="chunk"),
+            OutputFieldMappingEntry(name="sections", target_name="sections"),
         ]
 
         mark_up_cleaner_skill = WebApiSkill(
-            name="Pre Embedding Cleaner Skill",
+            name="Mark Up Cleaner Skill",
             description="Skill to clean the data before sending to embedding",
             context=context,
             uri=self.environment.get_custom_skill_function_url("mark_up_cleaner"),
@@ -248,14 +253,23 @@ class AISearch(ABC):
 
         return mark_up_cleaner_skill
 
-    def get_text_split_skill(self, context, source) -> SplitSkill:
+    def get_text_split_skill(
+        self,
+        context,
+        source,
+        num_surrounding_sentences: int = 1,
+        similarity_threshold: float = 0.8,
+        max_chunk_tokens: int = 200,
+    ) -> SplitSkill:
         """Get the skill for text split.
 
         Args:
         -----
             context (str): The context of the skill
-            inputs (List[InputFieldMappingEntry]): The inputs of the skill
-            outputs (List[OutputFieldMappingEntry]): The outputs of the skill
+            source (str): The source of the skill
+            num_surrounding_sentences (int, optional): The number of surrounding sentences. Defaults to 1.
+            similarity_threshold (float, optional): The similarity threshold. Defaults to 0.8.
+            max_chunk_tokens (int, optional): The maximum number of tokens. Defaults to 200.
 
         Returns:
         --------
@@ -277,7 +291,7 @@ class AISearch(ABC):
         ]
 
         semantic_text_chunker_skill = WebApiSkill(
-            name="Pre Embedding Cleaner Skill",
+            name="Mark Up Cleaner Skill",
             description="Skill to clean the data before sending to embedding",
             context=context,
             uri=self.environment.get_custom_skill_function_url("semantic_text_chunker"),
@@ -285,6 +299,11 @@ class AISearch(ABC):
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
+            http_headers={
+                "num_surrounding_sentences": num_surrounding_sentences,
+                "similarity_threshold": similarity_threshold,
+                "max_chunk_tokens": max_chunk_tokens,
+            },
             inputs=semantic_text_chunker_skill_inputs,
             outputs=semantic_text_chunker_skill_outputs,
         )

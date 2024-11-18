@@ -23,7 +23,6 @@ from environment import IdentityType, get_identity_type
 
 async def build_and_clean_markdown_for_response(
     markdown_text: str,
-    figures: dict,
     page_no: int = None,
     remove_irrelevant_figures=False,
 ):
@@ -39,7 +38,6 @@ async def build_and_clean_markdown_for_response(
         str: The cleaned Markdown text.
     """
 
-    output_dict = {}
     comment_patterns = r"<!-- PageNumber=\"[^\"]*\" -->|<!-- PageHeader=\"[^\"]*\" -->|<!-- PageFooter=\"[^\"]*\" -->|<!-- PageBreak -->|<!-- Footnote=\"[^\"]*\" -->"
     cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
 
@@ -52,15 +50,14 @@ async def build_and_clean_markdown_for_response(
 
     logging.info(f"Cleaned Text: {cleaned_text}")
 
-    output_dict["content"] = cleaned_text
-
-    output_dict["figures"] = figures
-
     # add page number when chunk by page is enabled
     if page_no is not None:
+        output_dict = {}
+        output_dict["content"] = cleaned_text
         output_dict["pageNumber"] = page_no
-
-    return output_dict
+        return output_dict
+    else:
+        return cleaned_text
 
 
 def update_figure_description(
@@ -323,22 +320,14 @@ async def process_figures_from_extracted_content(
             )
         )
 
-    figure_ids = [
-        figure_processing_data[0] for figure_processing_data in figure_processing_datas
-    ]
     logging.info("Running image understanding tasks")
     figure_descriptions = await asyncio.gather(*figure_understanding_tasks)
     logging.info("Finished image understanding tasks")
     logging.info(f"Image Descriptions: {figure_descriptions}")
 
     logging.info("Running image upload tasks")
-    figure_uris = await asyncio.gather(*figure_upload_tasks)
+    await asyncio.gather(*figure_upload_tasks)
     logging.info("Finished image upload tasks")
-
-    figures = [
-        {"figureId": figure_id, "figureUri": figure_uri}
-        for figure_id, figure_uri in zip(figure_ids, figure_uris)
-    ]
 
     running_offset = 0
     for figure_processing_data, figure_description in zip(
@@ -355,7 +344,7 @@ async def process_figures_from_extracted_content(
         )
         running_offset += desc_offset
 
-    return markdown_content, figures
+    return markdown_content
 
 
 def create_page_wise_content(result: AnalyzeResult) -> list:
@@ -586,8 +575,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                 ):
                     build_and_clean_markdown_for_response_tasks.append(
                         build_and_clean_markdown_for_response(
-                            extracted_page_content[0],
-                            extracted_page_content[1],
+                            extracted_page_content,
                             page_number,
                             True,
                         )
@@ -609,10 +597,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
             else:
                 markdown_content = result.content
 
-                (
-                    extracted_content,
-                    figures,
-                ) = await process_figures_from_extracted_content(
+                (extracted_content) = await process_figures_from_extracted_content(
                     result,
                     operation_id,
                     container_and_blob,
@@ -622,7 +607,7 @@ async def process_adi_2_ai_search(record: dict, chunk_by_page: bool = False) -> 
                 )
 
                 cleaned_result = await build_and_clean_markdown_for_response(
-                    extracted_content, figures, remove_irrelevant_figures=True
+                    extracted_content, remove_irrelevant_figures=True
                 )
         except Exception as e:
             logging.error(e)

@@ -204,7 +204,7 @@ class RagDocumentsAISearch(AISearch):
     def get_index_projections(self) -> SearchIndexerIndexProjection:
         """This function returns the index projections for rag document."""
         mappings = [
-            InputFieldMappingEntry(name="Chunk", source="/document/chunks/*/content"),
+            InputFieldMappingEntry(name="Chunk", source="/document/chunks/*/chunk"),
             InputFieldMappingEntry(
                 name="ChunkEmbedding",
                 source="/document/chunks/*/vector",
@@ -222,11 +222,11 @@ class RagDocumentsAISearch(AISearch):
                 source_context="/document/chunks/*/figures/*",
                 inputs=[
                     InputFieldMappingEntry(
-                        name="FigureId", source="/document/chunks/*/figures/*/figureId"
+                        name="FigureId", source="/document/chunks/*/figures/*/figure_id"
                     ),
                     InputFieldMappingEntry(
                         name="FigureUri",
-                        source="/document/chunks/*/figures/*/figureUri",
+                        source="/document/chunks/*/figures/*/figure_uri",
                     ),
                 ],
             ),
