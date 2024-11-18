@@ -5,6 +5,30 @@ import json
 import re
 
 
+def get_sections(text: str) -> list:
+    """
+    Returns the section details from the content.
+
+    Args:
+        text: The input text
+
+    Returns:
+        list: The sections related to text
+    """
+    # Updated regex pattern to capture markdown headers like ### Header
+    combined_pattern = r"(?<=\n|^)[#]+\s*(.*?)(?=\n)"
+    doc_metadata = re.findall(combined_pattern, text, re.DOTALL)
+    return clean_sections(doc_metadata)
+
+
+def clean_sections(sections: list) -> list:
+    """
+    Cleans the sections by removing special characters and extra white spaces.
+    """
+    cleaned_sections = [re.sub(r"[=#]", "", match).strip() for match in sections]
+    return cleaned_sections
+
+
 def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     """
     Remove specified Markdown tags from the text, keeping the contents of the tags.
@@ -28,7 +52,7 @@ def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     return text
 
 
-def clean_text(src_text: str) -> str:
+def clean_text_and_extract_metadata(src_text: str) -> tuple[str, str]:
     """This function performs following cleanup activities on the text, remove all unicode characters
     remove line spacing,remove stop words, normalize characters
 
@@ -38,16 +62,21 @@ def clean_text(src_text: str) -> str:
     Returns:
         str: The clean text."""
 
+    return_record = {}
+
     try:
         logging.info(f"Input text: {src_text}")
         if len(src_text) == 0:
             logging.error("Input text is empty")
             raise ValueError("Input text is empty")
 
+        return_record["marked_up_chunk"] = src_text
+        return_record["sections"] = get_sections(src_text)
+
         # Define specific patterns for each tag
         tag_patterns = {
             "figurecontent": r"<!-- FigureContent=(.*?)-->",
-            "figure": r"<figure>(.*?)</figure>",
+            "figure": r"<figure(?:\s+FigureId=\"[^\"]*\")?>(.*?)</figure>",
             "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
             "figcaption": r"<figcaption>(.*?)</figcaption>",
         }
@@ -61,13 +90,15 @@ def clean_text(src_text: str) -> str:
         if len(cleaned_text) == 0:
             logging.error("Cleaned text is empty")
             raise ValueError("Cleaned text is empty")
+        else:
+            return_record["cleaned_chunk"] = cleaned_text
     except Exception as e:
-        logging.error(f"An error occurred in clean_text: {e}")
+        logging.error(f"An error occurred in clean_text_and_extract_metadata: {e}")
         return ""
-    return cleaned_text
+    return return_record
 
 
-async def process_pre_embedding_cleaner(record: dict) -> dict:
+async def process_mark_up_cleaner(record: dict) -> dict:
     """Cleanup the data using standard python libraries.
 
     Args:
@@ -88,7 +119,9 @@ async def process_pre_embedding_cleaner(record: dict) -> dict:
             "warnings": None,
         }
 
-        cleaned_record["data"]["cleaned_chunk"] = clean_text(record["data"]["content"])
+        cleaned_record["data"] = clean_text_and_extract_metadata(
+            record["data"]["content"]
+        )
 
     except Exception as e:
         logging.error("string cleanup Error: %s", e)

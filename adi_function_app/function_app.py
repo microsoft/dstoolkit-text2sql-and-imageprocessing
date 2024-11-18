@@ -6,7 +6,7 @@ import json
 import asyncio
 
 from adi_2_ai_search import process_adi_2_ai_search
-from pre_embedding_cleaner import process_pre_embedding_cleaner
+from adi_function_app.mark_up_cleaner import process_mark_up_cleaner
 from key_phrase_extraction import process_key_phrase_extraction
 from semantic_text_chunker import process_semantic_text_chunker, SemanticTextChunker
 
@@ -51,8 +51,8 @@ async def adi_2_ai_search(req: func.HttpRequest) -> func.HttpResponse:
         )
 
 
-@app.route(route="pre_embedding_cleaner", methods=[func.HttpMethod.POST])
-async def pre_embedding_cleaner(req: func.HttpRequest) -> func.HttpResponse:
+@app.route(route="mark_up_cleaner", methods=[func.HttpMethod.POST])
+async def mark_up_cleaner(req: func.HttpRequest) -> func.HttpResponse:
     """HTTP trigger for data cleanup function.
 
     Args:
@@ -75,9 +75,7 @@ async def pre_embedding_cleaner(req: func.HttpRequest) -> func.HttpResponse:
         record_tasks = []
 
         for value in values:
-            record_tasks.append(
-                asyncio.create_task(process_pre_embedding_cleaner(value))
-            )
+            record_tasks.append(asyncio.create_task(process_mark_up_cleaner(value)))
 
         results = await asyncio.gather(*record_tasks)
         logging.debug("Results: %s", results)

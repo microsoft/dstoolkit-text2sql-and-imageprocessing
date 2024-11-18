@@ -171,7 +171,7 @@ class RagDocumentsAISearch(AISearch):
             "/document", "/document/extracted_content/content"
         )
 
-        pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
+        mark_up_cleaner_skill = self.get_mark_up_cleaner_skill(
             "/document/chunks/*", "/document/chunks/*/content"
         )
 
@@ -186,7 +186,7 @@ class RagDocumentsAISearch(AISearch):
         if self.enable_page_by_chunking:
             skills = [
                 adi_skill,
-                pre_embedding_cleaner_skill,
+                mark_up_cleaner_skill,
                 key_phrase_extraction_skill,
                 embedding_skill,
             ]
@@ -194,7 +194,7 @@ class RagDocumentsAISearch(AISearch):
             skills = [
                 adi_skill,
                 text_split_skill,
-                pre_embedding_cleaner_skill,
+                mark_up_cleaner_skill,
                 key_phrase_extraction_skill,
                 embedding_skill,
             ]

@@ -196,7 +196,7 @@ class AISearch(ABC):
 
         return data_source_connection
 
-    def get_pre_embedding_cleaner_skill(self, context, source) -> WebApiSkill:
+    def get_mark_up_cleaner_skill(self, context, source) -> WebApiSkill:
         """Get the custom skill for data cleanup.
 
         Args:
@@ -215,38 +215,38 @@ class AISearch(ABC):
             batch_size = 16
             degree_of_parallelism = 16
 
-        pre_embedding_cleaner_skill_inputs = [
+        mark_up_cleaner_skill_inputs = [
             InputFieldMappingEntry(name="chunk", source=source)
         ]
 
-        pre_embedding_cleaner_skill_outputs = [
+        mark_up_cleaner_skill_outputs = [
             OutputFieldMappingEntry(name="cleaned_chunk", target_name="cleaned_chunk")
         ]
 
-        pre_embedding_cleaner_skill = WebApiSkill(
+        mark_up_cleaner_skill = WebApiSkill(
             name="Pre Embedding Cleaner Skill",
             description="Skill to clean the data before sending to embedding",
             context=context,
-            uri=self.environment.get_custom_skill_function_url("pre_embedding_cleaner"),
+            uri=self.environment.get_custom_skill_function_url("mark_up_cleaner"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
-            inputs=pre_embedding_cleaner_skill_inputs,
-            outputs=pre_embedding_cleaner_skill_outputs,
+            inputs=mark_up_cleaner_skill_inputs,
+            outputs=mark_up_cleaner_skill_outputs,
         )
 
         if self.environment.identity_type != IdentityType.KEY:
-            pre_embedding_cleaner_skill.auth_identity = (
+            mark_up_cleaner_skill.auth_identity = (
                 self.environment.function_app_app_registration_resource_id
             )
 
         if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            pre_embedding_cleaner_skill.auth_identity = (
+            mark_up_cleaner_skill.auth_identity = (
                 self.environment.ai_search_user_assigned_identity
             )
 
-        return pre_embedding_cleaner_skill
+        return mark_up_cleaner_skill
 
     def get_text_split_skill(self, context, source) -> SplitSkill:
         """Get the skill for text split.

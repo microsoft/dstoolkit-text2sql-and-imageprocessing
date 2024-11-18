@@ -198,7 +198,7 @@ class AISearchEnvironment:
         return os.environ.get("FunctionApp__AppRegistrationResourceId")
 
     @property
-    def function_app_pre_embedding_cleaner_route(self) -> str:
+    def function_app_mark_up_cleaner_route(self) -> str:
         """
         This function returns function app data cleanup function name
         """
@@ -250,8 +250,8 @@ class AISearchEnvironment:
         """
         Get the function app url that is hosting the custom skill
         """
-        if skill_type == "pre_embedding_cleaner":
-            route = self.function_app_pre_embedding_cleaner_route
+        if skill_type == "mark_up_cleaner":
+            route = self.function_app_mark_up_cleaner_route
         elif skill_type == "adi":
             route = self.function_app_adi_route
         elif skill_type == "key_phrase_extraction":
