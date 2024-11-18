@@ -5,30 +5,6 @@ import json
 import re
 
 
-def get_sections(cleaned_text: str) -> list:
-    """
-    Returns the section details from the content
-
-    Args:
-        cleaned_text: The input text
-
-    Returns:
-        list: The sections related to text
-
-    """
-    combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
-    doc_metadata = re.findall(combined_pattern, cleaned_text, re.DOTALL)
-    doc_metadata = [match for group in doc_metadata for match in group if match]
-    return clean_sections(doc_metadata)
-
-
-def clean_sections(sections: list) -> list:
-    """Cleans the sections by removing special characters and extra white spaces."""
-    cleanedSections = [re.sub(r"[=#]", "", match).strip() for match in sections]
-
-    return cleanedSections
-
-
 def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     """
     Remove specified Markdown tags from the text, keeping the contents of the tags.
@@ -52,7 +28,7 @@ def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     return text
 
 
-def clean_text_with_section_extraction(src_text: str) -> tuple[str, str]:
+def clean_text(src_text: str) -> str:
     """This function performs following cleanup activities on the text, remove all unicode characters
     remove line spacing,remove stop words, normalize characters
 
@@ -77,8 +53,6 @@ def clean_text_with_section_extraction(src_text: str) -> tuple[str, str]:
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
 
-        sections = get_sections(cleaned_text)
-
         # Updated regex to keep Unicode letters, punctuation, whitespace, currency symbols, and percentage signs,
         # while also removing non-printable characters
         cleaned_text = re.sub(r"[^\p{L}\p{P}\s\p{Sc}%\x20-\x7E]", "", cleaned_text)
@@ -90,7 +64,7 @@ def clean_text_with_section_extraction(src_text: str) -> tuple[str, str]:
     except Exception as e:
         logging.error(f"An error occurred in clean_text: {e}")
         return ""
-    return cleaned_text, sections
+    return cleaned_text
 
 
 async def process_pre_embedding_cleaner(record: dict) -> dict:
@@ -114,19 +88,7 @@ async def process_pre_embedding_cleaner(record: dict) -> dict:
             "warnings": None,
         }
 
-        # scenarios when page by chunking is enabled
-        if isinstance(record["data"]["chunk"], dict):
-            (
-                cleaned_record["data"]["cleanedChunk"],
-                cleaned_record["data"]["sections"],
-            ) = clean_text_with_section_extraction(record["data"]["chunk"]["content"])
-            cleaned_record["data"]["chunk"] = record["data"]["chunk"]["content"]
-        else:
-            (
-                cleaned_record["data"]["cleanedChunk"],
-                cleaned_record["data"]["sections"],
-            ) = clean_text_with_section_extraction(record["data"]["chunk"])
-            cleaned_record["data"]["chunk"] = record["data"]["chunk"]
+        cleaned_record["data"]["cleaned_chunk"] = clean_text(record["data"]["content"])
 
     except Exception as e:
         logging.error("string cleanup Error: %s", e)

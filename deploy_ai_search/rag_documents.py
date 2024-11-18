@@ -172,15 +172,15 @@ class RagDocumentsAISearch(AISearch):
         )
 
         pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
-            "/document/pages/*", "/document/pages/*"
+            "/document/chunks/*", "/document/chunks/*/content"
         )
 
         key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
-            "/document/pages/*", "/document/pages/*/cleanedChunk"
+            "/document/chunks/*", "/document/chunks/*/cleaned_chunk"
         )
 
         embedding_skill = self.get_vector_skill(
-            "/document/pages/*", "/document/pages/*/cleanedChunk"
+            "/document/chunks/*", "/document/chunks/*/cleaned_chunk"
         )
 
         if self.enable_page_by_chunking:
@@ -204,28 +204,29 @@ class RagDocumentsAISearch(AISearch):
     def get_index_projections(self) -> SearchIndexerIndexProjection:
         """This function returns the index projections for rag document."""
         mappings = [
-            InputFieldMappingEntry(name="Chunk", source="/document/pages/*/chunk"),
+            InputFieldMappingEntry(name="Chunk", source="/document/chunks/*/content"),
             InputFieldMappingEntry(
                 name="ChunkEmbedding",
-                source="/document/pages/*/vector",
+                source="/document/chunks/*/vector",
             ),
             InputFieldMappingEntry(name="Title", source="/document/Title"),
             InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
             InputFieldMappingEntry(
-                name="Keywords", source="/document/pages/*/keywords"
+                name="Keywords", source="/document/chunks/*/keywords"
             ),
             InputFieldMappingEntry(
-                name="Sections", source="/document/pages/*/sections"
+                name="Sections", source="/document/chunks/*/sections"
             ),
             InputFieldMappingEntry(
                 name="Figures",
-                source_context="/document/pages/*/figures/*",
+                source_context="/document/chunks/*/figures/*",
                 inputs=[
                     InputFieldMappingEntry(
-                        name="FigureId", source="/document/pages/*/figures/*/figureId"
+                        name="FigureId", source="/document/chunks/*/figures/*/figureId"
                     ),
                     InputFieldMappingEntry(
-                        name="FigureUri", source="/document/pages/*/figures/*/figureUri"
+                        name="FigureUri",
+                        source="/document/chunks/*/figures/*/figureUri",
                     ),
                 ],
             ),
@@ -238,7 +239,7 @@ class RagDocumentsAISearch(AISearch):
             mappings.extend(
                 [
                     InputFieldMappingEntry(
-                        name="PageNumber", source="/document/pages/*/pageNumber"
+                        name="PageNumber", source="/document/chunks/*/pageNumber"
                     )
                 ]
             )
@@ -248,7 +249,7 @@ class RagDocumentsAISearch(AISearch):
                 SearchIndexerIndexProjectionSelector(
                     target_index_name=self.index_name,
                     parent_key_field_name="Id",
-                    source_context="/document/pages/*",
+                    source_context="/document/chunks/*",
                     mappings=mappings,
                 ),
             ],

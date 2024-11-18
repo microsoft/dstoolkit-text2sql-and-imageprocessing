@@ -205,6 +205,13 @@ class AISearchEnvironment:
         return os.environ.get("FunctionApp__PreEmbeddingCleaner__FunctionName")
 
     @property
+    def function_app_semantic_text_chunker_route(self) -> str:
+        """
+        This function returns function app semantic text chunker name
+        """
+        return os.environ.get("FunctionApp__SemanticTextChunker__FunctionName")
+
+    @property
     def function_app_adi_route(self) -> str:
         """
         This function returns function app adi name
@@ -249,6 +256,8 @@ class AISearchEnvironment:
             route = self.function_app_adi_route
         elif skill_type == "key_phrase_extraction":
             route = self.function_app_key_phrase_extractor_route
+        elif skill_type == "semantic_text_chunker":
+            route = self.function_app_semantic_text_chunker_route
         else:
             raise ValueError(f"Invalid skill type: {skill_type}")
 

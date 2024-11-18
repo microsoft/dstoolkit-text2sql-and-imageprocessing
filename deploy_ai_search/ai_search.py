@@ -220,9 +220,7 @@ class AISearch(ABC):
         ]
 
         pre_embedding_cleaner_skill_outputs = [
-            OutputFieldMappingEntry(name="cleanedChunk", target_name="cleanedChunk"),
-            OutputFieldMappingEntry(name="chunk", target_name="chunk"),
-            OutputFieldMappingEntry(name="sections", target_name="sections"),
+            OutputFieldMappingEntry(name="cleaned_chunk", target_name="cleaned_chunk")
         ]
 
         pre_embedding_cleaner_skill = WebApiSkill(
@@ -263,18 +261,45 @@ class AISearch(ABC):
         --------
             splitSKill: The skill for text split"""
 
-        text_split_skill = SplitSkill(
-            name="Text Split Skill",
-            description="Skill to split the text before sending to embedding",
+        if self.test:
+            batch_size = 2
+            degree_of_parallelism = 2
+        else:
+            batch_size = 16
+            degree_of_parallelism = 16
+
+        semantic_text_chunker_skill_inputs = [
+            InputFieldMappingEntry(name="content", source=source)
+        ]
+
+        semantic_text_chunker_skill_outputs = [
+            OutputFieldMappingEntry(name="chunks", target_name="chunks"),
+        ]
+
+        semantic_text_chunker_skill = WebApiSkill(
+            name="Pre Embedding Cleaner Skill",
+            description="Skill to clean the data before sending to embedding",
             context=context,
-            text_split_mode="pages",
-            maximum_page_length=2000,
-            page_overlap_length=500,
-            inputs=[InputFieldMappingEntry(name="text", source=source)],
-            outputs=[OutputFieldMappingEntry(name="textItems", target_name="pages")],
+            uri=self.environment.get_custom_skill_function_url("semantic_text_chunker"),
+            timeout="PT230S",
+            batch_size=batch_size,
+            degree_of_parallelism=degree_of_parallelism,
+            http_method="POST",
+            inputs=semantic_text_chunker_skill_inputs,
+            outputs=semantic_text_chunker_skill_outputs,
         )
 
-        return text_split_skill
+        if self.environment.identity_type != IdentityType.KEY:
+            semantic_text_chunker_skill.auth_identity = (
+                self.environment.function_app_app_registration_resource_id
+            )
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            semantic_text_chunker_skill.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
+
+        return semantic_text_chunker_skill
 
     def get_adi_skill(self, chunk_by_page=False) -> WebApiSkill:
         """Get the custom skill for adi.
@@ -297,7 +322,7 @@ class AISearch(ABC):
 
         if chunk_by_page:
             output = [
-                OutputFieldMappingEntry(name="extracted_content", target_name="pages")
+                OutputFieldMappingEntry(name="extracted_content", target_name="chunks")
             ]
         else:
             output = [
