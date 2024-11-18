@@ -86,7 +86,7 @@ def clean_text_and_extract_metadata(
 
         figures = []
         for figure_id in figure_ids:
-            figure_uri = f"{figure_storage_prefix}/{figure_id}"
+            figure_uri = f"{figure_storage_prefix}/{figure_id}.png"
             figures.append({"figure_id": figure_id, "figure_uri": figure_uri})
 
         return_record["figures"] = figures
