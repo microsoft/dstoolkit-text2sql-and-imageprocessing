@@ -18,6 +18,10 @@ async def get_entity_schemas(
         str,
         "The text to run a semantic search against. Relevant entities will be returned.",
     ],
+    excluded_entities: Annotated[
+        list[str],
+        "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
+    ] = [],
 ) -> str:
     """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
@@ -49,6 +53,13 @@ async def get_entity_schemas(
         entity = schema["Entity"]
         database = os.environ["Text2Sql__DatabaseName"]
         schema["SelectFromEntity"] = f"{database}.{entity}"
+
+        filtered_schemas = []
+        for excluded_entity in excluded_entities:
+            if excluded_entity.lower() == entity.lower():
+                logging.info("Excluded entity: %s", excluded_entity)
+            else:
+                filtered_schemas.append(schema)
 
     return json.dumps(schemas, default=str)
 
@@ -92,7 +103,7 @@ async def fetch_queries_from_cache(question: str) -> str:
     cached_schemas = await run_ai_search_query(
         question,
         ["QuestionEmbedding"],
-        ["Question", "SqlQueryDecomposition", "Schemas"],
+        ["Question", "SqlQueryDecomposition"],
         os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
         os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"],
         top=1,
@@ -101,7 +112,7 @@ async def fetch_queries_from_cache(question: str) -> str:
     )
 
     if len(cached_schemas) == 0:
-        return None
+        return {"cached_questions": None}
 
     logging.info("Cached schemas: %s", cached_schemas)
     if PRE_RUN_QUERY_CACHE and len(cached_schemas) > 0:
