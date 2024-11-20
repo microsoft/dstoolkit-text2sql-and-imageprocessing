@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem
+from data_dictionary_creator import DataDictionaryCreator, EntityItem, DatabaseEngine
 import asyncio
 import os
 
@@ -25,6 +25,8 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         excluded_schemas = ["dbo", "sys"]
         super().__init__(entities, excluded_entities, excluded_schemas, single_file)
         self.database = os.environ["Text2Sql__DatabaseName"]
+
+        self.database_engine = DatabaseEngine.SQL_SERVER
 
     """A class to extract data dictionary information from a SQL Server database."""
 
