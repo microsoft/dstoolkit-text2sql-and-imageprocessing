@@ -5,7 +5,10 @@ from typing import Annotated
 import os
 import json
 import logging
-from utils.ai_search import add_entry_to_index, run_ai_search_query
+from text_2_sql.semantic_kernel.utils.ai_search_utils import (
+    add_entry_to_index,
+    run_ai_search_query,
+)
 import asyncio
 import aioodbc
 

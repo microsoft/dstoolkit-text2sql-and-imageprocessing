@@ -5,7 +5,7 @@ from typing import Annotated
 import os
 import json
 import logging
-from utils.ai_search import run_ai_search_query
+from text_2_sql.semantic_kernel.utils.ai_search_utils import run_ai_search_query
 
 
 class AISearchPlugin:
