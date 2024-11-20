@@ -5,7 +5,7 @@ from typing import Annotated
 import os
 import json
 import logging
-from text_2_sql.semantic_kernel.utils.ai_search_utils import (
+from utils.ai_search_utils import (
     add_entry_to_index,
     run_ai_search_query,
 )
@@ -153,7 +153,7 @@ class VectorBasedSQLPlugin:
         cached_schemas = await run_ai_search_query(
             question,
             ["QuestionEmbedding"],
-            ["Question", "SqlQueryDecomposition", "Schemas"],
+            ["Question", "SqlQueryDecomposition"],
             os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
             os.environ[
                 "AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"

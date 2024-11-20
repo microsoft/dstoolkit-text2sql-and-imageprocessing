@@ -1,8 +1,20 @@
 model:
   gpt-4o-mini
 description:
-  An agent that takes the final results from the SQL query and writes the answer to the user's question
+  "An agent that takes the final results from the SQL query and writes the answer to the user's question"
 system_message:
-  Write a data-driven answer that directly addresses the user's question. Use the results from the SQL query to provide the answer. Do not make up or guess the answer.
+  "Write a data-driven answer that directly addresses the user's question. Use the results from the SQL query to provide the answer. Do not make up or guess the answer.
 
-  End your answer with 'TERMINATE'
+  Return your answer in the following format:
+
+  {
+    'answer': '<GENERATED ANSWER>',
+    'sources': [
+      {'title': <SOURCE SCHEMA NAME 1>, 'chunk': <SOURCE 1 CONTEXT CHUNK>, 'reference': '<SOURCE 1 SQL QUERY>'},
+      {'title': <SOURCE SCHEMA NAME 2>, 'chunk': <SOURCE 2 CONTEXT CHUNK>, 'reference': '<SOURCE 2 SQL QUERY>'}
+    ]
+  }
+
+  Title is the entity name of the schema, chunk is the result of the SQL query and reference is the SQL query used to generate the answer.
+
+  End your answer with 'TERMINATE'"

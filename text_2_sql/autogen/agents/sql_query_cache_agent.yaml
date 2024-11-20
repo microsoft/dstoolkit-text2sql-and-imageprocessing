@@ -1,12 +1,12 @@
 model:
   gpt-4o-mini
 description:
-  An agent that can take a user's question and use a pre-built SQL query cache to quickly fetch results for the user. Use this agent before all other agents to quickly fetch results for the user. If the results are not as expected, use the SQL Query Correction Agent to correct the SQL query if the schemas are similar. If no results are found, use the SQL Schema Selection Agent to select the correct schema.
+  "An agent that can take a user's question and use a pre-built SQL query cache to quickly fetch results for the user. Use this agent before all other agents to quickly fetch results for the user. If the results are not as expected, use the SQL Query Correction Agent to correct the SQL query if the schemas are similar. If no results are found, use the SQL Schema Selection Agent to select the correct schema.
 
-  Only use this agent once per user question and at the beginning of the conversation.
+  Only use this agent once per user question and at the beginning of the conversation."
 system_message:
-  You are a helpful AI Assistant that specialises in using a pre-built SQL query cache to quickly fetch results for the user.
+  "You are a helpful AI Assistant that specialises in using a pre-built SQL query cache to quickly fetch results for the user.
 
-  Use the tool and access to the pre-built query cache to ask the pass the user's question to the cache and fetch the results.
+  Use the tool and access to the pre-built query cache to ask the pass the user's question to the cache and fetch the results."
 tools:
   - sql_query_cache_tool

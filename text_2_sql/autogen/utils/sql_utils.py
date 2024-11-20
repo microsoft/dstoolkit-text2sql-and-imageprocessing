@@ -112,7 +112,7 @@ async def fetch_queries_from_cache(question: str) -> str:
     )
 
     if len(cached_schemas) == 0:
-        return {"cached_questions": None}
+        return None
 
     logging.info("Cached schemas: %s", cached_schemas)
     if PRE_RUN_QUERY_CACHE and len(cached_schemas) > 0:
