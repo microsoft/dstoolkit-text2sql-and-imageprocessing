@@ -6,6 +6,7 @@ from utils.sql_utils import (
     fetch_queries_from_cache,
 )
 from utils.models import MINI_MODEL
+from utils.prompts import load_system_message, load_description
 
 SQL_QUERY_EXECUTION_TOOL = FunctionTool(
     query_execution,
@@ -22,34 +23,34 @@ SQL_QUERY_CACHE_TOOLS = FunctionTool(
     description="Fetch the pre-assembled queries, and potential results from the cache based on the user's question.",
 )
 
-SQL_QUERY_AGENT = ToolUseAssistantAgent(
-    name="SQL_Query_Agent",
+SQL_QUERY_GENERATION_AGENT = ToolUseAssistantAgent(
+    name="SQL_Query_Generation_Agent",
     registered_tools=[SQL_QUERY_EXECUTION_TOOL],
     model_client=MINI_MODEL,
-    description="An agent that can take a user's question and run an SQL query against the SQL Database to extract information",
-    system_message="You are a helpful AI assistant. Solve tasks using your tools. Specifically, you can take into consideration the user's request and run an SQL query against the SQL Database to extract information.",
+    description=load_description("sql_query_generation_agent"),
+    system_message=load_system_message("sql_query_generation_agent"),
 )
 
-SQL_SCHEMA_EXTRACTION_AGENT = ToolUseAssistantAgent(
-    name="SQL_Schema_Extraction_Agent",
+SQL_SCHEMA_SELECTION_AGENT = ToolUseAssistantAgent(
+    name="SQL_Schema_Selection_Agent",
     registered_tools=[SQL_GET_ENTITY_SCHEMAS_TOOL],
     model_client=MINI_MODEL,
-    description="An agent that can take a user's question and extract the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term",
-    system_message="You are a helpful AI assistant. Solve tasks using your tools. Specifically, you can take into consideration the user's request and extract the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term.",
+    description=load_description("sql_schema_selection_agent"),
+    system_message=load_system_message("sql_schema_selection_agent"),
 )
 
 SQL_QUERY_CORRECTION_AGENT = ToolUseAssistantAgent(
     name="SQL_Query_Correction_Agent",
-    registered_tools=[SQL_QUERY_EXECUTION_TOOL],
+    registered_tools=[SQL_QUERY_EXECUTION_TOOL, SQL_GET_ENTITY_SCHEMAS_TOOL],
     model_client=MINI_MODEL,
-    description="An agent that will look at the SQL query, SQL query results and correct any mistakes in the SQL query",
-    system_message="",
+    description=load_description("sql_query_correction_agent"),
+    system_message=load_system_message("sql_query_correction_agent"),
 )
 
 SQL_QUERY_CACHE_AGENT = ToolUseAssistantAgent(
     name="SQL_Query_Cache_Agent",
     registered_tools=[SQL_QUERY_CACHE_TOOLS],
     model_client=MINI_MODEL,
-    description="An agent that will fetch the queries from the cache based on the user's question.",
-    system_message="",
+    description=load_description("sql_query_cache_agent"),
+    system_message=load_system_message("sql_query_cache_agent"),
 )

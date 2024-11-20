@@ -31,8 +31,15 @@ async def get_entity_schemas(
 
     schemas = await run_ai_search_query(
         text,
-        ["DescriptionEmbedding"],
-        ["Entity", "EntityName", "Description", "Columns"],
+        ["DefinitionEmbedding"],
+        [
+            "Entity",
+            "EntityName",
+            "Definition",
+            "Columns",
+            "EntityRelationships",
+            "CompleteEntityRelationshipsGraph",
+        ],
         os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
         os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
         top=3,
@@ -95,16 +102,9 @@ async def fetch_queries_from_cache(question: str) -> str:
 
     if len(cached_schemas) == 0:
         return None
-    else:
-        database = os.environ["Text2Sql__DatabaseName"]
-        for entry in cached_schemas:
-            for schema in entry["Schemas"]:
-                entity = schema["Entity"]
-                schema["SelectFromEntity"] = f"{database}.{entity}"
 
+    logging.info("Cached schemas: %s", cached_schemas)
     if PRE_RUN_QUERY_CACHE and len(cached_schemas) > 0:
-        logging.info("Cached schemas: %s", cached_schemas)
-
         # check the score
         if cached_schemas[0]["@search.reranker_score"] > 2.75:
             logging.info("Score is greater than 3")
@@ -125,7 +125,7 @@ async def fetch_queries_from_cache(question: str) -> str:
             for sql_query, sql_result in zip(sql_queries, sql_results):
                 query_result_store[sql_query["SqlQuery"]] = {
                     "result": sql_result,
-                    "schemas": sql_queries["schemas"],
+                    "schemas": sql_query["Schemas"],
                 }
 
             return query_result_store
