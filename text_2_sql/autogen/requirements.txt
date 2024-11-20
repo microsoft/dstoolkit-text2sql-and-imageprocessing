@@ -1,7 +1,9 @@
+autogen-core
 autogen-agentchat
-autogen-ext[openai]
+autogen-ext[openai,azure]
 aioodbc
 azure-search
 azure-search-documents==11.6.0b5
 azure-identity
 python-dotenv
+openai
