@@ -1,10 +1,9 @@
 import yaml
 from autogen_core.components.tools import FunctionTool
-from autogen_agentchat.agents import ToolUseAssistantAgent
+from autogen_agentchat.agents import AssistantAgent
 from utils.sql_utils import (
     query_execution,
     get_entity_schemas,
-    fetch_queries_from_cache,
 )
 from utils.models import MINI_MODEL
 from jinja2 import Template
@@ -37,11 +36,6 @@ class LLMAgentCreator:
                 get_entity_schemas,
                 description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned. Only use when the provided schemas in the system prompt are not sufficient to answer the question.",
             )
-        elif tool_name == "sql_query_cache_tool":
-            return FunctionTool(
-                fetch_queries_from_cache,
-                description="Fetch the pre-assembled queries, and potential results from the cache based on the user's question.",
-            )
         else:
             raise ValueError(f"Tool {tool_name} not found")
 
@@ -62,9 +56,9 @@ class LLMAgentCreator:
             for tool in agent_file["tools"]:
                 tools.append(cls.get_tool(tool))
 
-        agent = ToolUseAssistantAgent(
+        agent = AssistantAgent(
             name=name,
-            registered_tools=tools,
+            tools=tools,
             model_client=cls.get_model(agent_file["model"]),
             description=cls.get_property_and_render_parameters(
                 agent_file, "description", kwargs
