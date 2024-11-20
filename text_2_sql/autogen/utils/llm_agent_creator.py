@@ -10,7 +10,7 @@ from utils.models import MINI_MODEL
 from jinja2 import Template
 
 
-class AgentCreator:
+class LLMAgentCreator:
     @classmethod
     def load_agent_file(cls, name):
         with open(f"agents/{name.lower()}.yaml", "r") as file:

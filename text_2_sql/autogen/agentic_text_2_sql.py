@@ -1,24 +1,24 @@
-from autogen_agentchat.task import TextMentionTermination
+from autogen_agentchat.task import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.teams import SelectorGroupChat
 from utils.models import MINI_MODEL
-from utils.agent_creator import AgentCreator
+from utils.llm_agent_creator import LLMAgentCreator
 from autogen_core.components.models import FunctionExecutionResult
 import logging
 
-SQL_QUERY_GENERATION_AGENT = AgentCreator.create(
+SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
     "sql_query_generation_agent",
     target_engine="Microsoft SQL Server",
     engine_specific_rules="Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error.",
 )
-SQL_SCHEMA_SELECTION_AGENT = AgentCreator.create("sql_schema_selection_agent")
-SQL_QUERY_CORRECTION_AGENT = AgentCreator.create(
+SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create("sql_schema_selection_agent")
+SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
     "sql_query_correction_agent",
     target_engine="Microsoft SQL Server",
     engine_specific_rules="Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error.",
 )
-SQL_QUERY_CACHE_AGENT = AgentCreator.create("sql_query_cache_agent")
-ANSWER_AGENT = AgentCreator.create("answer_agent")
-QUESTION_DECOMPOSITION_AGENT = AgentCreator.create("question_decomposition_agent")
+SQL_QUERY_CACHE_AGENT = LLMAgentCreator.create("sql_query_cache_agent")
+ANSWER_AGENT = LLMAgentCreator.create("answer_agent")
+QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create("question_decomposition_agent")
 
 
 def text_2_sql_generator_selector_func(messages):
@@ -51,7 +51,7 @@ def text_2_sql_generator_selector_func(messages):
     return None
 
 
-termination = TextMentionTermination("TERMINATE")
+termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
 text_2_sql_generator = SelectorGroupChat(
     [
         SQL_QUERY_GENERATION_AGENT,
