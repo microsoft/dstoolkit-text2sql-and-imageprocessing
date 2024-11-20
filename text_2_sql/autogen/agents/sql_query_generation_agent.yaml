@@ -1,3 +1,5 @@
+model:
+  gpt-4o-mini
 description:
   An agent that can generate SQL queries once given the schema and the user's question. It will run the SQL query to fetch the results. Use this agent after the SQL Schema Selection Agent has selected the correct schema.
 system_message:
@@ -18,3 +20,5 @@ system_message:
   The complete entity relationship graph shows you all the entities and their relationships. You can use this information to get a better understanding of the schema and the relationships between the entities and request more schema information if needed.
 
   Always run any SQL query you generate to return the results."
+tools:
+  - sql_query_execution_tool
