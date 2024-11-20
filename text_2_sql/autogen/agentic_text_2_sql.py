@@ -3,6 +3,7 @@ from autogen_agentchat.teams import SelectorGroupChat
 from utils.models import MINI_MODEL
 from utils.agent_creator import AgentCreator
 from autogen_core.components.models import FunctionExecutionResult
+import logging
 
 SQL_QUERY_GENERATION_AGENT = AgentCreator.create(
     "sql_query_generation_agent",
@@ -20,7 +21,8 @@ ANSWER_AGENT = AgentCreator.create("answer_agent")
 QUESTION_DECOMPOSITION_AGENT = AgentCreator.create("question_decomposition_agent")
 
 
-def selector_func(messages):
+def text_2_sql_generator_selector_func(messages):
+    logging.info("Messages: %s", messages)
     if len(messages) == 1:
         return "sql_query_cache_agent"
 
@@ -50,7 +52,7 @@ def selector_func(messages):
 
 
 termination = TextMentionTermination("TERMINATE")
-SELECTOR = SelectorGroupChat(
+text_2_sql_generator = SelectorGroupChat(
     [
         SQL_QUERY_GENERATION_AGENT,
         SQL_SCHEMA_SELECTION_AGENT,
@@ -61,5 +63,9 @@ SELECTOR = SelectorGroupChat(
     ],
     model_client=MINI_MODEL,
     termination_condition=termination,
-    selector_func=selector_func,
+    selector_func=text_2_sql_generator_selector_func,
 )
+
+# text_2_sql_cache_updater = SelectorGroupChat(
+#     [SQL_QUERY_CACHE_AGENT], model_client=MINI_MODEL, termination_condition=termination
+# )
