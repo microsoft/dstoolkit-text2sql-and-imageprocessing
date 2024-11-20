@@ -7,6 +7,10 @@ from azure.search.documents.indexes.models import (
     SearchableField,
     SimpleField,
     ComplexField,
+    SemanticField,
+    SemanticPrioritizedFields,
+    SemanticConfiguration,
+    SemanticSearch,
 )
 from ai_search import AISearch
 from environment import (
@@ -107,3 +111,22 @@ class Text2SqlQueryCacheAISearch(AISearch):
         ]
 
         return fields
+
+    def get_semantic_search(self) -> SemanticSearch:
+        """This function returns the semantic search configuration for sql index
+
+        Returns:
+            SemanticSearch: The semantic search configuration"""
+
+        semantic_config = SemanticConfiguration(
+            name=self.semantic_config_name,
+            prioritized_fields=SemanticPrioritizedFields(
+                content_fields=[
+                    SemanticField(field_name="Question"),
+                ],
+            ),
+        )
+
+        semantic_search = SemanticSearch(configurations=[semantic_config])
+
+        return semantic_search
