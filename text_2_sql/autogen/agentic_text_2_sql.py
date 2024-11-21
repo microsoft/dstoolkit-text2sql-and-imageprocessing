@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from autogen_agentchat.task import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.teams import SelectorGroupChat
 from utils.models import MINI_MODEL
@@ -75,7 +77,3 @@ text_2_sql_generator = SelectorGroupChat(
     termination_condition=termination,
     selector_func=text_2_sql_generator_selector_func,
 )
-
-# text_2_sql_cache_updater = SelectorGroupChat(
-#     [SQL_QUERY_CACHE_AGENT], model_client=MINI_MODEL, termination_condition=termination
-# )

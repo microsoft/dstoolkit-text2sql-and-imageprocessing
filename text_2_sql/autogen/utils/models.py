@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from autogen_ext.models import AzureOpenAIChatCompletionClient
 
 # from azure.identity import DefaultAzureCredential, get_bearer_token_provider

@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from typing import AsyncGenerator, List, Sequence
 
 from autogen_agentchat.agents import BaseChatAgent
