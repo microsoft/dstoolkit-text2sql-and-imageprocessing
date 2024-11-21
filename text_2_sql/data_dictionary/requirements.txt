@@ -5,3 +5,4 @@ pydantic
 openai
 snowflake-connector-python
 networkx
+databricks
