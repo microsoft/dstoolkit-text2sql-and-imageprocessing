@@ -5,7 +5,10 @@ from typing import Annotated
 import os
 import json
 import logging
-from utils.ai_search import add_entry_to_index, run_ai_search_query
+from utils.ai_search_utils import (
+    add_entry_to_index,
+    run_ai_search_query,
+)
 import asyncio
 import aioodbc
 
@@ -110,8 +113,15 @@ class VectorBasedSQLPlugin:
             list[dict]: The list of schemas fetched from the store."""
         schemas = await run_ai_search_query(
             search,
-            ["DescriptionEmbedding"],
-            ["Entity", "EntityName", "Description", "Columns"],
+            ["DefinitionEmbedding"],
+            [
+                "Entity",
+                "EntityName",
+                "Definition",
+                "Columns",
+                "EntityRelationships",
+                "CompleteEntityRelationshipsGraph",
+            ],
             os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
             os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
             top=3,
@@ -143,7 +153,7 @@ class VectorBasedSQLPlugin:
         cached_schemas = await run_ai_search_query(
             question,
             ["QuestionEmbedding"],
-            ["Question", "SqlQueryDecomposition", "Schemas"],
+            ["Question", "SqlQueryDecomposition"],
             os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
             os.environ[
                 "AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"
@@ -157,7 +167,7 @@ class VectorBasedSQLPlugin:
             return None
         else:
             database = os.environ["Text2Sql__DatabaseName"]
-            for entry in cached_schemas:
+            for entry in cached_schemas["SqlQueryDecomposition"]:
                 for schema in entry["Schemas"]:
                     entity = schema["Entity"]
                     schema["SelectFromEntity"] = f"{database}.{entity}"
@@ -188,7 +198,7 @@ class VectorBasedSQLPlugin:
                 for sql_query, sql_result in zip(sql_queries, sql_results):
                     query_result_store[sql_query["SqlQuery"]] = {
                         "result": sql_result,
-                        "schemas": sql_queries["schemas"],
+                        "schemas": sql_query["Schemas"],
                     }
 
                 pre_fetched_results_string = f"""[BEGIN PRE-FETCHED RESULTS FOR CACHED SQL QUERIES]\n{
@@ -340,10 +350,12 @@ class VectorBasedSQLPlugin:
 
                 entry = {
                     "Question": self.question,
-                    "SqlQueryDecomposition": {
-                        "SqlQuery": sql_query,
-                        "Schemas": cleaned_schemas,
-                    },
+                    "SqlQueryDecomposition": [
+                        {
+                            "SqlQuery": sql_query,
+                            "Schemas": cleaned_schemas,
+                        }
+                    ],
                 }
             except Exception as e:
                 logging.error("Error: %s", e)
