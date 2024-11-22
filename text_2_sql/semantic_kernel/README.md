@@ -22,6 +22,10 @@ As the query cache is shared between users (no data is stored in the cache), a n
     - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
 - `./time_comparison_script.py` provides a utility script for performing time based comparisons between the different approaches.
 
+### ai-search.py
+
+This util file contains helper functions for interacting with AI Search.
+
 ## Plugins
 
 ### prompt_based_sql_plugin.py
@@ -47,7 +51,6 @@ This method is called by the Semantic Kernel framework automatically, when instr
 ### vector_based_sql_plugin.py
 
 The `./plugins/vector_based_sql_plugin/vector_based_sql_plugin.py` contains 3 key methods to power the Vector Based Text2SQL engine.
-
 
 #### system_prompt()
 

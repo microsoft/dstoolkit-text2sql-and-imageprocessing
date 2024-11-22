@@ -3,7 +3,7 @@
 import yaml
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
-from utils.sql_utils import (
+from utils.sql import (
     query_execution,
     get_entity_schemas,
 )
