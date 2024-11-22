@@ -2,6 +2,18 @@
 
 The implementation is written for [Semantic Kernel](https://github.com/microsoft/semantic-kernel) in Python, although it can easily be adapted for C#.
 
+**The provided Semantic Kernel code implements Iterations 2, 3 & 4.**
+
+## Full Logical Flow for Vector Based Approach
+
+The following diagram shows the logical flow within the Vector Based plugin. In an ideal scenario, the questions will follow the _Pre-Fetched Cache Results Path** which leads to the quickest answer generation. In cases where the question is not known, the plugin will fall back the other paths accordingly and generate the SQL query using the LLMs.
+
+As the query cache is shared between users (no data is stored in the cache), a new user can benefit from the pre-mapped question and schema resolution in the index.
+
+**Database results were deliberately not stored within the cache. Storing them would have removed one of the key benefits of the Text2SQL plugin, the ability to get near-real time information inside a RAG application. Instead, the query is stored so that the most-recent results can be obtained quickly. Additionally, this retains the ability to apply Row or Column Level Security.**
+
+![Vector Based with Query Cache Logical Flow.](../images/Text2SQL%20Query%20Cache.png "Vector Based with Query Cache Logical Flow")
+
 ## Provided Notebooks & Scripts
 
 - `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
