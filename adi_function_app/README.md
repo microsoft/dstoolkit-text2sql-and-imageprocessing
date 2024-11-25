@@ -24,13 +24,21 @@ Once the Markdown is obtained, several steps are carried out:
 
 1. **Extraction of images / charts**. The figures identified are extracted from the original document and passed to a multi-modal model (gpt4o in this case) for analysis. We obtain a description and summary of the chart / image to infer the meaning of the figure. This allows us to index and perform RAG analysis the information that is visually obtainable from a chart, without it being explicitly mentioned in the text surrounding. The information is added back into the original chart.
 
-2. **Cleaning of Markdown**. The final markdown content is cleaned of any characters or unsupported Markdown elements that we do not want in the chunk e.g. non-relevant images.
+2. **Chunking**. The obtained content is chunked accordingly depending on the chunking strategy. This function app supports two chunking methods, **page wise** and **semantic chunking**. The page wise chunking is performed natively by Azure Document Intelligence. For a Semantic Chunking, we include a customer chunker that splits the text with the following strategy:
 
-Page wise analysis in ADI is used to avoid splitting tables / figures across multiple chunks, when the chunking is performed.
+    - Splits text into sentences.
+    - Groups sentences if they are table or figure related to avoid splitting them in context.
+    - Semanticly groups sentences if the similarity is above the threshold, starting from the start of the text.
+    - Semanticly groups sentences if the similarity is above the threshold, starting from the end of the text.
+    - Removes non-existent chunks.
 
-The properties returned from the ADI Custom Skill are then used to perform the following skills:
+    This chunking method aims to improve on page wise chunking, whilst still retaining similar sentences together. When tested, this method shows great performance improvements, over straight page wise chunking, without splitting up the context when relevant.
 
-- Pre-vectorisation cleaning. This stage is important as we extract the section information in this step from the headers in the document. Additionally, we remove any Markdown tags or characters that would cause an embedding error.
+3. **Cleaning of Markdown**. The final markdown content is cleaned of any characters or unsupported Markdown elements that we do not want in the chunk e.g. non-relevant images.
+
+The properties returned from the ADI Custom Skill and Chunking are then used to perform the following skills:
+
+- Markup cleaning. This stage is important as we extract the section information in this step from the headers in the document. Additionally, we remove any Markdown tags or characters that would cause an embedding error.
 - Keyphrase extraction
 - Vectorisation
 
@@ -49,18 +57,24 @@ The Figure 4 content has been interpreted and added into the extracted chunk to 
 
 ## Provided Notebooks \& Utilities
 
-- `./ai_search_with_adi_function_app` provides a pre-built Python function app that communicates with Azure Document Intelligence, Azure OpenAI etc to perform the Markdown conversion, extraction of figures, figure understanding and corresponding cleaning of Markdown.
+- `./function_app` provides a pre-built Python function app that communicates with Azure Document Intelligence, Azure OpenAI etc to perform the Markdown conversion, extraction of figures, figure understanding and corresponding cleaning of Markdown.
 - `./rag_with_ai_search.ipynb` provides example of how to utilise the AI Search plugin to query the index.
 
 ## Deploying AI Search Setup
 
 To deploy the pre-built index and associated indexer / skillset setup, see instructions in `./deploy_ai_search/README.md`.
 
-## ADI Custom Skill
+## Custom Skills
 
-Deploy the associated function app and required resources. You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_ai_search` HTTP endpoint.
+Deploy the associated function app and the resources. To use with an index, either use the utility to configure a indexer in the provided form, or integrate the skill with your skillset pipeline.
 
-To use with an index, either use the utility to configure a indexer in the provided form, or integrate the skill with your skillset pipeline.
+### ADI Custom Skill
+
+You can then experiment with the custom skill by sending an HTTP request in the AI Search JSON format to the `/adi_2_ai_search` HTTP endpoint. The header controls the chunking technique *(page wise or not)*.
+
+### Semantic Chunker Skill
+
+You can then test the chunking by sending a AI Search JSON format to the `/semantic_text_chunker/ HTTP endpoint. The header controls the different chunking parameters *(num_surrounding_sentences, similarity_threshold, max_chunk_tokens, min_chunk_tokens)*.
 
 ### Deployment Steps
 
@@ -72,11 +86,15 @@ To use with an index, either use the utility to configure a indexer in the provi
 
 #### function_app.py
 
-`./indexer/ai_search_with_adi_function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
+`./indexer/function_app.py` contains the HTTP entrypoints for the ADI skill and the other provided utility skills.
 
-#### adi_2_aisearch
+#### semantic_text_chunker.py
 
-`./indexer/adi_2_aisearch.py` contains the methods for content extraction with ADI. The key methods are:
+`./semantic_text_chunker.py` contains the code to chunk the text semantically, whilst grouping similar sentences.
+
+#### adi_2_ai_search.py
+
+`./indexer/adi_2_ai_search.py` contains the methods for content extraction with ADI. The key methods are:
 
 ##### analyse_document
 
@@ -182,8 +200,6 @@ If `chunk_by_page` header is `False`:
     ]
 }
 ```
-
-**Page wise analysis in ADI is recommended to avoid splitting tables / figures across multiple chunks, when the chunking is performed.**
 
 ## Other Provided Custom Skills
 

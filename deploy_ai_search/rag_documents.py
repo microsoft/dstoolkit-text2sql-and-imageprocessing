@@ -171,22 +171,22 @@ class RagDocumentsAISearch(AISearch):
             "/document", "/document/extracted_content/content"
         )
 
-        pre_embedding_cleaner_skill = self.get_pre_embedding_cleaner_skill(
-            "/document/pages/*", "/document/pages/*"
+        mark_up_cleaner_skill = self.get_mark_up_cleaner_skill(
+            "/document/chunks/*", "/document/chunks/*/content"
         )
 
         key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
-            "/document/pages/*", "/document/pages/*/cleanedChunk"
+            "/document/chunks/*", "/document/chunks/*/cleaned_chunk"
         )
 
         embedding_skill = self.get_vector_skill(
-            "/document/pages/*", "/document/pages/*/cleanedChunk"
+            "/document/chunks/*", "/document/chunks/*/cleaned_chunk"
         )
 
         if self.enable_page_by_chunking:
             skills = [
                 adi_skill,
-                pre_embedding_cleaner_skill,
+                mark_up_cleaner_skill,
                 key_phrase_extraction_skill,
                 embedding_skill,
             ]
@@ -194,7 +194,7 @@ class RagDocumentsAISearch(AISearch):
             skills = [
                 adi_skill,
                 text_split_skill,
-                pre_embedding_cleaner_skill,
+                mark_up_cleaner_skill,
                 key_phrase_extraction_skill,
                 embedding_skill,
             ]
@@ -204,28 +204,29 @@ class RagDocumentsAISearch(AISearch):
     def get_index_projections(self) -> SearchIndexerIndexProjection:
         """This function returns the index projections for rag document."""
         mappings = [
-            InputFieldMappingEntry(name="Chunk", source="/document/pages/*/chunk"),
+            InputFieldMappingEntry(name="Chunk", source="/document/chunks/*/chunk"),
             InputFieldMappingEntry(
                 name="ChunkEmbedding",
-                source="/document/pages/*/vector",
+                source="/document/chunks/*/vector",
             ),
             InputFieldMappingEntry(name="Title", source="/document/Title"),
             InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
             InputFieldMappingEntry(
-                name="Keywords", source="/document/pages/*/keywords"
+                name="Keywords", source="/document/chunks/*/keywords"
             ),
             InputFieldMappingEntry(
-                name="Sections", source="/document/pages/*/sections"
+                name="Sections", source="/document/chunks/*/sections"
             ),
             InputFieldMappingEntry(
                 name="Figures",
-                source_context="/document/pages/*/figures/*",
+                source_context="/document/chunks/*/figures/*",
                 inputs=[
                     InputFieldMappingEntry(
-                        name="FigureId", source="/document/pages/*/figures/*/figureId"
+                        name="FigureId", source="/document/chunks/*/figures/*/figure_id"
                     ),
                     InputFieldMappingEntry(
-                        name="FigureUri", source="/document/pages/*/figures/*/figureUri"
+                        name="FigureUri",
+                        source="/document/chunks/*/figures/*/figure_uri",
                     ),
                 ],
             ),
@@ -238,7 +239,7 @@ class RagDocumentsAISearch(AISearch):
             mappings.extend(
                 [
                     InputFieldMappingEntry(
-                        name="PageNumber", source="/document/pages/*/pageNumber"
+                        name="PageNumber", source="/document/chunks/*/pageNumber"
                     )
                 ]
             )
@@ -248,7 +249,7 @@ class RagDocumentsAISearch(AISearch):
                 SearchIndexerIndexProjectionSelector(
                     target_index_name=self.index_name,
                     parent_key_field_name="Id",
-                    source_context="/document/pages/*",
+                    source_context="/document/chunks/*",
                     mappings=mappings,
                 ),
             ],

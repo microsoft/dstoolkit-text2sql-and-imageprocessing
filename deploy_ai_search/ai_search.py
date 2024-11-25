@@ -196,7 +196,7 @@ class AISearch(ABC):
 
         return data_source_connection
 
-    def get_pre_embedding_cleaner_skill(self, context, source) -> WebApiSkill:
+    def get_mark_up_cleaner_skill(self, context, source) -> WebApiSkill:
         """Get the custom skill for data cleanup.
 
         Args:
@@ -215,66 +215,112 @@ class AISearch(ABC):
             batch_size = 16
             degree_of_parallelism = 16
 
-        pre_embedding_cleaner_skill_inputs = [
-            InputFieldMappingEntry(name="chunk", source=source)
+        mark_up_cleaner_skill_inputs = [
+            InputFieldMappingEntry(name="chunk", source=source),
+            InputFieldMappingEntry(
+                name="figure_storage_prefix", source="/document/metadata_storage_path"
+            ),
         ]
 
-        pre_embedding_cleaner_skill_outputs = [
-            OutputFieldMappingEntry(name="cleanedChunk", target_name="cleanedChunk"),
+        mark_up_cleaner_skill_outputs = [
+            OutputFieldMappingEntry(name="cleaned_chunk", target_name="cleaned_chunk"),
             OutputFieldMappingEntry(name="chunk", target_name="chunk"),
             OutputFieldMappingEntry(name="sections", target_name="sections"),
         ]
 
-        pre_embedding_cleaner_skill = WebApiSkill(
-            name="Pre Embedding Cleaner Skill",
+        mark_up_cleaner_skill = WebApiSkill(
+            name="Mark Up Cleaner Skill",
             description="Skill to clean the data before sending to embedding",
             context=context,
-            uri=self.environment.get_custom_skill_function_url("pre_embedding_cleaner"),
+            uri=self.environment.get_custom_skill_function_url("mark_up_cleaner"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
-            inputs=pre_embedding_cleaner_skill_inputs,
-            outputs=pre_embedding_cleaner_skill_outputs,
+            inputs=mark_up_cleaner_skill_inputs,
+            outputs=mark_up_cleaner_skill_outputs,
         )
 
         if self.environment.identity_type != IdentityType.KEY:
-            pre_embedding_cleaner_skill.auth_identity = (
+            mark_up_cleaner_skill.auth_identity = (
                 self.environment.function_app_app_registration_resource_id
             )
 
         if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            pre_embedding_cleaner_skill.auth_identity = (
+            mark_up_cleaner_skill.auth_identity = (
                 self.environment.ai_search_user_assigned_identity
             )
 
-        return pre_embedding_cleaner_skill
+        return mark_up_cleaner_skill
 
-    def get_text_split_skill(self, context, source) -> SplitSkill:
+    def get_text_split_skill(
+        self,
+        context,
+        source,
+        num_surrounding_sentences: int = 1,
+        similarity_threshold: float = 0.8,
+        max_chunk_tokens: int = 200,
+        min_chunk_tokens: int = 50,
+    ) -> SplitSkill:
         """Get the skill for text split.
 
         Args:
         -----
             context (str): The context of the skill
-            inputs (List[InputFieldMappingEntry]): The inputs of the skill
-            outputs (List[OutputFieldMappingEntry]): The outputs of the skill
+            source (str): The source of the skill
+            num_surrounding_sentences (int, optional): The number of surrounding sentences. Defaults to 1.
+            similarity_threshold (float, optional): The similarity threshold. Defaults to 0.8.
+            max_chunk_tokens (int, optional): The maximum number of tokens. Defaults to 200.
 
         Returns:
         --------
             splitSKill: The skill for text split"""
 
-        text_split_skill = SplitSkill(
-            name="Text Split Skill",
-            description="Skill to split the text before sending to embedding",
+        if self.test:
+            batch_size = 2
+            degree_of_parallelism = 2
+        else:
+            batch_size = 16
+            degree_of_parallelism = 16
+
+        semantic_text_chunker_skill_inputs = [
+            InputFieldMappingEntry(name="content", source=source)
+        ]
+
+        semantic_text_chunker_skill_outputs = [
+            OutputFieldMappingEntry(name="chunks", target_name="chunks"),
+        ]
+
+        semantic_text_chunker_skill = WebApiSkill(
+            name="Mark Up Cleaner Skill",
+            description="Skill to clean the data before sending to embedding",
             context=context,
-            text_split_mode="pages",
-            maximum_page_length=2000,
-            page_overlap_length=500,
-            inputs=[InputFieldMappingEntry(name="text", source=source)],
-            outputs=[OutputFieldMappingEntry(name="textItems", target_name="pages")],
+            uri=self.environment.get_custom_skill_function_url("semantic_text_chunker"),
+            timeout="PT230S",
+            batch_size=batch_size,
+            degree_of_parallelism=degree_of_parallelism,
+            http_method="POST",
+            http_headers={
+                "num_surrounding_sentences": num_surrounding_sentences,
+                "similarity_threshold": similarity_threshold,
+                "max_chunk_tokens": max_chunk_tokens,
+                "min_chunk_tokens": min_chunk_tokens,
+            },
+            inputs=semantic_text_chunker_skill_inputs,
+            outputs=semantic_text_chunker_skill_outputs,
         )
 
-        return text_split_skill
+        if self.environment.identity_type != IdentityType.KEY:
+            semantic_text_chunker_skill.auth_identity = (
+                self.environment.function_app_app_registration_resource_id
+            )
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            semantic_text_chunker_skill.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
+
+        return semantic_text_chunker_skill
 
     def get_adi_skill(self, chunk_by_page=False) -> WebApiSkill:
         """Get the custom skill for adi.
@@ -297,7 +343,7 @@ class AISearch(ABC):
 
         if chunk_by_page:
             output = [
-                OutputFieldMappingEntry(name="extracted_content", target_name="pages")
+                OutputFieldMappingEntry(name="extracted_content", target_name="chunks")
             ]
         else:
             output = [

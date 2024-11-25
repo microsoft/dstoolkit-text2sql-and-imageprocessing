@@ -198,11 +198,18 @@ class AISearchEnvironment:
         return os.environ.get("FunctionApp__AppRegistrationResourceId")
 
     @property
-    def function_app_pre_embedding_cleaner_route(self) -> str:
+    def function_app_mark_up_cleaner_route(self) -> str:
         """
         This function returns function app data cleanup function name
         """
         return os.environ.get("FunctionApp__PreEmbeddingCleaner__FunctionName")
+
+    @property
+    def function_app_semantic_text_chunker_route(self) -> str:
+        """
+        This function returns function app semantic text chunker name
+        """
+        return os.environ.get("FunctionApp__SemanticTextChunker__FunctionName")
 
     @property
     def function_app_adi_route(self) -> str:
@@ -243,12 +250,14 @@ class AISearchEnvironment:
         """
         Get the function app url that is hosting the custom skill
         """
-        if skill_type == "pre_embedding_cleaner":
-            route = self.function_app_pre_embedding_cleaner_route
+        if skill_type == "mark_up_cleaner":
+            route = self.function_app_mark_up_cleaner_route
         elif skill_type == "adi":
             route = self.function_app_adi_route
         elif skill_type == "key_phrase_extraction":
             route = self.function_app_key_phrase_extractor_route
+        elif skill_type == "semantic_text_chunker":
+            route = self.function_app_semantic_text_chunker_route
         else:
             raise ValueError(f"Invalid skill type: {skill_type}")
 
