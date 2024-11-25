@@ -260,6 +260,7 @@ class AISearch(ABC):
         num_surrounding_sentences: int = 1,
         similarity_threshold: float = 0.8,
         max_chunk_tokens: int = 200,
+        min_chunk_tokens: int = 50,
     ) -> SplitSkill:
         """Get the skill for text split.
 
@@ -303,6 +304,7 @@ class AISearch(ABC):
                 "num_surrounding_sentences": num_surrounding_sentences,
                 "similarity_threshold": similarity_threshold,
                 "max_chunk_tokens": max_chunk_tokens,
+                "min_chunk_tokens": min_chunk_tokens,
             },
             inputs=semantic_text_chunker_skill_inputs,
             outputs=semantic_text_chunker_skill_outputs,
