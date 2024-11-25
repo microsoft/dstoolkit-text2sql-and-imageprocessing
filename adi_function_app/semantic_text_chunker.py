@@ -174,6 +174,11 @@ class SemanticTextChunker:
             # Extend the result with the correctly split parts, retaining \n\n before the heading
             for part in split_result:
                 if part.strip():  # Only add non-empty parts
+                    if (
+                        self.is_markdown_heading(part)
+                        and part.endswith("\n\n") is False
+                    ):
+                        part = part + "\n\n"
                     heading_split_sentences.append(part)
 
         return heading_split_sentences
