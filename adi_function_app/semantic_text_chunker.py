@@ -81,7 +81,7 @@ class SemanticTextChunker:
 
         logging.info(
             f"""Number of Forward pass chunks: {
-                     len(forward_pass_chunks)}"""
+                len(forward_pass_chunks)}"""
         )
         logging.info(f"Forward pass chunks: {forward_pass_chunks}")
 
@@ -93,7 +93,7 @@ class SemanticTextChunker:
 
         logging.info(
             f"""Number of Backaward pass chunks: {
-                     len(reversed_backwards_pass_chunks)}"""
+                len(reversed_backwards_pass_chunks)}"""
         )
         logging.info(f"Backward pass chunks: {reversed_backwards_pass_chunks}")
 
@@ -431,7 +431,7 @@ class SemanticTextChunker:
 
         logging.debug(
             f"""Similarity between '{text_1}' and '{
-            text_2}': {similarity}"""
+                text_2}': {similarity}"""
         )
         return similarity
 
