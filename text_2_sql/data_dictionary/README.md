@@ -99,7 +99,8 @@ See `./generated_samples/` for an example output of the script. This can then be
 
 The following Databases have pre-built scripts for them:
 
-- **Microsoft SQL Server:** `sql_server_data_dictionary_creator.py`
+- **Databricks:** `databricks_data_dictionary_creator.py`
 - **Snowflake:** `snowflake_data_dictionary_creator.py`
+- **SQL Server:** `sql_server_data_dictionary_creator.py`
 
 If there is no pre-built script for your database engine, take one of the above as a starting point and adjust it.

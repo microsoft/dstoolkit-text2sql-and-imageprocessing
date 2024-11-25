@@ -24,6 +24,16 @@ from ai_search import AISearch
 from environment import (
     IndexerType,
 )
+import os
+from enum import StrEnum
+
+
+class DatabaseEngine(StrEnum):
+    """An enumeration to represent a database engine."""
+
+    SNOWFLAKE = "SNOWFLAKE"
+    SQL_SERVER = "SQL_SERVER"
+    DATABRICKS = "DATABRICKS"
 
 
 class Text2SqlSchemaStoreAISearch(AISearch):
@@ -42,12 +52,33 @@ class Text2SqlSchemaStoreAISearch(AISearch):
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
         self.indexer_type = IndexerType.TEXT_2_SQL_SCHEMA_STORE
+        self.database_engine = DatabaseEngine[
+            os.environ["Text2Sql__DatabaseEngine"].upper()
+        ]
         super().__init__(suffix, rebuild)
 
         if single_data_dictionary:
             self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
         else:
             self.parsing_mode = BlobIndexerParsingMode.JSON
+
+    @property
+    def excluded_fields_for_database_engine(self):
+        """A method to get the excluded fields for the database engine."""
+
+        all_engine_specific_fields = ["Warehouse", "Database", "Catalog"]
+        if self.database_engine == DatabaseEngine.SNOWFLAKE:
+            engine_specific_fields = ["Warehouse", "Database"]
+        elif self.database_engine == DatabaseEngine.SQL_SERVER:
+            engine_specific_fields = ["Database"]
+        elif self.database_engine == DatabaseEngine.DATABRICKS:
+            engine_specific_fields = ["Catalog"]
+
+        return [
+            field
+            for field in all_engine_specific_fields
+            if field not in engine_specific_fields
+        ]
 
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for sql index.
@@ -76,6 +107,10 @@ class Text2SqlSchemaStoreAISearch(AISearch):
             ),
             SearchableField(
                 name="Warehouse",
+                type=SearchFieldDataType.String,
+            ),
+            SearchableField(
+                name="Catalog",
                 type=SearchFieldDataType.String,
             ),
             SearchableField(
@@ -159,6 +194,13 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                 type=SearchFieldDataType.DateTimeOffset,
                 filterable=True,
             ),
+        ]
+
+        # Remove fields that are not supported by the database engine
+        fields = [
+            field
+            for field in fields
+            if field.name not in self.excluded_fields_for_database_engine
         ]
 
         return fields
@@ -308,5 +350,13 @@ class Text2SqlSchemaStoreAISearch(AISearch):
             ],
             parameters=indexer_parameters,
         )
+
+        # Remove fields that are not supported by the database engine
+        indexer.output_field_mappings = [
+            field_mapping
+            for field_mapping in indexer.output_field_mappings
+            if field_mapping.target_field_name
+            not in self.excluded_fields_for_database_engine
+        ]
 
         return indexer

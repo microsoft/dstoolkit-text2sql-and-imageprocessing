@@ -15,8 +15,17 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import random
 import re
 import networkx as nx
+from enum import StrEnum
 
 logging.basicConfig(level=logging.INFO)
+
+
+class DatabaseEngine(StrEnum):
+    """An enumeration to represent a database engine."""
+
+    SNOWFLAKE = "SNOWFLAKE"
+    SQL_SERVER = "SQL_SERVER"
+    DATABRICKS = "DATABRICKS"
 
 
 class ForeignKeyRelationship(BaseModel):
@@ -124,6 +133,7 @@ class EntityItem(BaseModel):
     entity_name: Optional[str] = Field(default=None, alias="EntityName")
     database: Optional[str] = Field(default=None, alias="Database")
     warehouse: Optional[str] = Field(default=None, alias="Warehouse")
+    catalog: Optional[str] = Field(default=None, alias="Catalog")
 
     entity_relationships: Optional[list[EntityRelationship]] = Field(
         alias="EntityRelationships", default_factory=list
@@ -186,6 +196,9 @@ class DataDictionaryCreator(ABC):
 
         self.warehouse = None
         self.database = None
+        self.catalog = None
+
+        self.database_engine = None
 
         load_dotenv(find_dotenv())
 
@@ -391,6 +404,7 @@ class DataDictionaryCreator(ABC):
         for entity in all_entities:
             entity.warehouse = self.warehouse
             entity.database = self.database
+            entity.catalog = self.catalog
 
         return all_entities
 
@@ -636,6 +650,24 @@ class DataDictionaryCreator(ABC):
 
         return entity
 
+    @property
+    def excluded_fields_for_database_engine(self):
+        """A method to get the excluded fields for the database engine."""
+
+        all_engine_specific_fields = ["Warehouse", "Database", "Catalog"]
+        if self.database_engine == DatabaseEngine.SNOWFLAKE:
+            engine_specific_fields = ["Warehouse", "Database"]
+        elif self.database_engine == DatabaseEngine.SQL_SERVER:
+            engine_specific_fields = ["Database"]
+        elif self.database_engine == DatabaseEngine.DATABRICKS:
+            engine_specific_fields = ["Catalog"]
+
+        return [
+            field
+            for field in all_engine_specific_fields
+            if field not in engine_specific_fields
+        ]
+
     async def create_data_dictionary(self):
         """A method to build a data dictionary from a database. Writes to file."""
         entities = await self.extract_entities_with_definitions()
@@ -654,13 +686,28 @@ class DataDictionaryCreator(ABC):
         if self.single_file:
             logging.info("Saving data dictionary to entities.json")
             with open("entities.json", "w", encoding="utf-8") as f:
+                data_dictionary_dump = [
+                    entity.model_dump(
+                        by_alias=True, exclude=self.excluded_fields_for_database_engine
+                    )
+                    for entity in data_dictionary
+                ]
                 json.dump(
-                    data_dictionary.model_dump(by_alias=True), f, indent=4, default=str
+                    data_dictionary_dump,
+                    f,
+                    indent=4,
+                    default=str,
                 )
         else:
             for entity in data_dictionary:
                 logging.info(f"Saving data dictionary for {entity.entity}")
                 with open(f"{entity.entity}.json", "w", encoding="utf-8") as f:
                     json.dump(
-                        entity.model_dump(by_alias=True), f, indent=4, default=str
+                        entity.model_dump(
+                            by_alias=True,
+                            exclude=self.excluded_fields_for_database_engine,
+                        ),
+                        f,
+                        indent=4,
+                        default=str,
                     )
