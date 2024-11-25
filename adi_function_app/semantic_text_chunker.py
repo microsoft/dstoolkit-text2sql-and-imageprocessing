@@ -232,17 +232,18 @@ class SemanticTextChunker:
 
             # Detect if table or figure
             if is_table_or_figure_map[current_sentence_index]:
-                new_is_table_or_figure_map.append(True)
                 if forwards_direction:
                     if len(current_chunk) > 0:
                         current_chunk.append(current_sentence)
                         chunks.append(retrieve_current_chunk())
+                        new_is_table_or_figure_map.append(True)
                         current_chunk = []
                     else:
                         current_chunk.append(current_sentence)
                 else:
                     # On the backwards pass we don't want to add to the table chunk
                     chunks.append(retrieve_current_chunk())
+                    new_is_table_or_figure_map.append(True)
                     current_chunk.append(current_sentence)
 
                 index += 1
@@ -262,6 +263,7 @@ class SemanticTextChunker:
                     # Finish off
                     current_chunk.append(current_sentence)
                     chunks.append(retrieve_current_chunk())
+                    new_is_table_or_figure_map.append(False)
                     current_chunk = []
 
                     index += 1
@@ -269,9 +271,10 @@ class SemanticTextChunker:
                 elif is_table_or_figure_ahead:
                     # Add to the ahead chunk
                     chunks.append(retrieve_current_chunk())
+                    new_is_table_or_figure_map.append(False)
                     if forwards_direction:
                         current_chunk = sentences[
-                            current_sentence_index : current_sentence
+                            current_sentence_index : current_sentence_index
                             + min_of_distance_to_next_figure_or_num_surrounding_sentences
                         ]
                     else:
