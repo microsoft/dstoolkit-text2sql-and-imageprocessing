@@ -38,12 +38,19 @@ async def build_and_clean_markdown_for_response(
         str: The cleaned Markdown text.
     """
 
-    comment_patterns = r"<!-- PageNumber=\"[^\"]*\" -->|<!-- PageHeader=\"[^\"]*\" -->|<!-- PageFooter=\"[^\"]*\" -->|<!-- PageBreak -->|<!-- Footnote=\"[^\"]*\" -->"
-    cleaned_text = re.sub(comment_patterns, "", markdown_text, flags=re.DOTALL)
+    # Pattern to match the comment start `<!--` and comment end `-->`
+    # Matches opening `<!--` up to the first occurrence of a non-hyphen character
+    comment_start_pattern = r"<!--[^<]*"
+    comment_end_pattern = r"(-->|\<)"
+
+    # Using re.sub to remove comments
+    cleaned_text = re.sub(
+        f"{comment_start_pattern}.*?{comment_end_pattern}", "", markdown_text
+    )
 
     # Remove irrelevant figures
     if remove_irrelevant_figures:
-        irrelevant_figure_pattern = r"<!-- FigureContent=\"Irrelevant Image\" -->\s*"
+        irrelevant_figure_pattern = r"<figure[^>]*>.*?Irrelevant Image.*?</figure>"
         cleaned_text = re.sub(
             irrelevant_figure_pattern, "", cleaned_text, flags=re.DOTALL
         )
