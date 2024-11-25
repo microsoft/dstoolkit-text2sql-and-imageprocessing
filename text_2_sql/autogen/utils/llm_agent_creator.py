@@ -14,7 +14,7 @@ from jinja2 import Template
 class LLMAgentCreator:
     @classmethod
     def load_agent_file(cls, name):
-        with open(f"llm_agents/{name.lower()}.yaml", "r") as file:
+        with open(f"/agents/llm_agents/{name.lower()}.yaml", "r") as file:
             file = yaml.safe_load(file)
 
         return file

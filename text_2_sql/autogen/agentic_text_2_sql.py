@@ -6,6 +6,7 @@ from utils.models import MINI_MODEL
 from utils.llm_agent_creator import LLMAgentCreator
 import logging
 from custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
+from custom_agents.sql_schema_extraction_agent import SqlSchemaExtractionAgent
 import json
 
 SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
@@ -13,7 +14,9 @@ SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
     target_engine="Microsoft SQL Server",
     engine_specific_rules="Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error.",
 )
-SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create("sql_schema_selection_agent")
+# SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create(
+#     "sql_schema_selection_agent")
+SQL_SCHEMA_SELECTION_AGENT = SqlSchemaExtractionAgent()
 SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
     "sql_query_correction_agent",
     target_engine="Microsoft SQL Server",
