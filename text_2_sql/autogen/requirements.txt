@@ -1,6 +1,6 @@
-autogen-core==0.4.0.dev6
-autogen-agentchat==0.4.0.dev6
-autogen-ext[openai,azure]==0.4.0.dev6
+autogen-core==0.4.0.dev7
+autogen-agentchat==0.4.0.dev7
+autogen-ext[openai,azure]==0.4.0.dev7
 aioodbc
 azure-search
 azure-search-documents==11.6.0b5
@@ -8,4 +8,3 @@ azure-identity
 python-dotenv
 openai
 jinja2
-keybert
