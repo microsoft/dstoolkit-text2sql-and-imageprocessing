@@ -4,7 +4,7 @@ import logging
 import os
 import aioodbc
 from typing import Annotated
-from text_2_sql.autogen.utils.ai_search import run_ai_search_query
+from utils.ai_search import run_ai_search_query
 import json
 import asyncio
 

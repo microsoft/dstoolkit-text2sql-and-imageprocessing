@@ -21,15 +21,8 @@ system_message:
     You would then use the 'sql_get_entity_schemas_tool' tool to search for the correct schema based on these key terms.
 
   Output Info:
-    If there are multiple possible schemas, return the information to the use in the following form for clarrification:
-
-    [
-      {
-        'question': 'Which of the following columns does the key term <key_term> belong to?',
-        'columns': ['<column_1>', '<column_2>', '<column_3>']
-      }
-    ]
-
-    End your answer with 'TERMINATE' if you are unable to find the correct schema or if the user's question is too ambiguous to select a schema."
+    - Just return the output of the 'sql_get_entity_schemas_tool' tool.
+    - Concate the results of the 'sql_get_entity_schemas_tool' tool if you are calling this agent in parallel.
+    - Do not provide any analysis or additional information to the user."
 tools:
   - sql_get_entity_schemas_tool
