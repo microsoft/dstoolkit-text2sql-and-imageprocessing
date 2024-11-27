@@ -5,28 +5,35 @@ import json
 import re
 
 
-def get_sections(cleaned_text: str) -> list:
+def get_sections(text: str) -> list:
     """
-    Returns the section details from the content
+    Returns the section details from the content.
 
     Args:
-        cleaned_text: The input text
+        text: The input text
 
     Returns:
         list: The sections related to text
-
     """
-    combined_pattern = r"(.*?)\n===|\n#+\s*(.*?)\n"
-    doc_metadata = re.findall(combined_pattern, cleaned_text, re.DOTALL)
-    doc_metadata = [match for group in doc_metadata for match in group if match]
+    # Updated regex pattern to capture markdown headers like ### Header
+    combined_pattern = r"(?<=\n|^)[#]+\s*(.*?)(?=\n)"
+    doc_metadata = re.findall(combined_pattern, text, re.DOTALL)
     return clean_sections(doc_metadata)
 
 
 def clean_sections(sections: list) -> list:
-    """Cleans the sections by removing special characters and extra white spaces."""
-    cleanedSections = [re.sub(r"[=#]", "", match).strip() for match in sections]
+    """
+    Cleans the sections by removing special characters and extra white spaces.
+    """
+    cleaned_sections = [re.sub(r"[=#]", "", match).strip() for match in sections]
+    return cleaned_sections
 
-    return cleanedSections
+
+def extract_figure_ids(text: str) -> list:
+    # Regex pattern to capture FigureId values
+    figure_id_pattern = r'<figure(?:\s+FigureId="([^"]+)")?'
+    figure_ids = re.findall(figure_id_pattern, text)
+    return figure_ids
 
 
 def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
@@ -52,7 +59,9 @@ def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     return text
 
 
-def clean_text_with_section_extraction(src_text: str) -> tuple[str, str]:
+def clean_text_and_extract_metadata(
+    src_text: str, figure_storage_prefix: str
+) -> tuple[str, str]:
     """This function performs following cleanup activities on the text, remove all unicode characters
     remove line spacing,remove stop words, normalize characters
 
@@ -62,22 +71,34 @@ def clean_text_with_section_extraction(src_text: str) -> tuple[str, str]:
     Returns:
         str: The clean text."""
 
+    return_record = {}
+
     try:
         logging.info(f"Input text: {src_text}")
         if len(src_text) == 0:
             logging.error("Input text is empty")
             raise ValueError("Input text is empty")
 
+        return_record["marked_up_chunk"] = src_text
+        return_record["sections"] = get_sections(src_text)
+
+        figure_ids = extract_figure_ids(src_text)
+
+        figures = []
+        for figure_id in figure_ids:
+            figure_uri = f"{figure_storage_prefix}/{figure_id}.png"
+            figures.append({"figure_id": figure_id, "figure_uri": figure_uri})
+
+        return_record["figures"] = figures
+
         # Define specific patterns for each tag
         tag_patterns = {
             "figurecontent": r"<!-- FigureContent=(.*?)-->",
-            "figure": r"<figure>(.*?)</figure>",
+            "figure": r"<figure(?:\s+FigureId=\"[^\"]*\")?>(.*?)</figure>",
             "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
             "figcaption": r"<figcaption>(.*?)</figcaption>",
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
-
-        sections = get_sections(cleaned_text)
 
         # Updated regex to keep Unicode letters, punctuation, whitespace, currency symbols, and percentage signs,
         # while also removing non-printable characters
@@ -87,13 +108,15 @@ def clean_text_with_section_extraction(src_text: str) -> tuple[str, str]:
         if len(cleaned_text) == 0:
             logging.error("Cleaned text is empty")
             raise ValueError("Cleaned text is empty")
+        else:
+            return_record["cleaned_chunk"] = cleaned_text
     except Exception as e:
-        logging.error(f"An error occurred in clean_text: {e}")
+        logging.error(f"An error occurred in clean_text_and_extract_metadata: {e}")
         return ""
-    return cleaned_text, sections
+    return return_record
 
 
-async def process_pre_embedding_cleaner(record: dict) -> dict:
+async def process_mark_up_cleaner(record: dict) -> dict:
     """Cleanup the data using standard python libraries.
 
     Args:
@@ -114,19 +137,9 @@ async def process_pre_embedding_cleaner(record: dict) -> dict:
             "warnings": None,
         }
 
-        # scenarios when page by chunking is enabled
-        if isinstance(record["data"]["chunk"], dict):
-            (
-                cleaned_record["data"]["cleanedChunk"],
-                cleaned_record["data"]["sections"],
-            ) = clean_text_with_section_extraction(record["data"]["chunk"]["content"])
-            cleaned_record["data"]["chunk"] = record["data"]["chunk"]["content"]
-        else:
-            (
-                cleaned_record["data"]["cleanedChunk"],
-                cleaned_record["data"]["sections"],
-            ) = clean_text_with_section_extraction(record["data"]["chunk"])
-            cleaned_record["data"]["chunk"] = record["data"]["chunk"]
+        cleaned_record["data"] = clean_text_and_extract_metadata(
+            record["data"]["chunk"], record["data"]["figure_storage_prefix"]
+        )
 
     except Exception as e:
         logging.error("string cleanup Error: %s", e)
