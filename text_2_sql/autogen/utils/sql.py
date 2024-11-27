@@ -90,7 +90,7 @@ async def query_execution(
 
             columns = [column[0] for column in cursor.description]
 
-            rows = await cursor.fetchall()
+            rows = await cursor.fetchmany(25)
             results = [dict(zip(columns, returned_row)) for returned_row in rows]
 
     logging.debug("Results: %s", results)
