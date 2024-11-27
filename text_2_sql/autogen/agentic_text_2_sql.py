@@ -5,75 +5,133 @@ from autogen_agentchat.teams import SelectorGroupChat
 from utils.models import MINI_MODEL
 from utils.llm_agent_creator import LLMAgentCreator
 import logging
-from custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
+from agents.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
 import json
-
-SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
-    "sql_query_generation_agent",
-    target_engine="Microsoft SQL Server",
-    engine_specific_rules="Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error.",
-)
-SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create("sql_schema_selection_agent")
-SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
-    "sql_query_correction_agent",
-    target_engine="Microsoft SQL Server",
-    engine_specific_rules="Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error.",
-)
-SQL_QUERY_CACHE_AGENT = SqlQueryCacheAgent()
-ANSWER_AGENT = LLMAgentCreator.create("answer_agent")
-QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create("question_decomposition_agent")
+import os
 
 
-def text_2_sql_generator_selector_func(messages):
-    logging.info("Messages: %s", messages)
-    decision = None  # Initialize decision variable
+class AgenticText2Sql:
+    def __init__(self, target_engine: str, engine_specific_rules: str):
+        self.use_query_cache = False
+        self.pre_run_query_cache = False
 
-    if len(messages) == 1:
-        decision = "sql_query_cache_agent"
+        self.target_engine = target_engine
+        self.engine_specific_rules = engine_specific_rules
 
-    elif (
-        messages[-1].source == "sql_query_cache_agent"
-        and messages[-1].content is not None
-    ):
-        cache_result = json.loads(messages[-1].content)
-        if cache_result.get("cached_questions_and_schemas") is not None:
+        self.set_mode()
+
+    def set_mode(self):
+        """Set the mode of the plugin based on the environment variables."""
+        self.use_query_cache = (
+            os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
+        )
+
+        self.pre_run_query_cache = (
+            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+        )
+
+    @property
+    def agents(self):
+        """Define the agents for the chat."""
+        SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
+            "sql_query_generation_agent",
+            target_engine=self.target_engine,
+            engine_specific_rules=self.engine_specific_rules,
+        )
+        SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create(
+            "sql_schema_selection_agent",
+            use_case="Sales data for a company that specializes in selling products online.",
+        )
+        SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
+            "sql_query_correction_agent",
+            target_engine=self.target_engine,
+            engine_specific_rules=self.engine_specific_rules,
+        )
+
+        ANSWER_AGENT = LLMAgentCreator.create("answer_agent")
+        QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create(
+            "question_decomposition_agent"
+        )
+
+        agents = [
+            SQL_QUERY_GENERATION_AGENT,
+            SQL_SCHEMA_SELECTION_AGENT,
+            SQL_QUERY_CORRECTION_AGENT,
+            ANSWER_AGENT,
+            QUESTION_DECOMPOSITION_AGENT,
+        ]
+
+        if self.use_query_cache:
+            SQL_QUERY_CACHE_AGENT = SqlQueryCacheAgent()
+            agents.append(SQL_QUERY_CACHE_AGENT)
+
+        return agents
+
+    @property
+    def termination_condition(self):
+        """Define the termination condition for the chat."""
+        termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
+        return termination
+
+    @staticmethod
+    def selector(messages):
+        logging.info("Messages: %s", messages)
+        decision = None  # Initialize decision variable
+
+        if len(messages) == 1:
+            decision = "sql_query_cache_agent"
+
+        elif (
+            messages[-1].source == "sql_query_cache_agent"
+            and messages[-1].content is not None
+        ):
+            cache_result = json.loads(messages[-1].content)
+            if cache_result.get("cached_questions_and_schemas") is not None:
+                decision = "sql_query_correction_agent"
+            else:
+                decision = "sql_schema_selection_agent"
+
+        elif messages[-1].source == "sql_query_cache_agent":
+            decision = "question_decomposition_agent"
+
+        elif messages[-1].source == "question_decomposition_agent":
+            decomposition_result = json.loads(messages[-1].content)
+
+            if len(decomposition_result["entities"]) == 1:
+                decision = "sql_schema_selection_agent"
+            else:
+                decision = "parallel_sql_flow_agent"
+
+        elif messages[-1].source == "sql_schema_selection_agent":
+            decision = "sql_query_generation_agent"
+
+        elif (
+            messages[-1].source == "sql_query_correction_agent"
+            and messages[-1].content == "VALIDATED"
+        ):
+            decision = "answer_agent"
+
+        elif messages[-1].source == "sql_query_correction_agent":
             decision = "sql_query_correction_agent"
-        else:
-            decision = "sql_schema_selection_agent"
 
-    elif messages[-1].source == "question_decomposition_agent":
-        decision = "sql_schema_selection_agent"
+        # Log the decision
+        logging.info("Decision: %s", decision)
 
-    elif messages[-1].source == "sql_schema_selection_agent":
-        decision = "sql_query_generation_agent"
+        return decision
 
-    elif (
-        messages[-1].source == "sql_query_correction_agent"
-        and messages[-1].content == "VALIDATED"
-    ):
-        decision = "answer_agent"
+    @property
+    def agentic_flow(self):
+        """Run the agentic flow for the given question.
 
-    elif messages[-1].source == "sql_query_correction_agent":
-        decision = "sql_query_correction_agent"
+        Args:
+        ----
+            question (str): The question to run the agentic flow on."""
+        agentic_flow = SelectorGroupChat(
+            self.agents,
+            allow_repeated_speaker=False,
+            model_client=MINI_MODEL,
+            termination_condition=self.termination_condition,
+            selector_func=AgenticText2Sql.selector,
+        )
 
-    # Log the decision
-    logging.info("Decision: %s", decision)
-
-    return decision
-
-
-termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
-text_2_sql_generator = SelectorGroupChat(
-    [
-        SQL_QUERY_GENERATION_AGENT,
-        SQL_SCHEMA_SELECTION_AGENT,
-        SQL_QUERY_CORRECTION_AGENT,
-        SQL_QUERY_CACHE_AGENT,
-        ANSWER_AGENT,
-        QUESTION_DECOMPOSITION_AGENT,
-    ],
-    allow_repeated_speaker=False,
-    model_client=MINI_MODEL,
-    termination_condition=termination,
-    selector_func=text_2_sql_generator_selector_func,
-)
+        return agentic_flow

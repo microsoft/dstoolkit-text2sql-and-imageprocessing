@@ -26,7 +26,7 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
         super().__init__(entities, excluded_entities, excluded_schemas, single_file)
         self.database = os.environ["Text2Sql__DatabaseName"]
 
-        self.database_engine = DatabaseEngine.SQL_SERVER
+        self.database_engine = DatabaseEngine.TSQL
 
     """A class to extract data dictionary information from a SQL Server database."""
 

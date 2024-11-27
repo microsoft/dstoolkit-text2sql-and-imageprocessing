@@ -5,7 +5,7 @@ from typing import Annotated
 import os
 import json
 import logging
-from utils.ai_search_utils import (
+from utils.ai_search import (
     add_entry_to_index,
     run_ai_search_query,
 )

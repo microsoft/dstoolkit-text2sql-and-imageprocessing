@@ -3,10 +3,11 @@
 import logging
 import os
 import aioodbc
-from typing import Annotated
-from utils.ai_search_utils import run_ai_search_query
+from typing import Annotated, Union
+from utils.ai_search import run_ai_search_query
 import json
 import asyncio
+import sqlglot
 
 USE_QUERY_CACHE = os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
 
@@ -66,7 +67,12 @@ async def get_entity_schemas(
     return json.dumps(schemas, default=str)
 
 
-async def query_execution(sql_query: str) -> list[dict]:
+async def query_execution(
+    sql_query: Annotated[
+        str,
+        "The SQL query to run against the database.",
+    ]
+) -> list[dict]:
     """Run the SQL query against the database.
 
     Args:
@@ -89,6 +95,24 @@ async def query_execution(sql_query: str) -> list[dict]:
 
     logging.debug("Results: %s", results)
     return results
+
+
+async def query_validation(
+    sql_query: Annotated[
+        str,
+        "The SQL query to run against the database.",
+    ]
+) -> Union[bool | list[dict]]:
+    """Validate the SQL query."""
+    try:
+        logging.info("Validating SQL Query: %s", sql_query)
+        sqlglot.transpile(sql_query)
+    except sqlglot.errors.ParseError as e:
+        logging.error("SQL Query is invalid: %s", e.errors)
+        return e.errors
+    else:
+        logging.info("SQL Query is valid.")
+        return True
 
 
 async def fetch_queries_from_cache(question: str) -> str:

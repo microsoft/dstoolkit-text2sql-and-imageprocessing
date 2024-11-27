@@ -101,6 +101,6 @@ The following Databases have pre-built scripts for them:
 
 - **Databricks:** `databricks_data_dictionary_creator.py`
 - **Snowflake:** `snowflake_data_dictionary_creator.py`
-- **SQL Server:** `sql_server_data_dictionary_creator.py`
+- **TSQL:** `tsql_data_dictionary_creator.py`
 
 If there is no pre-built script for your database engine, take one of the above as a starting point and adjust it.

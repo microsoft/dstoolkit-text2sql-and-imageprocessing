@@ -6,7 +6,7 @@ from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
 from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
 from autogen_core.base import CancellationToken
-from utils.sql_utils import fetch_queries_from_cache
+from utils.sql import fetch_queries_from_cache
 import json
 import logging
 

@@ -32,7 +32,7 @@ class DatabaseEngine(StrEnum):
     """An enumeration to represent a database engine."""
 
     SNOWFLAKE = "SNOWFLAKE"
-    SQL_SERVER = "SQL_SERVER"
+    TSQL = "TSQL"
     DATABRICKS = "DATABRICKS"
 
 
@@ -69,7 +69,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
         all_engine_specific_fields = ["Warehouse", "Database", "Catalog"]
         if self.database_engine == DatabaseEngine.SNOWFLAKE:
             engine_specific_fields = ["Warehouse", "Database"]
-        elif self.database_engine == DatabaseEngine.SQL_SERVER:
+        elif self.database_engine == DatabaseEngine.TSQL:
             engine_specific_fields = ["Database"]
         elif self.database_engine == DatabaseEngine.DATABRICKS:
             engine_specific_fields = ["Catalog"]
