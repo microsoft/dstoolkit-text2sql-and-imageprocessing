@@ -105,10 +105,13 @@ async def query_validation(
 ) -> Union[bool | list[dict]]:
     """Validate the SQL query."""
     try:
+        logging.info("Validating SQL Query: %s", sql_query)
         sqlglot.transpile(sql_query)
     except sqlglot.errors.ParseError as e:
+        logging.error("SQL Query is invalid: %s", e.errors)
         return e.errors
     else:
+        logging.info("SQL Query is valid.")
         return True
 
 

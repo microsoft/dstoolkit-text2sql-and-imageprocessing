@@ -2,6 +2,8 @@
 
 The implementation is written for [AutoGen](https://github.com/microsoft/autogen) in Python, although it can easily be adapted for C#.
 
+**Still work in progress, expect a lot of updates shortly**
+
 **The provided AutoGen code only implements Iterations 5 (Agentic Approach)**
 
 ## Full Logical Flow for Agentic Vector Based Approach
