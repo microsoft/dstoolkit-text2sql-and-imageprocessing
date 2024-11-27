@@ -97,7 +97,7 @@ async def query_execution(
     return results
 
 
-async def validate_sql_query(
+async def query_validation(
     sql_query: Annotated[
         str,
         "The SQL query to run against the database.",

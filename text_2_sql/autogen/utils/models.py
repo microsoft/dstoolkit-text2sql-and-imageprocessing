@@ -14,6 +14,7 @@ dotenv.load_dotenv()
 # )
 
 MINI_MODEL = AzureOpenAIChatCompletionClient(
+    azure_deployment=os.environ["OpenAI__MiniCompletionDeployment"],
     model=os.environ["OpenAI__MiniCompletionDeployment"],
     api_version="2024-08-01-preview",
     azure_endpoint=os.environ["OpenAI__Endpoint"],
