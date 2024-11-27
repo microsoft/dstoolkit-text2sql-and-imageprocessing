@@ -105,7 +105,7 @@ async def validate_sql_query(
 ) -> Union[bool | list[dict]]:
     """Validate the SQL query."""
     try:
-        sqlglot.transpile("SELECT foo FROM (SELECT baz FROM t")
+        sqlglot.transpile(sql_query)
     except sqlglot.errors.ParseError as e:
         return e.errors
     else:
