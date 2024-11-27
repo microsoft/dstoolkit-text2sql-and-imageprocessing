@@ -9,3 +9,4 @@ python-dotenv
 openai
 jinja2
 pyyaml
+sqlglot[rs]
