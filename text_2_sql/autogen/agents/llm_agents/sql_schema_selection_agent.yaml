@@ -7,6 +7,8 @@ description:
 system_message:
   "You are a helpful AI Assistant that specialises in selecting relevant SQL schemas to answer a given user's question.
 
+  The user's question will be related to {{ use_case }}.
+
   Perform the following steps to select the correct schema:
 
     1. Extract key terms and entities from the user's question.

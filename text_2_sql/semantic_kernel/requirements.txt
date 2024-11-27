@@ -9,3 +9,4 @@ numpy
 seaborn
 pydantic
 openai
+pyyaml

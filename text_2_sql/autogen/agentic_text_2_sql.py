@@ -13,7 +13,10 @@ SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
     target_engine="Microsoft SQL Server",
     engine_specific_rules="Use TOP X to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error.",
 )
-SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create("sql_schema_selection_agent")
+SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create(
+    "sql_schema_selection_agent",
+    use_case="Sales data for a company that specializes in selling products online.",
+)
 SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
     "sql_query_correction_agent",
     target_engine="Microsoft SQL Server",
@@ -42,7 +45,12 @@ def text_2_sql_generator_selector_func(messages):
             decision = "sql_schema_selection_agent"
 
     elif messages[-1].source == "question_decomposition_agent":
-        decision = "sql_schema_selection_agent"
+        decomposition_result = json.loads(messages[-1].content)
+
+        if len(decomposition_result["entities"]) == 1:
+            decision = "sql_schema_selection_agent"
+        else:
+            decision = "parallel_sql_flow_agent"
 
     elif messages[-1].source == "sql_schema_selection_agent":
         decision = "sql_query_generation_agent"

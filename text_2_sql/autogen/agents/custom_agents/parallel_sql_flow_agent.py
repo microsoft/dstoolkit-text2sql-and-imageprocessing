@@ -6,12 +6,12 @@ from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
 from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
 from autogen_core.base import CancellationToken
-from text_2_sql.autogen.utils.sql import get_entity_schemas
-from keybert import KeyBERT
+from utils.sql import fetch_queries_from_cache
+import json
 import logging
 
 
-class SqlSchemaExtractionAgent(BaseChatAgent):
+class ParallelSqlFlowAgent(BaseChatAgent):
     def __init__(self):
         super().__init__(
             "sql_query_cache_agent",
@@ -41,24 +41,12 @@ class SqlSchemaExtractionAgent(BaseChatAgent):
         # Fetch the queries from the cache based on the user question.
         logging.info("Fetching queries from cache based on the user question...")
 
-        kw_model = KeyBERT()
-
-        top_keywords = kw_model.extract_keywords(
-            user_question, keyphrase_ngram_range=(1, 3), top_n=5
-        )
-
-        # Extract just the key phrases (ignoring the score)
-        key_phrases = [keyword[0] for keyword in top_keywords]
-
-        # Join them into a string list
-        key_phrases_str = ", ".join(key_phrases)
-
-        entity_schemas = await get_entity_schemas(key_phrases_str)
-
-        logging.info(entity_schemas)
+        cached_queries = await fetch_queries_from_cache(user_question)
 
         yield Response(
-            chat_message=TextMessage(content=entity_schemas, source=self.name)
+            chat_message=TextMessage(
+                content=json.dumps(cached_queries), source=self.name
+            )
         )
 
     async def on_reset(self, cancellation_token: CancellationToken) -> None:

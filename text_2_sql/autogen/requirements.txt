@@ -8,3 +8,4 @@ azure-identity
 python-dotenv
 openai
 jinja2
+pyyaml
