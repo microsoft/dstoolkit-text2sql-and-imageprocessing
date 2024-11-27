@@ -4,167 +4,173 @@ import logging
 import os
 import aioodbc
 from typing import Annotated, Union
-from utils.ai_search import run_ai_search_query
+from utils.ai_search import AISearchHelper
 import json
 import asyncio
 import sqlglot
 
-USE_QUERY_CACHE = os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
 
-PRE_RUN_QUERY_CACHE = (
-    os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
-)
+class SqlHelper:
+    def __init__(self):
+        self.use_query_cache = (
+            os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
+        )
 
+        self.run_query_cache = (
+            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+        )
 
-async def get_entity_schemas(
-    text: Annotated[
-        str,
-        "The text to run a semantic search against. Relevant entities will be returned.",
-    ],
-    excluded_entities: Annotated[
-        list[str],
-        "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
-    ] = [],
-) -> str:
-    """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
-
-    Args:
-    ----
-        text (str): The text to run the search against.
-
-    Returns:
-        str: The schema of the views or tables in JSON format.
-    """
-
-    schemas = await run_ai_search_query(
-        text,
-        ["DefinitionEmbedding"],
-        [
-            "Entity",
-            "EntityName",
-            "Definition",
-            "Columns",
-            "EntityRelationships",
-            "CompleteEntityRelationshipsGraph",
+    async def get_entity_schemas(
+        self,
+        text: Annotated[
+            str,
+            "The text to run a semantic search against. Relevant entities will be returned.",
         ],
-        os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
-        os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
-        top=3,
-    )
+        excluded_entities: Annotated[
+            list[str],
+            "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
+        ] = [],
+    ) -> str:
+        """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
-    for schema in schemas:
-        entity = schema["Entity"]
-        database = os.environ["Text2Sql__DatabaseName"]
-        schema["SelectFromEntity"] = f"{database}.{entity}"
+        Args:
+        ----
+            text (str): The text to run the search against.
 
-        filtered_schemas = []
-        for excluded_entity in excluded_entities:
-            if excluded_entity.lower() == entity.lower():
-                logging.info("Excluded entity: %s", excluded_entity)
-            else:
-                filtered_schemas.append(schema)
+        Returns:
+            str: The schema of the views or tables in JSON format.
+        """
 
-    return json.dumps(schemas, default=str)
+        schemas = await AISearchHelper.run_ai_search_query(
+            text,
+            ["DefinitionEmbedding"],
+            [
+                "Entity",
+                "EntityName",
+                "Definition",
+                "Columns",
+                "EntityRelationships",
+                "CompleteEntityRelationshipsGraph",
+            ],
+            os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
+            os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
+            top=3,
+        )
 
+        for schema in schemas:
+            entity = schema["Entity"]
+            database = os.environ["Text2Sql__DatabaseName"]
+            schema["SelectFromEntity"] = f"{database}.{entity}"
 
-async def query_execution(
-    sql_query: Annotated[
-        str,
-        "The SQL query to run against the database.",
-    ]
-) -> list[dict]:
-    """Run the SQL query against the database.
+            filtered_schemas = []
+            for excluded_entity in excluded_entities:
+                if excluded_entity.lower() == entity.lower():
+                    logging.info("Excluded entity: %s", excluded_entity)
+                else:
+                    filtered_schemas.append(schema)
 
-    Args:
-    ----
-        sql_query (str): The SQL query to run against the database.
+        return json.dumps(schemas, default=str)
 
-    Returns:
-    -------
-        list[dict]: The results of the SQL query.
-    """
-    connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
-    async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-        async with sql_db_client.cursor() as cursor:
-            await cursor.execute(sql_query)
+    async def query_execution(
+        self,
+        sql_query: Annotated[
+            str,
+            "The SQL query to run against the database.",
+        ],
+    ) -> list[dict]:
+        """Run the SQL query against the database.
 
-            columns = [column[0] for column in cursor.description]
+        Args:
+        ----
+            sql_query (str): The SQL query to run against the database.
 
-            rows = await cursor.fetchmany(25)
-            results = [dict(zip(columns, returned_row)) for returned_row in rows]
+        Returns:
+        -------
+            list[dict]: The results of the SQL query.
+        """
+        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
+        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
+            async with sql_db_client.cursor() as cursor:
+                await cursor.execute(sql_query)
 
-    logging.debug("Results: %s", results)
-    return results
+                columns = [column[0] for column in cursor.description]
 
+                rows = await cursor.fetchmany(25)
+                results = [dict(zip(columns, returned_row)) for returned_row in rows]
 
-async def query_validation(
-    sql_query: Annotated[
-        str,
-        "The SQL query to run against the database.",
-    ]
-) -> Union[bool | list[dict]]:
-    """Validate the SQL query."""
-    try:
-        logging.info("Validating SQL Query: %s", sql_query)
-        sqlglot.transpile(sql_query)
-    except sqlglot.errors.ParseError as e:
-        logging.error("SQL Query is invalid: %s", e.errors)
-        return e.errors
-    else:
-        logging.info("SQL Query is valid.")
-        return True
+        logging.debug("Results: %s", results)
+        return results
 
+    async def query_validation(
+        self,
+        sql_query: Annotated[
+            str,
+            "The SQL query to run against the database.",
+        ],
+    ) -> Union[bool | list[dict]]:
+        """Validate the SQL query."""
+        try:
+            logging.info("Validating SQL Query: %s", sql_query)
+            sqlglot.transpile(sql_query)
+        except sqlglot.errors.ParseError as e:
+            logging.error("SQL Query is invalid: %s", e.errors)
+            return e.errors
+        else:
+            logging.info("SQL Query is valid.")
+            return True
 
-async def fetch_queries_from_cache(question: str) -> str:
-    """Fetch the queries from the cache based on the question.
+    async def fetch_queries_from_cache(self, question: str) -> str:
+        """Fetch the queries from the cache based on the question.
 
-    Args:
-    ----
-        question (str): The question to use to fetch the queries.
+        Args:
+        ----
+            question (str): The question to use to fetch the queries.
 
-    Returns:
-    -------
-        str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
-    """
-    cached_schemas = await run_ai_search_query(
-        question,
-        ["QuestionEmbedding"],
-        ["Question", "SqlQueryDecomposition"],
-        os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
-        os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"],
-        top=1,
-        include_scores=True,
-        minimum_score=1.5,
-    )
+        Returns:
+        -------
+            str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
+        """
+        cached_schemas = await AISearchHelper.run_ai_search_query(
+            question,
+            ["QuestionEmbedding"],
+            ["Question", "SqlQueryDecomposition"],
+            os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
+            os.environ[
+                "AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"
+            ],
+            top=1,
+            include_scores=True,
+            minimum_score=1.5,
+        )
 
-    if len(cached_schemas) == 0:
-        return {"cached_questions_and_schemas": None}
+        if len(cached_schemas) == 0:
+            return {"cached_questions_and_schemas": None}
 
-    logging.info("Cached schemas: %s", cached_schemas)
-    if PRE_RUN_QUERY_CACHE and len(cached_schemas) > 0:
-        # check the score
-        if cached_schemas[0]["@search.reranker_score"] > 2.75:
-            logging.info("Score is greater than 3")
+        logging.info("Cached schemas: %s", cached_schemas)
+        if self.pre_run_query_cache and len(cached_schemas) > 0:
+            # check the score
+            if cached_schemas[0]["@search.reranker_score"] > 2.75:
+                logging.info("Score is greater than 3")
 
-            sql_queries = cached_schemas[0]["SqlQueryDecomposition"]
-            query_result_store = {}
+                sql_queries = cached_schemas[0]["SqlQueryDecomposition"]
+                query_result_store = {}
 
-            query_tasks = []
+                query_tasks = []
 
-            for sql_query in sql_queries:
-                logging.info("SQL Query: %s", sql_query)
+                for sql_query in sql_queries:
+                    logging.info("SQL Query: %s", sql_query)
 
-                # Run the SQL query
-                query_tasks.append(query_execution(sql_query["SqlQuery"]))
+                    # Run the SQL query
+                    query_tasks.append(self.query_execution(sql_query["SqlQuery"]))
 
-            sql_results = await asyncio.gather(*query_tasks)
+                sql_results = await asyncio.gather(*query_tasks)
 
-            for sql_query, sql_result in zip(sql_queries, sql_results):
-                query_result_store[sql_query["SqlQuery"]] = {
-                    "result": sql_result,
-                    "schemas": sql_query["Schemas"],
-                }
+                for sql_query, sql_result in zip(sql_queries, sql_results):
+                    query_result_store[sql_query["SqlQuery"]] = {
+                        "result": sql_result,
+                        "schemas": sql_query["Schemas"],
+                    }
 
-            return {"cached_questions_and_schemas": query_result_store}
+                return {"cached_questions_and_schemas": query_result_store}
 
-    return {"cached_questions_and_schemas": cached_schemas}
+        return {"cached_questions_and_schemas": cached_schemas}
