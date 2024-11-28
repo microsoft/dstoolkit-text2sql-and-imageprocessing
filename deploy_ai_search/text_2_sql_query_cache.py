@@ -253,12 +253,4 @@ class Text2SqlQueryCacheAISearch(AISearch):
             parameters=indexer_parameters,
         )
 
-        # Remove fields that are not supported by the database engine
-        indexer.output_field_mappings = [
-            field_mapping
-            for field_mapping in indexer.output_field_mappings
-            if field_mapping.target_field_name
-            not in self.excluded_fields_for_database_engine
-        ]
-
         return indexer
