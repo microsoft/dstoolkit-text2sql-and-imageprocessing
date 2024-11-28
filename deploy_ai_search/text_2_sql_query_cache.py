@@ -33,22 +33,22 @@ class Text2SqlQueryCacheAISearch(AISearch):
         self,
         suffix: str | None = None,
         rebuild: bool | None = False,
-        single_cache_file: bool | None = False,
-        enable_cache_indexer: bool | None = False,
+        single_query_cache_file: bool | None = False,
+        enable_query_cache_indexer: bool | None = False,
     ):
         """Initialize the Text2SqlAISearch class. This class implements the deployment of the sql index.
 
         Args:
             suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
-            single_cache_file (bool, optional): Whether to use a single cache file. Defaults to False. Only applies if the cache indexer is enabled.
-            enable_cache_indexer (bool, optional): Whether to enable cache indexer. Defaults to False.
+            single_query_cache_file (bool, optional): Whether to use a single cache file. Defaults to False. Only applies if the cache indexer is enabled.
+            enable_query_cache_indexer (bool, optional): Whether to enable cache indexer. Defaults to False.
         """
         self.indexer_type = IndexerType.TEXT_2_SQL_QUERY_CACHE
-        self.enable_cache_indexer = enable_cache_indexer
+        self.enable_query_cache_indexer = enable_query_cache_indexer
         super().__init__(suffix, rebuild)
 
-        if single_cache_file:
+        if single_query_cache_file:
             self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
         else:
             self.parsing_mode = BlobIndexerParsingMode.JSON
@@ -164,7 +164,7 @@ class Text2SqlQueryCacheAISearch(AISearch):
         Returns:
             list: The skillsets  used in the indexer"""
 
-        if self.enable_cache_indexer is False:
+        if self.enable_query_cache_indexer is False:
             return []
 
         embedding_skill = self.get_vector_skill(
@@ -181,7 +181,7 @@ class Text2SqlQueryCacheAISearch(AISearch):
         Returns:
             SearchIndexer: The indexer for sql"""
 
-        if self.enable_cache_indexer is False:
+        if self.enable_query_cache_indexer is False:
             return None
 
         # Only place on schedule if it is not a test deployment

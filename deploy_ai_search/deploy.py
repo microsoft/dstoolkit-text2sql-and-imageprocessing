@@ -30,8 +30,8 @@ def deploy_config(arguments: argparse.Namespace):
         index_config = Text2SqlQueryCacheAISearch(
             suffix=arguments.suffix,
             rebuild=arguments.rebuild,
-            single_cache_file=arguments.single_cache_file,
-            enable_cache_indexer=arguments.enable_cache_indexer,
+            single_query_cache_file=arguments.single_query_cache_file,
+            enable_query_cache_indexer=arguments.enable_query_cache_indexer,
         )
     else:
         raise ValueError("Invalid Indexer Type")
@@ -69,13 +69,13 @@ if __name__ == "__main__":
         help="Whether or not a single data dictionary file should be uploaded, or one per entity",
     )
     parser.add_argument(
-        "--single_cache_file",
+        "--single_query_cache_file",
         type=bool,
         required=False,
         help="Whether or not a single cache file should be uploaded, or one per question",
     )
     parser.add_argument(
-        "--enable_cache_indexer",
+        "--enable_query_cache_indexer",
         type=bool,
         required=False,
         help="Whether or not the sql query cache indexer should be enabled",
