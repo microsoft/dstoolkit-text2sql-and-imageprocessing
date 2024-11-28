@@ -43,7 +43,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
         self,
         suffix: str | None = None,
         rebuild: bool | None = False,
-        single_data_dictionary: bool | None = False,
+        single_data_dictionary_file: bool | None = False,
     ):
         """Initialize the Text2SqlAISearch class. This class implements the deployment of the sql index.
 
@@ -57,7 +57,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
         ]
         super().__init__(suffix, rebuild)
 
-        if single_data_dictionary:
+        if single_data_dictionary_file:
             self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
         else:
             self.parsing_mode = BlobIndexerParsingMode.JSON

@@ -24,11 +24,14 @@ def deploy_config(arguments: argparse.Namespace):
         index_config = Text2SqlSchemaStoreAISearch(
             suffix=arguments.suffix,
             rebuild=arguments.rebuild,
-            single_data_dictionary=arguments.single_data_dictionary,
+            single_data_dictionary_file=arguments.single_data_dictionary_file,
         )
     elif arguments.index_type == "text_2_sql_query_cache":
         index_config = Text2SqlQueryCacheAISearch(
-            suffix=arguments.suffix, rebuild=arguments.rebuild
+            suffix=arguments.suffix,
+            rebuild=arguments.rebuild,
+            single_cache_file=arguments.single_cache_file,
+            enable_cache_indexer=arguments.enable_cache_indexer,
         )
     else:
         raise ValueError("Invalid Indexer Type")
@@ -60,10 +63,22 @@ if __name__ == "__main__":
         help="Whether want to enable chunking by page in adi skill, if no value is passed considered False",
     )
     parser.add_argument(
-        "--single_data_dictionary",
+        "--single_data_dictionary_file",
         type=bool,
         required=False,
         help="Whether or not a single data dictionary file should be uploaded, or one per entity",
+    )
+    parser.add_argument(
+        "--single_cache_file",
+        type=bool,
+        required=False,
+        help="Whether or not a single cache file should be uploaded, or one per question",
+    )
+    parser.add_argument(
+        "--enable_cache_indexer",
+        type=bool,
+        required=False,
+        help="Whether or not the sql query cache indexer should be enabled",
     )
     parser.add_argument(
         "--suffix",

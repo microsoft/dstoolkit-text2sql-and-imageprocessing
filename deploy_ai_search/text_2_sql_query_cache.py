@@ -5,12 +5,20 @@ from azure.search.documents.indexes.models import (
     SearchFieldDataType,
     SearchField,
     SearchableField,
-    SimpleField,
-    ComplexField,
     SemanticField,
     SemanticPrioritizedFields,
     SemanticConfiguration,
     SemanticSearch,
+    SearchIndexer,
+    FieldMapping,
+    SimpleField,
+    ComplexField,
+    IndexingParameters,
+    IndexingParametersConfiguration,
+    BlobIndexerDataToExtract,
+    IndexerExecutionEnvironment,
+    BlobIndexerParsingMode,
+    FieldMappingFunction,
 )
 from ai_search import AISearch
 from environment import (
@@ -21,15 +29,29 @@ from environment import (
 class Text2SqlQueryCacheAISearch(AISearch):
     """This class is used to deploy the sql index."""
 
-    def __init__(self, suffix: str | None = None, rebuild: bool | None = False):
+    def __init__(
+        self,
+        suffix: str | None = None,
+        rebuild: bool | None = False,
+        single_cache_file: bool | None = False,
+        enable_cache_indexer: bool | None = False,
+    ):
         """Initialize the Text2SqlAISearch class. This class implements the deployment of the sql index.
 
         Args:
             suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
+            single_cache_file (bool, optional): Whether to use a single cache file. Defaults to False. Only applies if the cache indexer is enabled.
+            enable_cache_indexer (bool, optional): Whether to enable cache indexer. Defaults to False.
         """
         self.indexer_type = IndexerType.TEXT_2_SQL_QUERY_CACHE
+        self.enable_cache_indexer = enable_cache_indexer
         super().__init__(suffix, rebuild)
+
+        if single_cache_file:
+            self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
+        else:
+            self.parsing_mode = BlobIndexerParsingMode.JSON
 
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for sql index.
@@ -56,6 +78,11 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 name="SqlQueryDecomposition",
                 collection=True,
                 fields=[
+                    SearchableField(
+                        name="SubQuestion",
+                        type=SearchFieldDataType.String,
+                        filterable=True,
+                    ),
                     SearchableField(
                         name="SqlQuery",
                         type=SearchFieldDataType.String,
@@ -130,3 +157,108 @@ class Text2SqlQueryCacheAISearch(AISearch):
         semantic_search = SemanticSearch(configurations=[semantic_config])
 
         return semantic_search
+
+    def get_skills(self) -> list:
+        """Get the skillset for the indexer.
+
+        Returns:
+            list: The skillsets  used in the indexer"""
+
+        if self.enable_cache_indexer is False:
+            return []
+
+        embedding_skill = self.get_vector_skill(
+            "/document", "/document/Question", target_name="QuestionEmbedding"
+        )
+
+        skills = [embedding_skill]
+
+        return skills
+
+    def get_indexer(self) -> SearchIndexer:
+        """This function returns the indexer for sql.
+
+        Returns:
+            SearchIndexer: The indexer for sql"""
+
+        if self.enable_cache_indexer is False:
+            return None
+
+        # Only place on schedule if it is not a test deployment
+        if self.test:
+            schedule = None
+            batch_size = 4
+        else:
+            schedule = {"interval": "PT24H"}
+            batch_size = 16
+
+        if self.environment.use_private_endpoint:
+            execution_environment = IndexerExecutionEnvironment.PRIVATE
+        else:
+            execution_environment = IndexerExecutionEnvironment.STANDARD
+
+        indexer_parameters = IndexingParameters(
+            batch_size=batch_size,
+            configuration=IndexingParametersConfiguration(
+                data_to_extract=BlobIndexerDataToExtract.CONTENT_AND_METADATA,
+                query_timeout=None,
+                execution_environment=execution_environment,
+                fail_on_unprocessable_document=False,
+                fail_on_unsupported_content_type=False,
+                index_storage_metadata_only_for_oversized_documents=True,
+                indexed_file_name_extensions=".json",
+                parsing_mode=self.parsing_mode,
+            ),
+            max_failed_items=5,
+        )
+
+        indexer = SearchIndexer(
+            name=self.indexer_name,
+            description="Indexer to sql entities and generate embeddings",
+            skillset_name=self.skillset_name,
+            target_index_name=self.index_name,
+            data_source_name=self.data_source_name,
+            schedule=schedule,
+            field_mappings=[
+                FieldMapping(
+                    source_field_name="metadata_storage_last_modified",
+                    target_field_name="DateLastModified",
+                )
+            ],
+            output_field_mappings=[
+                FieldMapping(
+                    source_field_name="/document/Question",
+                    target_field_name="Id",
+                    mapping_function=FieldMappingFunction(
+                        name="base64Encode",
+                        parameters={"useHttpServerUtilityUrlTokenEncode": False},
+                    ),
+                ),
+                FieldMapping(
+                    source_field_name="/document/Question", target_field_name="Question"
+                ),
+                FieldMapping(
+                    source_field_name="/document/QuestionEmbedding",
+                    target_field_name="QuestionEmbedding",
+                ),
+                FieldMapping(
+                    source_field_name="/document/SqlQueryDecomposition",
+                    target_field_name="SqlQueryDecomposition",
+                ),
+                FieldMapping(
+                    source_field_name="/document/DateLastModified",
+                    target_field_name="DateLastModified",
+                ),
+            ],
+            parameters=indexer_parameters,
+        )
+
+        # Remove fields that are not supported by the database engine
+        indexer.output_field_mappings = [
+            field_mapping
+            for field_mapping in indexer.output_field_mappings
+            if field_mapping.target_field_name
+            not in self.excluded_fields_for_database_engine
+        ]
+
+        return indexer
