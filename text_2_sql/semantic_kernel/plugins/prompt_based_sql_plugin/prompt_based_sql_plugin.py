@@ -37,7 +37,7 @@ class PromptBasedSQLPlugin:
                 entity_name = entity_object["EntityName"].lower()
                 self.entities[entity_name] = entity_object
 
-    def system_prompt(self, engine_specific_rules: str | None = None) -> str:
+    def sql_prompt_injection(self, engine_specific_rules: str | None = None) -> str:
         """Get the schemas for the database entities and provide a system prompt for the user.
 
         Returns:
@@ -60,7 +60,7 @@ class PromptBasedSQLPlugin:
             engine_specific_rules = f"""\n        The following {
                 self.target_engine} Syntax rules must be adhered to.\n        {engine_specific_rules}"""
 
-        system_prompt = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query.
+        sql_prompt_injection = f"""Use the names and descriptions of {self.target_engine} entities provided in ENTITIES LIST to decide which entities to query if you need to retrieve information from the database. Use the 'GetEntitySchema()' function to get more details of the schema of the view you want to query.
 
         Always then use the 'RunSQLQuery()' function to run the SQL query against the database. Never just return the SQL query as the answer.
 
@@ -86,7 +86,7 @@ class PromptBasedSQLPlugin:
 
         The source title to cite is the 'entity_name' property. The source reference is the SQL query used. The source chunk is the result of the SQL query used to answer the user query in Markdown table format. e.g. {{ 'title': "vProductAndDescription", 'chunk': '| ProductID | Name              | ProductModel | Culture | Description                      |\\n|-----------|-------------------|--------------|---------|----------------------------------|\\n| 101       | Mountain Bike     | MT-100       | en      | A durable bike for mountain use. |\\n| 102       | Road Bike         | RB-200       | en      | Lightweight bike for road use.   |\\n| 103       | Hybrid Bike       | HB-300       | fr      | Vélo hybride pour usage mixte.   |\\n', 'reference': 'SELECT ProductID, Name, ProductModel, Culture, Description FROM vProductAndDescription WHERE Culture = \"en\";' }}"""
 
-        return system_prompt
+        return sql_prompt_injection
 
     @kernel_function(
         description="Get the detailed schema of an entity in the Database. Use the entity and the column returned to formulate a SQL query. The view name or table name must be one of the ENTITY NAMES defined in the [ENTITIES LIST]. Only use the column names obtained from GetEntitySchema() when constructing a SQL query, do not make up column names.",

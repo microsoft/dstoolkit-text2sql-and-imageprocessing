@@ -12,47 +12,35 @@ template: |
 
   The response must meet the following requirements:
 
-  [RESPONSE OUTPUT REQUIREMENTS]
+  The answer MUST be in JSON format:
+  {
+    "answer": "<GENERATED ANSWER>",
+    "sources": [
+      {"title": <SOURCE 1 TITLE>, "chunk": <SOURCE 1 CONTEXT CHUNK>, "reference": "<SOURCE 1 REFERENCE>"},
+      {"title": <SOURCE 2 TITLE>, "chunk": <SOURCE 2 CONTEXT CHUNK>, "reference": "<SOURCE 2 REFERENCE>"}
+    ]
+  }
 
-    The answer MUST be in JSON format:
-    {
-      "answer": "<GENERATED ANSWER>",
-      "sources": [
-        {"title": <SOURCE 1 TITLE>, "chunk": <SOURCE 1 CONTEXT CHUNK>, "reference": "<SOURCE 1 REFERENCE>"},
-        {"title": <SOURCE 2 TITLE>, "chunk": <SOURCE 2 CONTEXT CHUNK>, "reference": "<SOURCE 2 REFERENCE>"}
-      ]
-    }
+  [ANSWER PROPERTY REQUIREMENTS]
+    - **Calculations**:
+      Use context-provided values and explain calculations briefly.
+    - **Structure**:
+      Responses must be direct, easy to understand, and formatted using Markdown.
+      Use Level 3 and 4 headings, bold sub-headings, and lists where appropriate. Keep font size consistent.
+    - **Citations**:
+      Factual statements must be cited using numbered references like [1]. Each citation must match a source in the 'sources' object.
 
-    [ANSWER PROPERTY REQUIREMENTS]
-      - **Language & Tone**:
-        Use British English, business-friendly language that is professional and clear.
-      - **Content Restrictions**:
-        Avoid profanity, offensive language, and code. Rephrase or omit inappropriate content.
-      - **Information Sources**:
-        Only use provided functions and important information. Prioritize SQL Database data in case of conflicts.
-      - **Calculations**:
-        Use context-provided values and explain calculations briefly.
-      - **Structure**:
-        Responses must be direct, easy to understand, and formatted using Markdown.
-        Use Level 3 and 4 headings, bold sub-headings, and lists where appropriate. Keep font size consistent.
-      - **Citations**:
-        Factual statements must be cited using numbered references like [1]. Each citation must match a source in the 'sources' object.
+  [SOURCES PROPERTY REQUIREMENTS]
+    - **Reference Inclusion**:
+      All cited content must have a corresponding reference in the 'sources' object.
+    - **Source Format**:
+      Each source must follow this format: {"title": "<SOURCE TITLE>", "chunk": "<SOURCE CONTEXT CHUNK>", "reference": "<SOURCE REFERENCE>"}
+    - **Source Chunk**:
+      Include a concise, unedited snippet of relevant context in the 'chunk' property.
+    - **Mandatory Citations**:
+      Every source listed must be cited at least once in the answer.
 
-    [SOURCES PROPERTY REQUIREMENTS]
-      - **Reference Inclusion**:
-        All cited content must have a corresponding reference in the 'sources' object.
-      - **Source Format**:
-        Each source must follow this format: {"title": "<SOURCE TITLE>", "chunk": "<SOURCE CONTEXT CHUNK>", "reference": "<SOURCE REFERENCE>"}
-      - **Source Chunk**:
-        Include a concise, unedited snippet of relevant context in the 'chunk' property.
-      - **Mandatory Citations**:
-        Every source listed must be cited at least once in the answer.
-
-  [IMPORTANT INFORMATION]
-
-  {{$important_information}}
-
-  [END]
+  {{$sql_database_information}}
   </message>
   {{$chat_history}}
   <message role="user">{{$user_input}}</message>
@@ -62,7 +50,7 @@ input_variables:
   - name: user_input
     description: The user input
     is_required: true
-  - name: important_information
+  - name: sql_database_information
     description: Useful information for the chatbot
     is_required: true
 output_variable:
