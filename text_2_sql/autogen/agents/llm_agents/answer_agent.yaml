@@ -1,5 +1,5 @@
 model:
-  gpt-4o-mini
+  4o-mini
 description:
   "An agent that takes the final results from the SQL query and writes the answer to the user's question"
 system_message:

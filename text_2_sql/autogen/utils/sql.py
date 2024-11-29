@@ -138,7 +138,7 @@ async def fetch_queries_from_cache(question: str) -> str:
     )
 
     if len(cached_schemas) == 0:
-        return {"cached_questions_and_schemas": None}
+        return {"contains_pre_run_results": False, "cached_questions_and_schemas": None}
 
     logging.info("Cached schemas: %s", cached_schemas)
     if PRE_RUN_QUERY_CACHE and len(cached_schemas) > 0:
@@ -165,6 +165,12 @@ async def fetch_queries_from_cache(question: str) -> str:
                     "schemas": sql_query["Schemas"],
                 }
 
-            return {"cached_questions_and_schemas": query_result_store}
+            return {
+                "contains_pre_run_results": True,
+                "cached_questions_and_schemas": query_result_store,
+            }
 
-    return {"cached_questions_and_schemas": cached_schemas}
+    return {
+        "contains_pre_run_results": False,
+        "cached_questions_and_schemas": cached_schemas,
+    }

@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 from autogen_agentchat.task import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.teams import SelectorGroupChat
-from utils.models import MINI_MODEL
+from utils.llm_model_creator import LLMModelCreator
 from utils.llm_agent_creator import LLMAgentCreator
 import logging
 from agents.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
@@ -86,13 +86,17 @@ class AgenticText2Sql:
             and messages[-1].content is not None
         ):
             cache_result = json.loads(messages[-1].content)
-            if cache_result.get("cached_questions_and_schemas") is not None:
+            if cache_result.get(
+                "cached_questions_and_schemas"
+            ) is not None and cache_result.get("contains_pre_run_results"):
                 decision = "sql_query_correction_agent"
+            if (
+                cache_result.get("cached_questions_and_schemas") is not None
+                and cache_result.get("contains_pre_run_results") is False
+            ):
+                decision = "sql_query_generation_agent"
             else:
-                decision = "sql_schema_selection_agent"
-
-        elif messages[-1].source == "sql_query_cache_agent":
-            decision = "question_decomposition_agent"
+                decision = "question_decomposition_agent"
 
         elif messages[-1].source == "question_decomposition_agent":
             decomposition_result = json.loads(messages[-1].content)
@@ -129,7 +133,7 @@ class AgenticText2Sql:
         agentic_flow = SelectorGroupChat(
             self.agents,
             allow_repeated_speaker=False,
-            model_client=MINI_MODEL,
+            model_client=LLMModelCreator.get_model("4o-mini"),
             termination_condition=self.termination_condition,
             selector_func=AgenticText2Sql.selector,
         )
