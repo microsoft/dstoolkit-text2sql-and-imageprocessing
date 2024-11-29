@@ -138,7 +138,6 @@ async def ask_question_to_vector_kernel(
     arguments = KernelArguments()
 
     arguments = KernelArguments()
-    arguments["chat_history"] = chat_history
     arguments["sql_database_information"] = sql_database_information_prompt
     arguments["user_input"] = question
 
