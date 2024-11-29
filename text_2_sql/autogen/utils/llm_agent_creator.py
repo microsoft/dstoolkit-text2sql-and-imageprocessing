@@ -6,6 +6,7 @@ from autogen_agentchat.agents import AssistantAgent
 from utils.sql import query_execution, get_entity_schemas, query_validation
 from utils.models import MINI_MODEL
 from jinja2 import Template
+from datetime import datetime
 
 
 class LLMAgentCreator:
@@ -39,6 +40,11 @@ class LLMAgentCreator:
             return FunctionTool(
                 query_validation,
                 description="Validates the SQL query to ensure that it is syntactically correct for the target database engine. Use this BEFORE executing any SQL statement.",
+            )
+        elif tool_name == "current_datetime_tool":
+            return FunctionTool(
+                lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                description="Gets the current date and time.",
             )
         else:
             raise ValueError(f"Tool {tool_name} not found")
