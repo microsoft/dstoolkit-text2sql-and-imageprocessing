@@ -20,7 +20,7 @@ As the query cache is shared between users (no data is stored in the cache), a n
 
 ## Provided Notebooks & Scripts
 
-- `./agentic_text_2_sql.ipynb` provides example of how to utilise the Agentic Vector Based Text2SQL approach to query the database. The query cache plugin will be enabled or disabled depending on the environmental parameters.
+- `./Iteration 5 - Agentic Vector Based Text2SQL.ipynb` provides example of how to utilise the Agentic Vector Based Text2SQL approach to query the database. The query cache plugin will be enabled or disabled depending on the environmental parameters.
 
 ## Agents
 
