@@ -90,15 +90,15 @@ async def ask_question_to_prompt_kernel(
 
     # Create important information prompt that contains the SQL database information.
     engine_specific_rules = "Use TOP X at the start of the query to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error. e.g. SELECT TOP 10 * FROM table_name"
-    important_information_prompt = f"""
+    sql_database_information_prompt = f"""
     [SQL DATABASE INFORMATION]
-    {prompt_sql_plugin.system_prompt(engine_specific_rules=engine_specific_rules)}
+    {prompt_sql_plugin.sql_prompt_injection(engine_specific_rules=engine_specific_rules)}
     [END SQL DATABASE INFORMATION]
     """
 
     arguments = KernelArguments()
     arguments["chat_history"] = chat_history
-    arguments["important_information"] = important_information_prompt
+    arguments["sql_database_information"] = sql_database_information_prompt
     arguments["user_input"] = question
 
     logging.info("Question: %s", question)
@@ -128,9 +128,9 @@ async def ask_question_to_vector_kernel(
 
     # Create important information prompt that contains the SQL database information.
     engine_specific_rules = "Use TOP X at the start of the query to limit the number of rows returned instead of LIMIT X. NEVER USE LIMIT X as it produces a syntax error. e.g. SELECT TOP 10 * FROM table_name"
-    important_information_prompt = f"""
+    sql_database_information_prompt = f"""
     [SQL DATABASE INFORMATION]
-    {await vector_sql_plugin.system_prompt(
+    {await vector_sql_plugin.sql_prompt_injection(
         engine_specific_rules=engine_specific_rules, question=question)}
     [END SQL DATABASE INFORMATION]
     """
@@ -139,7 +139,7 @@ async def ask_question_to_vector_kernel(
 
     arguments = KernelArguments()
     arguments["chat_history"] = chat_history
-    arguments["important_information"] = important_information_prompt
+    arguments["sql_database_information"] = sql_database_information_prompt
     arguments["user_input"] = question
 
     logging.info("Question: %s", question)
