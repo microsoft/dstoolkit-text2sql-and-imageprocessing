@@ -4,10 +4,9 @@ import yaml
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
 from utils.sql import query_execution, get_entity_schemas, query_validation
-from utils.models import GPT_4O_MINI_MODEL, GPT_4O_MODEL
+from utils.llm_model_creator import LLMModelCreator
 from jinja2 import Template
 from datetime import datetime
-from autogen_ext.models import AzureOpenAIChatCompletionClient
 
 
 class LLMAgentCreator:
@@ -26,23 +25,6 @@ class LLMAgentCreator:
             file = yaml.safe_load(file)
 
         return file
-
-    @classmethod
-    def get_model(cls, model_name: str) -> AzureOpenAIChatCompletionClient:
-        """Retrieves the model based on the model name.
-
-        Args:
-        ----
-            model_name (str): The name of the model to retrieve.
-
-        Returns:
-            AzureOpenAIChatCompletionClient: The model client."""
-        if model_name == "4o-mini":
-            return GPT_4O_MINI_MODEL
-        elif model_name == "4o":
-            return GPT_4O_MODEL
-        else:
-            raise ValueError(f"Model {model_name} not found")
 
     @classmethod
     def get_tool(cls, tool_name: str) -> FunctionTool:
@@ -120,7 +102,7 @@ class LLMAgentCreator:
         agent = AssistantAgent(
             name=name,
             tools=tools,
-            model_client=cls.get_model(agent_file["model"]),
+            model_client=LLMModelCreator.get_model(agent_file["model"]),
             description=cls.get_property_and_render_parameters(
                 agent_file, "description", kwargs
             ),
