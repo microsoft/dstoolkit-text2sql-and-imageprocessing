@@ -211,7 +211,7 @@ class VectorBasedSQLPlugin:
 
         return formatted_sql_cache_string
 
-    async def system_prompt(
+    async def sql_prompt_injection(
         self, engine_specific_rules: str | None = None, question: str | None = None
     ) -> str:
         """Get the schemas for the database entities and provide a system prompt for the user.
@@ -261,7 +261,7 @@ class VectorBasedSQLPlugin:
 
             Check the above schemas carefully to see if they can be used to formulate a SQL query. If you need additional schemas, use 'GetEntitySchema()' function to search for the most relevant schemas for the data that you wish to obtain."""
 
-        system_prompt = f"""{query_prompt}
+        sql_prompt_injection = f"""{query_prompt}
 
         If needed, use the 'RunSQLQuery()' function to run the SQL query against the database. Never just return the SQL query as the answer.
 
@@ -280,7 +280,7 @@ class VectorBasedSQLPlugin:
 
         The source title to cite is the 'EntityName' property. The source reference is the SQL query used. The source chunk is the result of the SQL query used to answer the user query in Markdown table format. e.g. {{ 'title': "vProductAndDescription", 'chunk': '| ProductID | Name              | ProductModel | Culture | Description                      |\\n|-----------|-------------------|--------------|---------|----------------------------------|\\n| 101       | Mountain Bike     | MT-100       | en      | A durable bike for mountain use. |\\n| 102       | Road Bike         | RB-200       | en      | Lightweight bike for road use.   |\\n| 103       | Hybrid Bike       | HB-300       | fr      | Vélo hybride pour usage mixte.   |\\n', 'reference': 'SELECT ProductID, Name, ProductModel, Culture, Description FROM vProductAndDescription WHERE Culture = \"en\";' }}"""
 
-        return system_prompt
+        return sql_prompt_injection
 
     @kernel_function(
         description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned. Only use when the provided schemas in the system prompt are not sufficient to answer the question.",
