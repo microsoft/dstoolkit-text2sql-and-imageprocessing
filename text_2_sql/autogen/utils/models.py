@@ -13,9 +13,24 @@ dotenv.load_dotenv()
 #     DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
 # )
 
-MINI_MODEL = AzureOpenAIChatCompletionClient(
+GPT_4O_MINI_MODEL = AzureOpenAIChatCompletionClient(
     azure_deployment=os.environ["OpenAI__MiniCompletionDeployment"],
     model=os.environ["OpenAI__MiniCompletionDeployment"],
+    api_version="2024-08-01-preview",
+    azure_endpoint=os.environ["OpenAI__Endpoint"],
+    # # Optional if you choose key-based authentication.
+    # azure_ad_token_provider=token_provider,
+    api_key=os.environ["OpenAI__ApiKey"],  # For key-based authentication.
+    model_capabilities={
+        "vision": False,
+        "function_calling": True,
+        "json_output": True,
+    },
+)
+
+GPT_4O_MODEL = AzureOpenAIChatCompletionClient(
+    azure_deployment=os.environ["OpenAI__CompletionDeployment"],
+    model=os.environ["OpenAI__CompletionDeployment"],
     api_version="2024-08-01-preview",
     azure_endpoint=os.environ["OpenAI__Endpoint"],
     # # Optional if you choose key-based authentication.

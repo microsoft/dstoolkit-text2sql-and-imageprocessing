@@ -1,5 +1,5 @@
 model:
-  gpt-4o-mini
+  4o-mini
 description:
   "An agent that will look at the SQL query, SQL query results and correct any mistakes in the SQL query to ensure the correct results are returned. Use this agent AFTER the SQL query has been executed and the results are not as expected."
 system_message:

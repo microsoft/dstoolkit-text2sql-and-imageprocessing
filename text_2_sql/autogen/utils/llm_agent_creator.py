@@ -4,28 +4,56 @@ import yaml
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
 from utils.sql import query_execution, get_entity_schemas, query_validation
-from utils.models import MINI_MODEL
+from utils.models import GPT_4O_MINI_MODEL, GPT_4O_MODEL
 from jinja2 import Template
 from datetime import datetime
+from autogen_ext.models import AzureOpenAIChatCompletionClient
 
 
 class LLMAgentCreator:
     @classmethod
-    def load_agent_file(cls, name):
+    def load_agent_file(cls, name: str) -> dict:
+        """Loads the agent file based on the agent name.
+
+        Args:
+        ----
+            name (str): The name of the agent to load.
+
+        Returns:
+        -------
+            dict: The agent file."""
         with open(f"./agents/llm_agents/{name.lower()}.yaml", "r") as file:
             file = yaml.safe_load(file)
 
         return file
 
     @classmethod
-    def get_model(cls, model_name):
-        if model_name == "gpt-4o-mini":
-            return MINI_MODEL
+    def get_model(cls, model_name: str) -> AzureOpenAIChatCompletionClient:
+        """Retrieves the model based on the model name.
+
+        Args:
+        ----
+            model_name (str): The name of the model to retrieve.
+
+        Returns:
+            AzureOpenAIChatCompletionClient: The model client."""
+        if model_name == "4o-mini":
+            return GPT_4O_MINI_MODEL
+        elif model_name == "4o":
+            return GPT_4O_MODEL
         else:
             raise ValueError(f"Model {model_name} not found")
 
     @classmethod
-    def get_tool(cls, tool_name):
+    def get_tool(cls, tool_name: str) -> FunctionTool:
+        """Retrieves the tool based on the tool name.
+
+        Args:
+        ----
+            tool_name (str): The name of the tool to retrieve.
+
+        Returns:
+            FunctionTool: The tool."""
         if tool_name == "sql_query_execution_tool":
             return FunctionTool(
                 query_execution,
@@ -50,7 +78,20 @@ class LLMAgentCreator:
             raise ValueError(f"Tool {tool_name} not found")
 
     @classmethod
-    def get_property_and_render_parameters(cls, agent_file, property, parameters):
+    def get_property_and_render_parameters(
+        cls, agent_file: dict, property: str, parameters: dict
+    ) -> str:
+        """Gets the property from the agent file and renders the parameters.
+
+        Args:
+        ----
+            agent_file (dict): The agent file.
+            property (str): The property to retrieve.
+            parameters (dict): The parameters to render.
+
+        Returns:
+        -------
+            str: The rendered property."""
         unrendered_parameters = agent_file[property]
 
         rendered_template = Template(unrendered_parameters).render(parameters)
@@ -58,7 +99,17 @@ class LLMAgentCreator:
         return rendered_template
 
     @classmethod
-    def create(cls, name: str, **kwargs):
+    def create(cls, name: str, **kwargs) -> AssistantAgent:
+        """Creates an assistant agent based on the agent name.
+
+        Args:
+        ----
+            name (str): The name of the agent to create.
+            **kwargs: The parameters to render.
+
+        Returns:
+        -------
+            AssistantAgent: The assistant agent."""
         agent_file = cls.load_agent_file(name)
 
         tools = []
