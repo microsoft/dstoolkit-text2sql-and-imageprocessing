@@ -16,10 +16,8 @@ As the query cache is shared between users (no data is stored in the cache), a n
 
 ## Provided Notebooks & Scripts
 
-- `./rag_with_prompt_based_text_2_sql.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
-- `./rag_with_vector_based_text_2_sql.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin to query the database. The query cache plugin will be enabled or disabled depending on the environmental parameters.
-- `./rag_with_ai_search_and_text_2_sql.ipynb` provides an example of how to use the Text2SQL and an AISearch plugin in parallel to automatically retrieve data from the most relevant source to answer the query.
-    - This setup is useful for a production application as the SQL Database is unlikely to be able to answer all the questions a user may ask.
+- `./Iteration 2 - Prompt Based Text2SQL.ipynb` provides example of how to utilise the Prompt Based Text2SQL plugin to query the database.
+- `./Iterations 3 & 4 - Vector Based Text2SQL.ipynb` provides example of how to utilise the Vector Based Text2SQL plugin to query the database. The query cache plugin will be enabled or disabled depending on the environmental parameters.
 - `./time_comparison_script.py` provides a utility script for performing time based comparisons between the different approaches.
 
 ### ai-search.py
