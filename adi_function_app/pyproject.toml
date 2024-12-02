@@ -26,5 +26,5 @@ dependencies = [
     "numpy>=2.1.3",
     "spacy>=3.7.5",
     "tiktoken>=0.8.0",
-    "en-core-web-md @ @ https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1.tar.gz"
+    "en-core-web-md @ https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1.tar.gz"
 ]
