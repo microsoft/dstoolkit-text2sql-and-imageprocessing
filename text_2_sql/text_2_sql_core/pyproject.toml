@@ -1,0 +1,14 @@
+[project]
+name = "text-2-sql-core"
+version = "0.1.0"
+description = "Core Functionality for Text to SQL"
+readme = "README.md"
+authors = [
+    { name = "Ben Constable", email = "benconstable@microsoft.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
