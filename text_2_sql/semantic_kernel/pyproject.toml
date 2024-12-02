@@ -1,15 +1,12 @@
 [project]
-name = "autogen_text_2_sql"
+name = "semantic_kernel_text_2_sql"
 version = "0.1.0"
-description = "AutoGen Based Implementation"
+description = "Semantic Kernel Based Implementation"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "autogen-agentchat==0.4.0.dev7",
-    "autogen-core==0.4.0.dev7",
-    "autogen-ext[azure,openai]==0.4.0.dev7",
     "grpcio>=1.68.1",
-    "pyyaml>=6.0.2",
+    "semantic-kernel==1.9.0",
 ]
 
 [dependency-groups]

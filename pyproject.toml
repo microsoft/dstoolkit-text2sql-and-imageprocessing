@@ -16,4 +16,4 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["text_2_sql/text_2_sql_core", "text_2_sql/autogen", "deploy_ai_search", "adi_function_app"]
+members = ["text_2_sql/text_2_sql_core", "text_2_sql/autogen", "deploy_ai_search", "adi_function_app", "text_2_sql/semantic_kernel"]
