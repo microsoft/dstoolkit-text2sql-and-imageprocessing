@@ -11,5 +11,15 @@ dependencies = [
     "pyyaml>=6.0.2",
 ]
 
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "pre-commit>=4.0.1",
+    "pygments>=2.18.0",
+    "ruff>=0.8.1",
+]
+
 [tool.uv.sources]
 text_2_sql_core = { path = "text_2_sql/text_2_sql_core" }
