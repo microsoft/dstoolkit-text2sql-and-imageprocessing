@@ -1,9 +1,0 @@
-aioodbc
-azure-search
-azure-search-documents==11.6.0b5
-azure-identity
-python-dotenv
-openai
-jinja2
-pyyaml
-sqlglot[rs]
