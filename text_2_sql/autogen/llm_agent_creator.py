@@ -3,8 +3,8 @@
 import yaml
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
-from utils.sql import SqlHelper
-from utils.llm_model_creator import LLMModelCreator
+from ..text_2_sql_core.connectors.sql import SqlConnector
+from llm_model_creator import LLMModelCreator
 from jinja2 import Template
 from datetime import datetime
 
@@ -27,11 +27,11 @@ class LLMAgentCreator:
         return file
 
     @classmethod
-    def get_tool(cls, sql_helper: SqlHelper, tool_name: str):
+    def get_tool(cls, sql_helper: SqlConnector, tool_name: str):
         """Gets the tool based on the tool name.
         Args:
         ----
-            sql_helper (SqlHelper): The SQL helper.
+            sql_helper (SqlConnector): The SQL helper.
             tool_name (str): The name of the tool to retrieve.
 
         Returns:
@@ -95,7 +95,7 @@ class LLMAgentCreator:
             AssistantAgent: The assistant agent."""
         agent_file = cls.load_agent_file(name)
 
-        sql_helper = SqlHelper()
+        sql_helper = SqlConnector()
 
         tools = []
         if "tools" in agent_file and len(agent_file["tools"]) > 0:
