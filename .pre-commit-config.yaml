@@ -44,3 +44,11 @@ repos:
       - id: ruff
         args: [--fix, --ignore, UP007]
         exclude: samples
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.5.5
+    hooks:
+      # Compile requirements
+      - id: pip-compile
+        args: [requirements.in, -o, requirements.txt]
