@@ -10,10 +10,12 @@ dependencies = [
     "autogen-ext[azure,openai]==0.4.0.dev7",
     "grpcio>=1.68.1",
     "pyyaml>=6.0.2",
+    "text-2-sql-core",
 ]
 
 [dependency-groups]
 dev = [
+    "autogen-text-2-sql",
     "black>=24.10.0",
     "ipykernel>=6.29.5",
     "jupyter>=1.1.1",
@@ -24,4 +26,5 @@ dev = [
 ]
 
 [tool.uv.sources]
-text_2_sql_core = { path = "text_2_sql/text_2_sql_core" }
+autogen-text-2-sql = { workspace = true }
+text-2-sql-core = { workspace = true }

@@ -3,7 +3,7 @@
 import yaml
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
-from ..text_2_sql_core.connectors.sql import SqlConnector
+from text_2_sql_core.connectors.sql import SqlConnector
 from llm_model_creator import LLMModelCreator
 from jinja2 import Template
 from datetime import datetime

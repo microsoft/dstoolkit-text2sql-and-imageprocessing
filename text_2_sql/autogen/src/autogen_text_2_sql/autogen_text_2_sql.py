@@ -2,10 +2,10 @@
 # Licensed under the MIT License.
 from autogen_agentchat.task import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.teams import SelectorGroupChat
-from creators.llm_model_creator import LLMModelCreator
-from creators.llm_agent_creator import LLMAgentCreator
+from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
+from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
 import logging
-from custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
+from autogen_text_2_sql.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
 import json
 import os
 

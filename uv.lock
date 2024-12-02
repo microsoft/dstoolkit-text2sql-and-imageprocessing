@@ -332,10 +332,12 @@ dependencies = [
     { name = "autogen-ext", extra = ["azure", "openai"] },
     { name = "grpcio" },
     { name = "pyyaml" },
+    { name = "text-2-sql-core" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "autogen-text-2-sql" },
     { name = "black" },
     { name = "ipykernel" },
     { name = "jupyter" },
@@ -352,10 +354,12 @@ requires-dist = [
     { name = "autogen-ext", extras = ["azure", "openai"], specifier = "==0.4.0.dev7" },
     { name = "grpcio", specifier = ">=1.68.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "autogen-text-2-sql", virtual = "text_2_sql/autogen" },
     { name = "black", specifier = ">=24.10.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "jupyter", specifier = ">=1.1.1" },
