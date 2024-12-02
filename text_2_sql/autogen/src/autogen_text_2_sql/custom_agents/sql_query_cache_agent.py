@@ -6,7 +6,7 @@ from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
 from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
 from autogen_core.base import CancellationToken
-from utils.sql import SqlHelper
+from utils.sql import SqlConnector
 import json
 import logging
 
@@ -18,7 +18,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
             "An agent that fetches the queries from the cache based on the user question.",
         )
 
-        self.sql_helper = SqlHelper()
+        self.sql_helper = SqlConnector()
 
     @property
     def produced_message_types(self) -> List[type[ChatMessage]]:

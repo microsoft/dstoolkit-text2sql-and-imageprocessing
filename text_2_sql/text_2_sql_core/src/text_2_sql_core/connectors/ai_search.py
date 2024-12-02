@@ -12,7 +12,7 @@ import base64
 from datetime import datetime, timezone
 
 
-class AISearchHelper:
+class AISearchConnector:
     @staticmethod
     async def run_ai_search_query(
         query,

@@ -10,10 +10,15 @@ requires-python = ">=3.12"
 dependencies = [
     "aioodbc>=0.5.0",
     "azure-identity>=1.19.0",
+    "azure-search>=1.0.0b2",
+    "azure-search-documents==11.6.0b8",
+    "jinja2>=3.1.4",
     "networkx>=3.4.2",
     "openai>=1.55.3",
     "pydantic>=2.10.2",
     "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "sqlglot[rs]>=25.32.1",
 ]
 
 [project.optional-dependencies]
@@ -27,3 +32,8 @@ databricks = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "python-dotenv>=1.0.1",
+]

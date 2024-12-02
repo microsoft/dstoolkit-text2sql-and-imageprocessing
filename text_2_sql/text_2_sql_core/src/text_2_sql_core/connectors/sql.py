@@ -4,13 +4,13 @@ import logging
 import os
 import aioodbc
 from typing import Annotated, Union
-from text_2_sql_core.connectors.ai_search import AISearchHelper
+from text_2_sql_core.connectors.ai_search import AISearchConnector
 import json
 import asyncio
 import sqlglot
 
 
-class SqlHelper:
+class SqlConnector:
     def __init__(self):
         self.use_query_cache = (
             os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
@@ -41,7 +41,7 @@ class SqlHelper:
             str: The schema of the views or tables in JSON format.
         """
 
-        schemas = await AISearchHelper.run_ai_search_query(
+        schemas = await AISearchConnector.run_ai_search_query(
             text,
             ["DefinitionEmbedding"],
             [
@@ -130,7 +130,7 @@ class SqlHelper:
         -------
             str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
         """
-        cached_schemas = await AISearchHelper.run_ai_search_query(
+        cached_schemas = await AISearchConnector.run_ai_search_query(
             question,
             ["QuestionEmbedding"],
             ["Question", "SqlQueryDecomposition"],
