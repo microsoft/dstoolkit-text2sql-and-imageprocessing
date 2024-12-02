@@ -4,6 +4,10 @@ This repo provides sample code for improving RAG applications with rich data sou
 
 It is intended that the plugins and skills provided in this repository, are adapted and added to your new or existing RAG application to improve the response quality.
 
+> [!IMPORTANT]
+>
+> - This repository now uses `uv` to manage dependencies and common utilities. See [uv](https://docs.astral.sh/uv/) for more details on how to get started.
+
 ## Components
 
 - `./text_2_sql` contains an three Multi-Shot implementations for Text2SQL generation and querying which can be used to answer questions backed by a database as a knowledge base. A **prompt based** and **vector based** approach are shown, both of which exhibit great performance in answering sql queries. Additionally, a further iteration on the vector based approach is shown which uses a **query cache** to further speed up generation.  With these plugins, your RAG application can now access and pull data from any SQL table exposed to it to answer questions.
