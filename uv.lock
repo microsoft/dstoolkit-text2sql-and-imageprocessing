@@ -513,6 +513,7 @@ dev = [
     { name = "black" },
     { name = "ipykernel" },
     { name = "pre-commit" },
+    { name = "pygments" },
     { name = "ruff" },
 ]
 
@@ -523,6 +524,7 @@ dev = [
     { name = "black", specifier = ">=24.10.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "pre-commit", specifier = ">=4.0.1" },
+    { name = "pygments", specifier = ">=2.18.0" },
     { name = "ruff", specifier = ">=0.8.1" },
 ]
 
