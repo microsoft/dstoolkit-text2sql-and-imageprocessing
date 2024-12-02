@@ -1,0 +1,15 @@
+[project]
+name = "autogen"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "autogen-agentchat==0.4.0.dev7",
+    "autogen-core==0.4.0.dev7",
+    "autogen-ext[azure,openai]==0.4.0.dev7",
+    "pyyaml>=6.0.2",
+]
+
+[tool.uv.sources]
+text_2_sql_core = { path = "text_2_sql/text_2_sql_core" }

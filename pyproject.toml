@@ -16,4 +16,4 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["text_2_sql/text_2_sql_core"]
+members = ["text_2_sql/text_2_sql_core", "text_2_sql/autogen"]
