@@ -5,10 +5,7 @@ from typing import Annotated
 import os
 import json
 import logging
-from utils.ai_search import (
-    add_entry_to_index,
-    run_ai_search_query,
-)
+from text_2_sql_core.connectors.ai_search import AISearchConnector
 import asyncio
 import aioodbc
 
@@ -35,6 +32,8 @@ class VectorBasedSQLPlugin:
         self.pre_run_query_cache = False
 
         self.set_mode()
+
+        self.ai_search = AISearchConnector()
 
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
@@ -111,7 +110,7 @@ class VectorBasedSQLPlugin:
         Returns:
         -------
             list[dict]: The list of schemas fetched from the store."""
-        schemas = await run_ai_search_query(
+        schemas = await self.ai_search.run_ai_search_query(
             search,
             ["DefinitionEmbedding"],
             [
@@ -150,7 +149,7 @@ class VectorBasedSQLPlugin:
         if not self.use_query_cache:
             return None
 
-        cached_schemas = await run_ai_search_query(
+        cached_schemas = await self.ai_search.run_ai_search_query(
             question,
             ["QuestionEmbedding"],
             ["Question", "SqlQueryDecomposition"],
@@ -362,7 +361,7 @@ class VectorBasedSQLPlugin:
                 raise e
             else:
                 if entry is not None:
-                    task = add_entry_to_index(
+                    task = self.ai_search.add_entry_to_index(
                         entry,
                         {"Question": "QuestionEmbedding"},
                         os.environ[

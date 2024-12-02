@@ -1,10 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-import yaml
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
 from text_2_sql_core.connectors.sql import SqlConnector
-from llm_model_creator import LLMModelCreator
+from text_2_sql_core.prompts.load import load
+from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
 from datetime import datetime
 
@@ -21,10 +21,8 @@ class LLMAgentCreator:
         Returns:
         -------
             dict: The agent file."""
-        with open(f"./agents/llm_agents/{name.lower()}.yaml", "r") as file:
-            file = yaml.safe_load(file)
 
-        return file
+        return load(name.lower())
 
     @classmethod
     def get_tool(cls, sql_helper: SqlConnector, tool_name: str):
