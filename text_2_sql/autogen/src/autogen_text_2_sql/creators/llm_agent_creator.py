@@ -1,10 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-import yaml
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
-from utils.sql import query_execution, get_entity_schemas, query_validation
-from utils.llm_model_creator import LLMModelCreator
+from text_2_sql_core.connectors.sql import SqlConnector
+from text_2_sql_core.prompts.load import load
+from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
 from datetime import datetime
 
@@ -21,34 +21,33 @@ class LLMAgentCreator:
         Returns:
         -------
             dict: The agent file."""
-        with open(f"./agents/llm_agents/{name.lower()}.yaml", "r") as file:
-            file = yaml.safe_load(file)
 
-        return file
+        return load(name.lower())
 
     @classmethod
-    def get_tool(cls, tool_name: str) -> FunctionTool:
-        """Retrieves the tool based on the tool name.
-
+    def get_tool(cls, sql_helper: SqlConnector, tool_name: str):
+        """Gets the tool based on the tool name.
         Args:
         ----
+            sql_helper (SqlConnector): The SQL helper.
             tool_name (str): The name of the tool to retrieve.
 
         Returns:
             FunctionTool: The tool."""
+
         if tool_name == "sql_query_execution_tool":
             return FunctionTool(
-                query_execution,
+                sql_helper.query_execution,
                 description="Runs an SQL query against the SQL Database to extract information",
             )
         elif tool_name == "sql_get_entity_schemas_tool":
             return FunctionTool(
-                get_entity_schemas,
+                sql_helper.get_entity_schemas,
                 description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned. Only use when the provided schemas in the system prompt are not sufficient to answer the question.",
             )
         elif tool_name == "sql_query_validation_tool":
             return FunctionTool(
-                query_validation,
+                sql_helper.query_validation,
                 description="Validates the SQL query to ensure that it is syntactically correct for the target database engine. Use this BEFORE executing any SQL statement.",
             )
         elif tool_name == "current_datetime_tool":
@@ -94,10 +93,12 @@ class LLMAgentCreator:
             AssistantAgent: The assistant agent."""
         agent_file = cls.load_agent_file(name)
 
+        sql_helper = SqlConnector()
+
         tools = []
         if "tools" in agent_file and len(agent_file["tools"]) > 0:
             for tool in agent_file["tools"]:
-                tools.append(cls.get_tool(tool))
+                tools.append(cls.get_tool(sql_helper, tool))
 
         agent = AssistantAgent(
             name=name,

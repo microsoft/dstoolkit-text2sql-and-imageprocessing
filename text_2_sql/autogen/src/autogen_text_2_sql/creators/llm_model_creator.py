@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 from autogen_ext.models import AzureOpenAIChatCompletionClient
-from environment import IdentityType, get_identity_type
+from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import os

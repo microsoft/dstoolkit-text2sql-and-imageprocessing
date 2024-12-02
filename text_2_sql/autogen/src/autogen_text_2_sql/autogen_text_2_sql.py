@@ -2,15 +2,15 @@
 # Licensed under the MIT License.
 from autogen_agentchat.task import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.teams import SelectorGroupChat
-from utils.llm_model_creator import LLMModelCreator
-from utils.llm_agent_creator import LLMAgentCreator
+from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
+from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
 import logging
-from agents.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
+from autogen_text_2_sql.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
 import json
 import os
 
 
-class AgenticText2Sql:
+class AutoGenText2Sql:
     def __init__(self, target_engine: str, engine_specific_rules: str):
         self.use_query_cache = False
         self.pre_run_query_cache = False
@@ -135,7 +135,7 @@ class AgenticText2Sql:
             allow_repeated_speaker=False,
             model_client=LLMModelCreator.get_model("4o-mini"),
             termination_condition=self.termination_condition,
-            selector_func=AgenticText2Sql.selector,
+            selector_func=AutoGenText2Sql.selector,
         )
 
         return agentic_flow

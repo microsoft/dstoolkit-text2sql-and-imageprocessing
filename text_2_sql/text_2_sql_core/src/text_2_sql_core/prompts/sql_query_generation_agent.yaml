@@ -34,7 +34,9 @@ system_message:
 
     - Use the complete entity relationship graph shows you all the entities and their relationships. You can use this information to get a better understanding of the schema and the relationships between the entities and request more schema information if needed.
 
-    - Always run any SQL query you generate to return the results."
+    - Always run any SQL query you generate to return the results.
+
+    - Always apply a limit to the end of the SQL query to prevent returning too many rows. The limit should be set to 25."
 tools:
   - sql_query_execution_tool
   - sql_get_entity_schemas_tool

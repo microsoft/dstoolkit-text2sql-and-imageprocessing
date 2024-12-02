@@ -12,8 +12,5 @@ RUN apt-get update && \
 # Set the working directory
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements-dev.txt .
-
-# Install Python dependencies
-RUN pip install -r requirements-dev.txt
+# Install uv package manager
+RUN pip install uv

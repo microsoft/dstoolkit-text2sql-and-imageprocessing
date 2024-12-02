@@ -1,8 +1,0 @@
-aioodbc
-azure-identity
-python-dotenv
-pydantic
-openai
-snowflake-connector-python
-networkx
-databricks
