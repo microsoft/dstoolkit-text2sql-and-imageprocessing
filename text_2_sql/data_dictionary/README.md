@@ -85,11 +85,16 @@ Below is a sample entry for a view / table that we which to expose to the LLM. T
 
 A full data dictionary must be built for all the views / tables you which to expose to the LLM. The metadata provide directly influences the accuracy of the Text2SQL component.
 
+
 ## Indexing
 
 `./deploy_ai_search/text_2_sql.py` & `./deploy_ai_search/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search/README.md`.
 
 ## Automatic Generation
+
+> [!IMPORTANT]
+>
+> - The data dictioonary generation scripts have been moved to `text_2_sql_core`. Documentation will be updated shortly.
 
 Manually creating the `entities.json` is a time consuming exercise. To speed up generation, a mixture of SQL Queries and an LLM can be used to generate a initial version. Existing comments and descriptions in the database, can be combined with sample values to generate the necessary descriptions. Manual input can then be used to tweak it for the use case and any improvements.
 
