@@ -5,7 +5,7 @@ from openai import AsyncAzureOpenAI
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.models import VectorizedQuery
 from azure.search.documents.aio import SearchClient
-from environment import IdentityType, get_identity_type
+from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 import os
 import logging
 import base64

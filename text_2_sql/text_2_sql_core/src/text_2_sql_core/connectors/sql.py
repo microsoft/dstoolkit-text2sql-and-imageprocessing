@@ -4,7 +4,7 @@ import logging
 import os
 import aioodbc
 from typing import Annotated, Union
-from utils.ai_search import AISearchHelper
+from text_2_sql_core.connectors.ai_search import AISearchHelper
 import json
 import asyncio
 import sqlglot
