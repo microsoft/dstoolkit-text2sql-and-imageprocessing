@@ -6,7 +6,7 @@ import os
 from text_2_sql_core.utils.database import DatabaseEngine
 
 
-class SqlServerDataDictionaryCreator(DataDictionaryCreator):
+class TSQLDataDictionaryCreator(DataDictionaryCreator):
     def __init__(
         self,
         entities: list[str] = None,
@@ -115,5 +115,5 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
 
 
 if __name__ == "__main__":
-    data_dictionary_creator = SqlServerDataDictionaryCreator()
+    data_dictionary_creator = TSQLDataDictionaryCreator()
     asyncio.run(data_dictionary_creator.create_data_dictionary())
