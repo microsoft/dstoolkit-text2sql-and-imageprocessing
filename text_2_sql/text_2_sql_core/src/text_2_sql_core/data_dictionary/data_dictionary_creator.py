@@ -9,23 +9,15 @@ from dotenv import find_dotenv, load_dotenv
 import logging
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-from environment import IdentityType, get_identity_type
+from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 from openai import AsyncAzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import random
 import re
 import networkx as nx
-from enum import StrEnum
+from text_2_sql_core.utils.database import DatabaseEngine
 
 logging.basicConfig(level=logging.INFO)
-
-
-class DatabaseEngine(StrEnum):
-    """An enumeration to represent a database engine."""
-
-    SNOWFLAKE = "SNOWFLAKE"
-    TSQL = "TSQL"
-    DATABRICKS = "DATABRICKS"
 
 
 class ForeignKeyRelationship(BaseModel):

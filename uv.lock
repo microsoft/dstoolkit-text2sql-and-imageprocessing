@@ -3263,7 +3263,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
+    { name = "rich" },
     { name = "sqlglot", extra = ["rs"] },
+    { name = "typer" },
 ]
 
 [package.optional-dependencies]
@@ -3292,8 +3294,10 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.10.2" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "rich", specifier = ">=13.9.4" },
     { name = "snowflake-connector-python", marker = "extra == 'snowflake'", specifier = ">=3.12.3" },
     { name = "sqlglot", extras = ["rs"], specifier = ">=25.32.1" },
+    { name = "typer", specifier = ">=0.14.0" },
 ]
 
 [package.metadata.requires-dev]

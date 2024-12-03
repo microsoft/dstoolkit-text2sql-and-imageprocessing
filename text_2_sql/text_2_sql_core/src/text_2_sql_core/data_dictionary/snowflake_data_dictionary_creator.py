@@ -1,10 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem, DatabaseEngine
+from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
 import snowflake.connector
 import logging
 import os
+
+from text_2_sql_core.utils.database import DatabaseEngine
 
 
 class SnowflakeDataDictionaryCreator(DataDictionaryCreator):

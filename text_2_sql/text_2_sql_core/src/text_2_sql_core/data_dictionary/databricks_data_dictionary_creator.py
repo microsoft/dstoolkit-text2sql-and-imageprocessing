@@ -1,10 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem, DatabaseEngine
+from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
 from databricks import sql
 import logging
 import os
+from text_2_sql_core.utils.database import DatabaseEngine
 
 
 class DatabricksDataDictionaryCreator(DataDictionaryCreator):
@@ -61,7 +62,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         """A property to extract column information from Databricks Unity Catalog."""
         return f"""SELECT
             COLUMN_NAME AS Name,
-            DATA_TYPE AS Type,
+            DATA_TYPE AS DataType,
             COMMENT AS Definition
         FROM
             INFORMATION_SCHEMA.COLUMNS
