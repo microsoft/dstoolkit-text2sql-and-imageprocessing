@@ -24,7 +24,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         if excluded_entities is None:
             excluded_entities = []
 
-        excluded_schemas = []
+        excluded_schemas = ["information_schema"]
         super().__init__(entities, excluded_entities, excluded_schemas, single_file)
 
         self.catalog = os.environ["Text2Sql__Databricks__Catalog"]
@@ -40,7 +40,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             t.TABLE_SCHEMA AS EntitySchema,
             t.COMMENT AS Definition
         FROM
-            INFORMATION_SCHEMA.TABLES t
+            {self.catalog}.INFORMATION_SCHEMA.TABLES t
         WHERE
             t.TABLE_CATALOG = '{self.catalog}'
         """
@@ -53,7 +53,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             v.TABLE_SCHEMA AS EntitySchema
             NULL AS Definition
         FROM
-            INFORMATION_SCHEMA.VIEWS v
+            {self.catalog}.INFORMATION_SCHEMA.VIEWS v
         WHERE
             v.TABLE_CATALOG = '{self.catalog}'"""
 
@@ -64,7 +64,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             DATA_TYPE AS Type,
             COMMENT AS Definition
         FROM
-            INFORMATION_SCHEMA.COLUMNS
+            {self.catalog}.INFORMATION_SCHEMA.COLUMNS
         WHERE
             TABLE_CATALOG = '{self.catalog}'
             AND TABLE_SCHEMA = '{entity.entity_schema}'
@@ -74,35 +74,35 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
     def extract_entity_relationships_sql_query(self) -> str:
         """A property to extract entity relationships from Databricks Unity Catalog."""
         return f"""SELECT
-            fk_schema.TABLE_SCHEMA AS EntitySchema,
+            fk_schema.schema_name AS EntitySchema,
             fk_tab.TABLE_NAME AS Entity,
-            pk_schema.TABLE_SCHEMA AS ForeignEntitySchema,
+            pk_schema.schema_name AS ForeignEntitySchema,
             pk_tab.TABLE_NAME AS ForeignEntity,
-            fk_col.COLUMN_NAME AS [Column],
+            fk_col.COLUMN_NAME AS Column,
             pk_col.COLUMN_NAME AS ForeignColumn
         FROM
-            INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS fk
+            {self.catalog}.INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS fk
         INNER JOIN
-            INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS fkc
+            {self.catalog}.INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS fkc
             ON fk.constraint_name = fkc.constraint_name
         INNER JOIN
-            INFORMATION_SCHEMA.TABLES AS fk_tab
+            {self.catalog}.INFORMATION_SCHEMA.TABLES AS fk_tab
             ON fk_tab.TABLE_NAME = fkc.TABLE_NAME AND fk_tab.TABLE_SCHEMA = fkc.TABLE_SCHEMA
         INNER JOIN
-            INFORMATION_SCHEMA.SCHEMATA AS fk_schema
-            ON fk_tab.TABLE_SCHEMA = fk_schema.TABLE_SCHEMA
+            {self.catalog}.INFORMATION_SCHEMA.SCHEMATA AS fk_schema
+            ON fk_tab.TABLE_SCHEMA = fk_schema.schema_name
         INNER JOIN
-            INFORMATION_SCHEMA.TABLES AS pk_tab
-            ON pk_tab.TABLE_NAME = fkc.referenced_TABLE_NAME AND pk_tab.TABLE_SCHEMA = fkc.referenced_TABLE_SCHEMA
+            {self.catalog}.INFORMATION_SCHEMA.TABLES AS pk_tab
+            ON pk_tab.TABLE_NAME = fkc.table_name AND pk_tab.TABLE_SCHEMA = fkc.table_schema
         INNER JOIN
-            INFORMATION_SCHEMA.SCHEMATA AS pk_schema
-            ON pk_tab.TABLE_SCHEMA = pk_schema.TABLE_SCHEMA
+            {self.catalog}.INFORMATION_SCHEMA.SCHEMATA AS pk_schema
+            ON pk_tab.TABLE_SCHEMA = pk_schema.schema_name
         INNER JOIN
-            INFORMATION_SCHEMA.COLUMNS AS fk_col
+            {self.catalog}.INFORMATION_SCHEMA.COLUMNS AS fk_col
             ON fkc.COLUMN_NAME = fk_col.COLUMN_NAME AND fkc.TABLE_NAME = fk_col.TABLE_NAME AND fkc.TABLE_SCHEMA = fk_col.TABLE_SCHEMA
         INNER JOIN
-            INFORMATION_SCHEMA.COLUMNS AS pk_col
-            ON fkc.referenced_COLUMN_NAME = pk_col.COLUMN_NAME AND fkc.referenced_TABLE_NAME = pk_col.TABLE_NAME AND fkc.referenced_TABLE_SCHEMA = pk_col.TABLE_SCHEMA
+            {self.catalog}.INFORMATION_SCHEMA.COLUMNS AS pk_col
+            ON fkc.column_name = pk_col.COLUMN_NAME AND fkc.table_name = pk_col.TABLE_NAME AND fkc.table_schema = pk_col.TABLE_SCHEMA
         WHERE
             fk.constraint_type = 'FOREIGN KEY'
             AND fk_tab.TABLE_CATALOG = '{self.catalog}'
