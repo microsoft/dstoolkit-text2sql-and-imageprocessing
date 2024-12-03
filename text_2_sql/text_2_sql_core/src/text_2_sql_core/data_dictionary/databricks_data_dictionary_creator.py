@@ -9,24 +9,11 @@ from text_2_sql_core.utils.database import DatabaseEngine
 
 
 class DatabricksDataDictionaryCreator(DataDictionaryCreator):
-    def __init__(
-        self,
-        entities: list[str] = None,
-        excluded_entities: list[str] = None,
-        single_file: bool = False,
-    ):
-        """A method to initialize the DataDictionaryCreator class.
+    def __init__(self, **kwargs):
+        """A method to initialize the DataDictionaryCreator class."""
 
-        Args:
-            entities (list[str], optional): A list of entities to extract. Defaults to None. If None, all entities are extracted.
-            excluded_entities (list[str], optional): A list of entities to exclude. Defaults to None.
-            single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
-        """
-        if excluded_entities is None:
-            excluded_entities = []
-
-        excluded_schemas = []
-        super().__init__(entities, excluded_entities, excluded_schemas, single_file)
+        excluded_schemas = ["INFORMATION_SCHEMA"]
+        super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
         self.catalog = os.environ["Text2Sql__Databricks__Catalog"]
         self.database_engine = DatabaseEngine.DATABRICKS

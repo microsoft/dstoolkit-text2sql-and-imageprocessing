@@ -166,6 +166,7 @@ class DataDictionaryCreator(ABC):
         excluded_schemas: list[str] = None,
         single_file: bool = False,
         generate_definitions: bool = True,
+        output_directory: str = None,
     ):
         """A method to initialize the DataDictionaryCreator class.
 
@@ -176,6 +177,9 @@ class DataDictionaryCreator(ABC):
             single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
             generate_definitions (bool, optional): A flag to indicate if definitions should be generated. Defaults to True.
         """
+
+        if excluded_entities is None:
+            excluded_entities = []
 
         self.entities = entities
         self.excluded_entities = excluded_entities
@@ -191,6 +195,9 @@ class DataDictionaryCreator(ABC):
         self.catalog = None
 
         self.database_engine = None
+
+        if output_directory is None:
+            self.output_directory = "."
 
         load_dotenv(find_dotenv())
 
@@ -677,7 +684,9 @@ class DataDictionaryCreator(ABC):
         # Save data dictionary to file
         if self.single_file:
             logging.info("Saving data dictionary to entities.json")
-            with open("entities.json", "w", encoding="utf-8") as f:
+            with open(
+                f"{self.output_directory}/entities.json", "w", encoding="utf-8"
+            ) as f:
                 data_dictionary_dump = [
                     entity.model_dump(
                         by_alias=True, exclude=self.excluded_fields_for_database_engine
@@ -693,7 +702,11 @@ class DataDictionaryCreator(ABC):
         else:
             for entity in data_dictionary:
                 logging.info(f"Saving data dictionary for {entity.entity}")
-                with open(f"{entity.entity}.json", "w", encoding="utf-8") as f:
+                with open(
+                    f"{self.output_directory}/{entity.entity}.json",
+                    "w",
+                    encoding="utf-8",
+                ) as f:
                     json.dump(
                         entity.model_dump(
                             by_alias=True,

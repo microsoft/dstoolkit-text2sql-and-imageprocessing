@@ -13,6 +13,7 @@ dev = [
     "pre-commit>=4.0.1",
     "pygments>=2.18.0",
     "ruff>=0.8.1",
+    "python-dotenv>=1.0.1",
 ]
 
 [tool.uv.workspace]

@@ -7,12 +7,7 @@ from text_2_sql_core.utils.database import DatabaseEngine
 
 
 class TSQLDataDictionaryCreator(DataDictionaryCreator):
-    def __init__(
-        self,
-        entities: list[str] = None,
-        excluded_entities: list[str] = None,
-        single_file: bool = False,
-    ):
+    def __init__(self, **kwargs):
         """A method to initialize the DataDictionaryCreator class.
 
         Args:
@@ -20,11 +15,8 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
             excluded_entities (list[str], optional): A list of entities to exclude. Defaults to None.
             single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
         """
-        if excluded_entities is None:
-            excluded_entities = []
-
         excluded_schemas = ["dbo", "sys"]
-        super().__init__(entities, excluded_entities, excluded_schemas, single_file)
+        super().__init__(excluded_schemas=excluded_schemas, **kwargs)
         self.database = os.environ["Text2Sql__DatabaseName"]
 
         self.database_engine = DatabaseEngine.TSQL

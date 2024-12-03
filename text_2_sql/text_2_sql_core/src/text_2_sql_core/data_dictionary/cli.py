@@ -1,29 +1,14 @@
 import asyncio
-from importlib import metadata
 from pathlib import Path
 from typing import Annotated
 from text_2_sql_core.utils.database import DatabaseEngine
-
+import logging
 import typer
 from rich import print as rich_print
 
+logging.basicConfig(level=logging.INFO)
+
 cli = typer.Typer(pretty_exceptions_show_locals=False, no_args_is_help=True)
-
-__version__ = metadata.version(__package__)
-
-
-def version_callback(value: bool) -> None:
-    """Print the version of the CLI."""
-    if value:
-        print(__version__)
-        raise typer.Exit()
-
-
-@cli.callback()
-def callback(
-    _: bool = typer.Option(None, "--version", "-v", callback=version_callback)
-) -> None:
-    """Text2SQL Data Dictionary Creator CLI."""
 
 
 @cli.command()
@@ -71,20 +56,27 @@ def create(
                 DatabricksDataDictionaryCreator,
             )
 
-            data_dictionary_creator = DatabricksDataDictionaryCreator()
+            data_dictionary_creator = DatabricksDataDictionaryCreator(
+                single_file=single_file, output_directory=output_directory
+            )
         elif engine == DatabaseEngine.SNOWFLAKE:
             from text_2_sql_core.data_dictionary.snowflake_data_dictionary_creator import (
                 SnowflakeDataDictionaryCreator,
             )
 
-            data_dictionary_creator = SnowflakeDataDictionaryCreator()
+            data_dictionary_creator = SnowflakeDataDictionaryCreator(
+                single_file=single_file, output_directory=output_directory
+            )
         elif engine == DatabaseEngine.TSQL:
             from text_2_sql_core.data_dictionary.tsql_data_dictionary_creator import (
                 TSQLDataDictionaryCreator,
             )
 
-            data_dictionary_creator = TSQLDataDictionaryCreator()
-    except ImportError:
+            data_dictionary_creator = TSQLDataDictionaryCreator(
+                single_file=single_file, output_directory=output_directory
+            )
+    except ImportError as e:
+        print(e)
         detailed_error = f"""Failed to import {
             engine.value} Data Dictionary Creator. Check you have installed the optional dependencies for this database engine."""
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
@@ -102,3 +94,7 @@ def create(
         raise typer.Exit(code=1)
     else:
         rich_print("Text2SQL Data Dictionary Creator Completed Successfully ✅")
+
+
+if __name__ == "__main__":
+    cli()

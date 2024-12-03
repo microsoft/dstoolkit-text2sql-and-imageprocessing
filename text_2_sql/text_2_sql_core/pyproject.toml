@@ -23,19 +23,25 @@ dependencies = [
     "typer>=0.14.0",
 ]
 
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "pre-commit>=4.0.1",
+    "pygments>=2.18.0",
+    "ruff>=0.8.1",
+    "python-dotenv>=1.0.1",
+]
+
 [project.optional-dependencies]
 snowflake = [
     "snowflake-connector-python>=3.12.3",
 ]
 databricks = [
-    "databricks>=0.2",
+    "databricks-sql-connector>=3.0.1",
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[dependency-groups]
-dev = [
-    "python-dotenv>=1.0.1",
-]
