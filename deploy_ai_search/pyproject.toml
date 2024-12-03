@@ -11,3 +11,6 @@ dependencies = [
     "azure-storage-blob>=12.24.0",
     "python-dotenv>=1.0.1",
 ]
+
+[tool.uv.sources]
+text-2-sql-core = { workspace = true }

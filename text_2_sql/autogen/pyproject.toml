@@ -26,5 +26,4 @@ dev = [
 ]
 
 [tool.uv.sources]
-autogen-text-2-sql = { workspace = true }
 text-2-sql-core = { workspace = true }

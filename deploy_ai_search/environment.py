@@ -14,6 +14,7 @@ class IndexerType(Enum):
     RAG_DOCUMENTS = "rag-documents"
     TEXT_2_SQL_SCHEMA_STORE = "text-2-sql-schema-store"
     TEXT_2_SQL_QUERY_CACHE = "text-2-sql-query-cache"
+    TEXT_2_SQL_COLUMN_VALUE_STORE = "text-2-sql-column-value-store"
 
 
 class IdentityType(Enum):
