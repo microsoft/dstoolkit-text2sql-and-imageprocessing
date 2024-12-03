@@ -104,6 +104,15 @@ class ColumnItem(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
+    def value_store_entry(
+        self, entity, distinct_value, excluded_fields_for_database_engine
+    ):
+        initial_entry = entity.value_store_entry(excluded_fields_for_database_engine)
+
+        initial_entry["Value"] = distinct_value
+        initial_entry["Synonyms"] = []
+        return initial_entry
+
     @classmethod
     def from_sql_row(cls, row, columns):
         """A method to create a ColumnItem from a SQL row."""
@@ -140,6 +149,26 @@ class EntityItem(BaseModel):
     )
 
     model_config = ConfigDict(populate_by_name=True)
+
+    @property
+    def id(self):
+        identifiers = [self.warehouse, self.catalog, self.database, self.entity]
+        non_null_identifiers = [x for x in identifiers if x is not None]
+
+        return ".".join(non_null_identifiers)
+
+    def value_store_entry(self, excluded_fields_for_database_engine):
+        excluded_fields = excluded_fields_for_database_engine + [
+            "Definition",
+            "Name",
+            "EntityName",
+            "EntityRelationships",
+            "CompleteEntityRelationshipsGraph",
+            "Columns",
+        ]
+        return self.model_dump(
+            by_alias=True, exclude_none=True, exclude=excluded_fields
+        )
 
     @classmethod
     def from_sql_row(cls, row, columns):
@@ -407,6 +436,25 @@ class DataDictionaryCreator(ABC):
 
         return all_entities
 
+    async def write_columns_to_file(self, entity: EntityItem, column: ColumnItem):
+        logging.info(f"Saving column values for {column.name}")
+
+        key = f"{entity.id}.{column.name}"
+        with open(
+            f"{self.output_directory}/column_value_store/{key}.jsonl",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            for distinct_value in column.distinct_values:
+                json.dump(
+                    column.value_store_entry(
+                        entity, distinct_value, self.excluded_fields_for_database_engine
+                    ),
+                    f,
+                    indent=4,
+                    default=str,
+                )
+
     async def extract_column_distinct_values(
         self, entity: EntityItem, column: ColumnItem
     ):
@@ -620,6 +668,23 @@ class DataDictionaryCreator(ABC):
         logging.info(f"definition for {entity.entity}: {definition}")
         entity.definition = definition
 
+    async def write_entity_to_file(self, entity):
+        logging.info(f"Saving data dictionary for {entity.entity}")
+        with open(
+            f"{self.output_directory}/schema_store/{entity.id}.json",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            json.dump(
+                entity.model_dump(
+                    by_alias=True,
+                    exclude=self.excluded_fields_for_database_engine,
+                ),
+                f,
+                indent=4,
+                default=str,
+            )
+
     async def build_entity_entry(self, entity: EntityItem) -> EntityItem:
         """A method to build an entity entry.
 
@@ -646,6 +711,9 @@ class DataDictionaryCreator(ABC):
         entity.complete_entity_relationships_graph = (
             self.get_entity_relationships_from_graph(entity.entity)
         )
+
+        if self.single_file is False:
+            await self.write_entity_to_file(entity)
 
         return entity
 
@@ -685,7 +753,9 @@ class DataDictionaryCreator(ABC):
         if self.single_file:
             logging.info("Saving data dictionary to entities.json")
             with open(
-                f"{self.output_directory}/entities.json", "w", encoding="utf-8"
+                f"{self.output_directory}/schema_store/entities.json",
+                "w",
+                encoding="utf-8",
             ) as f:
                 data_dictionary_dump = [
                     entity.model_dump(
@@ -699,20 +769,3 @@ class DataDictionaryCreator(ABC):
                     indent=4,
                     default=str,
                 )
-        else:
-            for entity in data_dictionary:
-                logging.info(f"Saving data dictionary for {entity.entity}")
-                with open(
-                    f"{self.output_directory}/{entity.entity}.json",
-                    "w",
-                    encoding="utf-8",
-                ) as f:
-                    json.dump(
-                        entity.model_dump(
-                            by_alias=True,
-                            exclude=self.excluded_fields_for_database_engine,
-                        ),
-                        f,
-                        indent=4,
-                        default=str,
-                    )
