@@ -212,8 +212,8 @@ class DataDictionaryCreator(ABC):
             excluded_entities = []
 
         self.entities = entities
-        self.excluded_entities = excluded_entities
-        self.excluded_schemas = excluded_schemas
+        self.excluded_entities = [x.lower() for x in excluded_entities]
+        self.excluded_schemas = [x.lower() for x in excluded_schemas]
         self.single_file = single_file
         self.generate_definitions = generate_definitions
 
@@ -428,8 +428,8 @@ class DataDictionaryCreator(ABC):
             all_entities = [
                 entity
                 for entity in all_entities
-                if entity.entity not in self.excluded_entities
-                and entity.entity_schema not in self.excluded_schemas
+                if entity.entity.lower() not in self.excluded_entities
+                and entity.entity_schema.lower() not in self.excluded_schemas
             ]
 
         # Add warehouse and database to entities
