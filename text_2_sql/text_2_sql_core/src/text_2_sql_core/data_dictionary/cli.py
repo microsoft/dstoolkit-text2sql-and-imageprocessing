@@ -75,8 +75,7 @@ def create(
             data_dictionary_creator = TSQLDataDictionaryCreator(
                 single_file=single_file, output_directory=output_directory
             )
-    except ImportError as e:
-        print(e)
+    except ImportError:
         detailed_error = f"""Failed to import {
             engine.value} Data Dictionary Creator. Check you have installed the optional dependencies for this database engine."""
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
@@ -87,6 +86,7 @@ def create(
     try:
         asyncio.run(data_dictionary_creator.create_data_dictionary())
     except Exception as e:
+        logging.error(e)
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 
         rich_print(f"Error Messages: {e}")

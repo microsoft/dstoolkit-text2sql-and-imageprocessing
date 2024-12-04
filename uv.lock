@@ -3318,6 +3318,7 @@ dependencies = [
 [package.optional-dependencies]
 databricks = [
     { name = "databricks-sql-connector" },
+    { name = "pyarrow" },
 ]
 snowflake = [
     { name = "snowflake-connector-python" },
@@ -3344,6 +3345,7 @@ requires-dist = [
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "networkx", specifier = ">=3.4.2" },
     { name = "openai", specifier = ">=1.55.3" },
+    { name = "pyarrow", marker = "extra == 'databricks'", specifier = ">=14.0.2" },
     { name = "pydantic", specifier = ">=2.10.2" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
