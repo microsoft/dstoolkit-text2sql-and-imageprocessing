@@ -31,7 +31,6 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         FROM
             {self.catalog}.INFORMATION_SCHEMA.TABLES t
         ORDER BY EntitySchema, Entity
-        LIMIT 1
         """
 
     @property
@@ -44,7 +43,6 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         FROM
             {self.catalog}.INFORMATION_SCHEMA.VIEWS v
         ORDER BY EntitySchema, Entity
-        LIMIT 1
         """
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
