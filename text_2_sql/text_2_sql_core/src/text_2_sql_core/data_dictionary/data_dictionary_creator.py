@@ -9,23 +9,16 @@ from dotenv import find_dotenv, load_dotenv
 import logging
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
-from environment import IdentityType, get_identity_type
+from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 from openai import AsyncAzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import random
 import re
 import networkx as nx
-from enum import StrEnum
+from text_2_sql_core.utils.database import DatabaseEngine
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 logging.basicConfig(level=logging.INFO)
-
-
-class DatabaseEngine(StrEnum):
-    """An enumeration to represent a database engine."""
-
-    SNOWFLAKE = "SNOWFLAKE"
-    TSQL = "TSQL"
-    DATABRICKS = "DATABRICKS"
 
 
 class ForeignKeyRelationship(BaseModel):
@@ -107,10 +100,18 @@ class ColumnItem(BaseModel):
     distinct_values: Optional[list[any]] = Field(
         None, alias="DistinctValues", exclude=True
     )
-    allowed_values: Optional[list[any]] = Field(None, alias="AllowedValues")
     sample_values: Optional[list[any]] = Field(None, alias="SampleValues")
 
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+
+    def value_store_entry(
+        self, entity, distinct_value, excluded_fields_for_database_engine
+    ):
+        initial_entry = entity.value_store_entry(excluded_fields_for_database_engine)
+
+        initial_entry["Value"] = distinct_value
+        initial_entry["Synonyms"] = []
+        return initial_entry
 
     @classmethod
     def from_sql_row(cls, row, columns):
@@ -149,6 +150,26 @@ class EntityItem(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
+    @property
+    def id(self):
+        identifiers = [self.warehouse, self.catalog, self.database, self.entity]
+        non_null_identifiers = [x for x in identifiers if x is not None]
+
+        return ".".join(non_null_identifiers)
+
+    def value_store_entry(self, excluded_fields_for_database_engine):
+        excluded_fields = excluded_fields_for_database_engine + [
+            "definition",
+            "name",
+            "entity_name",
+            "entity_relationships",
+            "complete_entity_relationships_graph",
+            "columns",
+        ]
+        return self.model_dump(
+            by_alias=True, exclude_none=True, exclude=excluded_fields
+        )
+
     @classmethod
     def from_sql_row(cls, row, columns):
         """A method to create an EntityItem from a SQL row."""
@@ -173,7 +194,8 @@ class DataDictionaryCreator(ABC):
         excluded_entities: list[str] = None,
         excluded_schemas: list[str] = None,
         single_file: bool = False,
-        generate_definitions: bool = True,
+        generate_definitions: bool = False,
+        output_directory: str = None,
     ):
         """A method to initialize the DataDictionaryCreator class.
 
@@ -185,9 +207,12 @@ class DataDictionaryCreator(ABC):
             generate_definitions (bool, optional): A flag to indicate if definitions should be generated. Defaults to True.
         """
 
+        if excluded_entities is None:
+            excluded_entities = []
+
         self.entities = entities
-        self.excluded_entities = excluded_entities
-        self.excluded_schemas = excluded_schemas
+        self.excluded_entities = [x.lower() for x in excluded_entities]
+        self.excluded_schemas = [x.lower() for x in excluded_schemas]
         self.single_file = single_file
         self.generate_definitions = generate_definitions
 
@@ -199,6 +224,12 @@ class DataDictionaryCreator(ABC):
         self.catalog = None
 
         self.database_engine = None
+
+        self.database_semaphore = asyncio.Semaphore(20)
+        self.llm_semaphone = asyncio.Semaphore(10)
+
+        if output_directory is None:
+            self.output_directory = "."
 
         load_dotenv(find_dotenv())
 
@@ -242,8 +273,11 @@ class DataDictionaryCreator(ABC):
         Returns:
             str: The SQL query to extract distinct values from a column.
         """
-        return f"""SELECT DISTINCT {column.name} FROM {entity.entity} ORDER BY {column.name} DESC;"""
+        return f"""SELECT DISTINCT {column.name} FROM {entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
 
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
     async def query_entities(
         self, sql_query: str, cast_to: any = None
     ) -> list[EntityItem]:
@@ -260,19 +294,20 @@ class DataDictionaryCreator(ABC):
 
         logging.info(f"Running query: {sql_query}")
         results = []
-        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-            async with sql_db_client.cursor() as cursor:
-                await cursor.execute(sql_query)
+        async with self.database_semaphore:
+            async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
+                async with sql_db_client.cursor() as cursor:
+                    await cursor.execute(sql_query)
 
-                columns = [column[0] for column in cursor.description]
+                    columns = [column[0] for column in cursor.description]
 
-                rows = await cursor.fetchall()
+                    rows = await cursor.fetchall()
 
-                for row in rows:
-                    if cast_to:
-                        results.append(cast_to.from_sql_row(row, columns))
-                    else:
-                        results.append(dict(zip(columns, row)))
+                    for row in rows:
+                        if cast_to:
+                            results.append(cast_to.from_sql_row(row, columns))
+                        else:
+                            results.append(dict(zip(columns, row)))
 
         return results
 
@@ -386,18 +421,18 @@ class DataDictionaryCreator(ABC):
         all_entities = table_entities + view_entities
 
         # Filter entities if entities is not None
-        if self.entities:
+        if self.entities is not None:
             all_entities = [
                 entity for entity in all_entities if entity.entity in self.entities
             ]
 
         # Filter entities if excluded_entities is not None
-        if self.excluded_entities:
+        if len(self.excluded_entities) > 0 or len(self.excluded_schemas):
             all_entities = [
                 entity
                 for entity in all_entities
-                if entity.entity not in self.excluded_entities
-                and entity.entity_schema not in self.excluded_schemas
+                if entity.name.lower() not in self.excluded_entities
+                and entity.entity_schema.lower() not in self.excluded_schemas
             ]
 
         # Add warehouse and database to entities
@@ -407,6 +442,29 @@ class DataDictionaryCreator(ABC):
             entity.catalog = self.catalog
 
         return all_entities
+
+    async def write_columns_to_file(self, entity: EntityItem, column: ColumnItem):
+        logging.info(f"Saving column values for {column.name}")
+
+        key = f"{entity.id}.{column.name}"
+        # Ensure the intermediate directories exist
+        os.makedirs(f"{self.output_directory}/column_value_store", exist_ok=True)
+        with open(
+            f"{self.output_directory}/column_value_store/{key}.jsonl",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            if column.distinct_values is not None:
+                for distinct_value in column.distinct_values:
+                    json_string = json.dumps(
+                        column.value_store_entry(
+                            entity,
+                            distinct_value,
+                            self.excluded_fields_for_database_engine,
+                        ),
+                        default=str,
+                    )
+                    f.write(json_string + "\n")
 
     async def extract_column_distinct_values(
         self, entity: EntityItem, column: ColumnItem
@@ -443,6 +501,14 @@ class DataDictionaryCreator(ABC):
         elif column.distinct_values is not None:
             column.sample_values = column.distinct_values
 
+        for data_type in ["string", "nchar", "text", "varchar"]:
+            if data_type in column.data_type.lower():
+                logging.info(
+                    f"Column {column.name} data type is string based. Writing file."
+                )
+                await self.write_columns_to_file(entity, column)
+                break
+
     async def generate_column_definition(self, entity: EntityItem, column: ColumnItem):
         """A method to generate a definition for a column in a database.
 
@@ -478,11 +544,12 @@ class DataDictionaryCreator(ABC):
 
             column_definition_input += existing_definition_string
 
-        logging.info(f"Generating definition for {column.name}")
-        definition = await self.send_request_to_llm(
-            column_definition_system_prompt, column_definition_input
-        )
-        logging.info(f"Definition for {column.name}: {definition}")
+        async with self.llm_semaphone:
+            logging.info(f"Generating definition for {column.name}")
+            definition = await self.send_request_to_llm(
+                column_definition_system_prompt, column_definition_input
+            )
+            logging.info(f"Definition for {column.name}: {definition}")
 
         column.definition = definition
 
@@ -518,6 +585,9 @@ class DataDictionaryCreator(ABC):
 
         return columns
 
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
     async def send_request_to_llm(self, system_prompt: str, input: str):
         """A method to use GPT to generate a definition for an entity.
 
@@ -621,6 +691,26 @@ class DataDictionaryCreator(ABC):
         logging.info(f"definition for {entity.entity}: {definition}")
         entity.definition = definition
 
+    async def write_entity_to_file(self, entity):
+        logging.info(f"Saving data dictionary for {entity.entity}")
+
+        # Ensure the intermediate directories exist
+        os.makedirs(f"{self.output_directory}/schema_store", exist_ok=True)
+        with open(
+            f"{self.output_directory}/schema_store/{entity.id}.json",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            json.dump(
+                entity.model_dump(
+                    by_alias=True,
+                    exclude=self.excluded_fields_for_database_engine,
+                ),
+                f,
+                indent=4,
+                default=str,
+            )
+
     async def build_entity_entry(self, entity: EntityItem) -> EntityItem:
         """A method to build an entity entry.
 
@@ -648,6 +738,9 @@ class DataDictionaryCreator(ABC):
             self.get_entity_relationships_from_graph(entity.entity)
         )
 
+        if self.single_file is False:
+            await self.write_entity_to_file(entity)
+
         return entity
 
     @property
@@ -663,7 +756,7 @@ class DataDictionaryCreator(ABC):
             engine_specific_fields = ["Catalog"]
 
         return [
-            field
+            field.lower()
             for field in all_engine_specific_fields
             if field not in engine_specific_fields
         ]
@@ -685,7 +778,13 @@ class DataDictionaryCreator(ABC):
         # Save data dictionary to file
         if self.single_file:
             logging.info("Saving data dictionary to entities.json")
-            with open("entities.json", "w", encoding="utf-8") as f:
+            # Ensure the intermediate directories exist
+            os.makedirs(f"{self.output_directory}/schema_store", exist_ok=True)
+            with open(
+                f"{self.output_directory}/schema_store/entities.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
                 data_dictionary_dump = [
                     entity.model_dump(
                         by_alias=True, exclude=self.excluded_fields_for_database_engine
@@ -698,16 +797,3 @@ class DataDictionaryCreator(ABC):
                     indent=4,
                     default=str,
                 )
-        else:
-            for entity in data_dictionary:
-                logging.info(f"Saving data dictionary for {entity.entity}")
-                with open(f"{entity.entity}.json", "w", encoding="utf-8") as f:
-                    json.dump(
-                        entity.model_dump(
-                            by_alias=True,
-                            exclude=self.excluded_fields_for_database_engine,
-                        ),
-                        f,
-                        indent=4,
-                        default=str,
-                    )

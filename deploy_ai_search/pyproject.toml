@@ -10,4 +10,19 @@ dependencies = [
     "azure-search-documents==11.6.0b8",
     "azure-storage-blob>=12.24.0",
     "python-dotenv>=1.0.1",
+    "text_2_sql_core",
 ]
+
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "pre-commit>=4.0.1",
+    "pygments>=2.18.0",
+    "ruff>=0.8.1",
+    "python-dotenv>=1.0.1",
+]
+
+[tool.uv.sources]
+text_2_sql_core = { workspace = true }

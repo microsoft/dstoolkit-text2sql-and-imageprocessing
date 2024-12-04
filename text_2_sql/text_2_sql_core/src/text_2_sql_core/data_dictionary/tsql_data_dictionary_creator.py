@@ -1,17 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem, DatabaseEngine
+from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
 import os
+from text_2_sql_core.utils.database import DatabaseEngine
 
 
-class SqlServerDataDictionaryCreator(DataDictionaryCreator):
-    def __init__(
-        self,
-        entities: list[str] = None,
-        excluded_entities: list[str] = None,
-        single_file: bool = False,
-    ):
+class TSQLDataDictionaryCreator(DataDictionaryCreator):
+    def __init__(self, **kwargs):
         """A method to initialize the DataDictionaryCreator class.
 
         Args:
@@ -19,11 +15,8 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
             excluded_entities (list[str], optional): A list of entities to exclude. Defaults to None.
             single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
         """
-        if excluded_entities is None:
-            excluded_entities = []
-
         excluded_schemas = ["dbo", "sys"]
-        super().__init__(entities, excluded_entities, excluded_schemas, single_file)
+        super().__init__(excluded_schemas=excluded_schemas, **kwargs)
         self.database = os.environ["Text2Sql__DatabaseName"]
 
         self.database_engine = DatabaseEngine.TSQL
@@ -46,7 +39,8 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
             AND ep.class = 1
             AND ep.name = 'MS_Description'
         WHERE
-            t.TABLE_TYPE = 'BASE TABLE';"""
+            t.TABLE_TYPE = 'BASE TABLE';
+        ORDER BY EntitySchema, Entity"""
 
     @property
     def extract_view_entities_sql_query(self) -> str:
@@ -62,7 +56,8 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
             ON ep.major_id = OBJECT_ID(v.TABLE_SCHEMA + '.' + v.TABLE_NAME)
             AND ep.minor_id = 0
             AND ep.class = 1
-    AND ep.name = 'MS_Description';"""
+        AND ep.name = 'MS_Description';
+        ORDER BY EntitySchema, Entity"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """A property to extract column information from a SQL Server database."""
@@ -114,5 +109,5 @@ class SqlServerDataDictionaryCreator(DataDictionaryCreator):
 
 
 if __name__ == "__main__":
-    data_dictionary_creator = SqlServerDataDictionaryCreator()
+    data_dictionary_creator = TSQLDataDictionaryCreator()
     asyncio.run(data_dictionary_creator.create_data_dictionary())

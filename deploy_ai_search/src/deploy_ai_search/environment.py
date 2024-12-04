@@ -14,6 +14,7 @@ class IndexerType(Enum):
     RAG_DOCUMENTS = "rag-documents"
     TEXT_2_SQL_SCHEMA_STORE = "text-2-sql-schema-store"
     TEXT_2_SQL_QUERY_CACHE = "text-2-sql-query-cache"
+    TEXT_2_SQL_COLUMN_VALUE_STORE = "text-2-sql-column-value-store"
 
 
 class IdentityType(Enum):
@@ -172,9 +173,17 @@ class AISearchEnvironment:
         This function returns azure blob container name
         """
 
-        return os.environ.get(
+        container = os.environ.get(
             f"StorageAccount__{self.normalised_indexer_type}__Container"
         )
+
+        if container is None:
+            raise ValueError(
+                f"""Populate environment variable 'StorageAccount__{
+                             self.normalised_indexer_type}__Container' with container name."""
+            )
+
+        return container
 
     @property
     def function_app_end_point(self) -> str:

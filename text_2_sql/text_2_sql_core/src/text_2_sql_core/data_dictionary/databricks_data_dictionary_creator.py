@@ -1,31 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem, DatabaseEngine
+from data_dictionary_creator import DataDictionaryCreator, EntityItem, ColumnItem
 import asyncio
 from databricks import sql
 import logging
 import os
+from text_2_sql_core.utils.database import DatabaseEngine
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 class DatabricksDataDictionaryCreator(DataDictionaryCreator):
-    def __init__(
-        self,
-        entities: list[str] = None,
-        excluded_entities: list[str] = None,
-        single_file: bool = False,
-    ):
-        """A method to initialize the DataDictionaryCreator class.
+    def __init__(self, **kwargs):
+        """A method to initialize the DataDictionaryCreator class."""
 
-        Args:
-            entities (list[str], optional): A list of entities to extract. Defaults to None. If None, all entities are extracted.
-            excluded_entities (list[str], optional): A list of entities to exclude. Defaults to None.
-            single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
-        """
-        if excluded_entities is None:
-            excluded_entities = []
-
-        excluded_schemas = ["information_schema"]
-        super().__init__(entities, excluded_entities, excluded_schemas, single_file)
+        excluded_schemas = ["INFORMATION_SCHEMA"]
+        super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
         self.catalog = os.environ["Text2Sql__Databricks__Catalog"]
         self.database_engine = DatabaseEngine.DATABRICKS
@@ -41,33 +30,33 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             t.COMMENT AS Definition
         FROM
             {self.catalog}.INFORMATION_SCHEMA.TABLES t
-        WHERE
-            t.TABLE_CATALOG = '{self.catalog}'
+        ORDER BY EntitySchema, Entity
+        LIMIT 1
         """
 
     @property
     def extract_view_entities_sql_query(self) -> str:
         """A property to extract view entities from Databricks Unity Catalog."""
-        return """SELECT
+        return f"""SELECT
             v.TABLE_NAME AS Entity,
-            v.TABLE_SCHEMA AS EntitySchema
+            v.TABLE_SCHEMA AS EntitySchema,
             NULL AS Definition
         FROM
             {self.catalog}.INFORMATION_SCHEMA.VIEWS v
-        WHERE
-            v.TABLE_CATALOG = '{self.catalog}'"""
+        ORDER BY EntitySchema, Entity
+        LIMIT 1
+        """
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """A property to extract column information from Databricks Unity Catalog."""
         return f"""SELECT
             COLUMN_NAME AS Name,
-            DATA_TYPE AS Type,
+            DATA_TYPE AS DataType,
             COMMENT AS Definition
         FROM
             {self.catalog}.INFORMATION_SCHEMA.COLUMNS
         WHERE
-            TABLE_CATALOG = '{self.catalog}'
-            AND TABLE_SCHEMA = '{entity.entity_schema}'
+            TABLE_SCHEMA = '{entity.entity_schema}'
             AND TABLE_NAME = '{entity.name}';"""
 
     @property
@@ -105,12 +94,27 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             ON fkc.column_name = pk_col.COLUMN_NAME AND fkc.table_name = pk_col.TABLE_NAME AND fkc.table_schema = pk_col.TABLE_SCHEMA
         WHERE
             fk.constraint_type = 'FOREIGN KEY'
-            AND fk_tab.TABLE_CATALOG = '{self.catalog}'
-            AND pk_tab.TABLE_CATALOG = '{self.catalog}'
         ORDER BY
             EntitySchema, Entity, ForeignEntitySchema, ForeignEntity;
         """
 
+    def extract_distinct_values_sql_query(
+        self, entity: EntityItem, column: ColumnItem
+    ) -> str:
+        """A method to extract distinct values from a column in a database. Can be sub-classed if needed.
+
+        Args:
+            entity (EntityItem): The entity to extract distinct values from.
+            column (ColumnItem): The column to extract distinct values from.
+
+        Returns:
+            str: The SQL query to extract distinct values from a column.
+        """
+        return f"""SELECT DISTINCT {column.name} FROM {self.catalog}.{entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
+
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
     async def query_entities(self, sql_query: str, cast_to: any = None) -> list[dict]:
         """
         A method to query a Databricks SQL endpoint for entities.
@@ -125,41 +129,42 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         logging.info(f"Running query: {sql_query}")
         results = []
 
-        # Set up connection parameters for Databricks SQL endpoint
-        connection = sql.connect(
-            server_hostname=os.environ["Text2Sql__Databricks__ServerHostname"],
-            http_path=os.environ["Text2Sql__Databricks__HttpPath"],
-            access_token=os.environ["Text2Sql__Databricks__AccessToken"],
-        )
+        async with self.database_semaphore:
+            # Set up connection parameters for Databricks SQL endpoint
+            connection = sql.connect(
+                server_hostname=os.environ["Text2Sql__Databricks__ServerHostname"],
+                http_path=os.environ["Text2Sql__Databricks__HttpPath"],
+                access_token=os.environ["Text2Sql__Databricks__AccessToken"],
+            )
 
-        try:
-            # Create a cursor
-            cursor = connection.cursor()
+            try:
+                # Create a cursor
+                cursor = connection.cursor()
 
-            # Execute the query in a thread-safe manner
-            await asyncio.to_thread(cursor.execute, sql_query)
+                # Execute the query in a thread-safe manner
+                await asyncio.to_thread(cursor.execute, sql_query)
 
-            # Fetch column names
-            columns = [col[0] for col in cursor.description]
+                # Fetch column names
+                columns = [col[0] for col in cursor.description]
 
-            # Fetch rows
-            rows = await asyncio.to_thread(cursor.fetchall)
+                # Fetch rows
+                rows = await asyncio.to_thread(cursor.fetchall)
 
-            # Process rows
-            for row in rows:
-                if cast_to:
-                    results.append(cast_to.from_sql_row(row, columns))
-                else:
-                    results.append(dict(zip(columns, row)))
+                # Process rows
+                for row in rows:
+                    if cast_to is not None:
+                        results.append(cast_to.from_sql_row(row, columns))
+                    else:
+                        results.append(dict(zip(columns, row)))
 
-        except Exception as e:
-            logging.error(f"Error while executing query: {e}")
-            raise
-        finally:
-            cursor.close()
-            connection.close()
+            except Exception as e:
+                logging.error(f"Error while executing query {sql_query}: {e}")
+                raise e
+            finally:
+                cursor.close()
+                connection.close()
 
-        return results
+            return results
 
 
 if __name__ == "__main__":

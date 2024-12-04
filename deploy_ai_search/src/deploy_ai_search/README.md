@@ -26,6 +26,16 @@ The associated scripts in this portion of the repository contains pre-built scri
     - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
     - `single_data_dictionary_file`. Optional parameter that controls whether you will be uploading a single data dictionary, or a data dictionary file per entity. By default, this is set to False.
 
+### Column Value Store Index
+
+1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
+2. Adjust `text_2_sql_column_value_store.py` with any changes to the index / indexer.
+3. Run `deploy.py` with the following args:
+
+    - `index_type text_2_sql_column_value_store`. This selects the `Text2SQLColumnValueStoreAISearch` sub class.
+    - `rebuild`. Whether to delete and rebuild the index.
+    - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
+
 ### Query Cache Index
 
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.

@@ -1,31 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem, DatabaseEngine
+from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
 import snowflake.connector
 import logging
 import os
 
+from text_2_sql_core.utils.database import DatabaseEngine
+from tenacity import retry, stop_after_attempt, wait_exponential
+
 
 class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
-    def __init__(
-        self,
-        entities: list[str] = None,
-        excluded_entities: list[str] = None,
-        single_file: bool = False,
-    ):
-        """A method to initialize the DataDictionaryCreator class.
-
-        Args:
-            entities (list[str], optional): A list of entities to extract. Defaults to None. If None, all entities are extracted.
-            excluded_entities (list[str], optional): A list of entities to exclude. Defaults to None.
-            single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
-        """
-        if excluded_entities is None:
-            excluded_entities = []
+    def __init__(self, **kwargs):
+        """A method to initialize the DataDictionaryCreator class."""
 
         excluded_schemas = ["INFORMATION_SCHEMA"]
-        super().__init__(entities, excluded_entities, excluded_schemas, single_file)
+        super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
         self.database = os.environ["Text2Sql__DatabaseName"]
         self.warehouse = os.environ["Text2Sql__Snowflake__Warehouse"]
@@ -41,7 +31,8 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             t.TABLE_SCHEMA AS EntitySchema,
             t.COMMENT AS Definition
         FROM
-            INFORMATION_SCHEMA.TABLES t"""
+            INFORMATION_SCHEMA.TABLES t
+        ORDER BY EntitySchema, Entity"""
 
     @property
     def extract_view_entities_sql_query(self) -> str:
@@ -51,13 +42,14 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             v.TABLE_SCHEMA AS EntitySchema,
             v.COMMENT AS Definition
         FROM
-            INFORMATION_SCHEMA.VIEWS v"""
+            INFORMATION_SCHEMA.VIEWS v
+        ORDER BY EntitySchema, Entity"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """A property to extract column information from a Snowflake database."""
         return f"""SELECT
             COLUMN_NAME AS Name,
-            DATA_TYPE AS Type,
+            DATA_TYPE AS DataType,
             COMMENT AS Definition
         FROM
             INFORMATION_SCHEMA.COLUMNS
@@ -86,6 +78,9 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             EntitySchema, Entity, ForeignEntitySchema, ForeignEntityConstraint;
         """
 
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
     async def query_entities(
         self, sql_query: str, cast_to: any = None
     ) -> list[EntityItem]:
@@ -101,40 +96,41 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
         logging.info(f"Running query: {sql_query}")
         results = []
 
-        # Create a connection to Snowflake, without specifying a schema
-        conn = snowflake.connector.connect(
-            user=os.environ["Text2Sql__Snowflake__User"],
-            password=os.environ["Text2Sql__Snowflake__Password"],
-            account=os.environ["Text2Sql__Snowflake__Account"],
-            warehouse=os.environ["Text2Sql__Snowflake__Warehouse"],
-            database=os.environ["Text2Sql__DatabaseName"],
-        )
+        async with self.database_semaphore:
+            # Create a connection to Snowflake, without specifying a schema
+            conn = snowflake.connector.connect(
+                user=os.environ["Text2Sql__Snowflake__User"],
+                password=os.environ["Text2Sql__Snowflake__Password"],
+                account=os.environ["Text2Sql__Snowflake__Account"],
+                warehouse=os.environ["Text2Sql__Snowflake__Warehouse"],
+                database=os.environ["Text2Sql__DatabaseName"],
+            )
 
-        try:
-            # Using the connection to create a cursor
-            cursor = conn.cursor()
+            try:
+                # Using the connection to create a cursor
+                cursor = conn.cursor()
 
-            # Execute the query
-            await asyncio.to_thread(cursor.execute, sql_query)
+                # Execute the query
+                await asyncio.to_thread(cursor.execute, sql_query)
 
-            # Fetch column names
-            columns = [col[0] for col in cursor.description]
+                # Fetch column names
+                columns = [col[0] for col in cursor.description]
 
-            # Fetch rows
-            rows = await asyncio.to_thread(cursor.fetchall)
+                # Fetch rows
+                rows = await asyncio.to_thread(cursor.fetchall)
 
-            # Process rows
-            for row in rows:
-                if cast_to:
-                    results.append(cast_to.from_sql_row(row, columns))
-                else:
-                    results.append(dict(zip(columns, row)))
+                # Process rows
+                for row in rows:
+                    if cast_to:
+                        results.append(cast_to.from_sql_row(row, columns))
+                    else:
+                        results.append(dict(zip(columns, row)))
 
-        finally:
-            cursor.close()
-            conn.close()
+            finally:
+                cursor.close()
+                conn.close()
 
-        return results
+            return results
 
 
 if __name__ == "__main__":

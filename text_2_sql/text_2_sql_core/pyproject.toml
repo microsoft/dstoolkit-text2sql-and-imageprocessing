@@ -1,5 +1,5 @@
 [project]
-name = "text-2-sql-core"
+name = "text_2_sql_core"
 version = "0.1.0"
 description = "Core Functionality for Text to SQL"
 readme = "README.md"
@@ -14,11 +14,26 @@ dependencies = [
     "azure-search-documents==11.6.0b8",
     "jinja2>=3.1.4",
     "networkx>=3.4.2",
+    "numpy<2.0.0",
     "openai>=1.55.3",
     "pydantic>=2.10.2",
     "python-dotenv>=1.0.1",
     "pyyaml>=6.0.2",
+    "rich>=13.9.4",
     "sqlglot[rs]>=25.32.1",
+    "tenacity>=9.0.0",
+    "typer>=0.14.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "pre-commit>=4.0.1",
+    "pygments>=2.18.0",
+    "ruff>=0.8.1",
+    "python-dotenv>=1.0.1",
 ]
 
 [project.optional-dependencies]
@@ -26,14 +41,10 @@ snowflake = [
     "snowflake-connector-python>=3.12.3",
 ]
 databricks = [
-    "databricks>=0.2",
+    "databricks-sql-connector>=3.0.1",
+    "pyarrow>=14.0.2,<17",
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[dependency-groups]
-dev = [
-    "python-dotenv>=1.0.1",
-]
