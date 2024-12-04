@@ -10,6 +10,7 @@ dependencies = [
     "azure-search-documents==11.6.0b8",
     "azure-storage-blob>=12.24.0",
     "python-dotenv>=1.0.1",
+    "text_2_sql_core",
 ]
 
 [dependency-groups]
@@ -24,4 +25,4 @@ dev = [
 ]
 
 [tool.uv.sources]
-text-2-sql-core = { workspace = true }
+text_2_sql_core = { workspace = true }

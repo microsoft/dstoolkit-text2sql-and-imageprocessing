@@ -1,5 +1,5 @@
 [project]
-name = "text-2-sql-core"
+name = "text_2_sql_core"
 version = "0.1.0"
 description = "Core Functionality for Text to SQL"
 readme = "README.md"

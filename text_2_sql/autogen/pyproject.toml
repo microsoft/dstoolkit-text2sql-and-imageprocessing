@@ -10,7 +10,7 @@ dependencies = [
     "autogen-ext[azure,openai]==0.4.0.dev7",
     "grpcio>=1.68.1",
     "pyyaml>=6.0.2",
-    "text-2-sql-core",
+    "text_2_sql_core",
 ]
 
 [dependency-groups]
@@ -26,4 +26,4 @@ dev = [
 ]
 
 [tool.uv.sources]
-text-2-sql-core = { workspace = true }
+text_2_sql_core = { workspace = true }
