@@ -29,7 +29,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             t.TABLE_SCHEMA AS EntitySchema,
             t.COMMENT AS Definition
         FROM
-            {self.catalog}.INFORMATION_SCHEMA.TABLES t'
+            {self.catalog}.INFORMATION_SCHEMA.TABLES t
         """
 
     @property
@@ -47,7 +47,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         """A property to extract column information from Databricks Unity Catalog."""
         return f"""SELECT
             COLUMN_NAME AS Name,
-            DATA_TYPE AS Type,
+            DATA_TYPE AS DataType,
             COMMENT AS Definition
         FROM
             {self.catalog}.INFORMATION_SCHEMA.COLUMNS
