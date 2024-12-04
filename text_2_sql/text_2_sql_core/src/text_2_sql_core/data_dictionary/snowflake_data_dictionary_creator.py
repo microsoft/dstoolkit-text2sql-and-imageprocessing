@@ -94,40 +94,41 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
         logging.info(f"Running query: {sql_query}")
         results = []
 
-        # Create a connection to Snowflake, without specifying a schema
-        conn = snowflake.connector.connect(
-            user=os.environ["Text2Sql__Snowflake__User"],
-            password=os.environ["Text2Sql__Snowflake__Password"],
-            account=os.environ["Text2Sql__Snowflake__Account"],
-            warehouse=os.environ["Text2Sql__Snowflake__Warehouse"],
-            database=os.environ["Text2Sql__DatabaseName"],
-        )
+        async with self.database_semaphore:
+            # Create a connection to Snowflake, without specifying a schema
+            conn = snowflake.connector.connect(
+                user=os.environ["Text2Sql__Snowflake__User"],
+                password=os.environ["Text2Sql__Snowflake__Password"],
+                account=os.environ["Text2Sql__Snowflake__Account"],
+                warehouse=os.environ["Text2Sql__Snowflake__Warehouse"],
+                database=os.environ["Text2Sql__DatabaseName"],
+            )
 
-        try:
-            # Using the connection to create a cursor
-            cursor = conn.cursor()
+            try:
+                # Using the connection to create a cursor
+                cursor = conn.cursor()
 
-            # Execute the query
-            await asyncio.to_thread(cursor.execute, sql_query)
+                # Execute the query
+                await asyncio.to_thread(cursor.execute, sql_query)
 
-            # Fetch column names
-            columns = [col[0] for col in cursor.description]
+                # Fetch column names
+                columns = [col[0] for col in cursor.description]
 
-            # Fetch rows
-            rows = await asyncio.to_thread(cursor.fetchall)
+                # Fetch rows
+                rows = await asyncio.to_thread(cursor.fetchall)
 
-            # Process rows
-            for row in rows:
-                if cast_to:
-                    results.append(cast_to.from_sql_row(row, columns))
-                else:
-                    results.append(dict(zip(columns, row)))
+                # Process rows
+                for row in rows:
+                    if cast_to:
+                        results.append(cast_to.from_sql_row(row, columns))
+                    else:
+                        results.append(dict(zip(columns, row)))
 
-        finally:
-            cursor.close()
-            conn.close()
+            finally:
+                cursor.close()
+                conn.close()
 
-        return results
+            return results
 
 
 if __name__ == "__main__":

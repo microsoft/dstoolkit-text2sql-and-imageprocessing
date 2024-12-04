@@ -195,7 +195,7 @@ class DataDictionaryCreator(ABC):
         excluded_entities: list[str] = None,
         excluded_schemas: list[str] = None,
         single_file: bool = False,
-        generate_definitions: bool = True,
+        generate_definitions: bool = False,
         output_directory: str = None,
     ):
         """A method to initialize the DataDictionaryCreator class.
@@ -225,6 +225,9 @@ class DataDictionaryCreator(ABC):
         self.catalog = None
 
         self.database_engine = None
+
+        self.database_semaphore = asyncio.Semaphore(50)
+        self.llm_semaphone = asyncio.Semaphore(20)
 
         if output_directory is None:
             self.output_directory = "."
@@ -292,19 +295,20 @@ class DataDictionaryCreator(ABC):
 
         logging.info(f"Running query: {sql_query}")
         results = []
-        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-            async with sql_db_client.cursor() as cursor:
-                await cursor.execute(sql_query)
+        async with self.database_semaphore:
+            async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
+                async with sql_db_client.cursor() as cursor:
+                    await cursor.execute(sql_query)
 
-                columns = [column[0] for column in cursor.description]
+                    columns = [column[0] for column in cursor.description]
 
-                rows = await cursor.fetchall()
+                    rows = await cursor.fetchall()
 
-                for row in rows:
-                    if cast_to:
-                        results.append(cast_to.from_sql_row(row, columns))
-                    else:
-                        results.append(dict(zip(columns, row)))
+                    for row in rows:
+                        if cast_to:
+                            results.append(cast_to.from_sql_row(row, columns))
+                        else:
+                            results.append(dict(zip(columns, row)))
 
         return results
 
@@ -428,7 +432,7 @@ class DataDictionaryCreator(ABC):
             all_entities = [
                 entity
                 for entity in all_entities
-                if entity.entity.lower() not in self.excluded_entities
+                if entity.name.lower() not in self.excluded_entities
                 and entity.entity_schema.lower() not in self.excluded_schemas
             ]
 
@@ -529,11 +533,12 @@ class DataDictionaryCreator(ABC):
 
             column_definition_input += existing_definition_string
 
-        logging.info(f"Generating definition for {column.name}")
-        definition = await self.send_request_to_llm(
-            column_definition_system_prompt, column_definition_input
-        )
-        logging.info(f"Definition for {column.name}: {definition}")
+        async with self.llm_semaphone:
+            logging.info(f"Generating definition for {column.name}")
+            definition = await self.send_request_to_llm(
+                column_definition_system_prompt, column_definition_input
+            )
+            logging.info(f"Definition for {column.name}: {definition}")
 
         column.definition = definition
 

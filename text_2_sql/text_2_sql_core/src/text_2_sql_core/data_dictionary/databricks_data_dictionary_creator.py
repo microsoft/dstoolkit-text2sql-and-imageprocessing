@@ -111,41 +111,42 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         logging.info(f"Running query: {sql_query}")
         results = []
 
-        # Set up connection parameters for Databricks SQL endpoint
-        connection = sql.connect(
-            server_hostname=os.environ["Text2Sql__Databricks__ServerHostname"],
-            http_path=os.environ["Text2Sql__Databricks__HttpPath"],
-            access_token=os.environ["Text2Sql__Databricks__AccessToken"],
-        )
+        async with self.database_semaphore:
+            # Set up connection parameters for Databricks SQL endpoint
+            connection = sql.connect(
+                server_hostname=os.environ["Text2Sql__Databricks__ServerHostname"],
+                http_path=os.environ["Text2Sql__Databricks__HttpPath"],
+                access_token=os.environ["Text2Sql__Databricks__AccessToken"],
+            )
 
-        try:
-            # Create a cursor
-            cursor = connection.cursor()
+            try:
+                # Create a cursor
+                cursor = connection.cursor()
 
-            # Execute the query in a thread-safe manner
-            await asyncio.to_thread(cursor.execute, sql_query)
+                # Execute the query in a thread-safe manner
+                await asyncio.to_thread(cursor.execute, sql_query)
 
-            # Fetch column names
-            columns = [col[0] for col in cursor.description]
+                # Fetch column names
+                columns = [col[0] for col in cursor.description]
 
-            # Fetch rows
-            rows = await asyncio.to_thread(cursor.fetchall)
+                # Fetch rows
+                rows = await asyncio.to_thread(cursor.fetchall)
 
-            # Process rows
-            for row in rows:
-                if cast_to:
-                    results.append(cast_to.from_sql_row(row, columns))
-                else:
-                    results.append(dict(zip(columns, row)))
+                # Process rows
+                for row in rows:
+                    if cast_to:
+                        results.append(cast_to.from_sql_row(row, columns))
+                    else:
+                        results.append(dict(zip(columns, row)))
 
-        except Exception as e:
-            logging.error(f"Error while executing query: {e}")
-            raise
-        finally:
-            cursor.close()
-            connection.close()
+            except Exception as e:
+                logging.error(f"Error while executing query: {e}")
+                raise
+            finally:
+                cursor.close()
+                connection.close()
 
-        return results
+            return results
 
 
 if __name__ == "__main__":
