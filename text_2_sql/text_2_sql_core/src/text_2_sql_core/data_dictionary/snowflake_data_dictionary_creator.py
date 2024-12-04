@@ -7,6 +7,7 @@ import logging
 import os
 
 from text_2_sql_core.utils.database import DatabaseEngine
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
@@ -75,6 +76,9 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             EntitySchema, Entity, ForeignEntitySchema, ForeignEntityConstraint;
         """
 
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
     async def query_entities(
         self, sql_query: str, cast_to: any = None
     ) -> list[EntityItem]:

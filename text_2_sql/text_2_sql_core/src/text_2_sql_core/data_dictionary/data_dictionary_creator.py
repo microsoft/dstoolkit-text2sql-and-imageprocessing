@@ -16,6 +16,7 @@ import random
 import re
 import networkx as nx
 from text_2_sql_core.utils.database import DatabaseEngine
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 logging.basicConfig(level=logging.INFO)
 
@@ -272,6 +273,9 @@ class DataDictionaryCreator(ABC):
         """
         return f"""SELECT DISTINCT {column.name} FROM {entity.entity} ORDER BY {column.name} DESC;"""
 
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
     async def query_entities(
         self, sql_query: str, cast_to: any = None
     ) -> list[EntityItem]:
@@ -565,6 +569,9 @@ class DataDictionaryCreator(ABC):
 
         return columns
 
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
     async def send_request_to_llm(self, system_prompt: str, input: str):
         """A method to use GPT to generate a definition for an entity.
 
