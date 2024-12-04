@@ -501,7 +501,13 @@ class DataDictionaryCreator(ABC):
         elif column.distinct_values is not None:
             column.sample_values = column.distinct_values
 
-        await self.write_columns_to_file(entity, column)
+        for data_type in ["string", "nchar", "text", "varchar"]:
+            if data_type in column.data_type.lower():
+                logging.info(
+                    f"Column {column.name} data type is string based. Writing file."
+                )
+                await self.write_columns_to_file(entity, column)
+                break
 
     async def generate_column_definition(self, entity: EntityItem, column: ColumnItem):
         """A method to generate a definition for a column in a database.
