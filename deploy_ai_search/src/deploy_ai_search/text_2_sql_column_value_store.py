@@ -37,10 +37,13 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
         self.indexer_type = IndexerType.TEXT_2_SQL_COLUMN_VALUE_STORE
+        super().__init__(suffix, rebuild)
+
         self.database_engine = DatabaseEngine[
             os.environ["Text2Sql__DatabaseEngine"].upper()
         ]
-        super().__init__(suffix, rebuild)
+
+        self.parsing_mode = BlobIndexerParsingMode.JSON_LINES
 
     @property
     def excluded_fields_for_database_engine(self):
@@ -156,7 +159,7 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
                 indexed_file_name_extensions=".jsonl",
-                parsing_mode=BlobIndexerParsingMode.JSON_LINES,
+                parsing_mode=self.parsing_mode,
             ),
             max_failed_items=5,
         )
@@ -164,7 +167,6 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
         indexer = SearchIndexer(
             name=self.indexer_name,
             description="Indexer to column values",
-            skillset_name=self.skillset_name,
             target_index_name=self.index_name,
             data_source_name=self.data_source_name,
             schedule=schedule,

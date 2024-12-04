@@ -44,10 +44,10 @@ class Text2SqlSchemaStoreAISearch(AISearch):
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
         self.indexer_type = IndexerType.TEXT_2_SQL_SCHEMA_STORE
+        super().__init__(suffix, rebuild)
         self.database_engine = DatabaseEngine[
             os.environ["Text2Sql__DatabaseEngine"].upper()
         ]
-        super().__init__(suffix, rebuild)
 
         if single_data_dictionary_file:
             self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY

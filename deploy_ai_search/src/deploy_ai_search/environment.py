@@ -173,9 +173,17 @@ class AISearchEnvironment:
         This function returns azure blob container name
         """
 
-        return os.environ.get(
+        container = os.environ.get(
             f"StorageAccount__{self.normalised_indexer_type}__Container"
         )
+
+        if container is None:
+            raise ValueError(
+                f"""Populate environment variable 'StorageAccount__{
+                             self.normalised_indexer_type}__Container' with container name."""
+            )
+
+        return container
 
     @property
     def function_app_end_point(self) -> str:
