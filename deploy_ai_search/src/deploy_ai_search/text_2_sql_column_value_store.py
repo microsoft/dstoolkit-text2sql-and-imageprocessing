@@ -176,7 +176,7 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
             ],
             output_field_mappings=[
                 FieldMapping(
-                    source_field_name="/document/Entity",
+                    source_field_name="/document/Id",
                     target_field_name="Id",
                     mapping_function=FieldMappingFunction(
                         name="base64Encode",

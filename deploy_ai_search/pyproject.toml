@@ -12,5 +12,16 @@ dependencies = [
     "python-dotenv>=1.0.1",
 ]
 
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "pre-commit>=4.0.1",
+    "pygments>=2.18.0",
+    "ruff>=0.8.1",
+    "python-dotenv>=1.0.1",
+]
+
 [tool.uv.sources]
 text-2-sql-core = { workspace = true }
