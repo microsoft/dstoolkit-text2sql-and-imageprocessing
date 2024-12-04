@@ -359,7 +359,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "autogen-text-2-sql", virtual = "text_2_sql/autogen" },
+    { name = "autogen-text-2-sql" },
     { name = "black", specifier = ">=24.10.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "jupyter", specifier = ">=1.1.1" },
@@ -3311,6 +3311,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "rich" },
     { name = "sqlglot", extra = ["rs"] },
+    { name = "tenacity" },
     { name = "typer" },
 ]
 
@@ -3349,6 +3350,7 @@ requires-dist = [
     { name = "rich", specifier = ">=13.9.4" },
     { name = "snowflake-connector-python", marker = "extra == 'snowflake'", specifier = ">=3.12.3" },
     { name = "sqlglot", extras = ["rs"], specifier = ">=25.32.1" },
+    { name = "tenacity", specifier = ">=9.0.0" },
     { name = "typer", specifier = ">=0.14.0" },
 ]
 
