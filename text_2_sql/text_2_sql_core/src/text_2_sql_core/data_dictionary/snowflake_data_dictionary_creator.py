@@ -31,7 +31,8 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             t.TABLE_SCHEMA AS EntitySchema,
             t.COMMENT AS Definition
         FROM
-            INFORMATION_SCHEMA.TABLES t"""
+            INFORMATION_SCHEMA.TABLES t
+        ORDER BY EntitySchema, Entity"""
 
     @property
     def extract_view_entities_sql_query(self) -> str:
@@ -41,13 +42,14 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
             v.TABLE_SCHEMA AS EntitySchema,
             v.COMMENT AS Definition
         FROM
-            INFORMATION_SCHEMA.VIEWS v"""
+            INFORMATION_SCHEMA.VIEWS v
+        ORDER BY EntitySchema, Entity"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """A property to extract column information from a Snowflake database."""
         return f"""SELECT
             COLUMN_NAME AS Name,
-            DATA_TYPE AS Type,
+            DATA_TYPE AS DataType,
             COMMENT AS Definition
         FROM
             INFORMATION_SCHEMA.COLUMNS

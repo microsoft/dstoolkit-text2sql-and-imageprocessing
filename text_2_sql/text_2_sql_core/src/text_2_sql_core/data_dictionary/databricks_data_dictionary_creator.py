@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem
+from data_dictionary_creator import DataDictionaryCreator, EntityItem, ColumnItem
 import asyncio
 from databricks import sql
 import logging
@@ -30,6 +30,8 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             t.COMMENT AS Definition
         FROM
             {self.catalog}.INFORMATION_SCHEMA.TABLES t
+        ORDER BY EntitySchema, Entity
+        LIMIT 1
         """
 
     @property
@@ -41,6 +43,8 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             NULL AS Definition
         FROM
             {self.catalog}.INFORMATION_SCHEMA.VIEWS v
+        ORDER BY EntitySchema, Entity
+        LIMIT 1
         """
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
@@ -94,6 +98,20 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             EntitySchema, Entity, ForeignEntitySchema, ForeignEntity;
         """
 
+    def extract_distinct_values_sql_query(
+        self, entity: EntityItem, column: ColumnItem
+    ) -> str:
+        """A method to extract distinct values from a column in a database. Can be sub-classed if needed.
+
+        Args:
+            entity (EntityItem): The entity to extract distinct values from.
+            column (ColumnItem): The column to extract distinct values from.
+
+        Returns:
+            str: The SQL query to extract distinct values from a column.
+        """
+        return f"""SELECT DISTINCT {column.name} FROM {self.catalog}.{entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
+
     @retry(
         stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
     )
@@ -134,14 +152,14 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
 
                 # Process rows
                 for row in rows:
-                    if cast_to:
+                    if cast_to is not None:
                         results.append(cast_to.from_sql_row(row, columns))
                     else:
                         results.append(dict(zip(columns, row)))
 
             except Exception as e:
-                logging.error(f"Error while executing query: {e}")
-                raise
+                logging.error(f"Error while executing query {sql_query}: {e}")
+                raise e
             finally:
                 cursor.close()
                 connection.close()

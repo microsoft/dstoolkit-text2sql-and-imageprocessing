@@ -82,7 +82,7 @@ def create(
         rich_print(detailed_error)
 
         raise typer.Exit(code=1)
-
+    asyncio.run(data_dictionary_creator.create_data_dictionary())
     try:
         asyncio.run(data_dictionary_creator.create_data_dictionary())
     except Exception as e:

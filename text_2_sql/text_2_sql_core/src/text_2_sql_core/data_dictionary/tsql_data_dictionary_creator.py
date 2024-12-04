@@ -39,7 +39,8 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
             AND ep.class = 1
             AND ep.name = 'MS_Description'
         WHERE
-            t.TABLE_TYPE = 'BASE TABLE';"""
+            t.TABLE_TYPE = 'BASE TABLE';
+        ORDER BY EntitySchema, Entity"""
 
     @property
     def extract_view_entities_sql_query(self) -> str:
@@ -55,7 +56,8 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
             ON ep.major_id = OBJECT_ID(v.TABLE_SCHEMA + '.' + v.TABLE_NAME)
             AND ep.minor_id = 0
             AND ep.class = 1
-    AND ep.name = 'MS_Description';"""
+        AND ep.name = 'MS_Description';
+        ORDER BY EntitySchema, Entity"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """A property to extract column information from a SQL Server database."""

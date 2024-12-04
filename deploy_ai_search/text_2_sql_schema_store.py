@@ -127,12 +127,6 @@ class Text2SqlSchemaStoreAISearch(AISearch):
                     SearchableField(name="Definition", type=SearchFieldDataType.String),
                     SearchableField(name="DataType", type=SearchFieldDataType.String),
                     SearchableField(
-                        name="AllowedValues",
-                        type=SearchFieldDataType.String,
-                        collection=True,
-                        searchable=False,
-                    ),
-                    SearchableField(
                         name="SampleValues",
                         type=SearchFieldDataType.String,
                         collection=True,

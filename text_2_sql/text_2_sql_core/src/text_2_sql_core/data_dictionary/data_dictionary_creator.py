@@ -100,7 +100,6 @@ class ColumnItem(BaseModel):
     distinct_values: Optional[list[any]] = Field(
         None, alias="DistinctValues", exclude=True
     )
-    allowed_values: Optional[list[any]] = Field(None, alias="AllowedValues")
     sample_values: Optional[list[any]] = Field(None, alias="SampleValues")
 
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
@@ -160,12 +159,12 @@ class EntityItem(BaseModel):
 
     def value_store_entry(self, excluded_fields_for_database_engine):
         excluded_fields = excluded_fields_for_database_engine + [
-            "Definition",
-            "Name",
-            "EntityName",
-            "EntityRelationships",
-            "CompleteEntityRelationshipsGraph",
-            "Columns",
+            "definition",
+            "name",
+            "entity_name",
+            "entity_relationships",
+            "complete_entity_relationships_graph",
+            "columns",
         ]
         return self.model_dump(
             by_alias=True, exclude_none=True, exclude=excluded_fields
@@ -226,8 +225,8 @@ class DataDictionaryCreator(ABC):
 
         self.database_engine = None
 
-        self.database_semaphore = asyncio.Semaphore(50)
-        self.llm_semaphone = asyncio.Semaphore(20)
+        self.database_semaphore = asyncio.Semaphore(20)
+        self.llm_semaphone = asyncio.Semaphore(10)
 
         if output_directory is None:
             self.output_directory = "."
@@ -274,7 +273,7 @@ class DataDictionaryCreator(ABC):
         Returns:
             str: The SQL query to extract distinct values from a column.
         """
-        return f"""SELECT DISTINCT {column.name} FROM {entity.entity} ORDER BY {column.name} DESC;"""
+        return f"""SELECT DISTINCT {column.name} FROM {entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
 
     @retry(
         stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
@@ -422,13 +421,13 @@ class DataDictionaryCreator(ABC):
         all_entities = table_entities + view_entities
 
         # Filter entities if entities is not None
-        if self.entities:
+        if self.entities is not None:
             all_entities = [
                 entity for entity in all_entities if entity.entity in self.entities
             ]
 
         # Filter entities if excluded_entities is not None
-        if self.excluded_entities:
+        if len(self.excluded_entities) > 0 or len(self.excluded_schemas):
             all_entities = [
                 entity
                 for entity in all_entities
@@ -448,20 +447,24 @@ class DataDictionaryCreator(ABC):
         logging.info(f"Saving column values for {column.name}")
 
         key = f"{entity.id}.{column.name}"
+        # Ensure the intermediate directories exist
+        os.makedirs(f"{self.output_directory}/column_value_store", exist_ok=True)
         with open(
             f"{self.output_directory}/column_value_store/{key}.jsonl",
             "w",
             encoding="utf-8",
         ) as f:
-            for distinct_value in column.distinct_values:
-                json.dump(
-                    column.value_store_entry(
-                        entity, distinct_value, self.excluded_fields_for_database_engine
-                    ),
-                    f,
-                    indent=4,
-                    default=str,
-                )
+            if column.distinct_values is not None:
+                for distinct_value in column.distinct_values:
+                    json_string = json.dumps(
+                        column.value_store_entry(
+                            entity,
+                            distinct_value,
+                            self.excluded_fields_for_database_engine,
+                        ),
+                        default=str,
+                    )
+                    f.write(json_string + "\n")
 
     async def extract_column_distinct_values(
         self, entity: EntityItem, column: ColumnItem
@@ -497,6 +500,8 @@ class DataDictionaryCreator(ABC):
             column.sample_values = random.sample(column.distinct_values, 5)
         elif column.distinct_values is not None:
             column.sample_values = column.distinct_values
+
+        await self.write_columns_to_file(entity, column)
 
     async def generate_column_definition(self, entity: EntityItem, column: ColumnItem):
         """A method to generate a definition for a column in a database.
@@ -682,6 +687,9 @@ class DataDictionaryCreator(ABC):
 
     async def write_entity_to_file(self, entity):
         logging.info(f"Saving data dictionary for {entity.entity}")
+
+        # Ensure the intermediate directories exist
+        os.makedirs(f"{self.output_directory}/schema_store", exist_ok=True)
         with open(
             f"{self.output_directory}/schema_store/{entity.id}.json",
             "w",
@@ -742,7 +750,7 @@ class DataDictionaryCreator(ABC):
             engine_specific_fields = ["Catalog"]
 
         return [
-            field
+            field.lower()
             for field in all_engine_specific_fields
             if field not in engine_specific_fields
         ]
@@ -764,6 +772,8 @@ class DataDictionaryCreator(ABC):
         # Save data dictionary to file
         if self.single_file:
             logging.info("Saving data dictionary to entities.json")
+            # Ensure the intermediate directories exist
+            os.makedirs(f"{self.output_directory}/schema_store", exist_ok=True)
             with open(
                 f"{self.output_directory}/schema_store/entities.json",
                 "w",
