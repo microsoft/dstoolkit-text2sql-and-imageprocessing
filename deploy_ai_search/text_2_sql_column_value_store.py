@@ -22,14 +22,13 @@ import os
 from text_2_sql_core.utils.database import DatabaseEngine
 
 
-class Text2SqlSchemaStoreAISearch(AISearch):
+class Text2SqlColumnValueStoreAISearch(AISearch):
     """This class is used to deploy the sql index."""
 
     def __init__(
         self,
         suffix: str | None = None,
         rebuild: bool | None = False,
-        single_data_dictionary_file: bool | None = False,
     ):
         """Initialize the Text2SqlAISearch class. This class implements the deployment of the sql index.
 
