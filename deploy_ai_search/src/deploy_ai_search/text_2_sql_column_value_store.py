@@ -77,7 +77,19 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
                 analyzer_name="keyword",
             ),
             SimpleField(
+                name="FQN",
+                type=SearchFieldDataType.String,
+            ),
+            SimpleField(
                 name="Entity",
+                type=SearchFieldDataType.String,
+            ),
+            SimpleField(
+                name="Schema",
+                type=SearchFieldDataType.String,
+            ),
+            SimpleField(
+                name="Catalog",
                 type=SearchFieldDataType.String,
             ),
             SimpleField(
@@ -86,10 +98,6 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
             ),
             SimpleField(
                 name="Warehouse",
-                type=SearchFieldDataType.String,
-            ),
-            SimpleField(
-                name="Catalog",
                 type=SearchFieldDataType.String,
             ),
             SimpleField(
@@ -178,7 +186,7 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
             ],
             output_field_mappings=[
                 FieldMapping(
-                    source_field_name="/document/Id",
+                    source_field_name="/document/FQN",
                     target_field_name="Id",
                     mapping_function=FieldMappingFunction(
                         name="base64Encode",
@@ -186,7 +194,16 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
                     ),
                 ),
                 FieldMapping(
+                    source_field_name="/document/FQN", target_field_name="FQN"
+                ),
+                FieldMapping(
                     source_field_name="/document/Entity", target_field_name="Entity"
+                ),
+                FieldMapping(
+                    source_field_name="/document/Schema", target_field_name="Schema"
+                ),
+                FieldMapping(
+                    source_field_name="/document/Catalog", target_field_name="Catalog"
                 ),
                 FieldMapping(
                     source_field_name="/document/Database",
