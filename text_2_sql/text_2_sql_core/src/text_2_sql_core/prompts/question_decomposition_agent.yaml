@@ -10,19 +10,10 @@ system_message:
   Output Info:
     Return the decomposed questions to the user in the following format:
 
-    [
-      {
-        'question': '<decomposed_question_1>',
-      },
-      {
-        'question': '<decomposed_question_2>',
-      },
-    ]
+    [\"<decomposed_question_1>\", \"<decomposed_question_2>\"]
 
     If there is the question doesn't need to be decomposed, just return it in the following format:
 
-    [
-      {
-        'question': '<original_question>',
-      },
-    ]"
+    [\"<original_question>\"]
+
+    Make sure the output is valid and loadable JSON in the style above."

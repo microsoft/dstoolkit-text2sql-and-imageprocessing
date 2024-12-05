@@ -99,12 +99,7 @@ class AutoGenText2Sql:
                 decision = "question_decomposition_agent"
 
         elif messages[-1].source == "question_decomposition_agent":
-            decomposition_result = json.loads(messages[-1].content)
-
-            if len(decomposition_result["entities"]) == 1:
-                decision = "sql_schema_selection_agent"
-            else:
-                decision = "parallel_sql_flow_agent"
+            decision = "sql_schema_selection_agent"
 
         elif messages[-1].source == "sql_schema_selection_agent":
             decision = "sql_query_generation_agent"
