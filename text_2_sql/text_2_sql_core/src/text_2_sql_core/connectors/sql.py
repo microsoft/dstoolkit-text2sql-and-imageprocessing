@@ -2,16 +2,16 @@
 # Licensed under the MIT License.
 import logging
 import os
-import aioodbc
 from typing import Annotated, Union
 from text_2_sql_core.connectors.ai_search import AISearchConnector
 import json
 import asyncio
 import sqlglot
 from datetime import datetime
+from abc import ABC, abstractmethod
 
 
-class SqlConnector:
+class SqlConnector(ABC):
     def __init__(self):
         self.use_query_cache = (
             os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
@@ -81,12 +81,15 @@ class SqlConnector:
 
         return json.dumps(schemas, default=str)
 
+    @abstractmethod
     async def query_execution(
         self,
         sql_query: Annotated[
             str,
             "The SQL query to run against the database.",
         ],
+        cast_to: any = None,
+        limit=None,
     ) -> list[dict]:
         """Run the SQL query against the database.
 
@@ -98,18 +101,6 @@ class SqlConnector:
         -------
             list[dict]: The results of the SQL query.
         """
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
-        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-            async with sql_db_client.cursor() as cursor:
-                await cursor.execute(sql_query)
-
-                columns = [column[0] for column in cursor.description]
-
-                rows = await cursor.fetchmany(25)
-                results = [dict(zip(columns, returned_row)) for returned_row in rows]
-
-        logging.debug("Results: %s", results)
-        return results
 
     async def query_validation(
         self,

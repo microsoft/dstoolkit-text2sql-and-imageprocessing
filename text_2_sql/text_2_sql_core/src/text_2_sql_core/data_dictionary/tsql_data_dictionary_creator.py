@@ -4,6 +4,7 @@ from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
 import os
 from text_2_sql_core.utils.database import DatabaseEngine
+from text_2_sql_core.connectors.tsql_sql import TSQLConnector
 
 
 class TSQLDataDictionaryCreator(DataDictionaryCreator):
@@ -20,6 +21,8 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
         self.database = os.environ["Text2Sql__DatabaseName"]
 
         self.database_engine = DatabaseEngine.TSQL
+
+        self.sql_connector = TSQLConnector()
 
     """A class to extract data dictionary information from a SQL Server database."""
 

@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 from abc import ABC, abstractmethod
-import aioodbc
 import os
 import asyncio
 import json
@@ -290,26 +289,8 @@ class DataDictionaryCreator(ABC):
         Returns:
             list[EntityItem]: The list of entities.
         """
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
 
-        logging.info(f"Running query: {sql_query}")
-        results = []
-        async with self.database_semaphore:
-            async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-                async with sql_db_client.cursor() as cursor:
-                    await cursor.execute(sql_query)
-
-                    columns = [column[0] for column in cursor.description]
-
-                    rows = await cursor.fetchall()
-
-                    for row in rows:
-                        if cast_to:
-                            results.append(cast_to.from_sql_row(row, columns))
-                        else:
-                            results.append(dict(zip(columns, row)))
-
-        return results
+        return await self.sql_connector.query_execution(sql_query, cast_to=cast_to)
 
     async def extract_entity_relationships(self) -> list[EntityRelationship]:
         """A method to extract entity relationships from a database.
@@ -504,7 +485,8 @@ class DataDictionaryCreator(ABC):
         for data_type in ["string", "nchar", "text", "varchar"]:
             if data_type in column.data_type.lower():
                 logging.info(
-                    f"Column {column.name} data type is string based. Writing file."
+                    f"""Column {
+                        column.name} data type is string based. Writing file."""
                 )
                 await self.write_columns_to_file(entity, column)
                 break

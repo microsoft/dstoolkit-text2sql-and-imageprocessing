@@ -2,11 +2,9 @@
 # Licensed under the MIT License.
 from data_dictionary_creator import DataDictionaryCreator, EntityItem, ColumnItem
 import asyncio
-from databricks import sql
-import logging
 import os
 from text_2_sql_core.utils.database import DatabaseEngine
-from tenacity import retry, stop_after_attempt, wait_exponential
+from text_2_sql_core.connectors.databricks_sql import DatabricksSqlConnector
 
 
 class DatabricksDataDictionaryCreator(DataDictionaryCreator):
@@ -18,6 +16,8 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
 
         self.catalog = os.environ["Text2Sql__Databricks__Catalog"]
         self.database_engine = DatabaseEngine.DATABRICKS
+
+        self.sql_connector = DatabricksSqlConnector()
 
     """A class to extract data dictionary information from Databricks Unity Catalog."""
 
@@ -109,60 +109,6 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
             str: The SQL query to extract distinct values from a column.
         """
         return f"""SELECT DISTINCT {column.name} FROM {self.catalog}.{entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
-
-    @retry(
-        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
-    )
-    async def query_entities(self, sql_query: str, cast_to: any = None) -> list[dict]:
-        """
-        A method to query a Databricks SQL endpoint for entities.
-
-        Args:
-            sql_query (str): The SQL query to run.
-            cast_to (any, optional): The class to cast the results to. Defaults to None.
-
-        Returns:
-            list[dict]: The list of entities or processed rows.
-        """
-        logging.info(f"Running query: {sql_query}")
-        results = []
-
-        async with self.database_semaphore:
-            # Set up connection parameters for Databricks SQL endpoint
-            connection = sql.connect(
-                server_hostname=os.environ["Text2Sql__Databricks__ServerHostname"],
-                http_path=os.environ["Text2Sql__Databricks__HttpPath"],
-                access_token=os.environ["Text2Sql__Databricks__AccessToken"],
-            )
-
-            try:
-                # Create a cursor
-                cursor = connection.cursor()
-
-                # Execute the query in a thread-safe manner
-                await asyncio.to_thread(cursor.execute, sql_query)
-
-                # Fetch column names
-                columns = [col[0] for col in cursor.description]
-
-                # Fetch rows
-                rows = await asyncio.to_thread(cursor.fetchall)
-
-                # Process rows
-                for row in rows:
-                    if cast_to is not None:
-                        results.append(cast_to.from_sql_row(row, columns))
-                    else:
-                        results.append(dict(zip(columns, row)))
-
-            except Exception as e:
-                logging.error(f"Error while executing query {sql_query}: {e}")
-                raise e
-            finally:
-                cursor.close()
-                connection.close()
-
-            return results
 
 
 if __name__ == "__main__":

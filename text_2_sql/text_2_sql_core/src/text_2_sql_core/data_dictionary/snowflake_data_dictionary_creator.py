@@ -2,12 +2,10 @@
 # Licensed under the MIT License.
 from data_dictionary_creator import DataDictionaryCreator, EntityItem
 import asyncio
-import snowflake.connector
-import logging
 import os
 
 from text_2_sql_core.utils.database import DatabaseEngine
-from tenacity import retry, stop_after_attempt, wait_exponential
+from text_2_sql_core.connectors.snowflake_sql import SnowflakeSqlConnector
 
 
 class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
@@ -20,6 +18,8 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
         self.database = os.environ["Text2Sql__DatabaseName"]
         self.warehouse = os.environ["Text2Sql__Snowflake__Warehouse"]
         self.database_engine = DatabaseEngine.SNOWFLAKE
+
+        self.sql_connector = SnowflakeSqlConnector()
 
     """A class to extract data dictionary information from a Snowflake database."""
 
@@ -77,60 +77,6 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
         ORDER BY
             EntitySchema, Entity, ForeignEntitySchema, ForeignEntityConstraint;
         """
-
-    @retry(
-        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
-    )
-    async def query_entities(
-        self, sql_query: str, cast_to: any = None
-    ) -> list[EntityItem]:
-        """A method to query a database for entities using Snowflake Connector. Overrides the base class method.
-
-        Args:
-            sql_query (str): The SQL query to run.
-            cast_to (any, optional): The class to cast the results to. Defaults to None.
-
-        Returns:
-            list[EntityItem]: The list of entities.
-        """
-        logging.info(f"Running query: {sql_query}")
-        results = []
-
-        async with self.database_semaphore:
-            # Create a connection to Snowflake, without specifying a schema
-            conn = snowflake.connector.connect(
-                user=os.environ["Text2Sql__Snowflake__User"],
-                password=os.environ["Text2Sql__Snowflake__Password"],
-                account=os.environ["Text2Sql__Snowflake__Account"],
-                warehouse=os.environ["Text2Sql__Snowflake__Warehouse"],
-                database=os.environ["Text2Sql__DatabaseName"],
-            )
-
-            try:
-                # Using the connection to create a cursor
-                cursor = conn.cursor()
-
-                # Execute the query
-                await asyncio.to_thread(cursor.execute, sql_query)
-
-                # Fetch column names
-                columns = [col[0] for col in cursor.description]
-
-                # Fetch rows
-                rows = await asyncio.to_thread(cursor.fetchall)
-
-                # Process rows
-                for row in rows:
-                    if cast_to:
-                        results.append(cast_to.from_sql_row(row, columns))
-                    else:
-                        results.append(dict(zip(columns, row)))
-
-            finally:
-                cursor.close()
-                conn.close()
-
-            return results
 
 
 if __name__ == "__main__":
