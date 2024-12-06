@@ -6,7 +6,6 @@ from text_2_sql_core.connectors.sql import SqlConnector
 from text_2_sql_core.prompts.load import load
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
-from datetime import datetime
 
 
 class LLMAgentCreator:
@@ -52,7 +51,7 @@ class LLMAgentCreator:
             )
         elif tool_name == "current_datetime_tool":
             return FunctionTool(
-                lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                sql_helper.get_current_datetime,
                 description="Gets the current date and time.",
             )
         else:

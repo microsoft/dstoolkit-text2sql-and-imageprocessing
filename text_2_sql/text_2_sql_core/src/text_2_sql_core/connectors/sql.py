@@ -8,6 +8,7 @@ from text_2_sql_core.connectors.ai_search import AISearchConnector
 import json
 import asyncio
 import sqlglot
+from datetime import datetime
 
 
 class SqlConnector:
@@ -19,6 +20,15 @@ class SqlConnector:
         self.run_query_cache = (
             os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
         )
+
+    def get_current_datetime(self) -> str:
+        """Gets the current date and time.
+
+        Returns:
+        -------
+            str: The current date and time.
+        """
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     async def get_entity_schemas(
         self,
