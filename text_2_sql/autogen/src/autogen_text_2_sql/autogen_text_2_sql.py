@@ -11,11 +11,11 @@ import os
 
 
 class AutoGenText2Sql:
-    def __init__(self, target_engine: str, engine_specific_rules: str, **kwargs: dict):
+    def __init__(self, engine_specific_rules: str, **kwargs: dict):
         self.use_query_cache = False
         self.pre_run_query_cache = False
 
-        self.target_engine = target_engine
+        self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
         self.engine_specific_rules = engine_specific_rules
 
         self.kwargs = kwargs

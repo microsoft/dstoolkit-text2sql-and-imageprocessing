@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem
+from text_2_sql_core.data_dictionary.data_dictionary_creator import (
+    DataDictionaryCreator,
+    EntityItem,
+)
 import asyncio
 import os
 
