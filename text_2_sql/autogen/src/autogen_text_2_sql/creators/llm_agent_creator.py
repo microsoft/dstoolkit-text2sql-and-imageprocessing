@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
-from text_2_sql_core.connectors.sql import SqlConnector
+from text_2_sql_core.connectors.factory import ConnectorFactory
 from text_2_sql_core.prompts.load import load
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
@@ -24,7 +24,7 @@ class LLMAgentCreator:
         return load(name.lower())
 
     @classmethod
-    def get_tool(cls, sql_helper: SqlConnector, tool_name: str):
+    def get_tool(cls, sql_helper, tool_name: str):
         """Gets the tool based on the tool name.
         Args:
         ----
@@ -36,7 +36,7 @@ class LLMAgentCreator:
 
         if tool_name == "sql_query_execution_tool":
             return FunctionTool(
-                sql_helper.query_execution,
+                sql_helper.query_execution_with_limit,
                 description="Runs an SQL query against the SQL Database to extract information",
             )
         elif tool_name == "sql_get_entity_schemas_tool":
@@ -92,7 +92,7 @@ class LLMAgentCreator:
             AssistantAgent: The assistant agent."""
         agent_file = cls.load_agent_file(name)
 
-        sql_helper = SqlConnector()
+        sql_helper = ConnectorFactory.get_database_connector()
 
         tools = []
         if "tools" in agent_file and len(agent_file["tools"]) > 0:

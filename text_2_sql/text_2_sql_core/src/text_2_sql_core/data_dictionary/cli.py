@@ -85,7 +85,6 @@ def create(
     try:
         asyncio.run(data_dictionary_creator.create_data_dictionary())
     except Exception as e:
-        raise e
         logging.error(e)
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 

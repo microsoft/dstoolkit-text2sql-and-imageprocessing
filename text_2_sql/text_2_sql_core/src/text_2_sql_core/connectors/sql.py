@@ -102,6 +102,25 @@ class SqlConnector(ABC):
             list[dict]: The results of the SQL query.
         """
 
+    async def query_execution_with_limit(
+        self,
+        sql_query: Annotated[
+            str,
+            "The SQL query to run against the database.",
+        ],
+    ) -> list[dict]:
+        """Run the SQL query against the database with a limit of 10 rows.
+
+        Args:
+        ----
+            sql_query (str): The SQL query to run against the database.
+
+        Returns:
+        -------
+            list[dict]: The results of the SQL query.
+        """
+        return await self.query_execution(sql_query, cast_to=None, limit=25)
+
     async def query_validation(
         self,
         sql_query: Annotated[
