@@ -1,5 +1,5 @@
 model:
-  4o-mini
+  4o
 description:
   "An agent that can generate SQL queries once given the schema and the user's question. It will run the SQL query to fetch the results. Use this agent after the SQL Schema Selection Agent has selected the correct schema."
 system_message:

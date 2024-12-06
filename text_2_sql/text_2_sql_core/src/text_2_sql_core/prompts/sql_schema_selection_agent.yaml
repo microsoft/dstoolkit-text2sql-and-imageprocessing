@@ -1,5 +1,5 @@
 model:
-  4o-mini
+  4o
 description:
   "An agent that can take a user's question and extract the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term.
 
@@ -25,6 +25,8 @@ system_message:
   Output Info:
     - Just return the output of the 'sql_get_entity_schemas_tool' tool.
     - Concate the results of the 'sql_get_entity_schemas_tool' tool if you are calling this agent in parallel.
-    - Do not provide any analysis or additional information to the user."
+    - Do not provide any analysis or additional information to the user.
+
+  Note: Limit the number of times you call the tool to a minimum."
 tools:
   - sql_get_entity_schemas_tool

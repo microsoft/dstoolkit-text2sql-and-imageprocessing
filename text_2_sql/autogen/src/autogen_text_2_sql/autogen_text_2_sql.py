@@ -11,12 +11,14 @@ import os
 
 
 class AutoGenText2Sql:
-    def __init__(self, target_engine: str, engine_specific_rules: str):
+    def __init__(self, target_engine: str, engine_specific_rules: str, **kwargs: dict):
         self.use_query_cache = False
         self.pre_run_query_cache = False
 
         self.target_engine = target_engine
         self.engine_specific_rules = engine_specific_rules
+
+        self.kwargs = kwargs
 
         self.set_mode()
 
@@ -37,15 +39,19 @@ class AutoGenText2Sql:
             "sql_query_generation_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
+            **self.kwargs,
         )
         SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create(
             "sql_schema_selection_agent",
-            use_case="Sales data for a company that specializes in selling products online.",
+            target_engine=self.target_engine,
+            engine_specific_rules=self.engine_specific_rules,
+            **self.kwargs,
         )
         SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
             "sql_query_correction_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
+            **self.kwargs,
         )
 
         ANSWER_AGENT = LLMAgentCreator.create("answer_agent")
