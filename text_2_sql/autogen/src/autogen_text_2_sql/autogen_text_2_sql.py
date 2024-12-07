@@ -90,7 +90,7 @@ class AutoGenText2Sql:
                 "cached_questions_and_schemas"
             ) is not None and cache_result.get("contains_pre_run_results"):
                 decision = "sql_query_correction_agent"
-            if (
+            elif (
                 cache_result.get("cached_questions_and_schemas") is not None
                 and cache_result.get("contains_pre_run_results") is False
             ):
@@ -99,12 +99,20 @@ class AutoGenText2Sql:
                 decision = "question_decomposition_agent"
 
         elif messages[-1].source == "question_decomposition_agent":
-            decomposition_result = json.loads(messages[-1].content)
+            # Fix: Ensure decomposition_result is properly handled as a list of dictionaries
+            try:
+                decomposition_result = json.loads(messages[-1].content)
 
-            if len(decomposition_result["entities"]) == 1:
-                decision = "sql_schema_selection_agent"
-            else:
-                decision = "parallel_sql_flow_agent"
+                if isinstance(decomposition_result, list) and len(decomposition_result) == 1:
+                    decision = "sql_schema_selection_agent"
+                elif isinstance(decomposition_result, list) and len(decomposition_result) > 1:
+                    decision = "parallel_sql_flow_agent"
+                else:
+                    logging.error("Unexpected format in decomposition result: %s", decomposition_result)
+                    raise ValueError("Invalid decomposition result format")
+            except (json.JSONDecodeError, ValueError) as e:
+                logging.error("Error processing decomposition result: %s", e)
+                decision = "question_decomposition_agent"  # Retry or handle gracefully
 
         elif messages[-1].source == "sql_schema_selection_agent":
             decision = "sql_query_generation_agent"
