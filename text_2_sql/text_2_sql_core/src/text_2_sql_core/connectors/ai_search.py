@@ -10,11 +10,13 @@ import os
 import logging
 import base64
 from datetime import datetime, timezone
+import json
+from typing import Annotated
 
 
 class AISearchConnector:
-    @staticmethod
     async def run_ai_search_query(
+        self,
         query,
         vector_fields: list[str],
         retrieval_fields: list[str],
@@ -94,7 +96,90 @@ class AISearchConnector:
 
         return combined_results
 
-    @staticmethod
+    async def get_column_values(
+        self,
+        text: Annotated[
+            str,
+            "The text to run a semantic search against. Relevant entities will be returned.",
+        ],
+    ):
+        """Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
+
+        Args:
+        ----
+            text (str): The text to run the search against.
+
+        Returns:
+        -------
+            str: The values of the column in JSON format.
+        """
+        values = await self.run_ai_search_query(
+            text,
+            [],
+            ["FQN", "Column", "Value"],
+            os.environ[
+                "AIService__AzureSearchOptions__Text2SqlColumnValueStore__Index"
+            ],
+            os.environ[
+                "AIService__AzureSearchOptions__Text2SqlColumnValueStore__SemanticConfig"
+            ],
+            top=10,
+        )
+
+        return json.dumps(values, default=str)
+
+    async def get_entity_schemas(
+        self,
+        text: Annotated[
+            str,
+            "The text to run a semantic search against. Relevant entities will be returned.",
+        ],
+        excluded_entities: Annotated[
+            list[str],
+            "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
+        ] = [],
+    ) -> str:
+        """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
+
+        Args:
+        ----
+            text (str): The text to run the search against.
+
+        Returns:
+            str: The schema of the views or tables in JSON format.
+        """
+
+        schemas = await self.run_ai_search_query(
+            text,
+            ["DefinitionEmbedding"],
+            [
+                "FQN",
+                "Entity",
+                "EntityName",
+                "Definition",
+                "Columns",
+                "EntityRelationships",
+                "CompleteEntityRelationshipsGraph",
+            ],
+            os.environ["AIService__AzureSearchOptions__Text2SqlSchemaStore__Index"],
+            os.environ[
+                "AIService__AzureSearchOptions__Text2SqlSchemaStore__SemanticConfig"
+            ],
+            top=3,
+        )
+
+        for schema in schemas:
+            entity = schema["Entity"]
+
+            filtered_schemas = []
+            for excluded_entity in excluded_entities:
+                if excluded_entity.lower() == entity.lower():
+                    logging.info("Excluded entity: %s", excluded_entity)
+                else:
+                    filtered_schemas.append(schema)
+
+        return json.dumps(schemas, default=str)
+
     async def add_entry_to_index(document: dict, vector_fields: dict, index_name: str):
         """Add an entry to the search index."""
 

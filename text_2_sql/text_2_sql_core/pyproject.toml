@@ -48,3 +48,6 @@ databricks = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.scripts]
+data_dictionary = "text_2_sql_core.data_dictionary.cli:cli"

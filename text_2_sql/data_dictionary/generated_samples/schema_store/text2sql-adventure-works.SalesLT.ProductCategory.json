@@ -1,0 +1,87 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": "The ProductCategoryID column in the ProductCategory entity contains numeric identifiers that uniquely represent different product categories within a database. Each value in the column corresponds to a specific category, allowing for the organization and categorization of products. The values are integer numbers with no apparent sequential order, indicating that they are likely assigned based on the creation or addition of different categories.",
+      "Name": "ProductCategoryID",
+      "SampleValues": [
+        38,
+        27,
+        6,
+        10,
+        25
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": "The ParentProductCategoryID column in the ProductCategory entity contains numeric identifiers that represent the parent category of a given product category. These values are used to establish hierarchical relationships between product categories, where a category can have a parent category, indicating a level of organization or grouping. Each integer value corresponds to a specific parent category ID in the database. The column helps in organizing and structuring the product categories into a hierarchy for better management and categorization of products.",
+      "Name": "ParentProductCategoryID",
+      "SampleValues": [
+        4,
+        3,
+        2,
+        1
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": "The Name column in the ProductCategory entity contains the names of different product categories available in the inventory. These names represent the various types of products or groups of related products that the store offers. The values in this column are typically descriptive words or phrases that provide insight into the nature of the products within each category.",
+      "Name": "Name",
+      "SampleValues": [
+        "Wheels",
+        "Bike Racks",
+        "Pumps",
+        "Touring Bikes",
+        "Socks"
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the ProductCategory entity contains globally unique identifier (GUID) values. These values follow the standard GUID format, which is a 128-bit integer used to uniquely identify information. Each value is comprised of a sequence of hexadecimal digits in groups separated by hyphens. The GUIDs ensure that each row in the ProductCategory entity can be uniquely identified across different tables and databases.",
+      "Name": "rowguid",
+      "SampleValues": [
+        "9AD3BCF0-244D-4EC4-A6A0-FB701351C6A3",
+        "5515F857-075B-4F9A-87B7-43B4997077B3",
+        "000310C0-BCC8-42C4-B0C3-45AE611AF06B",
+        "B5F9BA42-B69B-4FDD-B2EC-57FB7B42E3CF",
+        "049FFFA3-9D30-46DF-82F7-F20730EC02B3"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the ProductCategory entity stores the date and time when the record was last updated. The values are in the format of YYYY-MM-DD HH:MM:SS, representing a timestamp. This column is used to track changes and updates to the product category information over time.",
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2002-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [
+    "text2sql-adventure-works.SalesLT.ProductCategory -> text2sql-adventure-works.SalesLT.ProductCategory"
+  ],
+  "Database": "text2sql-adventure-works",
+  "Definition": "The ProductCategory entity contains information about the various categories of products within a database. It includes details such as the unique identifier for each product category, the identifier of the parent category to support hierarchical relationships, the name of the product category, and metadata like a unique row identifier and the date of the last modification. This entity can be used to answer questions related to the organization of product categories, their hierarchical structure, and updates to category details.",
+  "Entity": "ProductCategory",
+  "EntityName": "Product Category Information",
+  "EntityRelationships": [
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.ProductCategory",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "ProductCategory",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.ProductCategory",
+      "ForeignKeys": [
+        {
+          "Column": "ParentProductCategoryID",
+          "ForeignColumn": "ProductCategoryID"
+        },
+        {
+          "Column": "ProductCategoryID",
+          "ForeignColumn": "ParentProductCategoryID"
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    }
+  ],
+  "FQN": "text2sql-adventure-works.SalesLT.ProductCategory",
+  "Schema": "SalesLT"
+}

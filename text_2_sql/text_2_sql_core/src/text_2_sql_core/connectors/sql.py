@@ -2,15 +2,14 @@
 # Licensed under the MIT License.
 import logging
 import os
-import aioodbc
 from typing import Annotated, Union
 from text_2_sql_core.connectors.ai_search import AISearchConnector
-import json
 import asyncio
 import sqlglot
+from abc import ABC, abstractmethod
 
 
-class SqlConnector:
+class SqlConnector(ABC):
     def __init__(self):
         self.use_query_cache = (
             os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
@@ -20,63 +19,19 @@ class SqlConnector:
             os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
         )
 
-    async def get_entity_schemas(
-        self,
-        text: Annotated[
-            str,
-            "The text to run a semantic search against. Relevant entities will be returned.",
-        ],
-        excluded_entities: Annotated[
-            list[str],
-            "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
-        ] = [],
-    ) -> str:
-        """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
-
-        Args:
-        ----
-            text (str): The text to run the search against.
-
-        Returns:
-            str: The schema of the views or tables in JSON format.
-        """
-
-        schemas = await AISearchConnector.run_ai_search_query(
-            text,
-            ["DefinitionEmbedding"],
-            [
-                "Entity",
-                "EntityName",
-                "Definition",
-                "Columns",
-                "EntityRelationships",
-                "CompleteEntityRelationshipsGraph",
-            ],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
-            top=3,
+        self.use_column_value_store = (
+            os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
         )
 
-        for schema in schemas:
-            entity = schema["Entity"]
-            database = os.environ["Text2Sql__DatabaseName"]
-            schema["SelectFromEntity"] = f"{database}.{entity}"
-
-            filtered_schemas = []
-            for excluded_entity in excluded_entities:
-                if excluded_entity.lower() == entity.lower():
-                    logging.info("Excluded entity: %s", excluded_entity)
-                else:
-                    filtered_schemas.append(schema)
-
-        return json.dumps(schemas, default=str)
-
+    @abstractmethod
     async def query_execution(
         self,
         sql_query: Annotated[
             str,
             "The SQL query to run against the database.",
         ],
+        cast_to: any = None,
+        limit=None,
     ) -> list[dict]:
         """Run the SQL query against the database.
 
@@ -88,18 +43,25 @@ class SqlConnector:
         -------
             list[dict]: The results of the SQL query.
         """
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
-        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-            async with sql_db_client.cursor() as cursor:
-                await cursor.execute(sql_query)
 
-                columns = [column[0] for column in cursor.description]
+    async def query_execution_with_limit(
+        self,
+        sql_query: Annotated[
+            str,
+            "The SQL query to run against the database.",
+        ],
+    ) -> list[dict]:
+        """Run the SQL query against the database with a limit of 10 rows.
 
-                rows = await cursor.fetchmany(25)
-                results = [dict(zip(columns, returned_row)) for returned_row in rows]
+        Args:
+        ----
+            sql_query (str): The SQL query to run against the database.
 
-        logging.debug("Results: %s", results)
-        return results
+        Returns:
+        -------
+            list[dict]: The results of the SQL query.
+        """
+        return await self.query_execution(sql_query, cast_to=None, limit=25)
 
     async def query_validation(
         self,

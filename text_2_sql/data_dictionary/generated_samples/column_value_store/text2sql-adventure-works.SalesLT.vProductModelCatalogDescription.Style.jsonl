@@ -1,0 +1,2 @@
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.Style", "Column": "Style", "Value": "Unisex", "Synonyms": []}
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.Style", "Column": "Style", "Value": "Men's", "Synonyms": []}

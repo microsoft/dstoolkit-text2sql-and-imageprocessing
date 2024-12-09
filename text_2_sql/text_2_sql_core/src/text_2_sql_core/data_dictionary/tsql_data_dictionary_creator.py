@@ -1,9 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from data_dictionary_creator import DataDictionaryCreator, EntityItem
+from text_2_sql_core.data_dictionary.data_dictionary_creator import (
+    DataDictionaryCreator,
+    EntityItem,
+)
 import asyncio
 import os
 from text_2_sql_core.utils.database import DatabaseEngine
+from text_2_sql_core.connectors.tsql_sql import TSQLSqlConnector
 
 
 class TSQLDataDictionaryCreator(DataDictionaryCreator):
@@ -20,6 +24,8 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
         self.database = os.environ["Text2Sql__DatabaseName"]
 
         self.database_engine = DatabaseEngine.TSQL
+
+        self.sql_connector = TSQLSqlConnector()
 
     """A class to extract data dictionary information from a SQL Server database."""
 
@@ -39,8 +45,8 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
             AND ep.class = 1
             AND ep.name = 'MS_Description'
         WHERE
-            t.TABLE_TYPE = 'BASE TABLE';
-        ORDER BY EntitySchema, Entity"""
+            t.TABLE_TYPE = 'BASE TABLE'
+        ORDER BY EntitySchema, Entity;"""
 
     @property
     def extract_view_entities_sql_query(self) -> str:
@@ -56,8 +62,8 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
             ON ep.major_id = OBJECT_ID(v.TABLE_SCHEMA + '.' + v.TABLE_NAME)
             AND ep.minor_id = 0
             AND ep.class = 1
-        AND ep.name = 'MS_Description';
-        ORDER BY EntitySchema, Entity"""
+        AND ep.name = 'MS_Description'
+        ORDER BY EntitySchema, Entity;"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """A property to extract column information from a SQL Server database."""

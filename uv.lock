@@ -67,6 +67,15 @@ requires-dist = [
 ]
 
 [[package]]
+name = "aiofiles"
+version = "24.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0b/03/a88171e277e8caa88a4c77808c20ebb04ba74cc4681bf1e9416c862de237/aiofiles-24.1.0.tar.gz", hash = "sha256:22a075c9e5a3810f0c2e48f3008c94d68c65d763b9b03857924c99e57355166c", size = 30247 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a5/45/30bb92d442636f570cb5651bc661f52b610e2eec3f891a5dc3a4c3667db0/aiofiles-24.1.0-py3-none-any.whl", hash = "sha256:b4ec55f4195e3eb5d7abd1bf7e061763e864dd4954231fb8539a0ef8bb8260e5", size = 15896 },
+]
+
+[[package]]
 name = "aiohappyeyeballs"
 version = "2.4.4"
 source = { registry = "https://pypi.org/simple" }
@@ -270,19 +279,19 @@ wheels = [
 
 [[package]]
 name = "autogen-agentchat"
-version = "0.4.0.dev7"
+version = "0.4.0.dev9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "autogen-core" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/51/75/e3d654ce623d22388a55b4cf77cd7d61a6f00467493373026797ab8e6de3/autogen_agentchat-0.4.0.dev7.tar.gz", hash = "sha256:6563ae432a2a80f8e5c0a7a04e1ab42dbd67a8bc7a8cf1b368514fb80a6a4282", size = 38365 }
+sdist = { url = "https://files.pythonhosted.org/packages/f5/2f/8d0b6ae170013becad945ca43cadffdac5e0b0b6a4cf47b6ec962cd4d5ea/autogen_agentchat-0.4.0.dev9.tar.gz", hash = "sha256:ff93c9768b6801670f54fdcfd27490fe8cbc4eeb9ff2c1dc39744f53a89a204f", size = 46296 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9a/36/a05017b0abb952412e8e7d2ac33fcdbe074911e41f1f406220372be9d087/autogen_agentchat-0.4.0.dev7-py3-none-any.whl", hash = "sha256:ee342f5db99fb032d1c00253012f4ee03cd91b595b193ba2aa8dfdb86edafd31", size = 49123 },
+    { url = "https://files.pythonhosted.org/packages/c1/96/30f3c13d1e198aa9dba99ca80f97ccfbfac705107cf5bac2907be84eaa5b/autogen_agentchat-0.4.0.dev9-py3-none-any.whl", hash = "sha256:da93313f3233cec81dc4cb3a5ccb1289277e5483604486c7845a092986922b03", size = 56046 },
 ]
 
 [[package]]
 name = "autogen-core"
-version = "0.4.0.dev7"
+version = "0.4.0.dev9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -296,21 +305,21 @@ dependencies = [
     { name = "tiktoken" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/86/ae/8485fbe5a8d51b73e3e3ab1652d439f179bda07d2c2b0494836009cfd706/autogen_core-0.4.0.dev7.tar.gz", hash = "sha256:f6d36b278f841f26d779d7ede9eb1dc340ba2955bd5e167461c002f6336f5a91", size = 2255223 }
+sdist = { url = "https://files.pythonhosted.org/packages/76/3d/9a17276bcc38570fba2066c6f906f54e0ec13a4b8ebf9f8075e23d661bc5/autogen_core-0.4.0.dev9.tar.gz", hash = "sha256:4c439ee61d2e724c8338f80e17b4a0478d93d2a986979c778df5da0f8b63612b", size = 2344904 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0e/3b/d0b6715c93210c041b4bc818aebf2e36c190c4037bae4c3e3680c38ebfc1/autogen_core-0.4.0.dev7-py3-none-any.whl", hash = "sha256:234c844f02de2c0e6eb6843cb25b8d6f341d38664a14754ec0213e402941391f", size = 91822 },
+    { url = "https://files.pythonhosted.org/packages/6d/f1/f7d338b0884f8561dcb79ebbe2303524e35c2f563d6cedeacdf2b18f64ed/autogen_core-0.4.0.dev9-py3-none-any.whl", hash = "sha256:e29003ba2cd7926dd75dc86b3516eb1af16326f119b63afb2ea51058fbb2e97e", size = 76274 },
 ]
 
 [[package]]
 name = "autogen-ext"
-version = "0.4.0.dev7"
+version = "0.4.0.dev9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "autogen-core" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1b/20/f375198714412c94b5f12914d02bd0edcfa82952c9b3bac3634fcd200ece/autogen_ext-0.4.0.dev7.tar.gz", hash = "sha256:84fbc112e734b0538ccd317c78340566543806244da4771e7c787a4de5b34a9a", size = 55074 }
+sdist = { url = "https://files.pythonhosted.org/packages/76/66/4bd01325dc9b8ba52287187f19ff15e6785d0a183394707e7a841bb4e954/autogen_ext-0.4.0.dev9.tar.gz", hash = "sha256:111272b04de84d76c5f4657fead3d2956205ab1a34a687a0a8a72216860592d6", size = 91373 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/69/2c/56fbc4a3a14591a4a94a3e0940de40557285d6d18e44416098587912a4af/autogen_ext-0.4.0.dev7-py3-none-any.whl", hash = "sha256:013708a4aaccb0aa7a5023a7bc05e4d46a642305addddd327f34bf88be3df274", size = 55773 },
+    { url = "https://files.pythonhosted.org/packages/d0/ab/310bfaf92beb9db4f47635f7896129d71e6e2a35ec1e45238cbb40b2ff75/autogen_ext-0.4.0.dev9-py3-none-any.whl", hash = "sha256:b1d7ed0934bb20c34e9f991df1a1d05b310b6c6b9c95cea8098152cb6832843d", size = 99646 },
 ]
 
 [package.optional-dependencies]
@@ -319,6 +328,7 @@ azure = [
     { name = "azure-identity" },
 ]
 openai = [
+    { name = "aiofiles" },
     { name = "openai" },
 ]
 
@@ -349,9 +359,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "autogen-agentchat", specifier = "==0.4.0.dev7" },
-    { name = "autogen-core", specifier = "==0.4.0.dev7" },
-    { name = "autogen-ext", extras = ["azure", "openai"], specifier = "==0.4.0.dev7" },
+    { name = "autogen-agentchat", specifier = "==0.4.0.dev9" },
+    { name = "autogen-core", specifier = "==0.4.0.dev9" },
+    { name = "autogen-ext", extras = ["azure", "openai"], specifier = "==0.4.0.dev9" },
     { name = "grpcio", specifier = ">=1.68.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
@@ -963,6 +973,9 @@ wheels = [
 name = "dstoolkit-text2sql-and-imageprocessing"
 version = "0.1.0"
 source = { virtual = "." }
+dependencies = [
+    { name = "text-2-sql-core" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -976,6 +989,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" }]
 
 [package.metadata.requires-dev]
 dev = [

@@ -1,0 +1,1 @@
+{"Entity": "SalesOrderHeader", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.SalesOrderHeader.ShipMethod", "Column": "ShipMethod", "Value": "CARGO TRANSPORT 5", "Synonyms": []}

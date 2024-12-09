@@ -1,0 +1,3 @@
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.Material", "Column": "Material", "Value": "Aluminum Alloy", "Synonyms": []}
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.Material", "Column": "Material", "Value": "Aluminum", "Synonyms": []}
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.Material", "Column": "Material", "Value": "Almuminum Alloy", "Synonyms": []}

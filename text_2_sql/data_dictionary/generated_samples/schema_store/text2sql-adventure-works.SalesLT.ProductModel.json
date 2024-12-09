@@ -1,0 +1,66 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": "The column ProductModelID contains unique numerical identifiers for each product model in the ProductModel entity. The values are integers and serve as primary keys to distinguish different product models within the database. These identifiers are essential for database operations such as querying and joining tables that involve product model information.",
+      "Name": "ProductModelID",
+      "SampleValues": [
+        72,
+        87,
+        30,
+        119,
+        38
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": "The Name column in the ProductModel entity contains the names of various products. These names are descriptive and often indicate the type or category of the product, such as \"Racing Socks\" or \"Touring Pedal\". The product names vary widely and include items related to cycling gear and accessories, as evidenced by examples like \"Road-650\" and \"Women's Mountain Shorts\". The names may also include additional feature details such as \"Headlights - Weatherproof\".",
+      "Name": "Name",
+      "SampleValues": [
+        "Racing Socks",
+        "Road-650",
+        "Touring Pedal",
+        "Headlights - Weatherproof",
+        "Women's Mountain Shorts"
+      ]
+    },
+    {
+      "DataType": "xml",
+      "Definition": "The CatalogDescription column in the ProductModel entity contains descriptive text about the product model in a catalog format. This text includes detailed information about the product's features, specifications, and any other relevant details that help identify and differentiate the product model. The content is typically intended for use in product catalogs to assist customers in understanding the product better.",
+      "Name": "CatalogDescription",
+      "SampleValues": null
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the ProductModel entity contains unique identifier values in the UUID (Universally Unique Identifier) format. Each value is a 128-bit number used to uniquely identify records within the ProductModel entity. This ensures that each entry in the ProductModel table can be distinctly referenced. The format and structure of the values follow the standard UUID representation, which includes hexadecimal digits separated by hyphens.",
+      "Name": "rowguid",
+      "SampleValues": [
+        "2489DDC5-1C89-4DEC-AF22-B0112CCEC467",
+        "3770C5E3-8DC9-43C7-B735-7AFF21645D96",
+        "2771D2D2-2E35-4C12-966E-CE9070DF6D53",
+        "F06999A1-3AA7-4E85-B8CB-049EB2C391FA",
+        "98726F80-E9B9-4141-9CF5-BD2EF07DCE25"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the ProductModel entity contains datetime values that represent the date and time when a record in the ProductModel table was last updated. The values follow the standard SQL datetime format, which includes the year, month, day, hour, minute, second, and fractional seconds. This column is used to track changes and modifications to the records, ensuring that the most recent update is recorded accurately. The datetime values are typically used for auditing and synchronization purposes.",
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2006-06-01 00:00:00",
+        "2005-06-01 00:00:00",
+        "2009-05-16 16:34:29.010000",
+        "2009-05-16 16:34:29.043000",
+        "2009-05-16 16:34:28.997000"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": "The ProductModel entity contains information about different product models in an organization. It includes unique identifiers, names, and catalog descriptions for various product models, along with metadata such as a globally unique identifier (rowguid) and the date when the record was last modified. This entity is useful for answering questions related to the identification and documentation of product models, tracking changes over time, and integrating catalog information within broader product databases.",
+  "Entity": "ProductModel",
+  "EntityName": "Product Model Information",
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.ProductModel",
+  "Schema": "SalesLT"
+}
