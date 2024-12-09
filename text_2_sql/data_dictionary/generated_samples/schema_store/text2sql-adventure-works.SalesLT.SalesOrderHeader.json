@@ -1,0 +1,264 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "SalesOrderID",
+      "SampleValues": [
+        71832,
+        71917,
+        71895,
+        71784,
+        71856
+      ]
+    },
+    {
+      "DataType": "tinyint",
+      "Definition": null,
+      "Name": "RevisionNumber",
+      "SampleValues": [
+        2
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "OrderDate",
+      "SampleValues": [
+        "2008-06-01 00:00:00"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "DueDate",
+      "SampleValues": [
+        "2008-06-13 00:00:00"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ShipDate",
+      "SampleValues": [
+        "2008-06-08 00:00:00"
+      ]
+    },
+    {
+      "DataType": "tinyint",
+      "Definition": null,
+      "Name": "Status",
+      "SampleValues": [
+        5
+      ]
+    },
+    {
+      "DataType": "bit",
+      "Definition": null,
+      "Name": "OnlineOrderFlag",
+      "SampleValues": [
+        false
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "SalesOrderNumber",
+      "SampleValues": [
+        "SO71885",
+        "SO71782",
+        "SO71920",
+        "SO71915",
+        "SO71845"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "PurchaseOrderNumber",
+      "SampleValues": [
+        "PO19285135919",
+        "PO10295111084",
+        "PO19343113609",
+        "PO7946145876",
+        "PO19372114749"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "AccountNumber",
+      "SampleValues": [
+        "10-4020-000582",
+        "10-4020-000502",
+        "10-4020-000674",
+        "10-4020-000276",
+        "10-4020-000649"
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "CustomerID",
+      "SampleValues": [
+        29877,
+        29975,
+        30019,
+        29612,
+        30050
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ShipToAddressID",
+      "SampleValues": [
+        640,
+        1020,
+        1098,
+        1061,
+        662
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "BillToAddressID",
+      "SampleValues": [
+        651,
+        999,
+        1020,
+        659,
+        1035
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "ShipMethod",
+      "SampleValues": [
+        "CARGO TRANSPORT 5"
+      ]
+    },
+    {
+      "DataType": "varchar",
+      "Definition": null,
+      "Name": "CreditCardApprovalCode",
+      "SampleValues": []
+    },
+    {
+      "DataType": "money",
+      "Definition": null,
+      "Name": "SubTotal",
+      "SampleValues": [
+        "2453.7645",
+        "38418.6895",
+        "108561.8317",
+        "78029.6898",
+        "3324.2759"
+      ]
+    },
+    {
+      "DataType": "money",
+      "Definition": null,
+      "Name": "TaxAmt",
+      "SampleValues": [
+        "44.0309",
+        "7105.0290",
+        "84.7448",
+        "48.1756",
+        "4610.7707"
+      ]
+    },
+    {
+      "DataType": "money",
+      "Definition": null,
+      "Name": "Freight",
+      "SampleValues": [
+        "2096.4607",
+        "83.1069",
+        "1599.5247",
+        "13.7597",
+        "26.4828"
+      ]
+    },
+    {
+      "DataType": "money",
+      "Definition": null,
+      "Name": "TotalDue",
+      "SampleValues": [
+        "15275.1977",
+        "7330.8972",
+        "117.7276",
+        "43.0437",
+        "98138.2131"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Comment",
+      "SampleValues": []
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "917EF5BA-F32D-4563-8588-66DB0BCDC846",
+        "6228C9CB-1CAB-4E32-98CA-D0DAE5FE563E",
+        "CAAD090D-56A6-444E-AF24-7BEE7605F120",
+        "137850D6-EFDF-4DE1-920F-5757A86CDAAF",
+        "A36EE74A-CF0D-4024-A1CE-4EAFFD1F85F0"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2008-06-08 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [
+    "text2sql-adventure-works.SalesLT.SalesOrderHeader -> text2sql-adventure-works.SalesLT.SalesOrderHeader"
+  ],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "SalesOrderHeader",
+  "EntityName": null,
+  "EntityRelationships": [
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.SalesOrderHeader",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "Address",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.SalesOrderHeader",
+      "ForeignKeys": [
+        {
+          "Column": "BillToAddressID",
+          "ForeignColumn": "AddressID"
+        },
+        {
+          "Column": "AddressID",
+          "ForeignColumn": "BillToAddressID"
+        },
+        {
+          "Column": "ShipToAddressID",
+          "ForeignColumn": "AddressID"
+        },
+        {
+          "Column": "AddressID",
+          "ForeignColumn": "ShipToAddressID"
+        },
+        {
+          "Column": "CustomerID",
+          "ForeignColumn": "CustomerID"
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    }
+  ],
+  "FQN": "text2sql-adventure-works.SalesLT.SalesOrderHeader",
+  "Schema": "SalesLT"
+}

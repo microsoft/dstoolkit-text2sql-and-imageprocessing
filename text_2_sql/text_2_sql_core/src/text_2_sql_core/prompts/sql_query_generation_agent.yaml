@@ -28,7 +28,7 @@ system_message:
 
     - You must only provide SELECT SQL queries.
 
-    - For a given entity, use the 'SelectFromEntity' property returned in the schema in the SELECT FROM part of the SQL query. If the property is {'SelectFromEntity': 'test_schema.test_table'}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.
+    - For a given entity, use the '' property returned in the schema in the SELECT FROM part of the SQL query. If the property is {'': 'test_schema.test_table'}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.
 
     - The target database engine is {{ target_engine }}, SQL queries must be able compatible to run on {{ target_engine }} {{ engine_specific_rules }}
 
@@ -40,5 +40,6 @@ system_message:
 tools:
   - sql_query_execution_tool
   - sql_get_entity_schemas_tool
+  - sql_get_column_values_tool
   - sql_query_validation_tool
-  # - current_datetime_tool
+  - current_datetime_tool

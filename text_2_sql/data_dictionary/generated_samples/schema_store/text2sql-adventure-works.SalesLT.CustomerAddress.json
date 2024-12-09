@@ -1,0 +1,89 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "CustomerID",
+      "SampleValues": [
+        29688,
+        30115,
+        29925,
+        29508,
+        29505
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "AddressID",
+      "SampleValues": [
+        1096,
+        613,
+        864,
+        890,
+        841
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "AddressType",
+      "SampleValues": [
+        "Shipping",
+        "Main Office"
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "C4BBE507-B9CA-4F90-9D47-A8C30AD62ADF",
+        "4CAA058D-61F5-4A49-9167-D1E57DCAC9CE",
+        "A9DE79D2-BA98-4DF1-89D2-807B7DCCA039",
+        "8FF46C88-3A42-4F4D-AEB6-BE149A35E650",
+        "C218B088-B5E0-4812-9EE5-46CC9C2DC864"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2005-08-01 00:00:00",
+        "2007-02-01 00:00:00",
+        "2006-09-01 00:00:00",
+        "2005-11-01 00:00:00",
+        "2006-07-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [
+    "text2sql-adventure-works.SalesLT.CustomerAddress -> text2sql-adventure-works.SalesLT.CustomerAddress"
+  ],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "CustomerAddress",
+  "EntityName": null,
+  "EntityRelationships": [
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.CustomerAddress",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "Address",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.CustomerAddress",
+      "ForeignKeys": [
+        {
+          "Column": "AddressID",
+          "ForeignColumn": "AddressID"
+        },
+        {
+          "Column": "CustomerID",
+          "ForeignColumn": "CustomerID"
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    }
+  ],
+  "FQN": "text2sql-adventure-works.SalesLT.CustomerAddress",
+  "Schema": "SalesLT"
+}

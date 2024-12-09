@@ -1,0 +1,136 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "SalesOrderID",
+      "SampleValues": [
+        71774,
+        71920,
+        71780,
+        71815,
+        71816
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "SalesOrderDetailID",
+      "SampleValues": [
+        111036,
+        112982,
+        112907,
+        112145,
+        111040
+      ]
+    },
+    {
+      "DataType": "smallint",
+      "Definition": null,
+      "Name": "OrderQty",
+      "SampleValues": [
+        6,
+        10,
+        12,
+        4,
+        11
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductID",
+      "SampleValues": [
+        835,
+        708,
+        977,
+        716,
+        874
+      ]
+    },
+    {
+      "DataType": "money",
+      "Definition": null,
+      "Name": "UnitPrice",
+      "SampleValues": [
+        "818.7000",
+        "986.5742",
+        "27.4945",
+        "809.7600",
+        "1376.9940"
+      ]
+    },
+    {
+      "DataType": "money",
+      "Definition": null,
+      "Name": "UnitPriceDiscount",
+      "SampleValues": [
+        "0.4000",
+        "0.1000",
+        "0.0500",
+        "0.0200",
+        "0.0000"
+      ]
+    },
+    {
+      "DataType": "numeric",
+      "Definition": null,
+      "Name": "LineTotal",
+      "SampleValues": [
+        "1427.592000",
+        "12873.978000",
+        "47.700000",
+        "2672.460000",
+        "37.758000"
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "21624302-CA0F-402F-8A46-5A3FFFA7D5F3",
+        "D8261319-F5FF-4DAA-8698-5A68C2141F61",
+        "DC8A797C-44E2-435F-836D-349B93107D43",
+        "AA3C697D-653D-4D79-B824-B92672FE8B9E",
+        "3730D783-97D7-4E3D-8B70-1F0159565D4D"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2008-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [
+    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderDetail"
+  ],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "SalesOrderDetail",
+  "EntityName": null,
+  "EntityRelationships": [
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "Product",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
+      "ForeignKeys": [
+        {
+          "Column": "ProductID",
+          "ForeignColumn": "ProductID"
+        },
+        {
+          "Column": "SalesOrderID",
+          "ForeignColumn": "SalesOrderID"
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    }
+  ],
+  "FQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
+  "Schema": "SalesLT"
+}

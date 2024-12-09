@@ -1,0 +1,2 @@
+{"Entity": "CustomerAddress", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.CustomerAddress", "Value": "Shipping", "Synonyms": []}
+{"Entity": "CustomerAddress", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.CustomerAddress", "Value": "Main Office", "Synonyms": []}

@@ -4,10 +4,8 @@ import logging
 import os
 from typing import Annotated, Union
 from text_2_sql_core.connectors.ai_search import AISearchConnector
-import json
 import asyncio
 import sqlglot
-from datetime import datetime
 from abc import ABC, abstractmethod
 
 
@@ -21,65 +19,9 @@ class SqlConnector(ABC):
             os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
         )
 
-    def get_current_datetime(self) -> str:
-        """Gets the current date and time.
-
-        Returns:
-        -------
-            str: The current date and time.
-        """
-        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    async def get_entity_schemas(
-        self,
-        text: Annotated[
-            str,
-            "The text to run a semantic search against. Relevant entities will be returned.",
-        ],
-        excluded_entities: Annotated[
-            list[str],
-            "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
-        ] = [],
-    ) -> str:
-        """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
-
-        Args:
-        ----
-            text (str): The text to run the search against.
-
-        Returns:
-            str: The schema of the views or tables in JSON format.
-        """
-
-        schemas = await AISearchConnector.run_ai_search_query(
-            text,
-            ["DefinitionEmbedding"],
-            [
-                "Entity",
-                "EntityName",
-                "Definition",
-                "Columns",
-                "EntityRelationships",
-                "CompleteEntityRelationshipsGraph",
-            ],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
-            top=3,
+        self.use_column_value_store = (
+            os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
         )
-
-        for schema in schemas:
-            entity = schema["Entity"]
-            database = os.environ["Text2Sql__DatabaseName"]
-            schema["SelectFromEntity"] = f"{database}.{entity}"
-
-            filtered_schemas = []
-            for excluded_entity in excluded_entities:
-                if excluded_entity.lower() == entity.lower():
-                    logging.info("Excluded entity: %s", excluded_entity)
-                else:
-                    filtered_schemas.append(schema)
-
-        return json.dumps(schemas, default=str)
 
     @abstractmethod
     async def query_execution(

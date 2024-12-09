@@ -76,7 +76,7 @@ class AutoGenText2Sql:
     @property
     def termination_condition(self):
         """Define the termination condition for the chat."""
-        termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
+        termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(15)
         return termination
 
     @staticmethod

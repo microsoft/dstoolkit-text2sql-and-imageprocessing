@@ -1,0 +1,4 @@
+{"Entity": "vGetAllCategories", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vGetAllCategories", "Value": "Components", "Synonyms": []}
+{"Entity": "vGetAllCategories", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vGetAllCategories", "Value": "Clothing", "Synonyms": []}
+{"Entity": "vGetAllCategories", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vGetAllCategories", "Value": "Bikes", "Synonyms": []}
+{"Entity": "vGetAllCategories", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vGetAllCategories", "Value": "Accessories", "Synonyms": []}

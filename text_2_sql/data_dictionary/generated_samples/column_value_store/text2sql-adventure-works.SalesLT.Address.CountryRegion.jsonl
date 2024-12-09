@@ -1,0 +1,3 @@
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address", "Value": "United States", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address", "Value": "United Kingdom", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address", "Value": "Canada", "Synonyms": []}

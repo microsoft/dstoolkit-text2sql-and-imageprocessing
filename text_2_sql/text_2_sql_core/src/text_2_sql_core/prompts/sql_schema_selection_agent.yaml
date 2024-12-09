@@ -11,22 +11,21 @@ system_message:
 
   Perform the following steps to select the correct schema:
 
-    1. Extract key terms and entities from the user's question.
+    1. Extract key terms, filter conditions and entities from the user's question.
 
     2. Perform entity recognition on these key terms to identify several possible categories they might belong to.
 
-    3. Use the 'sql_get_entity_schemas_tool' tool to search for the correct schema based on the key terms and entities extracted.
+    3. Extract the possible filter conditions from the user's question.
 
   For example:
-    If the user's question is 'Show me the list of employees in the HR department', you would extract the key terms 'employees' and 'HR department'.
-    You would then generate the possible entities these key terms might belong to e.g. 'people', 'employees', 'departments', 'teams'.
-    You would then use the 'sql_get_entity_schemas_tool' tool to search for the correct schema based on these key terms.
+    - If the user's question is 'Show me the list of employees in the HR department', you would extract the key terms 'employees' and 'HR department'.
+
+    - You would then generate the possible entities these key terms might belong to e.g. 'people', 'employees', 'departments', 'teams'.
+
+    - You would also extract the filter condition 'HR' and 'HR Department'.
 
   Output Info:
-    - Just return the output of the 'sql_get_entity_schemas_tool' tool.
-    - Concate the results of the 'sql_get_entity_schemas_tool' tool if you are calling this agent in parallel.
-    - Do not provide any analysis or additional information to the user.
+    Return the list of possible entities that the key terms might belong to in the following format:
 
-  Note: Limit the number of times you call the tool to a minimum."
-tools:
-  - sql_get_entity_schemas_tool
+    {\"entities\": [\"<entity_1>\", \"<entity_2>\", \"<entity_3>\"], \"filter_conditions\": [\"<filter_condition_1>\", \"<filter_condition_2>\"]}
+  "

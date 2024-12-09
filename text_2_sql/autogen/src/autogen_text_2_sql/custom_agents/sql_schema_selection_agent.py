@@ -5,20 +5,21 @@ from typing import AsyncGenerator, List, Sequence
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
 from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
-from autogen_core.base import CancellationToken
+from autogen_core import CancellationToken
 from text_2_sql_core.connectors.sql import SqlConnector
 import json
 import logging
 
 
 class SqlQueryCacheAgent(BaseChatAgent):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(
-            "sql_query_cache_agent",
-            "An agent that fetches the queries from the cache based on the user question.",
+            "sql_schema_selection_agent",
+            "An agent that fetches the schemas from the cache based on the user question.",
         )
 
-        self.sql_helper = SqlConnector()
+        self.kwargs = kwargs
+        self.sql_connector = SqlConnector()
 
     @property
     def produced_message_types(self) -> List[type[ChatMessage]]:
@@ -43,7 +44,9 @@ class SqlQueryCacheAgent(BaseChatAgent):
         # Fetch the queries from the cache based on the user question.
         logging.info("Fetching queries from cache based on the user question...")
 
-        cached_queries = await self.sql_helper.fetch_queries_from_cache(user_question)
+        cached_queries = await self.sql_connector.fetch_queries_from_cache(
+            user_question
+        )
 
         yield Response(
             chat_message=TextMessage(

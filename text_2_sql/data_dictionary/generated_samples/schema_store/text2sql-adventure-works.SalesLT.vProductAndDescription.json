@@ -1,0 +1,72 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductID",
+      "SampleValues": [
+        817,
+        710,
+        798,
+        993,
+        781
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Name",
+      "SampleValues": [
+        "Road-450 Red, 58",
+        "Touring-3000 Yellow, 62",
+        "ML Mountain Frame - Black, 40",
+        "Touring-Panniers, Large",
+        "Mountain-100 Silver, 48"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "ProductModel",
+      "SampleValues": [
+        "Long-Sleeve Logo Jersey",
+        "ML Road Frame-W",
+        "Hydration Pack",
+        "Road-150",
+        "HL Bottom Bracket"
+      ]
+    },
+    {
+      "DataType": "nchar",
+      "Definition": null,
+      "Name": "Culture",
+      "SampleValues": [
+        "zh-cht",
+        "en    ",
+        "ar    ",
+        "th    ",
+        "fr    "
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Description",
+      "SampleValues": [
+        "Nettoie les salet\u00e9s\u00a0; dissout la graisse. Prot\u00e8ge l'environnement. Bouteille d'1\u00a0litre.",
+        "Jeu de direction de qualit\u00e9 sans filetage \u00e0 un prix abordable.",
+        "\u0e01\u0e25\u0e48\u0e2d\u0e07\u0e1c\u0e19\u0e36\u0e01\u0e2a\u0e19\u0e34\u0e17\u0e1b\u0e49\u0e2d\u0e07\u0e01\u0e31\u0e19\u0e1d\u0e38\u0e48\u0e19\u0e25\u0e30\u0e2d\u0e2d\u0e07",
+        "\u05ea\u05d0\u05d5\u05e8\u05d4 \u05d1\u05de\u05d7\u05d9\u05e8 \u05e1\u05d1\u05d9\u05e8 \u05dc\u05e8\u05db\u05d9\u05d1\u05d4 \u05dc\u05d9\u05dc\u05d9\u05ea \u05d1\u05d8\u05d5\u05d7\u05d4 \u2013 \u05e4\u05d5\u05e2\u05dc\u05ea \u05d1\u05d0\u05de\u05e6\u05e2\u05d5\u05ea \u05e1\u05d5\u05dc\u05dc\u05ea AAA",
+        "\u4fdd\u6696\u578b\u6c28\u7eb6\u7d27\u8eab\u8fd0\u52a8\u8863\u9002\u7528\u4e8e\u51ac\u5b63\u9a91\u4e58\uff1b\u65e0\u7f1d\u9e82\u76ae\u7ed3\u6784\u53ef\u5316\u89e3\u538b\u529b\u3002"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "vProductAndDescription",
+  "EntityName": null,
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription",
+  "Schema": "SalesLT"
+}

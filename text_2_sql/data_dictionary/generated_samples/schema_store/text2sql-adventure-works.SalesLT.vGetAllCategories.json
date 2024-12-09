@@ -1,0 +1,47 @@
+{
+  "Columns": [
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "ParentProductCategoryName",
+      "SampleValues": [
+        "Components",
+        "Clothing",
+        "Bikes",
+        "Accessories"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "ProductCategoryName",
+      "SampleValues": [
+        "Bib-Shorts",
+        "Hydration Packs",
+        "Touring Frames",
+        "Gloves",
+        "Pedals"
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductCategoryID",
+      "SampleValues": [
+        12,
+        32,
+        22,
+        29,
+        5
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "vGetAllCategories",
+  "EntityName": null,
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.vGetAllCategories",
+  "Schema": "SalesLT"
+}

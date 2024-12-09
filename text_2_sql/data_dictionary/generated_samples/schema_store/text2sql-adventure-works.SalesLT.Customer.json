@@ -1,0 +1,187 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "CustomerID",
+      "SampleValues": [
+        29593,
+        377,
+        29596,
+        451,
+        29805
+      ]
+    },
+    {
+      "DataType": "bit",
+      "Definition": null,
+      "Name": "NameStyle",
+      "SampleValues": [
+        false
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Title",
+      "SampleValues": [
+        "Sra.",
+        "Sr.",
+        "Ms.",
+        "Mr."
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "FirstName",
+      "SampleValues": [
+        "Imtiaz",
+        "Mihail",
+        "Cecil",
+        "Judy",
+        "Glenn"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "MiddleName",
+      "SampleValues": [
+        "Francesca",
+        "T.",
+        "P.",
+        "C.",
+        "E."
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "LastName",
+      "SampleValues": [
+        "Gehring",
+        "Valle",
+        "Desalvo",
+        "Barker",
+        "Christie"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Suffix",
+      "SampleValues": [
+        "Sr.",
+        "PhD",
+        "Jr.",
+        "IV",
+        "II"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "CompanyName",
+      "SampleValues": [
+        "Vintage Sport Boutique",
+        "The Accessories Store",
+        "Transportation Options",
+        "Fabrikam Inc., West",
+        "Valley Bicycle Specialists"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "SalesPerson",
+      "SampleValues": [
+        "adventure-works\\jillian0",
+        "adventure-works\\jae0",
+        "adventure-works\\linda3",
+        "adventure-works\\jos\u00e91",
+        "adventure-works\\garrett1"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "EmailAddress",
+      "SampleValues": [
+        "kara0@adventure-works.com",
+        "rebecca2@adventure-works.com",
+        "lola0@adventure-works.com",
+        "patricia2@adventure-works.com",
+        "blaine0@adventure-works.com"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Phone",
+      "SampleValues": [
+        "753-555-0179",
+        "1 (11) 500 555-0137",
+        "128-555-0148",
+        "394-555-0176",
+        "819-555-0186"
+      ]
+    },
+    {
+      "DataType": "varchar",
+      "Definition": null,
+      "Name": "PasswordHash",
+      "SampleValues": [
+        "pGBoWobCmo+yyzVgDnZL5z3fgTKLorCbJuofCkwniGs=",
+        "E1wwrSH3sVJUF8UlhuAF+A5UTcdr1LObJBI67CvopDA=",
+        "6lcVqEc4gGgfW6DsOks/KuDIWIP5qFsrc8sXtmcwj6E=",
+        "3A2aNKKLe47G95cy27tMj6HW1ov3nLIR530SWR/vrZ4=",
+        "BQF73YAE2cFDpeWDP0v7uA0/ZGhGgw1xxiMQqe74r7I="
+      ]
+    },
+    {
+      "DataType": "varchar",
+      "Definition": null,
+      "Name": "PasswordSalt",
+      "SampleValues": [
+        "2NEGr8A=",
+        "uFYBREA=",
+        "GR7idhc=",
+        "YuvPgz4=",
+        "WTZFkow="
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "B34DF238-E77E-4832-8184-487F0321F98F",
+        "6808B1ED-3C9A-401D-B284-9AC31166D9EB",
+        "9DB0BD27-5CE6-4F6D-8C90-A85422B86060",
+        "45A614CE-3137-4A12-8296-24048C18F320",
+        "8AA94321-8937-4950-AA00-504988E0A124"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2005-12-01 00:00:00",
+        "2006-06-01 00:00:00",
+        "2009-05-16 16:33:33.107000",
+        "2006-08-01 00:00:00",
+        "2006-03-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "Customer",
+  "EntityName": null,
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.Customer",
+  "Schema": "SalesLT"
+}

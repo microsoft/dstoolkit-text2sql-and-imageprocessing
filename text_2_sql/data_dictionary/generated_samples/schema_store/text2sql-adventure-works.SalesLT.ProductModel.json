@@ -1,0 +1,66 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductModelID",
+      "SampleValues": [
+        29,
+        6,
+        91,
+        20,
+        108
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Name",
+      "SampleValues": [
+        "LL Mountain Seat/Saddle 1",
+        "ML Mountain Frame-W",
+        "Hydration Pack",
+        "Touring Pedal",
+        "ML Road Pedal"
+      ]
+    },
+    {
+      "DataType": "xml",
+      "Definition": null,
+      "Name": "CatalogDescription",
+      "SampleValues": null
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "DFE49035-7720-4FF4-B28B-16250EE46259",
+        "AA977B32-ACD8-4C53-A560-88A02AC1954D",
+        "809668A3-D492-41FB-A196-CFE092A12AA2",
+        "2771D2D2-2E35-4C12-966E-CE9070DF6D53",
+        "F06999A1-3AA7-4E85-B8CB-049EB2C391FA"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2009-05-16 16:34:29.043000",
+        "2007-06-01 00:00:00",
+        "2006-11-20 09:56:38.273000",
+        "2009-05-16 16:34:28.980000",
+        "2009-05-16 16:34:29.010000"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "ProductModel",
+  "EntityName": null,
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.ProductModel",
+  "Schema": "SalesLT"
+}

@@ -1,0 +1,118 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "AddressID",
+      "SampleValues": [
+        485,
+        1016,
+        785,
+        1063,
+        547
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "AddressLine1",
+      "SampleValues": [
+        "Town East Center",
+        "Eastridge Mall",
+        "99433 S. Greenbay Rd.",
+        "Station E",
+        "Lake Elisnor Place"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "AddressLine2",
+      "SampleValues": [
+        "Stanford House",
+        "Box 8033",
+        "P.O. Box 803",
+        "PO Box 4023",
+        "19th Floor"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "City",
+      "SampleValues": [
+        "Beaverton",
+        "Las Cruces",
+        "Berkshire",
+        "San Jose",
+        "Liverpool"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "StateProvince",
+      "SampleValues": [
+        "Wyoming",
+        "Michigan",
+        "Manitoba",
+        "Minnesota",
+        "New Mexico"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "CountryRegion",
+      "SampleValues": [
+        "United States",
+        "United Kingdom",
+        "Canada"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "PostalCode",
+      "SampleValues": [
+        "J4Z 1C5",
+        "K4B 1S1",
+        "MK8 8DF",
+        "L4W 5J3",
+        "97005"
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "07A009B2-1421-4597-AB85-22BCE3C82B2C",
+        "FBEDD917-C269-4E36-A791-58B35F34B107",
+        "A6EFF2B6-3B11-47EF-AB7E-701E5041C71C",
+        "541CDE7C-3F3A-435F-A7B5-F30055DFBC68",
+        "476D80AE-69A0-480D-9DF3-8FD0C1095A21"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2006-03-01 00:00:00",
+        "2007-09-01 00:00:00",
+        "2005-12-01 00:00:00",
+        "2006-01-01 00:00:00",
+        "2006-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "Address",
+  "EntityName": null,
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.Address",
+  "Schema": "SalesLT"
+}

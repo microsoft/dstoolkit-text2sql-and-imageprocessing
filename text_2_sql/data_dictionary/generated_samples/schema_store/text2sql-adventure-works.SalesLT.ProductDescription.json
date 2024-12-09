@@ -1,0 +1,57 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductDescriptionID",
+      "SampleValues": [
+        1440,
+        1949,
+        1921,
+        1904,
+        1841
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Description",
+      "SampleValues": [
+        "\u0642\u0636\u064a\u0628 \u0642\u064a\u0627\u062f\u0629 \u0645\u0644\u0627\u0626\u0645 \u0644\u0643\u0627\u0641\u0629 \u0627\u0644\u0623\u063a\u0631\u0627\u0636 \u0639\u0644\u0649 \u0627\u0644\u0637\u0631\u0642 \u0627\u0644\u0645\u0645\u0647\u062f\u0629 \u0648\u063a\u064a\u0631 \u0627\u0644\u0645\u0645\u0647\u062f\u0629.",
+        "\u5b8c\u7f8e\u8bbe\u8ba1\u7684\u5168\u80fd\u578b\u81ea\u884c\u8f66\u652f\u67b6\uff0c\u9002\u7528\u4e8e\u5728\u5bb6\u4e2d\u7acb\u5730\u9a91\u4e58\u3002\u94a2\u7ed3\u6784\uff0c\u5177\u6709\u5feb\u901f\u53ef\u8c03\u7684\u56fa\u5b9a\u5939\u3002",
+        "\u05e6\u05d5\u05e8\u05d4 \u05d9\u05d9\u05d7\u05d5\u05d3\u05d9\u05ea \u05de\u05e1\u05e4\u05e7\u05ea \u05d2\u05d9\u05e9\u05d4 \u05e7\u05dc\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05dc\u05d9\u05d3\u05d9\u05d5\u05ea \u05d4\u05d4\u05d9\u05dc\u05d5\u05db\u05d9\u05dd.",
+        "\u94dd\u5408\u91d1\u8f66\u5708\u548c\u7a7a\u5fc3\u8f74\u3002",
+        "\u062a\u0631\u0643\u064a\u0628\u0629 \u0646\u064a\u0644\u0648\u0646 \u0634\u062f\u064a\u062f\u0629 \u0627\u0644\u062a\u062d\u0645\u0644 \u0645\u0636\u0627\u062f\u0629 \u0644\u0644\u0645\u0627\u0621 \u064a\u0645\u0643\u0646 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u064a\u0647\u0627 \u0628\u0633\u0647\u0648\u0644\u0629. \u0648\u0627\u0633\u0639\u0629 \u0628\u062f\u0631\u062c\u0629 \u0643\u0627\u0641\u064a\u0629 \u0644\u0631\u062d\u0644\u0627\u062a \u0639\u0637\u0644\u0629 \u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u0623\u0633\u0628\u0648\u0639."
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "5C86DA67-12AC-45CA-8FA8-B19A43C30918",
+        "FD0ED69A-540D-4FE8-8F24-DE110AE1A1A3",
+        "30B6F312-1716-4AF2-88CF-EC63FC047B18",
+        "DB560F0B-E70B-42A7-A1F5-3B7E42D3679D",
+        "2E55DCF6-FD71-4C7B-A631-1D62AE802190"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2008-03-11 10:32:17.973000",
+        "2007-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "ProductDescription",
+  "EntityName": null,
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.ProductDescription",
+  "Schema": "SalesLT"
+}

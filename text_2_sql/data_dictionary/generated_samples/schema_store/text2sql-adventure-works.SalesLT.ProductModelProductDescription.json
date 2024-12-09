@@ -1,0 +1,88 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductModelID",
+      "SampleValues": [
+        113,
+        82,
+        61,
+        2,
+        31
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductDescriptionID",
+      "SampleValues": [
+        1816,
+        1524,
+        1767,
+        1642,
+        1821
+      ]
+    },
+    {
+      "DataType": "nchar",
+      "Definition": null,
+      "Name": "Culture",
+      "SampleValues": [
+        "fr    ",
+        "th    ",
+        "he    ",
+        "en    ",
+        "zh-cht"
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "05D6DF85-8A7B-4BE0-B0F5-7AAE148AC482",
+        "8F1F70FE-F222-4F9A-88B3-EFB2AF7086A9",
+        "9639AAB3-C4BC-4923-81CE-1F693D97B075",
+        "CE3A348B-125A-4F78-AC19-50E9ABBC5953",
+        "035F5B8E-7728-4412-BA63-0CEA7CD79A6C"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2007-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [
+    "text2sql-adventure-works.SalesLT.ProductModelProductDescription -> text2sql-adventure-works.SalesLT.ProductModelProductDescription"
+  ],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "ProductModelProductDescription",
+  "EntityName": null,
+  "EntityRelationships": [
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.ProductModelProductDescription",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "ProductDescription",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.ProductModelProductDescription",
+      "ForeignKeys": [
+        {
+          "Column": "ProductDescriptionID",
+          "ForeignColumn": "ProductDescriptionID"
+        },
+        {
+          "Column": "ProductModelID",
+          "ForeignColumn": "ProductModelID"
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    }
+  ],
+  "FQN": "text2sql-adventure-works.SalesLT.ProductModelProductDescription",
+  "Schema": "SalesLT"
+}

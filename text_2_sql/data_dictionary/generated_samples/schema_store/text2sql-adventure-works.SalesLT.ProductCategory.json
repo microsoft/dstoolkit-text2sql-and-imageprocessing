@@ -1,0 +1,87 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ProductCategoryID",
+      "SampleValues": [
+        20,
+        41,
+        36,
+        16,
+        2
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": null,
+      "Name": "ParentProductCategoryID",
+      "SampleValues": [
+        4,
+        3,
+        2,
+        1
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": null,
+      "Name": "Name",
+      "SampleValues": [
+        "Pedals",
+        "Bike Stands",
+        "Accessories",
+        "Helmets",
+        "Wheels"
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": null,
+      "Name": "rowguid",
+      "SampleValues": [
+        "6D24AC07-7A84-4849-864A-865A14125BC9",
+        "D2E3F1A8-56C4-4F36-B29D-5659FC0D2789",
+        "3EF2C725-7135-4C85-9AE6-AE9A3BDD9283",
+        "43521287-4B0B-438E-B80E-D82D9AD7C9F0",
+        "43B445C8-B820-424E-A1D5-90D81DA0B46F"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": null,
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2002-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [
+    "text2sql-adventure-works.SalesLT.ProductCategory -> text2sql-adventure-works.SalesLT.ProductCategory"
+  ],
+  "Database": "text2sql-adventure-works",
+  "Definition": null,
+  "Entity": "ProductCategory",
+  "EntityName": null,
+  "EntityRelationships": [
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.ProductCategory",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "ProductCategory",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.ProductCategory",
+      "ForeignKeys": [
+        {
+          "Column": "ParentProductCategoryID",
+          "ForeignColumn": "ProductCategoryID"
+        },
+        {
+          "Column": "ProductCategoryID",
+          "ForeignColumn": "ParentProductCategoryID"
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    }
+  ],
+  "FQN": "text2sql-adventure-works.SalesLT.ProductCategory",
+  "Schema": "SalesLT"
+}

@@ -1,0 +1,439 @@
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Yellow Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Year-Round Sports", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "World of Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "World Bike Discount Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Workout Emporium", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Work and Play Association", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Wire Baskets and Parts", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Wingtip Toys", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Wholesale Parts", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Wheel Gallery", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Westside Plaza", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Westside Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Western Bike Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "West Side Mart", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Weekend Bike Tours", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Vinyl and Plastic Goods Corporation", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Vintage Sport Boutique", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Vigorous Sports Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Vigorous Exercise Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Vehicle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Vast Bike Sales and Rental", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Variety Cycling", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Valley Toy Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Valley Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Valley Bicycle Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Vale Riding Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Uttermost Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Utilitarian Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Urban Sports Emporium", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Up-To-Date Sports", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Unsurpassed Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Unique Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Unicycles, Bicycles, and Tricycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Two-Wheeled Transit Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Two-Seater Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Two Wheels Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Two Bike Shops", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Twelfth Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Tubeless Tire Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Trendy Department Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Travel Systems", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Travel Sports", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Transportation Options", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Transport Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Trailblazing Sports", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Traction Tire Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Toy Manufacturing Inc", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Town Industries", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Totes & Baskets Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Top Sports Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Top Bike Market", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Tires and Tubes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Tire Exchange", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Timely Shipping Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Thrilling Bike Tours", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Thrifty Parts and Sales", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Thorough Parts and Repair Services", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "This Area Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Third Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "The Showroom", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "The New Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "The Gear Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "The Commissary", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "The Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "The Bicycle Accessories Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "The Accessories Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Tenth Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Technical Parts Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Tandem Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Tachometers and Accessories", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Systematic Sales", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Synthetic Materials Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Swift Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sure & Reliable Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Superior Hardware Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Superb Sales and Repair", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sundry Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Summer Sports Place", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Successful Sales Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Suburban Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sturdy Toys", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Strenuous Exercise Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Stock Parts and Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Stationary Bikes and Stands", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Standard Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sports Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sports Products Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sports Merchandise", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sports Commodities", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Specialty Sports Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sparkling Paint and Finishes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "South Bike Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Some Discount Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Solid Bike Parts", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Social Activities Club", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Small Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Small Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sleek Bikes ", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sixth Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Shipping Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sheet Metal Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sharp Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Serious Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Separate Parts Corporation", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sellers of Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Security Racks and Locks Wholesalers", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Seats and Saddles Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Scratch-Resistant Finishes Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Scooters and Bikes Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Satin Finish Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Sample Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Safe Toys", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Safe Cycles Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rural Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rural Department Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rural Cycle Emporium", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rural Bicycle Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Running and Cycling Gear", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rugged Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Roving Sports", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Roadway Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Road-Way Mart", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Roadway Bike Emporium", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Road Way Sales and Rental", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Riding Excursions", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Riding Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Riding Associates", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Riders Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rewarding Activities Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Retreat Inn", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Retail Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Retail Sporting Equipment", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Retail Mall", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Retail Discount Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Retail Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Responsible Bike Dealers", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Resale Services", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Requisite Part Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rental Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Remote Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Remarkable Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Reliable Retail Center", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Regional Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Refined Department Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Red Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Recommended Bicycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Reasonable Bicycle Sales", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Real Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Raw Materials Inc", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rapid Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rampart Amusement Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Rally Master Company Inc", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Racing Toys", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Racing Partners", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Racing Bike Outlet", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Quick Parts and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Quick Delivery Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Quantity Discounts", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Purple Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Prosperous Tours", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Progressive Sports", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Professional Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Professional Cyclists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Professional Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Professional Containers and Packaging Co.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Pro Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Principal Bike Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Primary Bike Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Price-Cutter Discount Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Preferred Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Practical Bike Supply Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Plastic Parts Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Petroleum Products Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Permanent Finish Products", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Parcel Express Delivery Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Paints and Solvents Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Paint Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Outstanding Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Out-of-the-Way Hotels", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Outdoor Sports Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Outdoor Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Outdoor Aerobic Systems Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Our Sporting Goods Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Original Bicycle Supply Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Orange Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Operational Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Online Bike Warehouse", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Online Bike Sellers", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "One Bike Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Oils and Fluids Warehouse", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Official Parts Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Odometers and Accessories Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Nuts and Bolts Mfg.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Number One Bike Co.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Number 1 Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Novelty Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Non-Slip Pedal Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Nonskid Tire Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Nice Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Neighborhood Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Nearby Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Nearby Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "National Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Mountain Toy Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Mountain Bike Center", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "More Bikes!", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Modular Cycle Systems", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Moderately-Priced Bikes Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metropolitan Sports Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metropolitan Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metropolitan Bicycle Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metro Metals Co.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metro Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metro Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metro Bike Works", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metallic Paint and Overcoat Co", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metal Processing Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Metal Clearing House", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Mercantile Outlet", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Mechanical Products Ltd.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Many Bikes Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Major Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Major Sport Suppliers", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Major Cycling", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Maintenance and Repair for Bicycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Main Bicycle Services", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Mail-Order Outlet", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Mail Market", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Machines & Cycles Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Low Price Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Lots of Bikes Storehouse", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Locks Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Local Sales and Rental", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Local Hardware Factory", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Little Sports Center", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Little Bicycle Supply Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Leisure Clearing House", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Leisure Activities", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Leather Seat Factory", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Leading Sales & Repair", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Latest Sports Equipment", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Latest Accessories Sales", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Largest Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Large Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Kickstands and Accessories Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Kickstand Sellers", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Journey Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Instruments and Parts Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Initial Bike Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Impromptu Trips", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Imported and Domestic Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Immense Manufacturing Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Imaginary Toys", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Honest Repair Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Home Town Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Historic Bicycle Sales", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Highway Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Healthy Activity Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Health Spa, Limited", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Hardware Components", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Handy Bike Services", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Greater Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Great Bikes ", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Great Bicycle Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Grease and Oil Products Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Grand Sport Boutique", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Grand Industries", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Grand Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Grand Bicycle Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Good Toys", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Good Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Golf and Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Go-cart and Bike Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Global Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Gift and Toy Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Genuine Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Genial Bike Associates", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "General Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "General Riding Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "General Industries", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "General Department Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "General Cycle Storehouse", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "General Bike Corporation", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Gear-Shift Bikes Limited", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Gasless Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Futuristic Sport Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Futuristic Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Future Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fun Toys and Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fun Times Club", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Full-Service Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Frugal Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Front Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Friendly Neighborhood Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Friendly Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fleet Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Flawless Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fitness Toy Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fitness Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fitness Hotel", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fitness Department Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fitness Cycling", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "First-Rate Outlet", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "First Department Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "First Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "First Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Finish and Sealant Products", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Finer Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Finer Riding Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Finer Parts Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Finer Mart", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Finer Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fifth Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Field Trip Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Field Trip Inc", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fasteners & Bolts Outlet", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fashionable Bikes and Accessories", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Farthest Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Farthermost Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Famous Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Family's Favorite Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Family Entertainment Center", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Family Cycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fad Outlet", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Fabrikam Inc., West", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Extreme Riding Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Extras Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Extraordinary Bike Works", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Extended Tours", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Extended Bike Sales", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Express Bike Services", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Exhilarating Cycles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Exhibition Showroom", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Exertion Activities Club", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Exercise Center", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Exclusive Bicycle Mart", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Exceptional Cycle Services", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Essential Bike Works", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Engineered Bike Systems", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Elite Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Eighth Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Efficient Cycling", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Economy Center", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Economy Bikes Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Eastside Parts Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Eastside Department Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Downtown Hotel", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Downhill Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "District Mall", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Distinctive Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Distant Inn", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Discount Tours", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Discount Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Designer Department Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Designated Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Demand Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Cycling Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Cycles Wholesaler & Mfg.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Cycle Merchants", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Cycle Clearance", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Custom Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Custom Accessories Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Curbside Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Cross-Country Riding Supplies", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Courteous Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Countryside Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Corner Bicycle Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Convenient Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Contoso, Ltd.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Consumer Equipment", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Consolidated Messenger", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Commuter Bicycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Commercial Sporting Goods", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Commerce Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Commendable Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Coho Sports", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Coalition Bike Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Closest Bicycle Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Closeout Boutique", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Client Discount Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Citywide Service and Repair", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "City Manufacturing", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "City Cycling", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Chic Department Stores", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Channel Outlet", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Certified Sports Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Certified Bicycle Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Central Discount Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Central Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Center Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Catalog Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Cash & Carry Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Capable Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Camping and Sports Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bulk Discount Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Brown Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Brightwork Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Brakes and Gears", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bold Bike Accessories", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Blue Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Black Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bikes for Two", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bikes for Kids and Adults", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bikes and Motorbikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bike World", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bike Universe", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bike Experts", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bike Dealers Association", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Big-Time Bike Store", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Big Cycle Mall", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bicycle Merchandise Warehouse", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bicycle Lines Distributors", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Bicycle Accessories and Kits", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Best o' Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Beneficial Exercises and Activities", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Basic Sports Equipment", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Basic Bike Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Authorized Bike Sales and Rental", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Authentic Sales and Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Associated Bikes", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Area Sheet Metal Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Area Bike Accessories", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Another Sporting Goods Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Another Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Alternative Vehicles", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Alpine Ski House", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "All Seasons Sports Supply", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "All Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Affordable Sports Equipment", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Aerobic Exercise Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Advanced Bike Components", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Active Systems", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Active Life Toys", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Action Bicycle Specialists", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "Acceptable Sales & Service", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "A Typical Bike Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "A Great Bicycle Company", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "A Cycle Shop", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer", "Value": "A Bike Store", "Synonyms": []}

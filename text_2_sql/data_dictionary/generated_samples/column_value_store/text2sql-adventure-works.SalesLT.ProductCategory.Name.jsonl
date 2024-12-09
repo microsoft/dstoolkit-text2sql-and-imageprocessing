@@ -1,0 +1,41 @@
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Wheels", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Vests", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Touring Frames", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Touring Bikes", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Tires and Tubes", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Tights", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Socks", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Shorts", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Saddles", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Road Frames", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Road Bikes", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Pumps", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Pedals", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Panniers", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Mountain Frames", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Mountain Bikes", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Locks", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Lights", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Jerseys", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Hydration Packs", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Helmets", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Headsets", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Handlebars", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Gloves", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Forks", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Fenders", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Derailleurs", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Cranksets", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Components", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Clothing", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Cleaners", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Chains", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Caps", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Brakes", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Bottom Brackets", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Bottles and Cages", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Bikes", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Bike Stands", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Bike Racks", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Bib-Shorts", "Synonyms": []}
+{"Entity": "ProductCategory", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.ProductCategory", "Value": "Accessories", "Synonyms": []}
