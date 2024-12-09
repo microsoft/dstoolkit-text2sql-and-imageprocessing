@@ -2,67 +2,67 @@
   "Columns": [
     {
       "DataType": "int",
-      "Definition": null,
+      "Definition": "The AddressID column in the Address entity contains unique identifier codes for each address entry. These values are numeric and increment as new addresses are added to the database. The primary purpose of this column is to provide a distinct ID for each address to facilitate accurate referencing and data management. This column ensures that each address can be uniquely identified within the Address entity.",
       "Name": "AddressID",
       "SampleValues": [
-        485,
-        1016,
-        785,
-        1063,
-        547
+        477,
+        473,
+        866,
+        1053,
+        1073
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The AddressLine1 column in the Address entity contains the primary address information for various locations. This information may include street addresses, building names, suite numbers, and sometimes business names. The values in this column have diverse formats and often include a combination of numeric and textual elements, reflecting different types of addresses such as residential, business, or commercial locations. The variety in the format suggests that it accommodates a wide range of address conventions and structures.",
       "Name": "AddressLine1",
       "SampleValues": [
-        "Town East Center",
-        "Eastridge Mall",
-        "99433 S. Greenbay Rd.",
-        "Station E",
-        "Lake Elisnor Place"
+        "Sports Stores @ Tuscola",
+        "Butterfield Hse, 7-251 Chapel St",
+        "25900-700-9th Ave S.W.",
+        "30025 Wayburne Drive, Suite 275",
+        "Oxnard Outlet"
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The AddressLine2 column in the Address entity contains additional address information that complements the primary street address. This column typically includes suite numbers, PO Box numbers, building names, or other specific location identifiers. The values do not follow a strict format and can vary widely in structure to provide detailed locational data essential for accurate mail delivery or identification within buildings.",
       "Name": "AddressLine2",
       "SampleValues": [
-        "Stanford House",
-        "Box 8033",
-        "P.O. Box 803",
+        "Ste 1071",
         "PO Box 4023",
-        "19th Floor"
+        "Stanford House",
+        "Raven House, Kingsgate",
+        "Box 8033"
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The City column in the Address entity contains the names of various cities. The values indicate specific locations and can be names of cities from different countries or regions. The city names might include a combination of commonly known cities and less familiar ones, reflecting a diverse geographical distribution. The data in this column can be used to identify and filter addresses based on city names.",
       "Name": "City",
       "SampleValues": [
-        "Beaverton",
-        "Las Cruces",
-        "Berkshire",
-        "San Jose",
-        "Liverpool"
+        "Woodinville",
+        "Milwaukie",
+        "West Sussex",
+        "Brampton",
+        "Seattle"
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The StateProvince column in the Address entity contains the names of states, provinces, or regions associated with addresses. The values include a mix of U.S. states, Canadian provinces, and regions from other countries. This column features geographical subdivisions that vary by country and is intended to specify the specific state or province within the address. The data does not follow any specific code format but rather uses the full names of the states, provinces, or regions.",
       "Name": "StateProvince",
       "SampleValues": [
-        "Wyoming",
-        "Michigan",
-        "Manitoba",
         "Minnesota",
-        "New Mexico"
+        "Utah",
+        "British Columbia",
+        "Manitoba",
+        "England"
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The CountryRegion column in the Address entity contains the names of countries or regions associated with an address. The values are in plain text and represent the full name of the country or region. This column is used to identify the geographic area for which the address is recorded.",
       "Name": "CountryRegion",
       "SampleValues": [
         "United States",
@@ -72,46 +72,46 @@
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The PostalCode column in the Address entity contains a variety of postal codes in different formats. The values include numerical codes typically found in US addresses as well as alphanumeric codes that are common in Canadian addresses. This suggests that the postal codes are designed to handle a diverse range of geographic areas and could follow different national postal systems. The column does not adhere to a single format and can contain purely numeric or alphanumeric codes.",
       "Name": "PostalCode",
       "SampleValues": [
-        "J4Z 1C5",
-        "K4B 1S1",
-        "MK8 8DF",
-        "L4W 5J3",
-        "97005"
+        "78664",
+        "85225",
+        "92335",
+        "J1G 2R3",
+        "L4N"
       ]
     },
     {
       "DataType": "uniqueidentifier",
-      "Definition": null,
+      "Definition": "The rowguid column in the Address entity contains a list of unique identifier values in the GUID (Globally Unique Identifier) format. Each value is a 36-character alphanumeric string that includes hyphens and follows the conventional pattern of 8-4-4-4-12 characters. This column is used to uniquely identify each record in the Address entity, ensuring that each entry can be individually referenced and differentiated from others.",
       "Name": "rowguid",
       "SampleValues": [
-        "07A009B2-1421-4597-AB85-22BCE3C82B2C",
-        "FBEDD917-C269-4E36-A791-58B35F34B107",
-        "A6EFF2B6-3B11-47EF-AB7E-701E5041C71C",
-        "541CDE7C-3F3A-435F-A7B5-F30055DFBC68",
-        "476D80AE-69A0-480D-9DF3-8FD0C1095A21"
+        "1A398C1B-2085-4F6D-A6EB-56493855C5D1",
+        "A9B5A261-2463-4489-9951-EACFA29A8231",
+        "F79532D7-38E9-42EC-8EA4-C9D7E1C13C12",
+        "8CAF52B2-D3E2-4A5F-A704-874768007F38",
+        "CB1392F5-FCB9-4CF5-B4C9-33FAFB876C3D"
       ]
     },
     {
       "DataType": "datetime",
-      "Definition": null,
+      "Definition": "The ModifiedDate column in the Address entity contains timestamps indicating when the address record was last updated. The values in this column follow the 'YYYY-MM-DD HH:MM:SS' format, representing year, month, day, hours, minutes, and seconds. This column helps track changes to the address information over time for auditing and historical purposes. Each record in the address table will have a corresponding ModifiedDate value to indicate the most recent modification.",
       "Name": "ModifiedDate",
       "SampleValues": [
-        "2006-03-01 00:00:00",
-        "2007-09-01 00:00:00",
+        "2007-03-01 00:00:00",
         "2005-12-01 00:00:00",
-        "2006-01-01 00:00:00",
-        "2006-06-01 00:00:00"
+        "2006-03-01 00:00:00",
+        "2006-09-01 00:00:00",
+        "2006-07-01 00:00:00"
       ]
     }
   ],
   "CompleteEntityRelationshipsGraph": [],
   "Database": "text2sql-adventure-works",
-  "Definition": null,
+  "Definition": "The Address entity stores detailed location information such as address lines, city, state or province, country or region, and postal code. It is used to uniquely identify and manage specific physical locations. This entity can answer questions related to where customers, employees, or facilities are located, and it can facilitate geographic analysis, shipping logistics, and regional planning. Additionally, it tracks modifications to address records, ensuring data accuracy over time.",
   "Entity": "Address",
-  "EntityName": null,
+  "EntityName": "Location Information",
   "EntityRelationships": [],
   "FQN": "text2sql-adventure-works.SalesLT.Address",
   "Schema": "SalesLT"

@@ -2,43 +2,43 @@
   "Columns": [
     {
       "DataType": "int",
-      "Definition": null,
+      "Definition": "The ProductDescriptionID column in the ProductDescription entity contains unique integer identifiers assigned to each product description. These IDs are used to distinguish and reference specific product descriptions within the database. The values in this column are sequentially generated numbers and serve as primary keys for the product descriptions.",
       "Name": "ProductDescriptionID",
       "SampleValues": [
-        1440,
-        1949,
-        1921,
-        1904,
-        1841
+        1989,
+        1636,
+        1473,
+        1591,
+        1401
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The Description column in the ProductDescription entity contains textual information providing details about various products. It includes a mix of languages such as Hebrew, Arabic, English, and French, suggesting it supports multiple languages to describe the products. The descriptions often provide technical details, materials used, and product features, such as design, performance, and usage. This column helps customers understand the unique aspects and benefits of the products.",
       "Name": "Description",
       "SampleValues": [
-        "\u0642\u0636\u064a\u0628 \u0642\u064a\u0627\u062f\u0629 \u0645\u0644\u0627\u0626\u0645 \u0644\u0643\u0627\u0641\u0629 \u0627\u0644\u0623\u063a\u0631\u0627\u0636 \u0639\u0644\u0649 \u0627\u0644\u0637\u0631\u0642 \u0627\u0644\u0645\u0645\u0647\u062f\u0629 \u0648\u063a\u064a\u0631 \u0627\u0644\u0645\u0645\u0647\u062f\u0629.",
-        "\u5b8c\u7f8e\u8bbe\u8ba1\u7684\u5168\u80fd\u578b\u81ea\u884c\u8f66\u652f\u67b6\uff0c\u9002\u7528\u4e8e\u5728\u5bb6\u4e2d\u7acb\u5730\u9a91\u4e58\u3002\u94a2\u7ed3\u6784\uff0c\u5177\u6709\u5feb\u901f\u53ef\u8c03\u7684\u56fa\u5b9a\u5939\u3002",
-        "\u05e6\u05d5\u05e8\u05d4 \u05d9\u05d9\u05d7\u05d5\u05d3\u05d9\u05ea \u05de\u05e1\u05e4\u05e7\u05ea \u05d2\u05d9\u05e9\u05d4 \u05e7\u05dc\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05dc\u05d9\u05d3\u05d9\u05d5\u05ea \u05d4\u05d4\u05d9\u05dc\u05d5\u05db\u05d9\u05dd.",
-        "\u94dd\u5408\u91d1\u8f66\u5708\u548c\u7a7a\u5fc3\u8f74\u3002",
-        "\u062a\u0631\u0643\u064a\u0628\u0629 \u0646\u064a\u0644\u0648\u0646 \u0634\u062f\u064a\u062f\u0629 \u0627\u0644\u062a\u062d\u0645\u0644 \u0645\u0636\u0627\u062f\u0629 \u0644\u0644\u0645\u0627\u0621 \u064a\u0645\u0643\u0646 \u0627\u0644\u0648\u0635\u0648\u0644 \u0625\u0644\u064a\u0647\u0627 \u0628\u0633\u0647\u0648\u0644\u0629. \u0648\u0627\u0633\u0639\u0629 \u0628\u062f\u0631\u062c\u0629 \u0643\u0627\u0641\u064a\u0629 \u0644\u0631\u062d\u0644\u0627\u062a \u0639\u0637\u0644\u0629 \u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u0623\u0633\u0628\u0648\u0639."
+        "\u05de\u05e1\u05d2\u05e8\u05ea \u05e7\u05dc\u05ea \u05de\u05e9\u05e7\u05dc \u05de\u05d0\u05dc\u05d5\u05de\u05d9\u05e0\u05d9\u05d5\u05dd \u05d7\u05e8\u05d5\u05e5 \u05de\u05e1\u05e4\u05e7\u05ea \u05ea\u05e0\u05d5\u05d7\u05ea \u05e8\u05db\u05d9\u05d1\u05d4 \u05d6\u05e7\u05d5\u05e4\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05dc\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea \u05d1\u05ea\u05d5\u05da \u05d4\u05e2\u05d9\u05e8. \u05d4\u05e2\u05d9\u05e6\u05d5\u05d1 \u05d4\u05d7\u05d3\u05e9\u05e0\u05d9 \u05e9\u05dc\u05e0\u05d5 \u05de\u05e1\u05e4\u05e7 \u05e0\u05d5\u05d7\u05d5\u05ea \u05de\u05e8\u05d1\u05d9\u05ea.",
+        "\u0634\u0648\u0643\u0629 \u0637\u0631\u064a\u0642 \u0645\u0627\u0633\u0643\u0629 \u0644\u0644\u0639\u062c\u0644\u0629 \u0627\u0644\u0623\u0645\u0627\u0645\u064a\u0629 \u0645\u0646 \u0627\u0644\u0643\u0631\u0628\u0648\u0646 \u0639\u0627\u0644\u064a\u0629 \u0627\u0644\u0623\u062f\u0627\u0621 \u0630\u0627\u062a \u0634\u0639\u0628\u062a\u064a\u0646 \u0645\u0642\u0648\u0633\u064a\u0646.",
+        "Aluminum alloy cups and a hollow axle.",
+        "Unisex long-sleeve AWC logo microfiber cycling jersey",
+        "Cuvettes en alliage d'aluminium et axe creux."
       ]
     },
     {
       "DataType": "uniqueidentifier",
-      "Definition": null,
+      "Definition": "The rowguid column in the ProductDescription entity contains unique identifier values in the form of UUIDs (Universally Unique Identifiers). These values are 128-bit numbers represented as hexadecimal strings in the standard 8-4-4-4-12 format, such as 690C4CB1-B9FA-48C1-8DF0-7F8644A72EDF. The purpose of this column is to ensure that each record in the ProductDescription entity can be uniquely identified across different systems.",
       "Name": "rowguid",
       "SampleValues": [
-        "5C86DA67-12AC-45CA-8FA8-B19A43C30918",
-        "FD0ED69A-540D-4FE8-8F24-DE110AE1A1A3",
-        "30B6F312-1716-4AF2-88CF-EC63FC047B18",
-        "DB560F0B-E70B-42A7-A1F5-3B7E42D3679D",
-        "2E55DCF6-FD71-4C7B-A631-1D62AE802190"
+        "690C4CB1-B9FA-48C1-8DF0-7F8644A72EDF",
+        "DCBC8264-C4D7-4B04-9531-92AB4C868C10",
+        "9AC02C25-2DC2-410A-85E5-D65CE41126B4",
+        "BAF38C0E-69BF-4F6C-805A-C7C1C6E9056A",
+        "32FDCA7F-17DD-40B8-8984-6D6EBAE9759D"
       ]
     },
     {
       "DataType": "datetime",
-      "Definition": null,
+      "Definition": "The ModifiedDate column in the ProductDescription entity contains timestamps indicating the date and time when the product description was last updated. The values follow the standard SQL datetime format 'YYYY-MM-DD HH:MM:SS.SSSSSS'. This information is used to track changes and updates to product description records over time.",
       "Name": "ModifiedDate",
       "SampleValues": [
         "2008-03-11 10:32:17.973000",
@@ -48,9 +48,9 @@
   ],
   "CompleteEntityRelationshipsGraph": [],
   "Database": "text2sql-adventure-works",
-  "Definition": null,
+  "Definition": "The ProductDescription entity contains detailed descriptions of products. It includes unique identifiers for each product description, a textual description, a globally unique identifier, and the date when the description was last modified. This entity is useful for answering questions related to product details, tracking modifications to product descriptions, and uniquely identifying each product description for reference purposes.",
   "Entity": "ProductDescription",
-  "EntityName": null,
+  "EntityName": "'Product Descriptions'",
   "EntityRelationships": [],
   "FQN": "text2sql-adventure-works.SalesLT.ProductDescription",
   "Schema": "SalesLT"

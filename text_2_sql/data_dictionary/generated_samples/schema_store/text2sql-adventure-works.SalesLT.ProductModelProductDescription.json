@@ -2,55 +2,55 @@
   "Columns": [
     {
       "DataType": "int",
-      "Definition": null,
+      "Definition": "The ProductModelID column in the ProductModelProductDescription entity contains unique numeric identifiers for different product models. These IDs help to establish relationships between product models and their descriptions. The values are integers and appear to be sequential but not necessarily continuous. This column is used to link the product model data with corresponding description data in the database.",
       "Name": "ProductModelID",
       "SampleValues": [
-        113,
-        82,
-        61,
-        2,
-        31
+        6,
+        118,
+        23,
+        55,
+        3
       ]
     },
     {
       "DataType": "int",
-      "Definition": null,
+      "Definition": "The ProductDescriptionID column in the ProductModelProductDescription entity contains unique identifier values for each product description. These values are numeric and serve as primary keys to link the product model with its corresponding description. The IDs are used to ensure each product description can be uniquely and accurately referenced within the database.",
       "Name": "ProductDescriptionID",
       "SampleValues": [
-        1816,
-        1524,
-        1767,
-        1642,
-        1821
+        1855,
+        1906,
+        1391,
+        1778,
+        1718
       ]
     },
     {
       "DataType": "nchar",
-      "Definition": null,
+      "Definition": "The Culture column in the ProductModelProductDescription entity contains codes representing different language and regional cultures. These codes are typically in two-letter ISO 639-1 format for language identification, such as 'en' for English or 'fr' for French, and sometimes include additional information for specific regional or script variations, such as 'zh-cht' for Traditional Chinese. The column is used to specify the cultural context of the product descriptions.",
       "Name": "Culture",
       "SampleValues": [
-        "fr    ",
-        "th    ",
-        "he    ",
         "en    ",
-        "zh-cht"
+        "he    ",
+        "fr    ",
+        "zh-cht",
+        "ar    "
       ]
     },
     {
       "DataType": "uniqueidentifier",
-      "Definition": null,
+      "Definition": "The rowguid column in the ProductModelProductDescription entity contains unique identifier values for each row in a GUID (Globally Unique Identifier) format. This format consists of hexadecimal digits separated by hyphens, ensuring each value is unique across tables, databases, and servers. The column serves as a primary key or as a unique constraint to identify records distinctly within the table. This helps in maintaining data integrity and consistency, especially during data synchronization and replication.",
       "Name": "rowguid",
       "SampleValues": [
-        "05D6DF85-8A7B-4BE0-B0F5-7AAE148AC482",
-        "8F1F70FE-F222-4F9A-88B3-EFB2AF7086A9",
-        "9639AAB3-C4BC-4923-81CE-1F693D97B075",
-        "CE3A348B-125A-4F78-AC19-50E9ABBC5953",
-        "035F5B8E-7728-4412-BA63-0CEA7CD79A6C"
+        "56981E78-1FF2-43A2-926B-A8EA7F84A431",
+        "4BA2292E-5D33-4106-8032-AA6B5EF78D28",
+        "D551D929-4E57-4F6B-96DF-986D417D2673",
+        "42A2ACB5-6DC4-4A22-8B49-1BDE15867327",
+        "60C7A0E4-3649-4318-B5DD-7FA717F47D9C"
       ]
     },
     {
       "DataType": "datetime",
-      "Definition": null,
+      "Definition": "The ModifiedDate column in the ProductModelProductDescription entity contains timestamps indicating when the record was last updated. The values are stored in a datetime format and typically include both the date and time components. This information is crucial for tracking changes and maintaining data integrity within the entity.",
       "Name": "ModifiedDate",
       "SampleValues": [
         "2007-06-01 00:00:00"
@@ -61,9 +61,9 @@
     "text2sql-adventure-works.SalesLT.ProductModelProductDescription -> text2sql-adventure-works.SalesLT.ProductModelProductDescription"
   ],
   "Database": "text2sql-adventure-works",
-  "Definition": null,
+  "Definition": "The ProductModelProductDescription entity represents the relationship between product models and their descriptions within a specific culture or language. It contains information that links product models to their respective descriptions and assigns a specific cultural context, facilitating localization and internationalization of product information. This entity can be used to answer questions about which descriptions are associated with a given product model and how these descriptions vary across different cultures. Additionally, it can provide insights into the most recent modifications made to product descriptions.",
   "Entity": "ProductModelProductDescription",
-  "EntityName": null,
+  "EntityName": "Product Model and Description Information",
   "EntityRelationships": [
     {
       "FQN": "text2sql-adventure-works.SalesLT.ProductModelProductDescription",

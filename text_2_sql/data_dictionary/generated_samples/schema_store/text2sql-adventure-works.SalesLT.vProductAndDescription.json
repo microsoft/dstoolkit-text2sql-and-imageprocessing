@@ -2,70 +2,70 @@
   "Columns": [
     {
       "DataType": "int",
-      "Definition": null,
+      "Definition": "The ProductID column contains unique numeric identifiers for products. Each value in this column represents a distinct product within the vProductAndDescription entity. The values are integers and do not follow a specific sequential order. This column is used to uniquely distinguish one product from another in the dataset.",
       "Name": "ProductID",
       "SampleValues": [
-        817,
-        710,
-        798,
-        993,
-        781
+        966,
+        813,
+        716,
+        890,
+        848
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The Name column in the vProductAndDescription entity contains the product names and descriptions in a retail or inventory database. The values include various product categories such as apparel, accessories, and bicycle components. The naming convention often includes the item type, color, and size. This column helps identify and differentiate products within the inventory by providing a concise, descriptive name for each item.",
       "Name": "Name",
       "SampleValues": [
-        "Road-450 Red, 58",
-        "Touring-3000 Yellow, 62",
-        "ML Mountain Frame - Black, 40",
-        "Touring-Panniers, Large",
-        "Mountain-100 Silver, 48"
+        "Racing Socks, M",
+        "Road-650 Black, 48",
+        "HL Road Frame - Black, 62",
+        "Long-Sleeve Logo Jersey, L",
+        "ML Bottom Bracket"
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The ProductModel column in the vProductAndDescription entity contains the names of various product models. The values typically include a series of letters followed by descriptive terms related to specific parts of a product, such as \"Seat/Saddle,\" \"Frame,\" \"Rear Wheel,\" and \"Handlebars.\" The prefixes like ML, HL, and LL seem to indicate a categorization or coding system pertaining to the product model types. These descriptive product model names are used for identification and differentiation of the various components and configurations within the product catalog.",
       "Name": "ProductModel",
       "SampleValues": [
-        "Long-Sleeve Logo Jersey",
-        "ML Road Frame-W",
-        "Hydration Pack",
-        "Road-150",
-        "HL Bottom Bracket"
+        "ML Mountain Seat/Saddle 2",
+        "HL Mountain Frame",
+        "LL Mountain Rear Wheel",
+        "HL Mountain Handlebars",
+        "LL Touring Seat/Saddle"
       ]
     },
     {
       "DataType": "nchar",
-      "Definition": null,
+      "Definition": "The Culture column in the vProductAndDescription entity contains language and locale codes that are used to define the cultural context for product descriptions. These codes typically follow the IETF language tag format, which can include a language subtag followed by a region subtag. Examples from the provided values include 'zh-cht' for Chinese (Traditional), 'ar' for Arabic, 'th' for Thai, 'he' for Hebrew, and 'en' for English. This column helps in identifying the appropriate language and locale for displaying product information to users from different cultural backgrounds.",
       "Name": "Culture",
       "SampleValues": [
         "zh-cht",
-        "en    ",
         "ar    ",
         "th    ",
-        "fr    "
+        "he    ",
+        "en    "
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": null,
+      "Definition": "The Description column in the vProductAndDescription entity contains detailed textual descriptions of various products. These descriptions are multilingual, featuring content in languages such as Hebrew, Arabic, Chinese, French, and English. The descriptions often include details about the materials, design, and performance features of the products, providing comprehensive information aimed at potential customers. The content reflects varied levels of technical detail and marketing language to describe product attributes and benefits.",
       "Name": "Description",
       "SampleValues": [
-        "Nettoie les salet\u00e9s\u00a0; dissout la graisse. Prot\u00e8ge l'environnement. Bouteille d'1\u00a0litre.",
-        "Jeu de direction de qualit\u00e9 sans filetage \u00e0 un prix abordable.",
-        "\u0e01\u0e25\u0e48\u0e2d\u0e07\u0e1c\u0e19\u0e36\u0e01\u0e2a\u0e19\u0e34\u0e17\u0e1b\u0e49\u0e2d\u0e07\u0e01\u0e31\u0e19\u0e1d\u0e38\u0e48\u0e19\u0e25\u0e30\u0e2d\u0e2d\u0e07",
-        "\u05ea\u05d0\u05d5\u05e8\u05d4 \u05d1\u05de\u05d7\u05d9\u05e8 \u05e1\u05d1\u05d9\u05e8 \u05dc\u05e8\u05db\u05d9\u05d1\u05d4 \u05dc\u05d9\u05dc\u05d9\u05ea \u05d1\u05d8\u05d5\u05d7\u05d4 \u2013 \u05e4\u05d5\u05e2\u05dc\u05ea \u05d1\u05d0\u05de\u05e6\u05e2\u05d5\u05ea \u05e1\u05d5\u05dc\u05dc\u05ea AAA",
-        "\u4fdd\u6696\u578b\u6c28\u7eb6\u7d27\u8eab\u8fd0\u52a8\u8863\u9002\u7528\u4e8e\u51ac\u5b63\u9a91\u4e58\uff1b\u65e0\u7f1d\u9e82\u76ae\u7ed3\u6784\u53ef\u5316\u89e3\u538b\u529b\u3002"
+        "\u05db\u05d9\u05e1\u05d5\u05d9\u05d9\u05dd \u05de\u05e1\u05d2\u05e1\u05d5\u05d2\u05ea \u05d0\u05dc\u05d5\u05de\u05d9\u05e0\u05d9\u05d5\u05dd \u05d5\u05e6\u05d9\u05e8 \u05d7\u05dc\u05d5\u05dc.",
+        "\u064a\u0648\u0641\u0631 \u0647\u064a\u0643\u0644 \u0627\u0644\u0623\u0644\u0648\u0645\u0646\u064a\u0648\u0645 \u0633\u0645\u064a\u0643 \u0627\u0644\u0623\u0637\u0631\u0627\u0641 \u062e\u0641\u064a\u0641 \u0627\u0644\u0648\u0632\u0646 \u0648\u0636\u0639 \u0642\u064a\u0627\u062f\u0629 \u0623\u0643\u062b\u0631 \u0627\u0646\u062a\u0635\u0627\u0628\u064b\u0627 \u0623\u062b\u0646\u0627\u0621 \u0627\u0644\u0642\u064a\u0627\u0645 \u0628\u0631\u062d\u0644\u0627\u062a \u0641\u064a \u0623\u0631\u062c\u0627\u0621 \u0627\u0644\u0628\u0644\u062f\u0629. \u064a\u0648\u0641\u0631 \u062a\u0635\u0645\u064a\u0645\u0646\u0627 \u0627\u0644\u0627\u0628\u062a\u0643\u0627\u0631\u064a \u0623\u0639\u0644\u0649 \u062f\u0631\u062c\u0627\u062a \u0627\u0644\u0631\u0627\u062d\u0629.",
+        "\u9002\u7528\u4e8e\u4e00\u822c\u548c\u9ad8\u7ea7\u9a91\u4e58\u8005\u7684\u5907\u7528\u5c71\u5730\u8f66\u8f6e\u3002",
+        "Notre cadre en aluminium plus l\u00e9ger et de qualit\u00e9 sup\u00e9rieure fabriqu\u00e9 \u00e0 partir du tout dernier alliage\u00a0; cadre soud\u00e9 et trait\u00e9 \u00e0 chaud pour une meilleure r\u00e9sistance. Le r\u00e9sultat d'une conception innovante pour un confort et des performances maximum.",
+        "High-performance mountain replacement wheel."
       ]
     }
   ],
   "CompleteEntityRelationshipsGraph": [],
   "Database": "text2sql-adventure-works",
-  "Definition": null,
+  "Definition": "The vProductAndDescription entity provides a comprehensive view of products along with their descriptions in various cultures. It includes information on product IDs, names, associated product models, and descriptions tailored to different cultural contexts. This entity is useful for answering questions related to product identification, multilingual product information, and the relationship between products and their models. It is particularly helpful for understanding how products are described across different market segments.",
   "Entity": "vProductAndDescription",
-  "EntityName": null,
+  "EntityName": "Product Information and Descriptions",
   "EntityRelationships": [],
   "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription",
   "Schema": "SalesLT"

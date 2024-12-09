@@ -143,6 +143,9 @@ class ColumnItem(BaseModel):
     ):
         initial_entry = entity.value_store_entry(excluded_fields_for_database_engine)
 
+        initial_entry["FQN"] = f"{entity.fqn}.{self.name}"
+
+        initial_entry["Column"] = self.name
         initial_entry["Value"] = distinct_value
         initial_entry["Synonyms"] = []
         return initial_entry
@@ -234,7 +237,7 @@ class DataDictionaryCreator(ABC):
         excluded_entities: list[str] = None,
         excluded_schemas: list[str] = None,
         single_file: bool = False,
-        generate_definitions: bool = False,
+        generate_definitions: bool = True,
         output_directory: str = None,
     ):
         """A method to initialize the DataDictionaryCreator class.
