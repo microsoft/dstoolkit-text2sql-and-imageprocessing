@@ -25,6 +25,8 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
 
         self.open_ai_connector = ConnectorFactory.get_open_ai_connector()
 
+        self.sql_connector = ConnectorFactory.get_database_connector()
+
         system_prompt = load("sql_schema_selection_agent")["system_message"]
 
         self.system_prompt = Template(system_prompt).render(kwargs)
@@ -75,7 +77,7 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
             logging.info(f"Loaded entity result: {loaded_entity_result}")
 
             entity_search_tasks.append(
-                self.ai_search_connector.get_entity_schemas(
+                self.sql_connector.get_entity_schemas(
                     " ".join(loaded_entity_result["entities"]), as_json=False
                 )
             )

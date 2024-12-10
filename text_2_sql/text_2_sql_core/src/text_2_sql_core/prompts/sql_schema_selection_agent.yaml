@@ -17,12 +17,14 @@ system_message:
 
     3. Extract the possible filter conditions from the user's question. Only extract filter conditions that would be a string representation. Do not extract filter conditions that would be numerical or date values.
 
+    4. Make sure to expand any acronyms or abbreviations in the user's question to their full form in addition to the acronyms.
+
   For example:
     - If the user's question is 'Show me the list of employees in the HR department employed during 2008?', you would extract the key terms 'employees', 'HR department' and 'year'.
 
     - You would then generate the possible entities these key terms might belong to e.g. 'people', 'employees', 'departments', 'teams', 'date', 'year'.
 
-    - You would also extract the filter condition 'HR' and 'HR Department' but not 2008. For example, 'HR Department' would be a filter condition, but '2008' would not as this is a DateTime value.
+    - You would also extract the filter condition 'HR', 'HR Department', 'Human Resources', 'Human Resources Department' but not 2008. For example, 'HR Department' would be a filter condition, but '2008' would not as this is a DateTime value.
 
   Output Info:
     Return the list of possible entities that the key terms might belong to in the following format:

@@ -51,6 +51,29 @@ class SqlConnector(ABC):
             list[dict]: The results of the SQL query.
         """
 
+    @abstractmethod
+    async def get_entity_schemas(
+        self,
+        text: Annotated[
+            str,
+            "The text to run a semantic search against. Relevant entities will be returned.",
+        ],
+        excluded_entities: Annotated[
+            list[str],
+            "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
+        ] = [],
+        as_json: bool = True,
+    ) -> str:
+        """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
+
+        Args:
+        ----
+            text (str): The text to run the search against.
+
+        Returns:
+            str: The schema of the views or tables in JSON format.
+        """
+
     async def query_execution_with_limit(
         self,
         sql_query: Annotated[

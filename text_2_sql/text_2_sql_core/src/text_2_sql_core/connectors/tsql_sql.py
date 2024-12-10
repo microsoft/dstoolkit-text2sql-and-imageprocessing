@@ -5,6 +5,7 @@ import aioodbc
 from typing import Annotated
 import os
 import logging
+import json
 
 
 class TSQLSqlConnector(SqlConnector):
@@ -48,3 +49,37 @@ class TSQLSqlConnector(SqlConnector):
 
         logging.debug("Results: %s", results)
         return results
+
+    async def get_entity_schemas(
+        self,
+        text: Annotated[
+            str,
+            "The text to run a semantic search against. Relevant entities will be returned.",
+        ],
+        excluded_entities: Annotated[
+            list[str],
+            "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
+        ] = [],
+        as_json: bool = True,
+    ) -> str:
+        """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
+
+        Args:
+        ----
+            text (str): The text to run the search against.
+
+        Returns:
+            str: The schema of the views or tables in JSON format.
+        """
+
+        schemas = await self.ai_search_connector.get_entity_schemas(
+            text, excluded_entities
+        )
+
+        for schema in schemas:
+            schema["SelectFromEntity"] = ".".join([schema["Schema"], schema["Entity"]])
+
+        if as_json:
+            return json.dumps(schemas, default=str)
+        else:
+            return schemas

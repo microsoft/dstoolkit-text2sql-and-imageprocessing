@@ -90,16 +90,27 @@ class AISearchConnector:
             async for result in results.by_page():
                 async for item in result:
                     if (
-                        minimum_score is not None
-                        and item["@search.reranker_score"] < minimum_score
+                        "@search.reranker_score" in item
+                        and item["@search.reranker_score"] is not None
                     ):
+                        score = item["@search.reranker_score"]
+                    elif "@search.score" in item and item["@search.score"] is not None:
+                        score = item["@search.score"]
+                    else:
+                        raise Exception("No score found in the search results.")
+
+                    if minimum_score is not None and score < minimum_score:
                         continue
 
                     if include_scores is False:
-                        del item["@search.reranker_score"]
-                        del item["@search.score"]
-                        del item["@search.highlights"]
-                        del item["@search.captions"]
+                        if "@search.reranker_score" in item:
+                            del item["@search.reranker_score"]
+                        if "@search.score" in item:
+                            del item["@search.score"]
+                        if "@search.highlights" in item:
+                            del item["@search.highlights"]
+                        if "@search.captions" in item:
+                            del item["@search.captions"]
 
                     logging.info("Item: %s", item)
                     combined_results.append(item)
@@ -131,19 +142,31 @@ class AISearchConnector:
         text = " ".join([f"{word}~" for word in text.split()])
         values = await self.run_ai_search_query(
             text,
-            [],
-            ["FQN", "Column", "Value"],
-            os.environ[
+            vector_fields=[],
+            retrieval_fields=["FQN", "Column", "Value"],
+            index_name=os.environ[
                 "AIService__AzureSearchOptions__Text2SqlColumnValueStore__Index"
             ],
-            None,
+            semantic_config=None,
             top=10,
+            include_scores=True,
+            minimum_score=5,
         )
 
+        # build into a common format
+        column_values = {}
+
+        for value in values:
+            trimmed_fqn = ".".join(value["FQN"].split(".")[:-1])
+            if trimmed_fqn not in column_values:
+                column_values[trimmed_fqn] = []
+
+            column_values[trimmed_fqn].append(value["Value"])
+
         if as_json:
-            return json.dumps(values, default=str)
+            return json.dumps(column_values, default=str)
         else:
-            return values
+            return column_values
 
     async def get_entity_schemas(
         self,
@@ -155,7 +178,6 @@ class AISearchConnector:
             list[str],
             "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
         ] = [],
-        as_json: bool = True,
     ) -> str:
         """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
@@ -187,19 +209,14 @@ class AISearchConnector:
         )
 
         for schema in schemas:
-            entity = schema["Entity"]
-
             filtered_schemas = []
             for excluded_entity in excluded_entities:
-                if excluded_entity.lower() == entity.lower():
+                if excluded_entity.lower() == schema["Entity"].lower():
                     logging.info("Excluded entity: %s", excluded_entity)
                 else:
                     filtered_schemas.append(schema)
 
-        if as_json:
-            return json.dumps(schemas, default=str)
-        else:
-            return schemas
+        return filtered_schemas
 
     async def add_entry_to_index(document: dict, vector_fields: dict, index_name: str):
         """Add an entry to the search index."""
