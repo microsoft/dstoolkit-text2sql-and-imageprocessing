@@ -76,11 +76,12 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
 
             logging.info(f"Loaded entity result: {loaded_entity_result}")
 
-            entity_search_tasks.append(
-                self.sql_connector.get_entity_schemas(
-                    " ".join(loaded_entity_result["entities"]), as_json=False
+            for entity_group in loaded_entity_result["entities"]:
+                entity_search_tasks.append(
+                    self.sql_connector.get_entity_schemas(
+                        " ".join(entity_group), as_json=False
+                    )
                 )
-            )
 
             for filter_condition in loaded_entity_result["filter_conditions"]:
                 column_search_tasks.append(
@@ -92,16 +93,26 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
         schemas_results = await asyncio.gather(*entity_search_tasks)
         column_value_results = await asyncio.gather(*column_search_tasks)
 
+        # deduplicate schemas
+        final_schemas = []
+
+        for schema_result in schemas_results:
+            for schema in schema_result:
+                if schema not in final_schemas:
+                    final_schemas.append(schema)
+
+        final_colmns = []
+        for column_value_result in column_value_results:
+            for column in column_value_result:
+                if column not in final_colmns:
+                    final_colmns.append(column)
+
         final_results = {
-            "schemas": [
-                schema for schema_result in schemas_results for schema in schema_result
-            ],
-            "column_values": [
-                column_values
-                for column_values_result in column_value_results
-                for column_values in column_values_result
-            ],
+            "schemas": final_schemas,
+            "column_values": final_colmns,
         }
+
+        logging.info(f"Final results: {final_results}")
 
         yield Response(
             chat_message=TextMessage(

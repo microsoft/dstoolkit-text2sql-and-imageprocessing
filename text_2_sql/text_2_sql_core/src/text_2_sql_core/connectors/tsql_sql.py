@@ -79,6 +79,9 @@ class TSQLSqlConnector(SqlConnector):
         for schema in schemas:
             schema["SelectFromEntity"] = ".".join([schema["Schema"], schema["Entity"]])
 
+            del schema["Entity"]
+            del schema["Schema"]
+
         if as_json:
             return json.dumps(schemas, default=str)
         else:

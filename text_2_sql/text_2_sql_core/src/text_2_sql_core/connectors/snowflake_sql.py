@@ -93,7 +93,7 @@ class SnowflakeSqlConnector(SqlConnector):
         """
 
         schemas = await self.ai_search_connector.get_entity_schemas(
-            text, excluded_entities
+            text, excluded_entities, engine_specific_fields=["Warehouse", "Database"]
         )
 
         for schema in schemas:
@@ -105,6 +105,11 @@ class SnowflakeSqlConnector(SqlConnector):
                     schema["Entity"],
                 ]
             )
+
+            del schema["Entity"]
+            del schema["Schema"]
+            del schema["Warehouse"]
+            del schema["Database"]
 
         if as_json:
             return json.dumps(schemas, default=str)

@@ -94,13 +94,17 @@ class DatabricksSqlConnector(SqlConnector):
         """
 
         schemas = await self.ai_search_connector.get_entity_schemas(
-            text, excluded_entities
+            text, excluded_entities, engine_specific_fields=["Catalog"]
         )
 
         for schema in schemas:
             schema["SelectFromEntity"] = ".".join(
                 [schema["Catalog"], schema["Schema"], schema["Entity"]]
             )
+
+            del schema["Entity"]
+            del schema["Schema"]
+            del schema["Catalog"]
 
         if as_json:
             return json.dumps(schemas, default=str)

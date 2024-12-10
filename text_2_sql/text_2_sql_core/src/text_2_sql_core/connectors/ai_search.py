@@ -149,7 +149,7 @@ class AISearchConnector:
             ],
             semantic_config=None,
             top=10,
-            include_scores=True,
+            include_scores=False,
             minimum_score=5,
         )
 
@@ -178,6 +178,10 @@ class AISearchConnector:
             list[str],
             "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
         ] = [],
+        engine_specific_fields: Annotated[
+            list[str],
+            "The fields specific to the engine to be included in the search results.",
+        ] = [],
     ) -> str:
         """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
@@ -189,18 +193,21 @@ class AISearchConnector:
             str: The schema of the views or tables in JSON format.
         """
 
+        retrieval_fields = [
+            "FQN",
+            "Entity",
+            "EntityName",
+            "Schema",
+            "Definition",
+            "Columns",
+            "EntityRelationships",
+            "CompleteEntityRelationshipsGraph",
+        ] + engine_specific_fields
+
         schemas = await self.run_ai_search_query(
             text,
             ["DefinitionEmbedding"],
-            [
-                "FQN",
-                "Entity",
-                "EntityName",
-                "Definition",
-                "Columns",
-                "EntityRelationships",
-                "CompleteEntityRelationshipsGraph",
-            ],
+            retrieval_fields,
             os.environ["AIService__AzureSearchOptions__Text2SqlSchemaStore__Index"],
             os.environ[
                 "AIService__AzureSearchOptions__Text2SqlSchemaStore__SemanticConfig"
@@ -208,14 +215,20 @@ class AISearchConnector:
             top=3,
         )
 
+        if len(excluded_entities) == 0:
+            return schemas
+
         for schema in schemas:
             filtered_schemas = []
-            for excluded_entity in excluded_entities:
-                if excluded_entity.lower() == schema["Entity"].lower():
-                    logging.info("Excluded entity: %s", excluded_entity)
-                else:
-                    filtered_schemas.append(schema)
 
+            del schema["FQN"]
+
+            if schema["Entity"].lower() not in excluded_entities:
+                filtered_schemas.append(schema)
+            else:
+                logging.info("Excluded entity: %s", schema["Entity"])
+
+        logging.info("Filtered Schemas: %s", filtered_schemas)
         return filtered_schemas
 
     async def add_entry_to_index(document: dict, vector_fields: dict, index_name: str):

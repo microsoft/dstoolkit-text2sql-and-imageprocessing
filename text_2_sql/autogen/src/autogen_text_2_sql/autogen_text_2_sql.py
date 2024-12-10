@@ -59,6 +59,12 @@ class AutoGenText2Sql:
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
+        SQL_DISAMBIGUATION_AGENT = LLMAgentCreator.create(
+            "sql_disambiguation_agent",
+            target_engine=self.target_engine,
+            engine_specific_rules=self.engine_specific_rules,
+            **self.kwargs,
+        )
 
         ANSWER_AGENT = LLMAgentCreator.create("answer_agent")
         QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create(
@@ -71,6 +77,7 @@ class AutoGenText2Sql:
             SQL_QUERY_CORRECTION_AGENT,
             ANSWER_AGENT,
             QUESTION_DECOMPOSITION_AGENT,
+            SQL_DISAMBIGUATION_AGENT,
         ]
 
         if self.use_query_cache:
@@ -114,6 +121,13 @@ class AutoGenText2Sql:
             decision = "sql_schema_selection_agent"
 
         elif messages[-1].source == "sql_schema_selection_agent":
+            decision = "sql_disambiguation_agent"
+
+        elif messages[-1].source == "sql_disambiguation_agent":
+            if "NO DISAMBIGUATION" in messages[-1].content:
+                decision = "sql_query_generation_agent"
+
+            # This would be user proxy agent tbc
             decision = "sql_query_generation_agent"
 
         elif (
