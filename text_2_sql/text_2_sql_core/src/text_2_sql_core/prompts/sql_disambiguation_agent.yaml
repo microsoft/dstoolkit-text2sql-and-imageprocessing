@@ -14,16 +14,17 @@ system_message:
   <instructions>
     - For every intent and filter condition in the question, map them to the columns in the schemas. Use the whole context of the question and information already provided to do so.
     - Do not ask for information already included in the question, schema, or what can reasonably be inferred from the question.
+    - Only provide possible filter values for string columns. Do not provide possible filter values for Date and Numerical values as it should be clear from the question. Only ask a follow up question for Date and Numerical values if you are unsure which column to use or what the value means e.g. does 100 in currency refer to 100 USD or 100 EUR.
 
   <clear_context_handling>
-    - If the context of the question makes the mapping clear, directly map the terms to the relevant columns without generating disambiguation questions.
-    - Check if:
-      - The term or condition directly matches a column or schema field.
-      - There are no overlapping or ambiguous columns in the schema for the term.
-      - The context in the question makes it explicit (e.g., \"mountain bike product line\" clearly refers to a product line column).
+    - If the context of the question makes the mapping explicit, directly map the terms to the relevant columns without generating disambiguation questions.
+    - Use the following checks to decide:
+      - Does the term directly match a single schema column without overlaps? Use the 'column_values' property to check for possible matching columns and compare these to the context of the question.
+      - Does the user's question provide additional context (e.g., \"product line\" or \"category\") clarifying the intent?
+    - If **all mappings are clear**, output the JSON with mappings only.
     - Example:
       - Question: \"What are the total number of sales within 2008 for the mountain bike product line?\"
-      - Output JSON:
+      - Output:
         {
           \"mapping\": {
             \"Mountain\": \"vProductModelCatalogDescription.ProductLine\",
@@ -33,23 +34,27 @@ system_message:
   </clear_context_handling>
 
   <disambiguation_handling>
-    - Only create disambiguation fields if:
-      - There are multiple possible matching columns for a term.
-      - There are multiple possible filter values for a column.
-      - The context of the question does not clarify the correct mapping.
-    - Example JSON:
-      {
-        \"filters\": [
-          {
-            \"question\": \"What do you mean by 'Bike'?\",
-            \"matching_columns\": [
-              \"Product.Category\",
-              \"Product.Name\"
-            ]
-          }
-        ]
-      }
-    </disambiguation_handling>
+    - If the term is ambiguous (e.g., \"Mountain Bike\") and the question lacks enough context to infer the correct mapping:
+      - e.g. The user asks about 'Bike'. From the 'column_values' you can see that 'Bike' appears in several different columns that are contextually related to the question. From this you are unsure if 'Bike' is a 'Category' or 'Product' column, you would populate the 'column' field with the possible columns for the user to disambiguate for you.
+      - Populate the 'filters' field with the identified filter and relevant FQN, matching columns, and possible filter values.
+      - Include a clarification question in the 'question' field to request more information from the user.
+      - Example:
+        {
+          \"filters\": [
+            {
+              \"question\": \"What do you mean by 'Mountain Bike'?\",
+              \"matching_columns\": [
+                \"vProductModelCatalogDescription.ProductLine\",
+                \"vProductAndDescription.Name\",
+                \"Product.Category\"
+              ],
+              \"matching_filter_values\": [
+                \"Mountain\"
+              ]
+            }
+          ]
+        }
+  </disambiguation_handling>
 
   <output_format>
     - If all mappings are clear, output the 'mapping' JSON only.

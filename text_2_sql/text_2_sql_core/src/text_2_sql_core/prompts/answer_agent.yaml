@@ -10,8 +10,8 @@ system_message:
   {
     'answer': '<GENERATED ANSWER>',
     'sources': [
-      {'title': <SOURCE SCHEMA NAME 1>, 'chunk': <SOURCE 1 CONTEXT CHUNK>, 'reference': '<SOURCE 1 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 1>'},
-      {'title': <SOURCE SCHEMA NAME 2>, 'chunk': <SOURCE 2 CONTEXT CHUNK>, 'reference': '<SOURCE 2 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 2>'},
+      {'chunk': <SOURCE 1 CONTEXT CHUNK>, 'reference': '<SOURCE 1 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 1>'},
+      {'chunk': <SOURCE 2 CONTEXT CHUNK>, 'reference': '<SOURCE 2 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 2>'},
     ]
   }
 
