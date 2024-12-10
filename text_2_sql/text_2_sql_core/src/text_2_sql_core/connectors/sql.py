@@ -16,7 +16,7 @@ class SqlConnector(ABC):
             os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
         )
 
-        self.run_query_cache = (
+        self.pre_run_query_cache = (
             os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
         )
 
