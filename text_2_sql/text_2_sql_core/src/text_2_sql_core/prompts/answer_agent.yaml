@@ -16,5 +16,4 @@ system_message:
   }
 
   Title is the entity name of the schema, chunk is the result of the SQL query and reference is the SQL query used to generate the answer.
-
-  End your answer with 'TERMINATE'"
+  "
