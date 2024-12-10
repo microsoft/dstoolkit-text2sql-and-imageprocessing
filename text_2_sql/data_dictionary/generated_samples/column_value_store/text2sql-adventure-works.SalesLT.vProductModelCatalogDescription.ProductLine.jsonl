@@ -1,0 +1,3 @@
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.ProductLine", "Column": "ProductLine", "Value": "Touring bike", "Synonyms": []}
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.ProductLine", "Column": "ProductLine", "Value": "Road bike", "Synonyms": []}
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.ProductLine", "Column": "ProductLine", "Value": "Mountain bike", "Synonyms": []}

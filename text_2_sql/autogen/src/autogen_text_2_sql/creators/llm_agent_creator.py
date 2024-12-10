@@ -2,11 +2,10 @@
 # Licensed under the MIT License.
 from autogen_core.components.tools import FunctionTool
 from autogen_agentchat.agents import AssistantAgent
-from text_2_sql_core.connectors.sql import SqlConnector
+from text_2_sql_core.connectors.factory import ConnectorFactory
 from text_2_sql_core.prompts.load import load
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
-from datetime import datetime
 
 
 class LLMAgentCreator:
@@ -25,7 +24,7 @@ class LLMAgentCreator:
         return load(name.lower())
 
     @classmethod
-    def get_tool(cls, sql_helper: SqlConnector, tool_name: str):
+    def get_tool(cls, sql_helper, ai_search_helper, tool_name: str):
         """Gets the tool based on the tool name.
         Args:
         ----
@@ -37,13 +36,18 @@ class LLMAgentCreator:
 
         if tool_name == "sql_query_execution_tool":
             return FunctionTool(
-                sql_helper.query_execution,
+                sql_helper.query_execution_with_limit,
                 description="Runs an SQL query against the SQL Database to extract information",
             )
         elif tool_name == "sql_get_entity_schemas_tool":
             return FunctionTool(
                 sql_helper.get_entity_schemas,
                 description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned. Only use when the provided schemas in the system prompt are not sufficient to answer the question.",
+            )
+        elif tool_name == "sql_get_column_values_tool":
+            return FunctionTool(
+                ai_search_helper.get_column_values,
+                description="Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned. Use this to get the correct value to apply against a filter for a user's question.",
             )
         elif tool_name == "sql_query_validation_tool":
             return FunctionTool(
@@ -52,7 +56,7 @@ class LLMAgentCreator:
             )
         elif tool_name == "current_datetime_tool":
             return FunctionTool(
-                lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                sql_helper.get_current_datetime,
                 description="Gets the current date and time.",
             )
         else:
@@ -93,12 +97,13 @@ class LLMAgentCreator:
             AssistantAgent: The assistant agent."""
         agent_file = cls.load_agent_file(name)
 
-        sql_helper = SqlConnector()
+        sql_helper = ConnectorFactory.get_database_connector()
+        ai_search_helper = ConnectorFactory.get_ai_search_connector()
 
         tools = []
         if "tools" in agent_file and len(agent_file["tools"]) > 0:
             for tool in agent_file["tools"]:
-                tools.append(cls.get_tool(sql_helper, tool))
+                tools.append(cls.get_tool(sql_helper, ai_search_helper, tool))
 
         agent = AssistantAgent(
             name=name,

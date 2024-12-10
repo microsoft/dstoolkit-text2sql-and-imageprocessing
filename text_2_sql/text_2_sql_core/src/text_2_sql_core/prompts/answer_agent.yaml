@@ -1,5 +1,5 @@
 model:
-  4o-mini
+  4o
 description:
   "An agent that takes the final results from the SQL query and writes the answer to the user's question"
 system_message:
@@ -10,8 +10,8 @@ system_message:
   {
     'answer': '<GENERATED ANSWER>',
     'sources': [
-      {'title': <SOURCE SCHEMA NAME 1>, 'chunk': <SOURCE 1 CONTEXT CHUNK>, 'reference': '<SOURCE 1 SQL QUERY>'},
-      {'title': <SOURCE SCHEMA NAME 2>, 'chunk': <SOURCE 2 CONTEXT CHUNK>, 'reference': '<SOURCE 2 SQL QUERY>'}
+      {'chunk': <SOURCE 1 CONTEXT CHUNK>, 'reference': '<SOURCE 1 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 1>'},
+      {'chunk': <SOURCE 2 CONTEXT CHUNK>, 'reference': '<SOURCE 2 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 2>'},
     ]
   }
 

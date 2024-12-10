@@ -1,13 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 from abc import ABC, abstractmethod
-import aioodbc
 import os
 import asyncio
 import json
 from dotenv import find_dotenv, load_dotenv
 import logging
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, computed_field
 from typing import Optional
 from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 from openai import AsyncAzureOpenAI
@@ -32,8 +31,16 @@ class EntityRelationship(BaseModel):
     entity: str = Field(..., alias="Entity", exclude=True)
     entity_schema: str = Field(..., alias="Schema", exclude=True)
     foreign_entity: str = Field(..., alias="ForeignEntity")
-    foreign_entity_schema: str = Field(..., alias="ForeignSchema", exclude=True)
+    foreign_entity_schema: str = Field(..., alias="ForeignSchema")
     foreign_keys: list[ForeignKeyRelationship] = Field(..., alias="ForeignKeys")
+
+    warehouse: Optional[str] = Field(default=None, alias="Warehouse", exclude=True)
+    database: Optional[str] = Field(default=None, alias="Database", exclude=True)
+    catalog: Optional[str] = Field(default=None, alias="Catalog", exclude=True)
+
+    foreign_warehouse: Optional[str] = Field(default=None, alias="ForeignWarehouse")
+    foreign_database: Optional[str] = Field(default=None, alias="ForeignDatabase")
+    foreign_catalog: Optional[str] = Field(default=None, alias="ForeignCatalog")
 
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
@@ -51,6 +58,12 @@ class EntityRelationship(BaseModel):
                 )
                 for foreign_key in self.foreign_keys
             ],
+            foreign_warehouse=self.warehouse,
+            foreign_database=self.database,
+            foreign_catalog=self.catalog,
+            warehouse=self.foreign_warehouse,
+            database=self.foreign_database,
+            catalog=self.foreign_catalog,
         )
 
     def add_foreign_key(self, foreign_key: ForeignKeyRelationship):
@@ -65,22 +78,43 @@ class EntityRelationship(BaseModel):
 
         self.foreign_keys.append(foreign_key)
 
+    @computed_field(alias="FQN")
+    @property
+    def fqn(self) -> str:
+        identifiers = [
+            self.warehouse,
+            self.catalog,
+            self.database,
+            self.entity_schema,
+            self.entity,
+        ]
+        non_null_identifiers = [x for x in identifiers if x is not None]
+
+        return ".".join(non_null_identifiers)
+
+    @computed_field(alias="ForeignFQN")
+    @property
+    def foreign_fqn(self) -> str:
+        identifiers = [
+            self.warehouse,
+            self.catalog,
+            self.database,
+            self.entity_schema,
+            self.entity,
+        ]
+        non_null_identifiers = [x for x in identifiers if x is not None]
+
+        return ".".join(non_null_identifiers)
+
     @classmethod
     def from_sql_row(cls, row, columns):
         """A method to create an EntityRelationship from a SQL row."""
         result = dict(zip(columns, row))
 
-        entity = "{EntitySchema}.{Entity}".format(
-            EntitySchema=result["EntitySchema"], Entity=result["Entity"]
-        )
-        foreign_entity = "{ForeignEntitySchema}.{ForeignEntity}".format(
-            ForeignEntitySchema=result["ForeignEntitySchema"],
-            ForeignEntity=result["ForeignEntity"],
-        )
         return cls(
-            entity=entity,
+            entity=result["Entity"],
             entity_schema=result["EntitySchema"],
-            foreign_entity=foreign_entity,
+            foreign_entity=result["ForeignEntity"],
             foreign_entity_schema=result["ForeignEntitySchema"],
             foreign_keys=[
                 ForeignKeyRelationship(
@@ -109,6 +143,9 @@ class ColumnItem(BaseModel):
     ):
         initial_entry = entity.value_store_entry(excluded_fields_for_database_engine)
 
+        initial_entry["FQN"] = f"{entity.fqn}.{self.name}"
+
+        initial_entry["Column"] = self.name
         initial_entry["Value"] = distinct_value
         initial_entry["Synonyms"] = []
         return initial_entry
@@ -130,7 +167,7 @@ class EntityItem(BaseModel):
     entity: str = Field(..., alias="Entity")
     definition: Optional[str] = Field(..., alias="Definition")
     name: str = Field(..., alias="Name", exclude=True)
-    entity_schema: str = Field(..., alias="Schema", exclude=True)
+    entity_schema: str = Field(..., alias="Schema")
     entity_name: Optional[str] = Field(default=None, alias="EntityName")
     database: Optional[str] = Field(default=None, alias="Database")
     warehouse: Optional[str] = Field(default=None, alias="Warehouse")
@@ -150,9 +187,16 @@ class EntityItem(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
+    @computed_field(alias="FQN")
     @property
-    def id(self):
-        identifiers = [self.warehouse, self.catalog, self.database, self.entity]
+    def fqn(self) -> str:
+        identifiers = [
+            self.warehouse,
+            self.catalog,
+            self.database,
+            self.entity_schema,
+            self.entity,
+        ]
         non_null_identifiers = [x for x in identifiers if x is not None]
 
         return ".".join(non_null_identifiers)
@@ -176,9 +220,8 @@ class EntityItem(BaseModel):
 
         result = dict(zip(columns, row))
 
-        entity = f"{result['EntitySchema']}.{result['Entity']}"
         return cls(
-            entity=entity,
+            entity=result["Entity"],
             name=result["Entity"],
             entity_schema=result["EntitySchema"],
             definition=result["Definition"],
@@ -194,7 +237,7 @@ class DataDictionaryCreator(ABC):
         excluded_entities: list[str] = None,
         excluded_schemas: list[str] = None,
         single_file: bool = False,
-        generate_definitions: bool = False,
+        generate_definitions: bool = True,
         output_directory: str = None,
     ):
         """A method to initialize the DataDictionaryCreator class.
@@ -273,7 +316,7 @@ class DataDictionaryCreator(ABC):
         Returns:
             str: The SQL query to extract distinct values from a column.
         """
-        return f"""SELECT DISTINCT {column.name} FROM {entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
+        return f"""SELECT DISTINCT {column.name} FROM {entity.entity_schema}.{entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
 
     @retry(
         stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
@@ -290,26 +333,8 @@ class DataDictionaryCreator(ABC):
         Returns:
             list[EntityItem]: The list of entities.
         """
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
 
-        logging.info(f"Running query: {sql_query}")
-        results = []
-        async with self.database_semaphore:
-            async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-                async with sql_db_client.cursor() as cursor:
-                    await cursor.execute(sql_query)
-
-                    columns = [column[0] for column in cursor.description]
-
-                    rows = await cursor.fetchall()
-
-                    for row in rows:
-                        if cast_to:
-                            results.append(cast_to.from_sql_row(row, columns))
-                        else:
-                            results.append(dict(zip(columns, row)))
-
-        return results
+        return await self.sql_connector.query_execution(sql_query, cast_to=cast_to)
 
     async def extract_entity_relationships(self) -> list[EntityRelationship]:
         """A method to extract entity relationships from a database.
@@ -321,50 +346,59 @@ class DataDictionaryCreator(ABC):
             self.extract_entity_relationships_sql_query, cast_to=EntityRelationship
         )
 
+        for relationship in relationships:
+            relationship.warehouse = self.warehouse
+            relationship.database = self.database
+            relationship.catalog = self.catalog
+
+            relationship.foreign_warehouse = self.warehouse
+            relationship.foreign_database = self.database
+            relationship.foreign_catalog = self.catalog
+
         # Duplicate relationships to create a complete graph
 
         for relationship in relationships:
-            if relationship.entity not in self.entity_relationships:
-                self.entity_relationships[relationship.entity] = {
-                    relationship.foreign_entity: relationship
+            if relationship.fqn not in self.entity_relationships:
+                self.entity_relationships[relationship.fqn] = {
+                    relationship.foreign_fqn: relationship
                 }
             else:
                 if (
-                    relationship.foreign_entity
-                    not in self.entity_relationships[relationship.entity]
+                    relationship.foreign_fqn
+                    not in self.entity_relationships[relationship.fqn]
                 ):
                     self.entity_relationships[relationship.entity][
-                        relationship.foreign_entity
+                        relationship.foreign_fqn
                     ] = relationship
 
-                self.entity_relationships[relationship.entity][
-                    relationship.foreign_entity
+                self.entity_relationships[relationship.fqn][
+                    relationship.foreign_fqn
                 ].add_foreign_key(relationship.foreign_keys[0])
 
-            if relationship.foreign_entity not in self.entity_relationships:
-                self.entity_relationships[relationship.foreign_entity] = {
+            if relationship.foreign_fqn not in self.entity_relationships:
+                self.entity_relationships[relationship.foreign_fqn] = {
                     relationship.entity: relationship.pivot()
                 }
             else:
                 if (
-                    relationship.entity
-                    not in self.entity_relationships[relationship.foreign_entity]
+                    relationship.fqn
+                    not in self.entity_relationships[relationship.foreign_fqn]
                 ):
-                    self.entity_relationships[relationship.foreign_entity][
-                        relationship.entity
+                    self.entity_relationships[relationship.foreign_fqn][
+                        relationship.fqn
                     ] = relationship.pivot()
 
-                self.entity_relationships[relationship.foreign_entity][
-                    relationship.entity
+                self.entity_relationships[relationship.foreign_fqn][
+                    relationship.fqn
                 ].add_foreign_key(relationship.pivot().foreign_keys[0])
 
     async def build_entity_relationship_graph(self) -> nx.DiGraph:
         """A method to build a complete entity relationship graph."""
 
-        for entity, foreign_entities in self.entity_relationships.items():
-            for foreign_entity, relationship in foreign_entities.items():
+        for fqn, foreign_entities in self.entity_relationships.items():
+            for foreign_fqn, relationship in foreign_entities.items():
                 self.relationship_graph.add_edge(
-                    entity, foreign_entity, relationship=relationship
+                    fqn, foreign_fqn, relationship=relationship
                 )
 
     def get_entity_relationships_from_graph(
@@ -446,7 +480,7 @@ class DataDictionaryCreator(ABC):
     async def write_columns_to_file(self, entity: EntityItem, column: ColumnItem):
         logging.info(f"Saving column values for {column.name}")
 
-        key = f"{entity.id}.{column.name}"
+        key = f"{entity.fqn}.{column.name}"
         # Ensure the intermediate directories exist
         os.makedirs(f"{self.output_directory}/column_value_store", exist_ok=True)
         with open(
@@ -460,7 +494,7 @@ class DataDictionaryCreator(ABC):
                         column.value_store_entry(
                             entity,
                             distinct_value,
-                            self.excluded_fields_for_database_engine,
+                            list(self.excluded_fields_for_database_engine.keys()),
                         ),
                         default=str,
                     )
@@ -504,7 +538,8 @@ class DataDictionaryCreator(ABC):
         for data_type in ["string", "nchar", "text", "varchar"]:
             if data_type in column.data_type.lower():
                 logging.info(
-                    f"Column {column.name} data type is string based. Writing file."
+                    f"""Column {
+                        column.name} data type is string based. Writing file."""
                 )
                 await self.write_columns_to_file(entity, column)
                 break
@@ -697,15 +732,12 @@ class DataDictionaryCreator(ABC):
         # Ensure the intermediate directories exist
         os.makedirs(f"{self.output_directory}/schema_store", exist_ok=True)
         with open(
-            f"{self.output_directory}/schema_store/{entity.id}.json",
+            f"{self.output_directory}/schema_store/{entity.fqn}.json",
             "w",
             encoding="utf-8",
         ) as f:
             json.dump(
-                entity.model_dump(
-                    by_alias=True,
-                    exclude=self.excluded_fields_for_database_engine,
-                ),
+                self.apply_exclusions_to_entity(entity),
                 f,
                 indent=4,
                 default=str,
@@ -728,14 +760,14 @@ class DataDictionaryCreator(ABC):
             await self.generate_entity_definition(entity)
 
         # add in relationships
-        if entity.entity in self.entity_relationships:
+        if entity.fqn in self.entity_relationships:
             entity.entity_relationships = list(
-                self.entity_relationships[entity.entity].values()
+                self.entity_relationships[entity.fqn].values()
             )
 
         # add in the graph traversal
         entity.complete_entity_relationships_graph = (
-            self.get_entity_relationships_from_graph(entity.entity)
+            self.get_entity_relationships_from_graph(entity.fqn)
         )
 
         if self.single_file is False:
@@ -754,12 +786,54 @@ class DataDictionaryCreator(ABC):
             engine_specific_fields = ["Database"]
         elif self.database_engine == DatabaseEngine.DATABRICKS:
             engine_specific_fields = ["Catalog"]
+        else:
+            engine_specific_fields = []
 
-        return [
-            field.lower()
+        # Determine top-level fields to exclude
+        filtered_entitiy_specific_fields = {
+            field.lower(): ...
             for field in all_engine_specific_fields
             if field not in engine_specific_fields
-        ]
+        }
+
+        if filtered_entitiy_specific_fields:
+            filtered_entitiy_specific_fields["entity_relationships"] = [
+                {
+                    field.capitalize(): ...
+                    for field in filtered_entitiy_specific_fields.keys()
+                }
+                | {
+                    f"Foreign{field.capitalize()}": ...
+                    for field in filtered_entitiy_specific_fields
+                }
+            ]
+
+        return filtered_entitiy_specific_fields
+
+    def apply_exclusions_to_entity(self, entity: EntityItem) -> dict:
+        """A method to apply exclusions to an entity.
+
+        Args:
+            entity (EntityItem): The entity to apply exclusions to.
+
+        Returns:
+            dict: The dumped entity with exclusions applied."""
+        # First, exclude top-level fields
+        dumped_data = entity.model_dump(
+            by_alias=True, exclude=self.excluded_fields_for_database_engine
+        )
+
+        # Now manually handle exclusions for the nested list
+        if "EntityRelationships" in dumped_data:
+            # Apply exclusions recursively to each item in EntityRelationships list
+            for item in dumped_data["EntityRelationships"]:
+                for exclusion in self.excluded_fields_for_database_engine.get(
+                    "entity_relationships", [{}]
+                ):
+                    for field, _ in exclusion.items():
+                        item.pop(field, None)  # Exclude the field if present
+
+        return dumped_data
 
     async def create_data_dictionary(self):
         """A method to build a data dictionary from a database. Writes to file."""
@@ -786,9 +860,7 @@ class DataDictionaryCreator(ABC):
                 encoding="utf-8",
             ) as f:
                 data_dictionary_dump = [
-                    entity.model_dump(
-                        by_alias=True, exclude=self.excluded_fields_for_database_engine
-                    )
+                    self.apply_exclusions_to_entity(entity)
                     for entity in data_dictionary
                 ]
                 json.dump(

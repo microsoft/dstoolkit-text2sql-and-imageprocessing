@@ -1,0 +1,1 @@
+{"Question": "What are the total sales in 2008?", "SqlQueryDecomposition": [{"SqlQuery": "SELECT COUNT(*) as total_sales FROM SalesLT.SalesOrderHeader WHERE YEAR(OrderDate) = 2008;"}]}

@@ -29,7 +29,7 @@ repos:
     rev: v2.1.0
     hooks:
       - id: codespell
-        args: [--exclude-file, uv.lock]
+        args: [--skip, "uv.lock,*.json,*,jsonl"]
 
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 23.12.1

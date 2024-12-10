@@ -88,13 +88,13 @@ A full data dictionary must be built for all the views / tables you which to exp
 
 ## Indexing
 
-`./deploy_ai_search/text_2_sql.py` & `./deploy_ai_search/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search/README.md`.
+`./deploy_ai_search/text_2_sql.py` & `./deploy_ai_search/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search/README.md`. There is **no automatic mechanism** to upload these .json files currently to a storage account, once generated, you must automatically upload them to the appropriate storage account that the indexer is connected to.
 
 ## Automatic Generation
 
 > [!IMPORTANT]
 >
-> - The data dictioonary generation scripts have been moved to `text_2_sql_core`. Documentation will be updated shortly.
+> - The data dictionary generation scripts have been moved to `text_2_sql_core`. Documentation will be updated shortly.
 
 Manually creating the `entities.json` is a time consuming exercise. To speed up generation, a mixture of SQL Queries and an LLM can be used to generate a initial version. Existing comments and descriptions in the database, can be combined with sample values to generate the necessary descriptions. Manual input can then be used to tweak it for the use case and any improvements.
 
@@ -109,3 +109,20 @@ The following Databases have pre-built scripts for them:
 - **TSQL:** `./text_2_sql_core/data_dictionary/tsql_data_dictionary_creator.py`
 
 If there is no pre-built script for your database engine, take one of the above as a starting point and adjust it.
+
+## Running
+
+Fill out the `.env` template with connection details to your chosen database.
+
+Package and install the `text_2_sql_core` library. See [build](https://docs.astral.sh/uv/concepts/projects/build/) if you want to build as a wheel and install on an agent. Or you can run from within a `uv` environment.
+
+`data_dictionary <DATABASE ENGINE>`
+
+You can pass the following command line arguements:
+
+- `-- output_directory` or `-o`: Optional directory that the script will write the output files to.
+- `-- single_file` or `-s`: Optional flag that writes all schemas to a single file.
+
+> [!IMPORTANT]
+>
+> - The data dictioonary generation scripts will output column values for all possible filter clauses. This could lead to output of sensitive information. You should add exclusion criteria to exclude these for only columns that you may want to filter by.

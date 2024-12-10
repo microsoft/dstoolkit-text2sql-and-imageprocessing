@@ -1,0 +1,6 @@
+{"Entity": "vProductAndDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription.Culture", "Column": "Culture", "Value": "zh-cht", "Synonyms": []}
+{"Entity": "vProductAndDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription.Culture", "Column": "Culture", "Value": "th    ", "Synonyms": []}
+{"Entity": "vProductAndDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription.Culture", "Column": "Culture", "Value": "he    ", "Synonyms": []}
+{"Entity": "vProductAndDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription.Culture", "Column": "Culture", "Value": "fr    ", "Synonyms": []}
+{"Entity": "vProductAndDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription.Culture", "Column": "Culture", "Value": "en    ", "Synonyms": []}
+{"Entity": "vProductAndDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductAndDescription.Culture", "Column": "Culture", "Value": "ar    ", "Synonyms": []}

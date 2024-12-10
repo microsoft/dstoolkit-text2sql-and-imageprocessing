@@ -1,0 +1,57 @@
+{
+  "Columns": [
+    {
+      "DataType": "int",
+      "Definition": "The ProductDescriptionID column in the ProductDescription entity contains unique integer identifiers assigned to each product description. These IDs are used to distinguish and reference specific product descriptions within the database. The values in this column are sequentially generated numbers and serve as primary keys for the product descriptions.",
+      "Name": "ProductDescriptionID",
+      "SampleValues": [
+        1989,
+        1636,
+        1473,
+        1591,
+        1401
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": "The Description column in the ProductDescription entity contains textual information providing details about various products. It includes a mix of languages such as Hebrew, Arabic, English, and French, suggesting it supports multiple languages to describe the products. The descriptions often provide technical details, materials used, and product features, such as design, performance, and usage. This column helps customers understand the unique aspects and benefits of the products.",
+      "Name": "Description",
+      "SampleValues": [
+        "\u05de\u05e1\u05d2\u05e8\u05ea \u05e7\u05dc\u05ea \u05de\u05e9\u05e7\u05dc \u05de\u05d0\u05dc\u05d5\u05de\u05d9\u05e0\u05d9\u05d5\u05dd \u05d7\u05e8\u05d5\u05e5 \u05de\u05e1\u05e4\u05e7\u05ea \u05ea\u05e0\u05d5\u05d7\u05ea \u05e8\u05db\u05d9\u05d1\u05d4 \u05d6\u05e7\u05d5\u05e4\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05dc\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea \u05d1\u05ea\u05d5\u05da \u05d4\u05e2\u05d9\u05e8. \u05d4\u05e2\u05d9\u05e6\u05d5\u05d1 \u05d4\u05d7\u05d3\u05e9\u05e0\u05d9 \u05e9\u05dc\u05e0\u05d5 \u05de\u05e1\u05e4\u05e7 \u05e0\u05d5\u05d7\u05d5\u05ea \u05de\u05e8\u05d1\u05d9\u05ea.",
+        "\u0634\u0648\u0643\u0629 \u0637\u0631\u064a\u0642 \u0645\u0627\u0633\u0643\u0629 \u0644\u0644\u0639\u062c\u0644\u0629 \u0627\u0644\u0623\u0645\u0627\u0645\u064a\u0629 \u0645\u0646 \u0627\u0644\u0643\u0631\u0628\u0648\u0646 \u0639\u0627\u0644\u064a\u0629 \u0627\u0644\u0623\u062f\u0627\u0621 \u0630\u0627\u062a \u0634\u0639\u0628\u062a\u064a\u0646 \u0645\u0642\u0648\u0633\u064a\u0646.",
+        "Aluminum alloy cups and a hollow axle.",
+        "Unisex long-sleeve AWC logo microfiber cycling jersey",
+        "Cuvettes en alliage d'aluminium et axe creux."
+      ]
+    },
+    {
+      "DataType": "uniqueidentifier",
+      "Definition": "The rowguid column in the ProductDescription entity contains unique identifier values in the form of UUIDs (Universally Unique Identifiers). These values are 128-bit numbers represented as hexadecimal strings in the standard 8-4-4-4-12 format, such as 690C4CB1-B9FA-48C1-8DF0-7F8644A72EDF. The purpose of this column is to ensure that each record in the ProductDescription entity can be uniquely identified across different systems.",
+      "Name": "rowguid",
+      "SampleValues": [
+        "690C4CB1-B9FA-48C1-8DF0-7F8644A72EDF",
+        "DCBC8264-C4D7-4B04-9531-92AB4C868C10",
+        "9AC02C25-2DC2-410A-85E5-D65CE41126B4",
+        "BAF38C0E-69BF-4F6C-805A-C7C1C6E9056A",
+        "32FDCA7F-17DD-40B8-8984-6D6EBAE9759D"
+      ]
+    },
+    {
+      "DataType": "datetime",
+      "Definition": "The ModifiedDate column in the ProductDescription entity contains timestamps indicating the date and time when the product description was last updated. The values follow the standard SQL datetime format 'YYYY-MM-DD HH:MM:SS.SSSSSS'. This information is used to track changes and updates to product description records over time.",
+      "Name": "ModifiedDate",
+      "SampleValues": [
+        "2008-03-11 10:32:17.973000",
+        "2007-06-01 00:00:00"
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": "The ProductDescription entity contains detailed descriptions of products. It includes unique identifiers for each product description, a textual description, a globally unique identifier, and the date when the description was last modified. This entity is useful for answering questions related to product details, tracking modifications to product descriptions, and uniquely identifying each product description for reference purposes.",
+  "Entity": "ProductDescription",
+  "EntityName": "'Product Descriptions'",
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.ProductDescription",
+  "Schema": "SalesLT"
+}

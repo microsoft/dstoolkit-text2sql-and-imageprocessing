@@ -79,11 +79,6 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 collection=True,
                 fields=[
                     SearchableField(
-                        name="SubQuestion",
-                        type=SearchFieldDataType.String,
-                        filterable=True,
-                    ),
-                    SearchableField(
                         name="SqlQuery",
                         type=SearchFieldDataType.String,
                         filterable=True,
@@ -200,7 +195,7 @@ class Text2SqlQueryCacheAISearch(AISearch):
                 fail_on_unprocessable_document=False,
                 fail_on_unsupported_content_type=False,
                 index_storage_metadata_only_for_oversized_documents=True,
-                indexed_file_name_extensions=".json",
+                indexed_file_name_extensions=".jsonl",
                 parsing_mode=self.parsing_mode,
             ),
             max_failed_items=5,

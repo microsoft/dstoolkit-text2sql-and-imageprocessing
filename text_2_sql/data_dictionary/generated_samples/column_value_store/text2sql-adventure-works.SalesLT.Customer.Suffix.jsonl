@@ -1,0 +1,5 @@
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Suffix", "Column": "Suffix", "Value": "Sr.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Suffix", "Column": "Suffix", "Value": "PhD", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Suffix", "Column": "Suffix", "Value": "Jr.", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Suffix", "Column": "Suffix", "Value": "IV", "Synonyms": []}
+{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Suffix", "Column": "Suffix", "Value": "II", "Synonyms": []}

@@ -1,0 +1,47 @@
+{
+  "Columns": [
+    {
+      "DataType": "nvarchar",
+      "Definition": "The ParentProductCategoryName column contains the names of the main product categories in the product hierarchy. Each value represents a broad category under which more specific product categories are grouped. This column helps in organizing products into high-level classifications such as Components, Clothing, Bikes, and Accessories. These names are used to distinguish major sections of the product inventory for analysis and reporting purposes.",
+      "Name": "ParentProductCategoryName",
+      "SampleValues": [
+        "Components",
+        "Clothing",
+        "Bikes",
+        "Accessories"
+      ]
+    },
+    {
+      "DataType": "nvarchar",
+      "Definition": "The ProductCategoryName column in the vGetAllCategories entity contains the names of different product categories available. These names are typically descriptive labels for various types of products, such as \"Mountain Frames\" or \"Helmets\". This column is used to categorize products into specific groups based on their type or intended use. The values are in plain text and provide a clear indication of the kind of products included within each category.",
+      "Name": "ProductCategoryName",
+      "SampleValues": [
+        "Mountain Frames",
+        "Road Frames",
+        "Gloves",
+        "Caps",
+        "Helmets"
+      ]
+    },
+    {
+      "DataType": "int",
+      "Definition": "The ProductCategoryID column in the vGetAllCategories entity contains numeric identifiers for product categories. Each identifier is unique to a specific product category within the database. The values follow a numerical pattern, typically as positive integers, used to differentiate between various categories of products. These identifiers are essential for categorization and query operations related to product information.",
+      "Name": "ProductCategoryID",
+      "SampleValues": [
+        10,
+        28,
+        36,
+        32,
+        19
+      ]
+    }
+  ],
+  "CompleteEntityRelationshipsGraph": [],
+  "Database": "text2sql-adventure-works",
+  "Definition": "The vGetAllCategories entity provides a hierarchical view of product categories, detailing both parent and sub-category relationships within a product catalog. It includes information on the names of the parent product categories, the names and IDs of the sub-categories. This entity can be used to answer questions regarding the structure and organization of product categories, such as identifying all sub-categories under a specific parent category or retrieving the complete category hierarchy for products.",
+  "Entity": "vGetAllCategories",
+  "EntityName": "Category Information",
+  "EntityRelationships": [],
+  "FQN": "text2sql-adventure-works.SalesLT.vGetAllCategories",
+  "Schema": "SalesLT"
+}

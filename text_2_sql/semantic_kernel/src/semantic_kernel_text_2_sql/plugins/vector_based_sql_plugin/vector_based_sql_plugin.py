@@ -121,8 +121,10 @@ class VectorBasedSQLPlugin:
                 "EntityRelationships",
                 "CompleteEntityRelationshipsGraph",
             ],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__Index"],
-            os.environ["AIService__AzureSearchOptions__Text2Sql__SemanticConfig"],
+            os.environ["AIService__AzureSearchOptions__Text2SqlSchemaStore__Index"],
+            os.environ[
+                "AIService__AzureSearchOptions__Text2SqlSchemaStore__SemanticConfig"
+            ],
             top=3,
         )
 

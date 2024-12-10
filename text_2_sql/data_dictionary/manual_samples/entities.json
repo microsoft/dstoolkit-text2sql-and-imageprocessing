@@ -22,14 +22,14 @@
         "Name": "ShipDate"
       },
       {
-        "AllowedValues": [
+        "DataType": "TINYINT",
+        "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
+        "Name": "Status",
+        "SampleValues": [
           1,
           2,
           3
-        ],
-        "DataType": "TINYINT",
-        "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
-        "Name": "Status"
+        ]
       },
       {
         "DataType": "MONEY",
@@ -97,23 +97,23 @@
         "Name": "ShipDate"
       },
       {
-        "AllowedValues": [
+        "DataType": "TINYINT",
+        "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
+        "Name": "Status",
+        "SampleValues": [
           1,
           2,
           3
-        ],
-        "DataType": "TINYINT",
-        "Definition": "The current status of the order, represented as a numeric code (e.g., 1 for In Progress, 2 for Completed, 3 for Canceled).",
-        "Name": "Status"
+        ]
       },
       {
-        "AllowedValues": [
-          "True",
-          "False"
-        ],
         "DataType": "BIT",
         "Definition": "Indicates whether the order was placed online.",
-        "Name": "OnlineOrderFlag"
+        "Name": "OnlineOrderFlag",
+        "SampleValues": [
+          "True",
+          "False"
+        ]
       },
       {
         "DataType": "NVARCHAR(25)",

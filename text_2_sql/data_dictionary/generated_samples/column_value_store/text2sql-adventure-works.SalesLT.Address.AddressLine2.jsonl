@@ -1,0 +1,11 @@
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Suite 2501", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Ste 1071", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Stanford House", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Room 99767c", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Raven House, Kingsgate", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "PO Box 4023", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "P.O. Box 803", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Floor 7", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Edward Way", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "Box 8033", "Synonyms": []}
+{"Entity": "Address", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Address.AddressLine2", "Column": "AddressLine2", "Value": "19th Floor", "Synonyms": []}

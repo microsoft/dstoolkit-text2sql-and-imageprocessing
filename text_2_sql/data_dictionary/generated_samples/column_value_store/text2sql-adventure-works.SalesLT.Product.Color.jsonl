@@ -1,0 +1,9 @@
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Yellow", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "White", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Silver/Black", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Silver", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Red", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Multi", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Grey", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Blue", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.Color", "Column": "Color", "Value": "Black", "Synonyms": []}

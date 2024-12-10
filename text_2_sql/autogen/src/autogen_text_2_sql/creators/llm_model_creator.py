@@ -1,9 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 from autogen_ext.models import AzureOpenAIChatCompletionClient
-from text_2_sql_core.utils.environment import IdentityType, get_identity_type
+from text_2_sql_core.connectors.factory import ConnectorFactory
 
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import os
 import dotenv
 
@@ -29,31 +28,11 @@ class LLMModelCreator:
             raise ValueError(f"Model {model_name} not found")
 
     @classmethod
-    def get_authentication_properties(cls) -> dict:
-        if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
-            # Create the token provider
-            api_key = None
-            token_provider = get_bearer_token_provider(
-                DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
-            )
-        elif get_identity_type() == IdentityType.USER_ASSIGNED:
-            # Create the token provider
-            api_key = None
-            token_provider = get_bearer_token_provider(
-                DefaultAzureCredential(
-                    managed_identity_client_id=os.environ["ClientId"]
-                ),
-                "https://cognitiveservices.azure.com/.default",
-            )
-        else:
-            token_provider = None
-            api_key = os.environ["OpenAI__ApiKey"]
-
-        return token_provider, api_key
-
-    @classmethod
     def gpt_4o_mini_model(cls) -> AzureOpenAIChatCompletionClient:
-        token_provider, api_key = cls.get_authentication_properties()
+        (
+            token_provider,
+            api_key,
+        ) = ConnectorFactory.get_open_ai_connector().get_authentication_properties()
         return AzureOpenAIChatCompletionClient(
             azure_deployment=os.environ["OpenAI__MiniCompletionDeployment"],
             model=os.environ["OpenAI__MiniCompletionDeployment"],
@@ -70,7 +49,10 @@ class LLMModelCreator:
 
     @classmethod
     def gpt_4o_model(cls) -> AzureOpenAIChatCompletionClient:
-        token_provider, api_key = cls.get_authentication_properties()
+        (
+            token_provider,
+            api_key,
+        ) = ConnectorFactory.get_open_ai_connector().get_authentication_properties()
         return AzureOpenAIChatCompletionClient(
             azure_deployment=os.environ["OpenAI__CompletionDeployment"],
             model=os.environ["OpenAI__CompletionDeployment"],

@@ -1,0 +1,1 @@
+{"Entity": "vProductModelCatalogDescription", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.vProductModelCatalogDescription.ProductURL", "Column": "ProductURL", "Value": "HTTP://www.Adventure-works.com", "Synonyms": []}
