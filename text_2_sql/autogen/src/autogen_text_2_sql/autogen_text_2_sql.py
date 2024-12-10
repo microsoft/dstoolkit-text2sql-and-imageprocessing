@@ -1,11 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from autogen_agentchat.task import TextMentionTermination, MaxMessageTermination
+from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
 import logging
 from autogen_text_2_sql.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
+from autogen_text_2_sql.custom_agents.sql_schema_selection_agent import (
+    SqlSchemaSelectionAgent,
+)
 import json
 import os
 
@@ -32,6 +35,10 @@ class AutoGenText2Sql:
             os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
         )
 
+        self.use_column_value_store = (
+            os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
+        )
+
     @property
     def agents(self):
         """Define the agents for the chat."""
@@ -41,8 +48,7 @@ class AutoGenText2Sql:
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
-        SQL_SCHEMA_SELECTION_AGENT = LLMAgentCreator.create(
-            "sql_schema_selection_agent",
+        SQL_SCHEMA_SELECTION_AGENT = SqlSchemaSelectionAgent(
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,

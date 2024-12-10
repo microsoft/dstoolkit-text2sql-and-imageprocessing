@@ -29,24 +29,29 @@ class AISearchConnector:
         """Run the AI search query."""
         identity_type = get_identity_type()
 
-        async with AsyncAzureOpenAI(
-            # This is the default and can be omitted
-            api_key=os.environ["OpenAI__ApiKey"],
-            azure_endpoint=os.environ["OpenAI__Endpoint"],
-            api_version=os.environ["OpenAI__ApiVersion"],
-        ) as open_ai_client:
-            embeddings = await open_ai_client.embeddings.create(
-                model=os.environ["OpenAI__EmbeddingModel"], input=query
-            )
+        if len(vector_fields) > 0:
+            async with AsyncAzureOpenAI(
+                # This is the default and can be omitted
+                api_key=os.environ["OpenAI__ApiKey"],
+                azure_endpoint=os.environ["OpenAI__Endpoint"],
+                api_version=os.environ["OpenAI__ApiVersion"],
+            ) as open_ai_client:
+                embeddings = await open_ai_client.embeddings.create(
+                    model=os.environ["OpenAI__EmbeddingModel"], input=query
+                )
 
-            # Extract the embedding vector
-            embedding_vector = embeddings.data[0].embedding
+                # Extract the embedding vector
+                embedding_vector = embeddings.data[0].embedding
 
-        vector_query = VectorizedQuery(
-            vector=embedding_vector,
-            k_nearest_neighbors=7,
-            fields=",".join(vector_fields),
-        )
+            vector_query = [
+                VectorizedQuery(
+                    vector=embedding_vector,
+                    k_nearest_neighbors=7,
+                    fields=",".join(vector_fields),
+                )
+            ]
+        else:
+            vector_query = None
 
         if identity_type == IdentityType.SYSTEM_ASSIGNED:
             credential = DefaultAzureCredential()
@@ -63,13 +68,20 @@ class AISearchConnector:
             index_name=index_name,
             credential=credential,
         ) as search_client:
+            if semantic_config is not None and vector_query is not None:
+                query_type = "semantic"
+            elif vector_query is not None:
+                query_type = "hybrid"
+            else:
+                query_type = "full"
+
             results = await search_client.search(
                 top=top,
                 semantic_configuration_name=semantic_config,
                 search_text=query,
                 select=",".join(retrieval_fields),
-                vector_queries=[vector_query],
-                query_type="semantic",
+                vector_queries=vector_query,
+                query_type=query_type,
                 query_language="en-GB",
             )
 
@@ -102,6 +114,7 @@ class AISearchConnector:
             str,
             "The text to run a semantic search against. Relevant entities will be returned.",
         ],
+        as_json: bool = True,
     ):
         """Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
@@ -113,6 +126,9 @@ class AISearchConnector:
         -------
             str: The values of the column in JSON format.
         """
+
+        # Adds tildes after each text word to do a fuzzy search
+        text = " ".join([f"{word}~" for word in text.split()])
         values = await self.run_ai_search_query(
             text,
             [],
@@ -120,13 +136,14 @@ class AISearchConnector:
             os.environ[
                 "AIService__AzureSearchOptions__Text2SqlColumnValueStore__Index"
             ],
-            os.environ[
-                "AIService__AzureSearchOptions__Text2SqlColumnValueStore__SemanticConfig"
-            ],
+            None,
             top=10,
         )
 
-        return json.dumps(values, default=str)
+        if as_json:
+            return json.dumps(values, default=str)
+        else:
+            return values
 
     async def get_entity_schemas(
         self,
@@ -138,6 +155,7 @@ class AISearchConnector:
             list[str],
             "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
         ] = [],
+        as_json: bool = True,
     ) -> str:
         """Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
@@ -178,7 +196,10 @@ class AISearchConnector:
                 else:
                     filtered_schemas.append(schema)
 
-        return json.dumps(schemas, default=str)
+        if as_json:
+            return json.dumps(schemas, default=str)
+        else:
+            return schemas
 
     async def add_entry_to_index(document: dict, vector_fields: dict, index_name: str):
         """Add an entry to the search index."""

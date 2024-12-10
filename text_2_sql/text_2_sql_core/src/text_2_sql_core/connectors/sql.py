@@ -3,10 +3,11 @@
 import logging
 import os
 from typing import Annotated, Union
-from text_2_sql_core.connectors.ai_search import AISearchConnector
+from text_2_sql_core.connectors.factory import ConnectorFactory
 import asyncio
 import sqlglot
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 
 class SqlConnector(ABC):
@@ -22,6 +23,12 @@ class SqlConnector(ABC):
         self.use_column_value_store = (
             os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
         )
+
+        self.ai_search_connector = ConnectorFactory.get_ai_search_connector()
+
+    def get_current_datetime(self) -> str:
+        """Get the current datetime."""
+        return datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
 
     @abstractmethod
     async def query_execution(
@@ -92,7 +99,7 @@ class SqlConnector(ABC):
         -------
             str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
         """
-        cached_schemas = await AISearchConnector.run_ai_search_query(
+        cached_schemas = await self.ai_search_connector.run_ai_search_query(
             question,
             ["QuestionEmbedding"],
             ["Question", "SqlQueryDecomposition"],

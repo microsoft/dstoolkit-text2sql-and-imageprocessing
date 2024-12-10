@@ -1,5 +1,6 @@
 import os
 from text_2_sql_core.connectors.ai_search import AISearchConnector
+from text_2_sql_core.connectors.open_ai import OpenAIConnector
 
 
 class ConnectorFactory:
@@ -36,3 +37,7 @@ class ConnectorFactory:
     @staticmethod
     def get_ai_search_connector():
         return AISearchConnector()
+
+    @staticmethod
+    def get_open_ai_connector():
+        return OpenAIConnector()
