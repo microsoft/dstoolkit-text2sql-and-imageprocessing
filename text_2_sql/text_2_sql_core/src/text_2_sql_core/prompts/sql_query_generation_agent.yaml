@@ -31,7 +31,7 @@ system_message:
 
     - Always run any SQL query you generate to return the results.
 
-    - Always apply a limit to the end of the SQL query to prevent returning too many rows. The limit should be set to 25.
+    - Always apply a restriction to the SQL query to prevent returning too many rows. The restriction should be set to 25 rows.
   "
 tools:
   - sql_query_execution_tool
