@@ -124,9 +124,6 @@ class AutoGenText2Sql:
             decision = "sql_disambiguation_agent"
 
         elif messages[-1].source == "sql_disambiguation_agent":
-            if "NO DISAMBIGUATION" in messages[-1].content:
-                decision = "sql_query_generation_agent"
-
             # This would be user proxy agent tbc
             decision = "sql_query_generation_agent"
 

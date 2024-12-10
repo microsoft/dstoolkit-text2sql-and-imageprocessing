@@ -36,6 +36,5 @@ system_message:
 tools:
   - sql_query_execution_tool
   - sql_get_entity_schemas_tool
-  - sql_get_column_values_tool
   - sql_query_validation_tool
   - current_datetime_tool
