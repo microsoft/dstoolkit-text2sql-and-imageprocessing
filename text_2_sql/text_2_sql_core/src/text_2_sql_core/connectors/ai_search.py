@@ -148,7 +148,7 @@ class AISearchConnector:
                 "AIService__AzureSearchOptions__Text2SqlColumnValueStore__Index"
             ],
             semantic_config=None,
-            top=10,
+            top=15,
             include_scores=False,
             minimum_score=5,
         )
