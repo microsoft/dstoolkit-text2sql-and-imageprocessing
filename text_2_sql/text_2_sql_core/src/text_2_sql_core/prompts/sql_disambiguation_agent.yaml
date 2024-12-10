@@ -19,7 +19,7 @@ system_message:
   <clear_context_handling>
     - If the context of the question makes the mapping explicit, directly map the terms to the relevant columns without generating disambiguation questions.
     - Use the following checks to decide:
-      - Does the term directly match a single schema column without overlaps? Use the 'column_values' property to check for possible matching columns and compare these to the context of the question.
+      - Does the term directly match a single schema column without overlaps? Use the 'column_values' property to check for possible matching columns and compare these to the context of the question. If there are multiple possible columns for a given user's filter, then apply disambiguation.
       - Does the user's question provide additional context (e.g., \"product line\" or \"category\") clarifying the intent?
     - If **all mappings are clear**, output the JSON with mappings only.
     - Example:
