@@ -10,11 +10,8 @@ system_message:
   {
     'answer': '<GENERATED ANSWER>',
     'sources': [
-      {'chunk': <SOURCE 1 CONTEXT CHUNK>, 'reference': '<SOURCE 1 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 1>'},
-      {'chunk': <SOURCE 2 CONTEXT CHUNK>, 'reference': '<SOURCE 2 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 2>'},
+      {'sql_result_snippet': <SQL QUERY RESULT 1>, 'sql_query_used': '<SOURCE 1 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 1>'},
+      {'sql_result_snippet': <SQL QUERY RESULT 2>, 'sql_query_used': '<SOURCE 2 SQL QUERY>', 'explanation': '<EXPLANATION OF SQL QUERY 2>'},
     ]
   }
-
-  Title is the entity name of the schema, chunk is the result of the SQL query and reference is the SQL query used to generate the answer.
-
-  End your answer with 'TERMINATE'"
+  "

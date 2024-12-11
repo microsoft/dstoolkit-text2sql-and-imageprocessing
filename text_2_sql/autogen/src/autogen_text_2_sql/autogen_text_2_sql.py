@@ -1,6 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
+from autogen_agentchat.conditions import (
+    TextMentionTermination,
+    MaxMessageTermination,
+    SourceMatchTermination,
+)
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
@@ -89,7 +93,11 @@ class AutoGenText2Sql:
     @property
     def termination_condition(self):
         """Define the termination condition for the chat."""
-        termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(20)
+        termination = (
+            TextMentionTermination("TERMINATE")
+            | MaxMessageTermination(20)
+            | SourceMatchTermination(["answer_agent"])
+        )
         return termination
 
     @staticmethod

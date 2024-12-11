@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 import os
 from text_2_sql_core.connectors.ai_search import AISearchConnector
 from text_2_sql_core.connectors.open_ai import OpenAIConnector
