@@ -1,0 +1,15 @@
+# DO NOT include azure-functions-worker in this file
+# The Python Worker is managed by Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+
+azure-functions
+grpcio==1.68.1
+semantic-kernel==1.9.0
+text_2_sql_core @ file:../text_2_sql_core-0.1.0-py3-none-any.whl
+black==24.10.0
+ipykernel==6.29.5
+jupyter==1.1.1
+pre-commit==4.0.1
+pygments==2.18.0
+ruff==0.8.1
+python-dotenv==1.0.1
