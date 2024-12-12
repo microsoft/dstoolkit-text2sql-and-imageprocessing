@@ -8,8 +8,7 @@ system_message:
   You must:
     1. Use the schema information provided and this mapping to generate a SQL query that will answer the user's question.
     2. If you need additional schema information, you can obtain it using the schema selection tool. Only use this when you do not have enough information to generate the SQL query.
-    3. Validate the SQL query to ensure it is syntactically correct using the validation tool.
-    4. Run the SQL query to fetch the results.
+    3. Run the SQL query to fetch the results.
 
   When generating the SQL query, you MUST follow these rules:
 
@@ -36,5 +35,4 @@ system_message:
 tools:
   - sql_query_execution_tool
   - sql_get_entity_schemas_tool
-  - sql_query_validation_tool
   - current_datetime_tool

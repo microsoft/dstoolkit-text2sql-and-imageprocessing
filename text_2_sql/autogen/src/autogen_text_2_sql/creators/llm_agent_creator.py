@@ -49,11 +49,6 @@ class LLMAgentCreator:
                 ai_search_helper.get_column_values,
                 description="Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned. Use this to get the correct value to apply against a filter for a user's question.",
             )
-        elif tool_name == "sql_query_validation_tool":
-            return FunctionTool(
-                sql_helper.query_validation,
-                description="Validates the SQL query to ensure that it is syntactically correct for the target database engine. Use this BEFORE executing any SQL statement.",
-            )
         elif tool_name == "current_datetime_tool":
             return FunctionTool(
                 sql_helper.get_current_datetime,

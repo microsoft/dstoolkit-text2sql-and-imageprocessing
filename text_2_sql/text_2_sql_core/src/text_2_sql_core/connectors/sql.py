@@ -91,7 +91,14 @@ class SqlConnector(ABC):
         -------
             list[dict]: The results of the SQL query.
         """
-        return await self.query_execution(sql_query, cast_to=None, limit=25)
+
+        # Validate the SQL query
+        validation_result = await self.query_validation(sql_query)
+
+        if isinstance(validation_result, bool) and validation_result:
+            return await self.query_execution(sql_query, cast_to=None, limit=25)
+        else:
+            return validation_result
 
     async def query_validation(
         self,
