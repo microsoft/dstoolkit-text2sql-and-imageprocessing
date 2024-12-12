@@ -46,6 +46,10 @@ class AutoGenText2Sql:
     @property
     def agents(self):
         """Define the agents for the chat."""
+        DATE_DISAMBIGUATION_AGENT = LLMAgentCreator.create(
+            "date_disambiguation_agent"
+        )
+        
         SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
             "sql_query_generation_agent",
             target_engine=self.target_engine,
@@ -76,6 +80,7 @@ class AutoGenText2Sql:
         )
 
         agents = [
+            DATE_DISAMBIGUATION_AGENT,  # Add date disambiguation early in the pipeline
             SQL_QUERY_GENERATION_AGENT,
             SQL_SCHEMA_SELECTION_AGENT,
             SQL_QUERY_CORRECTION_AGENT,
@@ -106,7 +111,8 @@ class AutoGenText2Sql:
         decision = None  # Initialize decision variable
 
         if len(messages) == 1:
-            decision = "sql_query_cache_agent"
+            # Start with query cache if enabled, otherwise date disambiguation
+            decision = "sql_query_cache_agent" if os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true" else "date_disambiguation_agent"
 
         elif (
             messages[-1].source == "sql_query_cache_agent"
@@ -117,13 +123,18 @@ class AutoGenText2Sql:
                 "cached_questions_and_schemas"
             ) is not None and cache_result.get("contains_pre_run_results"):
                 decision = "sql_query_correction_agent"
-            if (
+            elif (
                 cache_result.get("cached_questions_and_schemas") is not None
                 and cache_result.get("contains_pre_run_results") is False
             ):
                 decision = "sql_query_generation_agent"
             else:
-                decision = "question_decomposition_agent"
+                # If no cache hit, proceed to date disambiguation
+                decision = "date_disambiguation_agent"
+
+        elif messages[-1].source == "date_disambiguation_agent":
+            # After date disambiguation, proceed to question decomposition
+            decision = "question_decomposition_agent"
 
         elif messages[-1].source == "question_decomposition_agent":
             decision = "sql_schema_selection_agent"
@@ -132,7 +143,6 @@ class AutoGenText2Sql:
             decision = "sql_disambiguation_agent"
 
         elif messages[-1].source == "sql_disambiguation_agent":
-            # This would be user proxy agent tbc
             decision = "sql_query_generation_agent"
 
         elif (

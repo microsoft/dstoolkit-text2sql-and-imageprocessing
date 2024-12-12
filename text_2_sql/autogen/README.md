@@ -24,18 +24,27 @@ As the query cache is shared between users (no data is stored in the cache), a n
 
 ## Agents
 
-This approach builds on the the Vector Based SQL Plugin approach, but adds a agentic approach to the solution.
-
 This agentic system contains the following agents:
 
 - **Query Cache Agent:** Responsible for checking the cache for previously asked questions.
+- **Date Disambiguation Agent:** Responsible for converting relative date expressions (e.g., "16 years ago") into absolute dates. This agent ensures consistent date handling and improves query accuracy.
 - **Query Decomposition Agent:** Responsible for decomposing complex questions, into sub questions that can be answered with SQL.
 - **Schema Selection Agent:** Responsible for extracting key terms from the question and checking the index store for the queries.
 - **SQL Query Generation Agent:** Responsible for using the previously extracted schemas and generated SQL queries to answer the question. This agent can request more schemas if needed. This agent will run the query.
 - **SQL Query Verification Agent:** Responsible for verifying that the SQL query and results question will answer the question.
 - **Answer Generation Agent:** Responsible for taking the database results and generating the final answer for the user.
 
-The combination of this agent allows the system to answer complex questions, whilst staying under the token limits when including the database schemas. The query cache ensures that previously asked questions, can be answered quickly to avoid degrading user experience.
+### Date Disambiguation Agent
+
+The Date Disambiguation Agent is a crucial addition to the pipeline that handles relative date expressions in user questions. It converts expressions like "X years ago", "last month", or "next week" into absolute dates before the question is processed by other agents.
+
+#### Why It's Important
+
+A question like "What country did we sell the most to in June in the year that was 16 years ago?" would break the SQL disambiguation agent without the date disambiguation agent, as it gets stuck trying to clarify what "country" means instead of first resolving the relative date to "June 2008". The date disambiguation agent ensures such questions can be processed successfully.
+
+The agent uses LLM-based prompts rather than hardcoded patterns, making it flexible and maintainable. It processes dates before question decomposition, ensuring that all subsequent agents work with explicit, unambiguous dates.
+
+The combination of these agents allows the system to answer complex questions, whilst staying under the token limits when including the database schemas. The query cache ensures that previously asked questions can be answered quickly to avoid degrading user experience.
 
 All agents can be found in `/agents/`.
 
