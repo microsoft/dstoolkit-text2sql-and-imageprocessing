@@ -141,6 +141,9 @@ class AutoGenText2Sql:
         elif messages[-1].source == "sql_query_correction_agent":
             decision = "sql_query_generation_agent"
 
+        elif messages[-1].source == "sql_query_generation_agent":
+            decision = "sql_query_correction_agent"
+
         # Log the decision
         logging.info("Decision: %s", decision)
 

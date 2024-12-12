@@ -101,9 +101,7 @@ class DatabricksSqlConnector(SqlConnector):
             # schema["SelectFromEntity"] = ".".join(
             #     [schema["Catalog"], schema["Schema"], schema["Entity"]]
             # )
-            schema["SelectFromEntity"] = (
-                os.environ["Text2Sql__Databricks__Catalog"] + "." + schema["Entity"]
-            )
+            schema["SelectFromEntity"] = schema["Entity"]
 
             del schema["Entity"]
             # del schema["Schema"]
