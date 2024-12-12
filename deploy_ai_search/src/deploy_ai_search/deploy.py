@@ -15,28 +15,30 @@ def deploy_config(arguments: argparse.Namespace):
 
     Args:
         arguments (argparse.Namespace): The arguments passed to the script"""
+
+    suffix = None if args.suffix == "None" else args.suffix
     if arguments.index_type == "rag":
         index_config = RagDocumentsAISearch(
-            suffix=arguments.suffix,
+            suffix=suffix,
             rebuild=arguments.rebuild,
             enable_page_by_chunking=arguments.enable_page_chunking,
         )
     elif arguments.index_type == "text_2_sql_schema_store":
         index_config = Text2SqlSchemaStoreAISearch(
-            suffix=arguments.suffix,
+            suffix=suffix,
             rebuild=arguments.rebuild,
             single_data_dictionary_file=arguments.single_data_dictionary_file,
         )
     elif arguments.index_type == "text_2_sql_query_cache":
         index_config = Text2SqlQueryCacheAISearch(
-            suffix=arguments.suffix,
+            suffix=suffix,
             rebuild=arguments.rebuild,
             single_query_cache_file=arguments.single_query_cache_file,
             enable_query_cache_indexer=arguments.enable_query_cache_indexer,
         )
     elif arguments.index_type == "text_2_sql_column_value_store":
         index_config = Text2SqlColumnValueStoreAISearch(
-            suffix=arguments.suffix,
+            suffix=suffix,
             rebuild=arguments.rebuild,
         )
     else:
