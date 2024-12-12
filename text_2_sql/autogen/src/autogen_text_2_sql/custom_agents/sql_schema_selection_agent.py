@@ -101,28 +101,8 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
                 if schema not in final_schemas:
                     final_schemas.append(schema)
 
-        columns_for_filter = {}
-        values_for_filter = {}
-        for filter, column_value_result in zip(
-            loaded_entity_result["filter_conditions"], column_value_results
-        ):
-            columns_for_filter[filter] = []
-            values_for_filter[filter] = []
-            for column in column_value_result:
-                if column["Column"] not in columns_for_filter[filter]:
-                    columns_for_filter[filter].append(column["Column"])
-
-                if column["Value"] not in values_for_filter[filter]:
-                    values_for_filter[filter].append(column["Value"])
-
-        num_all_values = [len(filter) for filter in values_for_filter]
-        num_all_columns = [len(filter) for filter in columns_for_filter]
-
         final_results = {
-            "MANDATORY_DISAMBIGUATION": max(num_all_values) > 3
-            or max(num_all_columns) > 3,
-            "COLUMN_OPTIONS_FOR_FILTERS": columns_for_filter,
-            "VALUE_OPTIONS_FOR_FILTERS": values_for_filter,
+            "COLUMN_OPTIONS_AND_VALUES_FOR_FILTERS": column_value_results,
             "SCHEMA_OPTIONS": final_schemas,
         }
 

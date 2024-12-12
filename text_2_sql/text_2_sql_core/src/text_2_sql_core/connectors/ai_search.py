@@ -163,10 +163,12 @@ class AISearchConnector:
 
         logging.info("Column Values: %s", column_values)
 
+        filter_to_column = {text: column_values}
+
         if as_json:
-            return json.dumps(column_values, default=str)
+            return json.dumps(filter_to_column, default=str)
         else:
-            return column_values
+            return filter_to_column
 
     async def get_entity_schemas(
         self,

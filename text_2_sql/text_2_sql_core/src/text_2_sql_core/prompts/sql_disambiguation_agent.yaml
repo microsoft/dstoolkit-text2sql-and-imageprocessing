@@ -13,30 +13,20 @@ system_message:
   </scope_of_user_query>
 
   <instructions>
-    - If 'MANDATORY_DISAMBIGUATION' is True, you must perform disambiguation on the terms with high cardinality. It is mandatory.
+    - For every filter extracted from the user's question, you must:
 
-    - For every intent and filter condition in the question, map them to the columns in the schemas and the appropriate filter value. Use the whole context of the question and information already provided to do so.
+      - If it is not a datetime or numerical filter, map it to:
+        - A value from 'COLUMN_OPTIONS_FOR_FILTERS'
+        - And a value from 'VALUE_OPTIONS_FOR_FILTERS'
 
-    - Do not ask for information already included in the question, schema, or what can reasonably be inferred from the question.
+      - If the filter is a datetime or numerical filter, map it to:
+        - A column from 'SCHEMA_OPTIONS'
 
-    - Only ask a follow-up question for Date and Numerical values if you are unsure which column to use or what the value means, e.g., does 100 in currency refer to 100 USD or 100 EUR.
+      - Use the whole context of the question and information already provided to assist with your mapping.
 
-    <clear_context_handling>
-      If the context of the question makes the mapping explicit, and the appropriate filter values can be found in 'column_values' directly map the terms to the relevant column FQN without generating disambiguation questions.
-
-      When evaluating questions:
-
-        Use the 'column_values' property to check for possible matching columns and compare these to the context of the question. ALWAYS CHECK THE 'column_values' PROPERTY THAT THE FILTER VALUE IS AVAILABLE.
-
-        If there are multiple values in 'column_values' that could match the filter, ask for clarification or to narrow down the filter value or column to use. If in doubt, use disambiguation questions to clarify.
-
-        Always consider the temporal and contextual phrases (e.g., \"June 2008\") in the question. If the context implies a direct match to a date column, do not request clarification unless multiple plausible columns exist.
-        For geographical or categorical terms (e.g., \"country\"), prioritize unique matches or add context to narrow down ambiguities based on the schema.
-
-      If all mappings are clear, output the JSON with mappings only.
-
-      <example>
-        Question: \"What are the total number of sales within 2008 for the mountain bike product line?\"
+      <successful_mapping_entry>
+        - If you can map it to an column and potential filter value:
+        - Only map if you are reasonably sure of the user's intention.
         {
           \"filter_mapping\": {
             \"bike\": [
@@ -52,35 +42,15 @@ system_message:
               }
             ]
           },
-          \"intent_mapping\": {
-            \"total number of sales\": \"SalesLT.SalesOrderHeader.SalesOrderID\"
-          }
         }
-      </example>
-    </clear_context_handling>
+      <successful_mapping_entry>
 
-    <disambiguation_handling>
-      If the term is ambiguous, there are multiple matching columns/questions in 'column_values', or the question lacks enough context to infer the correct mapping, then ask for clarification.
-
-        For ambiguous terms, evaluate the question context and schema relationships to narrow down matches.
-        Populate the 'questions' field with the identified filter and relevant FQN, matching columns, and possible filter values.
-        Include a clarification question in the 'question' field to request more information from the user.
-        If the clarification is not related to a column or a filter value, populate the 'user_choices' field with the possible choices they can select.
-
-        Prioritize clear disambiguation based on:
-          - Direct matches within schemas.
-          - Additional context provided by the question (e.g., temporal, categorical, or domain-specific keywords).
-
-        Return all disambiguation questions in the 'questions' array. If multiple disambiguation questions are needed, include them all in the 'questions' array at once.
-
-      <example>
-        User question: \"What country did we sell the most in June 2008?\"
-        Schema contains multiple columns potentially related to \"country.\"
-
-        If disambiguation is needed:
+      <unsuccessful_mapping_entry>
+        - If you cannot map it to a column, add en entry to the disambiguation list with the clarification question you need from the user:
+        - If there are multiple possible options, or you are unsure how it maps, make sure to ask a clarification question.
 
         {
-          \"questions\": [
+          \"disambiguation\": [
             {
               \"question\": \"What do you mean by 'country'?\",
               \"matching_columns\": [
@@ -88,38 +58,34 @@ system_message:
                 \"Customers.Country\"
               ],
               \"matching_filter_values\": [],
-              \"user_choices\": []
+              \"other_user_choices\": []
             }
           ]
         }
-      </example>
 
-      <example 2>
-        User question: \"What are the total sales for the mountain bike product line?\"
-        'column_values' contains multiple columns potentially related to \"mountain bike.\"
+        <rules_for_disambiguation_questions>
+          - Do not ask for information already included in the question, schema, or what can reasonably be inferred from the question.
+        </rules_for_disambiguation_questions>
+      <unsuccessful_mapping_entry>
 
-        If disambiguation is needed:
-        {
-          \"questions\": [
-            {
-              \"question\": \"What do you mean by 'mountain bike'?\",
-              \"matching_columns\": [
-                \"vProductModelCatalogDescription.Category\",
-                \"vProductModelCatalogDescription.ProductLine\"
-              ],
-              \"matching_filter_values\": [],
-              \"user_choices\": []
-            }
-          ]
-        }
-      </example>
-      Always include either the 'matching_columns', 'matching_filter_values' or `user_choices` field in the 'questions' array.
-    </disambiguation_handling>
-  </instructions>
+    - For every intent extracted from the user's question:
+      - If you need to ask any clarification questions, add it to the clarification question list:
+
+      {
+        \"clarification\": [
+          {
+            \"question\": \"What do the sales to customers or businesses?\",
+            \"other_user_choices\": [
+              \"customers\",
+              \"businesses\",
+            ]
+          }
+        ]
+      }
 
   <output_format>
     If all mappings are clear, output the 'mapping' JSON only.
-    If disambiguation is required, output the disambiguation JSON followed by \"TERMINATE.\"
+    If disambiguation or clarification is required, output the JSON request followed by \"TERMINATE.\"
     Do not provide explanations or reasoning in the output.
   </output_format>
   "
