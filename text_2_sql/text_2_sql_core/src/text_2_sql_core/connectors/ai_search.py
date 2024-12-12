@@ -3,7 +3,7 @@
 from azure.identity import DefaultAzureCredential
 from openai import AsyncAzureOpenAI
 from azure.core.credentials import AzureKeyCredential
-from azure.search.documents.models import VectorizedQuery
+from azure.search.documents.models import VectorizedQuery, QueryType
 from azure.search.documents.aio import SearchClient
 from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 import os
@@ -69,11 +69,9 @@ class AISearchConnector:
             credential=credential,
         ) as search_client:
             if semantic_config is not None and vector_query is not None:
-                query_type = "semantic"
-            elif vector_query is not None:
-                query_type = "hybrid"
+                query_type = QueryType.SEMANTIC
             else:
-                query_type = "full"
+                query_type = QueryType.FULL
 
             results = await search_client.search(
                 top=top,
