@@ -32,15 +32,15 @@ class AutoGenText2Sql:
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
         self.use_query_cache = (
-            os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
         )
 
         self.pre_run_query_cache = (
-            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__PreRunQueryCache", "True").lower() == "true"
         )
 
         self.use_column_value_store = (
-            os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
         )
 
     @property
@@ -100,13 +100,14 @@ class AutoGenText2Sql:
         )
         return termination
 
-    @staticmethod
-    def selector(messages):
+    def selector(self, messages):
         logging.info("Messages: %s", messages)
         decision = None  # Initialize decision variable
 
-        if len(messages) == 1:
+        if len(messages) == 1 and self.use_query_cache:
             decision = "sql_query_cache_agent"
+        elif len(messages) == 1:
+            decision = "question_decomposition_agent"
 
         elif (
             messages[-1].source == "sql_query_cache_agent"
@@ -161,7 +162,7 @@ class AutoGenText2Sql:
             allow_repeated_speaker=False,
             model_client=LLMModelCreator.get_model("4o-mini"),
             termination_condition=self.termination_condition,
-            selector_func=AutoGenText2Sql.selector,
+            selector_func=self.selector,
         )
 
         return agentic_flow

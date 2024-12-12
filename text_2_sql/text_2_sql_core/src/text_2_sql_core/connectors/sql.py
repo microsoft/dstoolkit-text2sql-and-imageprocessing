@@ -13,15 +13,15 @@ from datetime import datetime
 class SqlConnector(ABC):
     def __init__(self):
         self.use_query_cache = (
-            os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
         )
 
         self.pre_run_query_cache = (
-            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__PreRunQueryCache", "True").lower() == "true"
         )
 
         self.use_column_value_store = (
-            os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
         )
 
         self.ai_search_connector = ConnectorFactory.get_ai_search_connector()
