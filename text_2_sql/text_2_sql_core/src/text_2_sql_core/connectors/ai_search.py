@@ -191,6 +191,8 @@ class AISearchConnector:
             str: The schema of the views or tables in JSON format.
         """
 
+        logging.info("Search Text: %s", text)
+
         retrieval_fields = [
             # "FQN",
             "Entity",

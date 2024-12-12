@@ -70,7 +70,6 @@ class AutoGenText2Sql:
             **self.kwargs,
         )
 
-        ANSWER_AGENT = LLMAgentCreator.create("answer_agent")
         QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create(
             "question_decomposition_agent"
         )
@@ -79,7 +78,6 @@ class AutoGenText2Sql:
             SQL_QUERY_GENERATION_AGENT,
             SQL_SCHEMA_SELECTION_AGENT,
             SQL_QUERY_CORRECTION_AGENT,
-            ANSWER_AGENT,
             QUESTION_DECOMPOSITION_AGENT,
             SQL_DISAMBIGUATION_AGENT,
         ]
@@ -95,8 +93,12 @@ class AutoGenText2Sql:
         """Define the termination condition for the chat."""
         termination = (
             TextMentionTermination("TERMINATE")
+            | (
+                TextMentionTermination("answer")
+                & TextMentionTermination("sources")
+                & SourceMatchTermination("sql_query_correction_agent")
+            )
             | MaxMessageTermination(20)
-            | SourceMatchTermination(["answer_agent"])
         )
         return termination
 
@@ -136,14 +138,8 @@ class AutoGenText2Sql:
             # This would be user proxy agent tbc
             decision = "sql_query_generation_agent"
 
-        elif (
-            messages[-1].source == "sql_query_correction_agent"
-            and messages[-1].content == "VALIDATED"
-        ):
-            decision = "answer_agent"
-
         elif messages[-1].source == "sql_query_correction_agent":
-            decision = "sql_query_correction_agent"
+            decision = "sql_query_generation_agent"
 
         # Log the decision
         logging.info("Decision: %s", decision)
