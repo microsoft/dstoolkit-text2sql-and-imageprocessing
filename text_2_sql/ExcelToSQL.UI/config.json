@@ -1,0 +1,76 @@
+{
+    "Authentication": {
+        "Enabled": false,
+        "Provider": "AzureAD",
+        "Instance": "https://login.microsoftonline.com/",
+        "TenantId": "",
+        "ClientId": "",
+        "CallbackPath": "/signin-oidc"
+    },
+    "API": {
+        "BaseUrl": "http://localhost:5000",
+        "Routes": {
+            "Upload": "/api/upload",
+            "Query": "/api/query",
+            "Files": "/api/files"
+        }
+    },
+    "Upload": {
+        "MaxFileSize": 50,
+        "AllowedExtensions": [".xlsx", ".xls", ".csv"],
+        "MaxFiles": 10,
+        "StorageConnectionString": ""
+    },
+    "UI": {
+        "Title": "Excel to SQL Query",
+        "Theme": {
+            "Primary": "#007bff",
+            "Secondary": "#6c757d",
+            "Success": "#28a745",
+            "Danger": "#dc3545",
+            "Warning": "#ffc107",
+            "Info": "#17a2b8"
+        },
+        "Chat": {
+            "WelcomeMessage": "Welcome! I can help you query your Excel data using natural language. Try asking questions like:\n• Show me total sales by region\n• What was the average revenue in 2023?\n• List the top 5 customers by order value",
+            "Placeholder": "Ask questions about your data...",
+            "MaxHistoryItems": 50
+        },
+        "FileTypes": {
+            "Excel": {
+                "Extensions": [".xlsx", ".xls"],
+                "Icon": "bi-file-earmark-spreadsheet",
+                "Color": "#217346"
+            },
+            "CSV": {
+                "Extensions": [".csv"],
+                "Icon": "bi-file-earmark-text",
+                "Color": "#95a5a6"
+            }
+        }
+    },
+    "Logging": {
+        "LogLevel": {
+            "Default": "Information",
+            "Microsoft": "Warning",
+            "Microsoft.Hosting.Lifetime": "Information"
+        },
+        "ApplicationInsights": {
+            "LogLevel": {
+                "Default": "Information"
+            }
+        }
+    },
+    "ApplicationInsights": {
+        "InstrumentationKey": "",
+        "EnableAdaptiveSampling": true,
+        "EnablePerformanceCounterCollectionModule": true
+    },
+    "AllowedHosts": "*",
+    "CORS": {
+        "AllowedOrigins": [
+            "http://localhost:3000",
+            "http://localhost:5000"
+        ]
+    }
+}

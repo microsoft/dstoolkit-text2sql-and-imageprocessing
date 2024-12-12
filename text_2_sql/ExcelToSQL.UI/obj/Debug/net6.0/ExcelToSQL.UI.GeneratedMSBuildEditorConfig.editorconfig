@@ -1,0 +1,52 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = ExcelToSQL.UI
+build_property.RootNamespace = ExcelToSQL.UI
+build_property.ProjectDir = /workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI
+build_property._RazorSourceGeneratorDebug = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/Admin/UploadData.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVXBsb2FkRGF0YS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/Query/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUXVlcnkvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/dstoolkit-text2sql-and-imageprocessing/text_2_sql/ExcelToSQL.UI/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-kqzqdcu17b

@@ -1,0 +1,271 @@
+@{
+    ViewData["Title"] = "Text-to-SQL Query";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <!-- Active Files Panel -->
+    <div class="card mb-4">
+        <h5 class="card-header bg-light">
+            <i class="bi bi-table me-2"></i>Available Data Files
+        </h5>
+        <div class="card-body">
+            <div id="active-files" class="list-group">
+                <!-- Files will be listed here -->
+            </div>
+            <div id="no-files-message" class="text-center text-muted py-3">
+                No files available. Please upload Excel files in the Upload section.
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="copilot-chat">
+        <!-- Chat Messages -->
+        <div id="chat-messages" class="chat-container">
+            <!-- Example queries will be shown as buttons -->
+            <div class="example-queries">
+                <button class="example-query" onclick="useExample('Show me the total sales by region')">
+                    Show me the total sales by region
+                </button>
+                <button class="example-query" onclick="useExample('What was the average revenue in 2023?')">
+                    What was the average revenue in 2023?
+                </button>
+                <button class="example-query" onclick="useExample('List the top 5 customers by order value')">
+                    List the top 5 customers by order value
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-wrapper">
+            <div class="chat-input-container">
+                <textarea id="chat-input" class="chat-input" 
+                       placeholder="Ask questions about your data"
+                       rows="1"></textarea>
+                <button class="send-button" onclick="sendMessage()">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            loadActiveFiles();
+            
+            // Auto-resize textarea
+            $('#chat-input').on('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Enter key handler
+            $('#chat-input').on('keypress', function(e) {
+                if (e.which === 13 && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        function useExample(query) {
+            const input = $('#chat-input');
+            input.val(query);
+            input.trigger('input'); // Trigger auto-resize
+            sendMessage();
+        }
+
+        function loadActiveFiles() {
+            $.ajax({
+                url: '/api/files',
+                method: 'GET',
+                success: function(files) {
+                    const fileList = $('#active-files');
+                    const noFilesMsg = $('#no-files-message');
+                    
+                    if (files && files.length > 0) {
+                        fileList.empty();
+                        noFilesMsg.hide();
+                        
+                        files.forEach(file => {
+                            const item = $(`
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                                        ${file.name}
+                                    </div>
+                                    <small class="text-muted">
+                                        Uploaded: ${new Date(file.uploadDate).toLocaleString()}
+                                    </small>
+                                </div>
+                            `);
+                            fileList.append(item);
+                        });
+                    } else {
+                        fileList.empty();
+                        noFilesMsg.show();
+                    }
+                },
+                error: function() {
+                    // Silently handle error by showing the no files message
+                    $('#active-files').empty();
+                    $('#no-files-message').show();
+                }
+            });
+        }
+
+        function sendMessage() {
+            const input = $('#chat-input');
+            const message = input.val().trim();
+            
+            if (!message) return;
+            
+            // Reset textarea height
+            input.css('height', 'auto');
+            
+            // Clear input
+            input.val('');
+            
+            // Add user message
+            addMessage({
+                type: 'user',
+                content: message
+            });
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Send to backend
+            $.ajax({
+                url: '/api/query',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ query: message }),
+                success: function(response) {
+                    // Remove typing indicator
+                    removeTypingIndicator();
+                    
+                    // If response includes SQL query, show it
+                    if (response.sql) {
+                        addMessage({
+                            type: 'assistant',
+                            content: 'Generated SQL Query:',
+                            isHeader: true
+                        });
+                        
+                        addMessage({
+                            type: 'assistant',
+                            content: response.sql,
+                            isCode: true
+                        });
+                    }
+                    
+                    // Show results
+                    if (response.results) {
+                        addMessage({
+                            type: 'assistant',
+                            content: response.results,
+                            isResults: true
+                        });
+                    }
+                    
+                    // Show any additional explanation
+                    if (response.explanation) {
+                        addMessage({
+                            type: 'assistant',
+                            content: response.explanation
+                        });
+                    }
+                },
+                error: function() {
+                    removeTypingIndicator();
+                    addMessage({
+                        type: 'assistant',
+                        content: 'I encountered an issue processing your request. Please try again or rephrase your question.',
+                        isError: true
+                    });
+                }
+            });
+        }
+
+        function addMessage({ type, content, isCode = false, isResults = false, isError = false, isHeader = false }) {
+            const messagesContainer = $('#chat-messages');
+            const messageDiv = $('<div>').addClass('chat-message');
+            
+            // Add appropriate classes
+            messageDiv.addClass(type === 'user' ? 'user-message' : 'assistant-message');
+            if (isError) messageDiv.addClass('error-message');
+            
+            // Format content based on type
+            if (isCode) {
+                messageDiv.html(`<pre><code class="sql">${escapeHtml(content)}</code></pre>`);
+            } else if (isResults && typeof content === 'object') {
+                messageDiv.html(formatResults(content));
+            } else {
+                messageDiv.text(content);
+            }
+            
+            messagesContainer.append(messageDiv);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const indicator = $('<div>')
+                .addClass('chat-message assistant-message typing-indicator')
+                .html('<div class="typing-dots"><span></span><span></span><span></span></div>');
+            $('#chat-messages').append(indicator);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            $('.typing-indicator').remove();
+        }
+
+        function formatResults(results) {
+            if (!results || !results.length) {
+                return '<div class="no-results">No results found</div>';
+            }
+
+            const headers = Object.keys(results[0]);
+            let tableHtml = '<div class="table-responsive"><table class="table table-striped">';
+            
+            // Headers
+            tableHtml += '<thead><tr>';
+            headers.forEach(header => {
+                tableHtml += `<th>${escapeHtml(header)}</th>`;
+            });
+            tableHtml += '</tr></thead>';
+            
+            // Data rows
+            tableHtml += '<tbody>';
+            results.forEach(row => {
+                tableHtml += '<tr>';
+                headers.forEach(header => {
+                    tableHtml += `<td>${escapeHtml(row[header])}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody></table></div>';
+            
+            return tableHtml;
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function scrollToBottom() {
+            const container = $('#chat-messages');
+            container.scrollTop(container[0].scrollHeight);
+        }
+    </script>
+}

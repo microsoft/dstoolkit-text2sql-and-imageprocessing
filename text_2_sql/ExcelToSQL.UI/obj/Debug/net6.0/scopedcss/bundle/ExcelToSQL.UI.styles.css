@@ -1,0 +1,49 @@
+/* _content/ExcelToSQL.UI/Views/Shared/_Layout.cshtml.rz.scp.css */
+/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand[b-kqzqdcu17b] {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+a[b-kqzqdcu17b] {
+  color: #0077cc;
+}
+
+.btn-primary[b-kqzqdcu17b] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active[b-kqzqdcu17b], .nav-pills .show > .nav-link[b-kqzqdcu17b] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.border-top[b-kqzqdcu17b] {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom[b-kqzqdcu17b] {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow[b-kqzqdcu17b] {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy[b-kqzqdcu17b] {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer[b-kqzqdcu17b] {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}

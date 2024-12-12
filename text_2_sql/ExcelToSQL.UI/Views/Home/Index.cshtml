@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Excel to SQL Query";
+}
+
+<div class="content">
+    <div class="card w-100 mb-4">
+        <div class="card-heading">
+            <h5 class="card-title">Welcome to Excel to SQL Query</h5>
+        </div>
+        <div class="card-body results-body">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-heading">
+                            <h5 class="card-title">
+                                <i class="bi bi-chat-text me-2"></i>Query Your Data
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Use natural language to query your Excel data. Simply describe what you want to know, and we'll generate the SQL query for you.</p>
+                            <a asp-controller="Query" asp-action="Index" class="btn btn-search">Start Querying</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-heading">
+                            <h5 class="card-title">
+                                <i class="bi bi-cloud-upload me-2"></i>Upload Data
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Upload your Excel files to start querying. We support .xlsx, .xls, and .csv file formats.</p>
+                            <a asp-controller="Admin" asp-action="UploadData" class="btn btn-search">Upload Files</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-heading">
+                            <h5 class="card-title">
+                                <i class="bi bi-info-circle me-2"></i>How It Works
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ol>
+                                <li class="mb-2">Upload your Excel files in the Upload section</li>
+                                <li class="mb-2">Go to the Query section</li>
+                                <li class="mb-2">Ask questions about your data in plain English</li>
+                                <li class="mb-2">Get instant results with the generated SQL query</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
