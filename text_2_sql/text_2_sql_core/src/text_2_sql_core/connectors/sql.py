@@ -134,9 +134,7 @@ class SqlConnector(ABC):
             ["QuestionEmbedding"],
             ["Question", "SqlQueryDecomposition"],
             os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
-            os.environ[
-                "AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"
-            ],
+            None,
             top=1,
             include_scores=True,
             minimum_score=1.5,
