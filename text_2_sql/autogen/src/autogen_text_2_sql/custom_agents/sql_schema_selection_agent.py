@@ -101,15 +101,19 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
                 if schema not in final_schemas:
                     final_schemas.append(schema)
 
-        final_colmns = []
+        final_columns = []
         for column_value_result in column_value_results:
             for column in column_value_result:
-                if column not in final_colmns:
-                    final_colmns.append(column)
+                if column not in final_columns:
+                    final_columns.append(column)
+
+        all_column_lengths = [len(column) for column in final_columns]
 
         final_results = {
+            "MANDATORY_DISAMBIGUATION": max(all_column_lengths) > 3
+            or len(final_columns) > 3,
             "schemas": final_schemas,
-            "column_values": final_colmns,
+            "column_values": final_columns,
         }
 
         logging.info(f"Final results: {final_results}")

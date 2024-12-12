@@ -146,7 +146,7 @@ class AISearchConnector:
                 "AIService__AzureSearchOptions__Text2SqlColumnValueStore__Index"
             ],
             semantic_config=None,
-            top=15,
+            top=50,
             include_scores=False,
             minimum_score=5,
         )
@@ -160,6 +160,8 @@ class AISearchConnector:
                 column_values[trimmed_fqn] = []
 
             column_values[trimmed_fqn].append(value["Value"])
+
+        logging.info("Column Values: %s", column_values)
 
         if as_json:
             return json.dumps(column_values, default=str)
@@ -224,6 +226,24 @@ class AISearchConnector:
             filtered_schemas = []
 
             # del schema["FQN"]
+
+            if (
+                schema["CompleteEntityRelationshipsGraph"] is not None
+                and len(schema["CompleteEntityRelationshipsGraph"]) == 0
+            ):
+                del schema["CompleteEntityRelationshipsGraph"]
+
+            if (
+                schema["SammpleValues"] is not None
+                and len(schema["SammpleValues"]) == 0
+            ):
+                del schema["SammpleValues"]
+
+            if (
+                schema["EntityRelationships"] is not None
+                and len(schema["EntityRelationships"]) == 0
+            ):
+                del schema["EntityRelationships"]
 
             if schema["Entity"].lower() not in excluded_entities:
                 filtered_schemas.append(schema)
