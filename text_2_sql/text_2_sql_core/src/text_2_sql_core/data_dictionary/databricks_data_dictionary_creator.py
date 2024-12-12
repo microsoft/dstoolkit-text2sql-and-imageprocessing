@@ -112,7 +112,7 @@ class DatabricksDataDictionaryCreator(DataDictionaryCreator):
         Returns:
             str: The SQL query to extract distinct values from a column.
         """
-        return f"""SELECT DISTINCT {column.name} FROM {self.catalog}.{entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
+        return f"""SELECT DISTINCT {column.name} FROM {self.catalog}.{entity.entity_schema}.{entity.entity} WHERE {column.name} IS NOT NULL ORDER BY {column.name} DESC;"""
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 import logging
 import json
-import re
+import regex as re
 
 
 def get_sections(text: str) -> list:
