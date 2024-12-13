@@ -96,11 +96,11 @@ class EntityRelationship(BaseModel):
     @property
     def foreign_fqn(self) -> str:
         identifiers = [
-            self.warehouse,
-            self.catalog,
-            self.database,
-            self.entity_schema,
-            self.entity,
+            self.foreign_warehouse,
+            self.foreign_catalog,
+            self.foreign_database,
+            self.foreign_entity_schema,
+            self.foreign_entity,
         ]
         non_null_identifiers = [x for x in identifiers if x is not None]
 
@@ -351,6 +351,8 @@ class DataDictionaryCreator(ABC):
             self.extract_entity_relationships_sql_query, cast_to=EntityRelationship
         )
 
+        logging.info(f"Extracted {len(relationships)} relationships")
+
         for relationship in relationships:
             relationship.warehouse = self.warehouse
             relationship.database = self.database
@@ -359,6 +361,7 @@ class DataDictionaryCreator(ABC):
             relationship.foreign_warehouse = self.warehouse
             relationship.foreign_database = self.database
             relationship.foreign_catalog = self.catalog
+            logging.info(relationship)
 
         # Duplicate relationships to create a complete graph
 
@@ -372,7 +375,7 @@ class DataDictionaryCreator(ABC):
                     relationship.foreign_fqn
                     not in self.entity_relationships[relationship.fqn]
                 ):
-                    self.entity_relationships[relationship.entity][
+                    self.entity_relationships[relationship.fqn][
                         relationship.foreign_fqn
                     ] = relationship
 
@@ -731,7 +734,12 @@ class DataDictionaryCreator(ABC):
         logging.info(f"definition for {entity.entity}: {definition}")
         entity.definition = definition
 
-    async def write_entity_to_file(self, entity):
+    async def write_entity_to_file(self, entity: EntityItem):
+        """A method to write an entity to a file.
+
+        Args:
+            entity (EntityItem): The entity to write to file.
+        """
         logging.info(f"Saving data dictionary for {entity.entity}")
 
         # Ensure the intermediate directories exist
