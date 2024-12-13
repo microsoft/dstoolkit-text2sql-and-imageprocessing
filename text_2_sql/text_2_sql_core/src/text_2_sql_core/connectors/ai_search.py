@@ -198,12 +198,11 @@ class AISearchConnector:
         logging.info("Search Text: %s", text)
 
         retrieval_fields = [
-            # "FQN",
+            "FQN",
             "Entity",
             "EntityName",
-            # "Schema",
-            # "Definition",
-            "Description",
+            "Schema",
+            "Definition",
             "Columns",
             "EntityRelationships",
             "CompleteEntityRelationshipsGraph",
@@ -211,8 +210,7 @@ class AISearchConnector:
 
         schemas = await self.run_ai_search_query(
             text,
-            # ["DefinitionEmbedding"],
-            ["DescriptionEmbedding"],
+            ["DefinitionEmbedding"],
             retrieval_fields,
             os.environ["AIService__AzureSearchOptions__Text2SqlSchemaStore__Index"],
             os.environ[
@@ -227,7 +225,7 @@ class AISearchConnector:
         for schema in schemas:
             filtered_schemas = []
 
-            # del schema["FQN"]
+            del schema["FQN"]
 
             if (
                 schema["CompleteEntityRelationshipsGraph"] is not None

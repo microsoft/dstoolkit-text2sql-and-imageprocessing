@@ -47,19 +47,21 @@ class SqlQueryCacheAgent(BaseChatAgent):
             # Initialize results dictionary
             cached_results = {
                 "cached_questions_and_schemas": [],
-                "contains_pre_run_results": False
+                "contains_pre_run_results": False,
             }
 
             # Process each question sequentially
             for question in user_questions:
                 # Fetch the queries from the cache based on the question
                 logging.info(f"Fetching queries from cache for question: {question}")
-                cached_query = await self.sql_connector.fetch_queries_from_cache(question)
-                
+                cached_query = await self.sql_connector.fetch_queries_from_cache(
+                    question
+                )
+
                 # If any question has pre-run results, set the flag
                 if cached_query.get("contains_pre_run_results", False):
                     cached_results["contains_pre_run_results"] = True
-                
+
                 # Add the cached results for this question
                 if cached_query.get("cached_questions_and_schemas"):
                     cached_results["cached_questions_and_schemas"].extend(
@@ -75,7 +77,9 @@ class SqlQueryCacheAgent(BaseChatAgent):
         except json.JSONDecodeError:
             # If not JSON array, process as single question
             logging.info(f"Processing single question: {last_response}")
-            cached_queries = await self.sql_connector.fetch_queries_from_cache(last_response)
+            cached_queries = await self.sql_connector.fetch_queries_from_cache(
+                last_response
+            )
             yield Response(
                 chat_message=TextMessage(
                     content=json.dumps(cached_queries), source=self.name

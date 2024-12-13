@@ -14,7 +14,7 @@ system_message:
   - Use the current date/time above as reference point
   - Replace relative dates like 'last month', 'this year', 'previous quarter' with absolute dates
   - Maintain consistency in date formats (YYYY-MM-DD)
-  
+
   Examples of date resolution (assuming current date is {{ current_datetime }}):
   - 'last month' -> specific month name and year
   - 'this year' -> {{ current_datetime.year }}
