@@ -2,43 +2,43 @@
   "Columns": [
     {
       "DataType": "int",
-      "Definition": "The ProductDescriptionID column in the ProductDescription entity contains unique integer identifiers assigned to each product description. These IDs are used to distinguish and reference specific product descriptions within the database. The values in this column are sequentially generated numbers and serve as primary keys for the product descriptions.",
+      "Definition": null,
       "Name": "ProductDescriptionID",
       "SampleValues": [
-        1989,
-        1636,
-        1473,
-        1591,
-        1401
+        1545,
+        1718,
+        1592,
+        1678,
+        1799
       ]
     },
     {
       "DataType": "nvarchar",
-      "Definition": "The Description column in the ProductDescription entity contains textual information providing details about various products. It includes a mix of languages such as Hebrew, Arabic, English, and French, suggesting it supports multiple languages to describe the products. The descriptions often provide technical details, materials used, and product features, such as design, performance, and usage. This column helps customers understand the unique aspects and benefits of the products.",
+      "Definition": null,
       "Name": "Description",
       "SampleValues": [
-        "\u05de\u05e1\u05d2\u05e8\u05ea \u05e7\u05dc\u05ea \u05de\u05e9\u05e7\u05dc \u05de\u05d0\u05dc\u05d5\u05de\u05d9\u05e0\u05d9\u05d5\u05dd \u05d7\u05e8\u05d5\u05e5 \u05de\u05e1\u05e4\u05e7\u05ea \u05ea\u05e0\u05d5\u05d7\u05ea \u05e8\u05db\u05d9\u05d1\u05d4 \u05d6\u05e7\u05d5\u05e4\u05d4 \u05d9\u05d5\u05ea\u05e8 \u05dc\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea \u05d1\u05ea\u05d5\u05da \u05d4\u05e2\u05d9\u05e8. \u05d4\u05e2\u05d9\u05e6\u05d5\u05d1 \u05d4\u05d7\u05d3\u05e9\u05e0\u05d9 \u05e9\u05dc\u05e0\u05d5 \u05de\u05e1\u05e4\u05e7 \u05e0\u05d5\u05d7\u05d5\u05ea \u05de\u05e8\u05d1\u05d9\u05ea.",
-        "\u0634\u0648\u0643\u0629 \u0637\u0631\u064a\u0642 \u0645\u0627\u0633\u0643\u0629 \u0644\u0644\u0639\u062c\u0644\u0629 \u0627\u0644\u0623\u0645\u0627\u0645\u064a\u0629 \u0645\u0646 \u0627\u0644\u0643\u0631\u0628\u0648\u0646 \u0639\u0627\u0644\u064a\u0629 \u0627\u0644\u0623\u062f\u0627\u0621 \u0630\u0627\u062a \u0634\u0639\u0628\u062a\u064a\u0646 \u0645\u0642\u0648\u0633\u064a\u0646.",
-        "Aluminum alloy cups and a hollow axle.",
-        "Unisex long-sleeve AWC logo microfiber cycling jersey",
-        "Cuvettes en alliage d'aluminium et axe creux."
+        "\u5408\u6210\u6750\u8d28\u624b\u638c\u3001\u7075\u6d3b\u7684\u6307\u5173\u8282\u3001\u4e0a\u90e8\u5e26\u6709\u900f\u6c14\u578b\u7f51\u773c\u3002AWC\u8f66\u961f\u8d5b\u624b\u4e13\u7528\u3002",
+        "\u0e08\u0e31\u0e01\u0e23\u0e22\u0e32\u0e19\u0e23\u0e38\u0e48\u0e19\u0e19\u0e35\u0e49\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e2a\u0e34\u0e17\u0e18\u0e34\u0e20\u0e32\u0e1e\u0e2a\u0e39\u0e07 \u0e43\u0e19\u0e23\u0e32\u0e04\u0e32\u0e1b\u0e23\u0e30\u0e2b\u0e22\u0e31\u0e14  \u0e04\u0e27\u0e1a\u0e04\u0e38\u0e21\u0e07\u0e48\u0e32\u0e22 \u0e17\u0e31\u0e19\u0e43\u0e08 \u0e41\u0e25\u0e30\u0e43\u0e2b\u0e49\u0e04\u0e27\u0e32\u0e21\u0e21\u0e31\u0e48\u0e19\u0e43\u0e08\u0e40\u0e1b\u0e35\u0e48\u0e22\u0e21\u0e25\u0e49\u0e19\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e04\u0e38\u0e13\u0e15\u0e49\u0e2d\u0e07\u0e01\u0e32\u0e23\u0e02\u0e35\u0e48\u0e41\u0e1a\u0e1a\u0e2d\u0e2d\u0e1f\u0e42\u0e23\u0e14",
+        "\u0e04\u0e31\u0e19\u0e16\u0e35\u0e1a\u0e19\u0e49\u0e33\u0e2b\u0e19\u0e31\u0e01\u0e40\u0e1a\u0e32 \u0e17\u0e19\u0e17\u0e32\u0e19 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e25\u0e34\u0e1b \u0e41\u0e25\u0e30\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e1b\u0e23\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e15\u0e36\u0e07\u0e44\u0e14\u0e49",
+        "\u05e4\u05e9\u05d5\u05d8 \u05d5\u05e7\u05dc-\u05de\u05e9\u05e7\u05dc. \u05d8\u05dc\u05d0\u05d9 \u05d7\u05d9\u05e8\u05d5\u05dd \u05de\u05d0\u05d5\u05d7\u05e1\u05e0\u05d9\u05dd \u05d1\u05d9\u05d3\u05d9\u05ea.",
+        "Heavy duty, abrasion-resistant shorts feature seamless, lycra inner shorts with anti-bacterial chamois for comfort."
       ]
     },
     {
       "DataType": "uniqueidentifier",
-      "Definition": "The rowguid column in the ProductDescription entity contains unique identifier values in the form of UUIDs (Universally Unique Identifiers). These values are 128-bit numbers represented as hexadecimal strings in the standard 8-4-4-4-12 format, such as 690C4CB1-B9FA-48C1-8DF0-7F8644A72EDF. The purpose of this column is to ensure that each record in the ProductDescription entity can be uniquely identified across different systems.",
+      "Definition": null,
       "Name": "rowguid",
       "SampleValues": [
-        "690C4CB1-B9FA-48C1-8DF0-7F8644A72EDF",
-        "DCBC8264-C4D7-4B04-9531-92AB4C868C10",
-        "9AC02C25-2DC2-410A-85E5-D65CE41126B4",
-        "BAF38C0E-69BF-4F6C-805A-C7C1C6E9056A",
-        "32FDCA7F-17DD-40B8-8984-6D6EBAE9759D"
+        "1FA72BD6-06F7-4242-8EA0-B66348BD6DAF",
+        "C0F0238E-5FF9-4DE8-9AA2-D395DC0134B2",
+        "C1445984-76F7-4365-85AA-B7CC431325BC",
+        "303F7483-4FE6-4666-84FC-F62BE59082FD",
+        "03ACBB19-749A-48A1-B77E-5D2A48E8DC3A"
       ]
     },
     {
       "DataType": "datetime",
-      "Definition": "The ModifiedDate column in the ProductDescription entity contains timestamps indicating the date and time when the product description was last updated. The values follow the standard SQL datetime format 'YYYY-MM-DD HH:MM:SS.SSSSSS'. This information is used to track changes and updates to product description records over time.",
+      "Definition": null,
       "Name": "ModifiedDate",
       "SampleValues": [
         "2008-03-11 10:32:17.973000",
@@ -46,12 +46,28 @@
       ]
     }
   ],
-  "CompleteEntityRelationshipsGraph": [],
+  "CompleteEntityRelationshipsGraph": [
+    "text2sql-adventure-works.SalesLT.ProductDescription -> ProductModelProductDescription"
+  ],
   "Database": "text2sql-adventure-works",
-  "Definition": "The ProductDescription entity contains detailed descriptions of products. It includes unique identifiers for each product description, a textual description, a globally unique identifier, and the date when the description was last modified. This entity is useful for answering questions related to product details, tracking modifications to product descriptions, and uniquely identifying each product description for reference purposes.",
+  "Definition": null,
   "Entity": "ProductDescription",
-  "EntityName": "'Product Descriptions'",
-  "EntityRelationships": [],
+  "EntityName": null,
+  "EntityRelationships": [
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.ProductDescription",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "ProductModelProductDescription",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.ProductModelProductDescription",
+      "ForeignKeys": [
+        {
+          "Column": "ProductDescriptionID",
+          "ForeignColumn": "ProductDescriptionID"
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    }
+  ],
   "FQN": "text2sql-adventure-works.SalesLT.ProductDescription",
   "Schema": "SalesLT"
 }

@@ -2,67 +2,67 @@
   "Columns": [
     {
       "DataType": "int",
-      "Definition": "The SalesOrderID column in the SalesOrderDetail entity contains unique identifier numbers for each sales order. Each value in this column represents a specific sales order and is used to link sales order details to the corresponding sales order. The values are in a numerical format and are likely sequential, ensuring each sales order can be easily referenced and tracked.",
+      "Definition": null,
       "Name": "SalesOrderID",
       "SampleValues": [
-        71815,
-        71783,
-        71776,
-        71816,
-        71774
+        71898,
+        71831,
+        71899,
+        71796,
+        71946
       ]
     },
     {
       "DataType": "int",
-      "Definition": "The SalesOrderDetailID column in the SalesOrderDetail entity contains unique identifiers for each sales order detail record. The values in this column are numeric and likely auto-incremented to ensure each entry is distinct. This column is used to uniquely identify and reference individual sales order detail entries within the database. The presence of large numeric values suggests it is used for indexing and linking sales order details to broader sales transactions.",
+      "Definition": null,
       "Name": "SalesOrderDetailID",
       "SampleValues": [
-        113220,
-        110694,
-        111024,
-        110708,
-        113234
+        110691,
+        113288,
+        112940,
+        112979,
+        111078
       ]
     },
     {
       "DataType": "smallint",
-      "Definition": "The OrderQty column in the SalesOrderDetail entity contains the quantity of items ordered in a sales transaction. The values in this column represent the number of units of a product that a customer has ordered. The sample values suggest that the column stores integer values indicating different quantities, typically positive whole numbers. This column is essential for tracking the volume of products included in each order.",
+      "Definition": null,
       "Name": "OrderQty",
       "SampleValues": [
-        5,
-        25,
-        14,
-        2,
-        15
+        15,
+        23,
+        16,
+        7,
+        5
       ]
     },
     {
       "DataType": "int",
-      "Definition": "The ProductID column in the SalesOrderDetail entity contains unique numerical identifiers for each product associated with a sales order. Each value in this column corresponds to a specific product in the inventory or product catalog. The values are integers and do not follow a specific pattern, indicating they are likely sequential or randomly assigned unique identifiers. This column is used to link sales order details with the corresponding products.",
+      "Definition": null,
       "Name": "ProductID",
       "SampleValues": [
-        999,
-        797,
-        891,
-        876,
-        935
+        889,
+        780,
+        793,
+        795,
+        974
       ]
     },
     {
       "DataType": "money",
-      "Definition": "The UnitPrice column in the SalesOrderDetail entity contains the unit prices for items sold, represented as decimal values. These values indicate the cost per individual item in a sales order and are likely recorded in a currency format, including dollar and cent precision. The values are expected to vary significantly depending on the item being sold, as seen by the sample values that range from lower to higher price points.",
+      "Definition": null,
       "Name": "UnitPrice",
       "SampleValues": [
-        "34.9250",
-        "24.2940",
-        "1376.9940",
-        "818.7000",
-        "26.7240"
+        "602.3460",
+        "32.9940",
+        "323.9940",
+        "149.8740",
+        "20.2942"
       ]
     },
     {
       "DataType": "money",
-      "Definition": "The UnitPriceDiscount column in the SalesOrderDetail entity contains decimal values that represent the discount applied to the unit price of a product in an order. The values in this column are typically expressed as decimal fractions, where 0.4000 represents a 40% discount, 0.1000 represents a 10% discount, and so on. The absence of a discount is indicated by a value of 0.0000. These values are used to calculate the final price after applying the discount to the original unit price of the product.",
+      "Definition": null,
       "Name": "UnitPriceDiscount",
       "SampleValues": [
         "0.4000",
@@ -74,31 +74,31 @@
     },
     {
       "DataType": "numeric",
-      "Definition": "The LineTotal column in the SalesOrderDetail entity contains the total monetary amount for each line item in a sales order. The values represent currency amounts with up to six decimal places. Each value is the result of multiplying the unit price of an item by the quantity ordered, including any applicable discounts. This column is used to calculate the total cost for each line within an order.",
+      "Definition": null,
       "Name": "LineTotal",
       "SampleValues": [
-        "5102.970000",
-        "161.970000",
         "66.428908",
-        "14.694000",
-        "2783.988000"
+        "2041.188000",
+        "64.788000",
+        "1427.592000",
+        "5102.970000"
       ]
     },
     {
       "DataType": "uniqueidentifier",
-      "Definition": "The rowguid column in the SalesOrderDetail entity contains unique identifier values for each row in the form of globally unique identifiers (GUIDs). These values are in the standard UUID/GUID format, which is a 128-bit number used to identify information in computer systems. This ensures that each entry in the SalesOrderDetail table has a distinct and unique reference, helping to maintain data integrity and consistency across the database. The format typically appears as a series of hexadecimal digits separated by hyphens.",
+      "Definition": null,
       "Name": "rowguid",
       "SampleValues": [
-        "3C97F6BD-91EC-4C84-9636-E088B415EE51",
-        "DCF6C95D-A0E4-4272-BFF8-6B06B7F9574F",
-        "720691A3-F983-4C72-BCA1-BAABF1D24914",
-        "9D987E75-E96D-4903-BE36-0CE579A6F47B",
-        "24D90386-E9B3-40C4-8D04-EF0E2ACD30BB"
+        "09E7A695-3260-483E-91F8-A980441B9DD6",
+        "C9FCF326-D1B9-44A4-B29D-2D1888F6B0FD",
+        "5CA4F84A-BAFE-485C-B7AD-897F741F76CE",
+        "E11CF974-4DCC-4A5C-98C3-2DE92DD2A15D",
+        "E7C11996-8D83-4515-BFBD-7E380CDB6252"
       ]
     },
     {
       "DataType": "datetime",
-      "Definition": "The ModifiedDate column in the SalesOrderDetail entity contains the date and time when a particular sales order detail record was last modified. The values are stored in a datetime format with the pattern 'YYYY-MM-DD HH:MI:SS'. This column is used to track changes and updates to the sales order details, ensuring that any modifications are accurately recorded with a timestamp.",
+      "Definition": null,
       "Name": "ModifiedDate",
       "SampleValues": [
         "2008-06-01 00:00:00"
@@ -106,23 +106,37 @@
     }
   ],
   "CompleteEntityRelationshipsGraph": [
-    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderDetail"
+    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.Product -> text2sql-adventure-works.SalesLT.ProductCategory -> Product",
+    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.Product -> text2sql-adventure-works.SalesLT.ProductModel -> Product",
+    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.Product -> text2sql-adventure-works.SalesLT.ProductModel -> text2sql-adventure-works.SalesLT.ProductModelProductDescription -> text2sql-adventure-works.SalesLT.ProductDescription -> ProductModelProductDescription",
+    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderHeader -> SalesOrderDetail",
+    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderHeader -> text2sql-adventure-works.SalesLT.Address -> CustomerAddress",
+    "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderHeader -> text2sql-adventure-works.SalesLT.Customer -> CustomerAddress"
   ],
   "Database": "text2sql-adventure-works",
-  "Definition": "The SalesOrderDetail entity stores detailed information about individual items within a specific sales order. It includes data on the quantity ordered, unit price, any applicable discounts, and the total price for each line item in the order. This entity is crucial for analyzing order compositions, calculating total sales, and understanding product-specific sales performance. Questions about individual items within orders, price adjustments, and modifications to the sales details over time can be answered using this entity.",
+  "Definition": null,
   "Entity": "SalesOrderDetail",
-  "EntityName": "Sales Order Details",
+  "EntityName": null,
   "EntityRelationships": [
     {
       "FQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
       "ForeignDatabase": "text2sql-adventure-works",
       "ForeignEntity": "Product",
-      "ForeignFQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.Product",
       "ForeignKeys": [
         {
           "Column": "ProductID",
           "ForeignColumn": "ProductID"
-        },
+        }
+      ],
+      "ForeignSchema": "SalesLT"
+    },
+    {
+      "FQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
+      "ForeignDatabase": "text2sql-adventure-works",
+      "ForeignEntity": "SalesOrderHeader",
+      "ForeignFQN": "text2sql-adventure-works.SalesLT.SalesOrderHeader",
+      "ForeignKeys": [
         {
           "Column": "SalesOrderID",
           "ForeignColumn": "SalesOrderID"

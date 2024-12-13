@@ -1,6 +1,6 @@
 # Data Dictionary
 
-## entities.json
+## Schema Store JSON
 
 To power the knowledge of the LLM, a data dictionary containing all the SQL views / table metadata is used. Whilst the LLM could query the database at runtime to find out the schemas for the database, storing them in a text file reduces the overall latency of the system and allows the metadata for each table to be adjusted in a form of prompt engineering.
 
@@ -8,65 +8,154 @@ Below is a sample entry for a view / table that we which to expose to the LLM. T
 
 ```json
 {
-    "Entity": "SalesLT.SalesOrderDetail",
-    "Definition": "The SalesLT.SalesOrderDetail entity contains detailed information about individual items within sales orders. This entity includes data on the sales order ID, the specific details of each order item such as quantity, product ID, unit price, and any discounts applied. It also includes calculated fields such as the line total for each order item. This entity can be used to answer questions related to the specifics of sales transactions, such as which products were purchased in each order, the quantity of each product ordered, and the total price of each order item.",
-    "EntityName": "Sales Line Items Information",
-    "Database": "AdventureWorksLT",
-    "Warehouse": null,
+    "Entity": "SalesOrderDetail",
+    "Definition": null,
+    "Schema": "SalesLT",
+    "EntityName": null,
+    "Database": "text2sql-adventure-works",
     "EntityRelationships": [
         {
-            "ForeignEntity": "SalesLT.Product",
+            "ForeignEntity": "Product",
+            "ForeignSchema": "SalesLT",
             "ForeignKeys": [
                 {
                     "Column": "ProductID",
                     "ForeignColumn": "ProductID"
                 }
-            ]
+            ],
+            "ForeignDatabase": "text2sql-adventure-works",
+            "FQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
+            "ForeignFQN": "text2sql-adventure-works.SalesLT.Product"
         },
         {
-            "ForeignEntity": "SalesLT.SalesOrderHeader",
+            "ForeignEntity": "SalesOrderHeader",
+            "ForeignSchema": "SalesLT",
             "ForeignKeys": [
                 {
                     "Column": "SalesOrderID",
                     "ForeignColumn": "SalesOrderID"
                 }
-            ]
+            ],
+            "ForeignDatabase": "text2sql-adventure-works",
+            "FQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail",
+            "ForeignFQN": "text2sql-adventure-works.SalesLT.SalesOrderHeader"
         }
     ],
     "CompleteEntityRelationshipsGraph": [
-        "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductCategory",
-        "SalesLT.SalesOrderDetail -> SalesLT.Product -> SalesLT.ProductModel -> SalesLT.ProductModelProductDescription -> SalesLT.ProductDescription",
-        "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Address -> SalesLT.CustomerAddress -> SalesLT.Customer",
-        "SalesLT.SalesOrderDetail -> SalesLT.SalesOrderHeader -> SalesLT.Customer -> SalesLT.CustomerAddress -> SalesLT.Address"
+        "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.Product -> text2sql-adventure-works.SalesLT.ProductCategory -> Product",
+        "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.Product -> text2sql-adventure-works.SalesLT.ProductModel -> Product",
+        "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.Product -> text2sql-adventure-works.SalesLT.ProductModel -> text2sql-adventure-works.SalesLT.ProductModelProductDescription -> text2sql-adventure-works.SalesLT.ProductDescription -> ProductModelProductDescription",
+        "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderHeader -> SalesOrderDetail",
+        "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderHeader -> text2sql-adventure-works.SalesLT.Address -> CustomerAddress",
+        "text2sql-adventure-works.SalesLT.SalesOrderDetail -> text2sql-adventure-works.SalesLT.SalesOrderHeader -> text2sql-adventure-works.SalesLT.Customer -> CustomerAddress"
     ],
     "Columns": [
         {
             "Name": "SalesOrderID",
             "DataType": "int",
-            "Definition": "The SalesOrderID column in the SalesLT.SalesOrderDetail entity contains unique numerical identifiers for each sales order. Each value represents a specific sales order, ensuring that each order can be individually referenced and tracked. The values are in a sequential numeric format, indicating the progression and uniqueness of each sales transaction within the database.",
-            "AllowedValues": null,
+            "Definition": null,
             "SampleValues": [
-                71938,
-                71784,
-                71935,
-                71923,
+                71898,
+                71831,
+                71899,
+                71796,
                 71946
             ]
         },
         {
             "Name": "SalesOrderDetailID",
             "DataType": "int",
-            "Definition": "The SalesOrderDetailID column in the SalesLT.SalesOrderDetail entity contains unique identifier values for each sales order detail record. The values are numeric and are used to distinguish each order detail entry within the database. These identifiers are essential for maintaining data integrity and enabling efficient querying and data manipulation within the sales order system.",
-            "AllowedValues": null,
+            "Definition": null,
             "SampleValues": [
-                110735,
-                113231,
-                110686,
-                113257,
-                113307
+                110691,
+                113288,
+                112940,
+                112979,
+                111078
+            ]
+        },
+        {
+            "Name": "OrderQty",
+            "DataType": "smallint",
+            "Definition": null,
+            "SampleValues": [
+                15,
+                23,
+                16,
+                7,
+                5
+            ]
+        },
+        {
+            "Name": "ProductID",
+            "DataType": "int",
+            "Definition": null,
+            "SampleValues": [
+                889,
+                780,
+                793,
+                795,
+                974
+            ]
+        },
+        {
+            "Name": "UnitPrice",
+            "DataType": "money",
+            "Definition": null,
+            "SampleValues": [
+                "602.3460",
+                "32.9940",
+                "323.9940",
+                "149.8740",
+                "20.2942"
+            ]
+        },
+        {
+            "Name": "UnitPriceDiscount",
+            "DataType": "money",
+            "Definition": null,
+            "SampleValues": [
+                "0.4000",
+                "0.1000",
+                "0.0500",
+                "0.0200",
+                "0.0000"
+            ]
+        },
+        {
+            "Name": "LineTotal",
+            "DataType": "numeric",
+            "Definition": null,
+            "SampleValues": [
+                "66.428908",
+                "2041.188000",
+                "64.788000",
+                "1427.592000",
+                "5102.970000"
+            ]
+        },
+        {
+            "Name": "rowguid",
+            "DataType": "uniqueidentifier",
+            "Definition": null,
+            "SampleValues": [
+                "09E7A695-3260-483E-91F8-A980441B9DD6",
+                "C9FCF326-D1B9-44A4-B29D-2D1888F6B0FD",
+                "5CA4F84A-BAFE-485C-B7AD-897F741F76CE",
+                "E11CF974-4DCC-4A5C-98C3-2DE92DD2A15D",
+                "E7C11996-8D83-4515-BFBD-7E380CDB6252"
+            ]
+        },
+        {
+            "Name": "ModifiedDate",
+            "DataType": "datetime",
+            "Definition": null,
+            "SampleValues": [
+                "2008-06-01 00:00:00"
             ]
         }
-    ]
+    ],
+    "FQN": "text2sql-adventure-works.SalesLT.SalesOrderDetail"
 }
 ```
 
@@ -85,6 +174,32 @@ Below is a sample entry for a view / table that we which to expose to the LLM. T
 
 A full data dictionary must be built for all the views / tables you which to expose to the LLM. The metadata provide directly influences the accuracy of the Text2SQL component.
 
+## Column Value Store JSONL
+
+To aid LLM understand, the dimension tables within a star schema are indexed if they contain 'string' based values. This allows the LLM to use search to understand the context of the question asked. e.g. If a user asks 'What are the total sales on VE-C304-S', we can use search to determine that 'VE-C304-S' is in fact a Product Number and which entity it belongs to.
+
+This avoids having to index the fact tables, saving storage, and allows us to still use the SQL queries to slice and dice the data accordingly.
+
+```json
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "WB-H098", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "VE-C304-S", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "VE-C304-M", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "VE-C304-L", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TT-T092", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TT-R982", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TT-M928", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TI-T723", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TI-R982", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TI-R628", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TI-R092", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TI-M823", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TI-M602", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TI-M267", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TG-W091-S", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TG-W091-M", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "TG-W091-L", "Synonyms": []}
+{"Entity": "Product", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Product.ProductNumber", "Column": "ProductNumber", "Value": "ST-1401", "Synonyms": []}
+```
 
 ## Indexing
 
@@ -122,6 +237,13 @@ You can pass the following command line arguements:
 
 - `-- output_directory` or `-o`: Optional directory that the script will write the output files to.
 - `-- single_file` or `-s`: Optional flag that writes all schemas to a single file.
+- `-- generate_definitions` or `-gen`: Optional flag that uses OpenAI to generate descriptions.
+
+If you need control over the following, run the file directly:
+
+- `entities`: A list of entities to extract. Defaults to None.
+- `excluded_entities`: A list of entities to exclude.
+- `excluded_schemas`: A list of schemas to exclude.
 
 > [!IMPORTANT]
 >

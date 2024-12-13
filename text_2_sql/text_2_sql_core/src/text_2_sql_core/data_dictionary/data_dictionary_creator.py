@@ -96,11 +96,11 @@ class EntityRelationship(BaseModel):
     @property
     def foreign_fqn(self) -> str:
         identifiers = [
-            self.warehouse,
-            self.catalog,
-            self.database,
-            self.entity_schema,
-            self.entity,
+            self.foreign_warehouse,
+            self.foreign_catalog,
+            self.foreign_database,
+            self.foreign_entity_schema,
+            self.foreign_entity,
         ]
         non_null_identifiers = [x for x in identifiers if x is not None]
 
@@ -237,7 +237,7 @@ class DataDictionaryCreator(ABC):
         excluded_entities: list[str] = None,
         excluded_schemas: list[str] = None,
         single_file: bool = False,
-        generate_definitions: bool = True,
+        generate_definitions: bool = False,
         output_directory: str = None,
     ):
         """A method to initialize the DataDictionaryCreator class.
@@ -249,6 +249,11 @@ class DataDictionaryCreator(ABC):
             single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
             generate_definitions (bool, optional): A flag to indicate if definitions should be generated. Defaults to True.
         """
+
+        if entities is not None and excluded_entities is not None:
+            raise ValueError(
+                "Cannot pass both entities and excluded_entities. Please pass only one."
+            )
 
         if excluded_entities is None:
             excluded_entities = []
@@ -346,6 +351,8 @@ class DataDictionaryCreator(ABC):
             self.extract_entity_relationships_sql_query, cast_to=EntityRelationship
         )
 
+        logging.info(f"Extracted {len(relationships)} relationships")
+
         for relationship in relationships:
             relationship.warehouse = self.warehouse
             relationship.database = self.database
@@ -367,7 +374,7 @@ class DataDictionaryCreator(ABC):
                     relationship.foreign_fqn
                     not in self.entity_relationships[relationship.fqn]
                 ):
-                    self.entity_relationships[relationship.entity][
+                    self.entity_relationships[relationship.fqn][
                         relationship.foreign_fqn
                     ] = relationship
 
@@ -726,7 +733,12 @@ class DataDictionaryCreator(ABC):
         logging.info(f"definition for {entity.entity}: {definition}")
         entity.definition = definition
 
-    async def write_entity_to_file(self, entity):
+    async def write_entity_to_file(self, entity: EntityItem):
+        """A method to write an entity to a file.
+
+        Args:
+            entity (EntityItem): The entity to write to file.
+        """
         logging.info(f"Saving data dictionary for {entity.entity}")
 
         # Ensure the intermediate directories exist
