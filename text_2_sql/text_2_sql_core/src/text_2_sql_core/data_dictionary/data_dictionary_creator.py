@@ -361,7 +361,6 @@ class DataDictionaryCreator(ABC):
             relationship.foreign_warehouse = self.warehouse
             relationship.foreign_database = self.database
             relationship.foreign_catalog = self.catalog
-            logging.info(relationship)
 
         # Duplicate relationships to create a complete graph
 
