@@ -3,7 +3,7 @@
 from azure.identity import DefaultAzureCredential
 from openai import AsyncAzureOpenAI
 from azure.core.credentials import AzureKeyCredential
-from azure.search.documents.models import VectorizedQuery
+from azure.search.documents.models import VectorizedQuery, QueryType
 from azure.search.documents.aio import SearchClient
 from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 import os
@@ -69,11 +69,9 @@ class AISearchConnector:
             credential=credential,
         ) as search_client:
             if semantic_config is not None and vector_query is not None:
-                query_type = "semantic"
-            elif vector_query is not None:
-                query_type = "hybrid"
+                query_type = QueryType.SEMANTIC
             else:
-                query_type = "full"
+                query_type = QueryType.FULL
 
             results = await search_client.search(
                 top=top,
@@ -148,7 +146,7 @@ class AISearchConnector:
                 "AIService__AzureSearchOptions__Text2SqlColumnValueStore__Index"
             ],
             semantic_config=None,
-            top=15,
+            top=50,
             include_scores=False,
             minimum_score=5,
         )
@@ -163,10 +161,14 @@ class AISearchConnector:
 
             column_values[trimmed_fqn].append(value["Value"])
 
+        logging.info("Column Values: %s", column_values)
+
+        filter_to_column = {text: column_values}
+
         if as_json:
-            return json.dumps(column_values, default=str)
+            return json.dumps(filter_to_column, default=str)
         else:
-            return column_values
+            return filter_to_column
 
     async def get_entity_schemas(
         self,
@@ -193,12 +195,15 @@ class AISearchConnector:
             str: The schema of the views or tables in JSON format.
         """
 
+        logging.info("Search Text: %s", text)
+
         retrieval_fields = [
-            "FQN",
+            # "FQN",
             "Entity",
             "EntityName",
-            "Schema",
-            "Definition",
+            # "Schema",
+            # "Definition",
+            "Description",
             "Columns",
             "EntityRelationships",
             "CompleteEntityRelationshipsGraph",
@@ -206,7 +211,8 @@ class AISearchConnector:
 
         schemas = await self.run_ai_search_query(
             text,
-            ["DefinitionEmbedding"],
+            # ["DefinitionEmbedding"],
+            ["DescriptionEmbedding"],
             retrieval_fields,
             os.environ["AIService__AzureSearchOptions__Text2SqlSchemaStore__Index"],
             os.environ[
@@ -221,7 +227,25 @@ class AISearchConnector:
         for schema in schemas:
             filtered_schemas = []
 
-            del schema["FQN"]
+            # del schema["FQN"]
+
+            if (
+                schema["CompleteEntityRelationshipsGraph"] is not None
+                and len(schema["CompleteEntityRelationshipsGraph"]) == 0
+            ):
+                del schema["CompleteEntityRelationshipsGraph"]
+
+            if (
+                schema["SammpleValues"] is not None
+                and len(schema["SammpleValues"]) == 0
+            ):
+                del schema["SammpleValues"]
+
+            if (
+                schema["EntityRelationships"] is not None
+                and len(schema["EntityRelationships"]) == 0
+            ):
+                del schema["EntityRelationships"]
 
             if schema["Entity"].lower() not in excluded_entities:
                 filtered_schemas.append(schema)

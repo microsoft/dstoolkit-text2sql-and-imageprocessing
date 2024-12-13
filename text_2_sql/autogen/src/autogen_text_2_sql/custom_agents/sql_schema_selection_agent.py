@@ -101,15 +101,9 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
                 if schema not in final_schemas:
                     final_schemas.append(schema)
 
-        final_colmns = []
-        for column_value_result in column_value_results:
-            for column in column_value_result:
-                if column not in final_colmns:
-                    final_colmns.append(column)
-
         final_results = {
-            "schemas": final_schemas,
-            "column_values": final_colmns,
+            "COLUMN_OPTIONS_AND_VALUES_FOR_FILTERS": column_value_results,
+            "SCHEMA_OPTIONS": final_schemas,
         }
 
         logging.info(f"Final results: {final_results}")

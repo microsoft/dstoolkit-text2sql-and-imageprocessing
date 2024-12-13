@@ -50,15 +50,15 @@ class AutoGenText2Sql:
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
         self.use_query_cache = (
-            os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
         )
 
         self.pre_run_query_cache = (
-            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__PreRunQueryCache", "True").lower() == "true"
         )
 
         self.use_column_value_store = (
-            os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
         )
 
     def get_all_agents(self):
@@ -97,8 +97,10 @@ class AutoGenText2Sql:
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
-        
-        ANSWER_AGENT = LLMAgentCreator.create("answer_agent")
+
+        QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create(
+            "question_decomposition_agent"
+        )
         
         # Auto-responding UserProxyAgent
         USER_PROXY = EmptyResponseUserProxyAgent(
@@ -111,8 +113,8 @@ class AutoGenText2Sql:
             SQL_QUERY_GENERATION_AGENT,
             SQL_SCHEMA_SELECTION_AGENT,
             SQL_QUERY_CORRECTION_AGENT,
-            SQL_DISAMBIGUATION_AGENT,
-            ANSWER_AGENT,
+            QUESTION_DECOMPOSITION_AGENT,
+            SQL_DISAMBIGUATION_AGENT
         ]
 
         if self.use_query_cache:
@@ -126,12 +128,15 @@ class AutoGenText2Sql:
         """Define the termination condition for the chat."""
         termination = (
             TextMentionTermination("TERMINATE")
+            | (
+                TextMentionTermination("answer")
+                & TextMentionTermination("sources")
+                & SourceMatchTermination("sql_query_correction_agent")
+            )
             | MaxMessageTermination(20)
-            | SourceMatchTermination(["answer_agent"])
         )
         return termination
 
-    @staticmethod
     def unified_selector(messages):
         """Unified selector for the complete flow."""
         logging.info("Messages: %s", messages)
@@ -165,13 +170,14 @@ class AutoGenText2Sql:
             decision = "sql_disambiguation_agent"
         elif messages[-1].source == "sql_disambiguation_agent":
             decision = "sql_query_generation_agent"
+
+        elif messages[-1].source == "sql_query_correction_agent":
+            decision = "sql_query_generation_agent"
+
         elif messages[-1].source == "sql_query_generation_agent":
             decision = "sql_query_correction_agent"
         elif messages[-1].source == "sql_query_correction_agent":
-            if messages[-1].content == "VALIDATED":
-                decision = "answer_agent"
-            else:
-                decision = "sql_query_correction_agent"
+            decision = "sql_query_correction_agent"
         elif messages[-1].source == "answer_agent":
             return "user_proxy"  # Let user_proxy send TERMINATE
 
@@ -186,7 +192,8 @@ class AutoGenText2Sql:
             allow_repeated_speaker=False,
             model_client=LLMModelCreator.get_model("4o-mini"),
             termination_condition=self.termination_condition,
-            selector_func=AutoGenText2Sql.unified_selector,
+            selector_func=self.selector,
+            selector_func=self.unified_selector,
         )
         return flow
 

@@ -13,15 +13,15 @@ from datetime import datetime
 class SqlConnector(ABC):
     def __init__(self):
         self.use_query_cache = (
-            os.environ.get("Text2Sql__UseQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
         )
 
         self.pre_run_query_cache = (
-            os.environ.get("Text2Sql__PreRunQueryCache", "False").lower() == "true"
+            os.environ.get("Text2Sql__PreRunQueryCache", "True").lower() == "true"
         )
 
         self.use_column_value_store = (
-            os.environ.get("Text2Sql__UseColumnValueStore", "False").lower() == "true"
+            os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
         )
 
         self.ai_search_connector = ConnectorFactory.get_ai_search_connector()
@@ -91,7 +91,14 @@ class SqlConnector(ABC):
         -------
             list[dict]: The results of the SQL query.
         """
-        return await self.query_execution(sql_query, cast_to=None, limit=25)
+
+        # Validate the SQL query
+        validation_result = await self.query_validation(sql_query)
+
+        if isinstance(validation_result, bool) and validation_result:
+            return await self.query_execution(sql_query, cast_to=None, limit=25)
+        else:
+            return validation_result
 
     async def query_validation(
         self,
@@ -127,9 +134,7 @@ class SqlConnector(ABC):
             ["QuestionEmbedding"],
             ["Question", "SqlQueryDecomposition"],
             os.environ["AIService__AzureSearchOptions__Text2SqlQueryCache__Index"],
-            os.environ[
-                "AIService__AzureSearchOptions__Text2SqlQueryCache__SemanticConfig"
-            ],
+            None,
             top=1,
             include_scores=True,
             minimum_score=1.5,

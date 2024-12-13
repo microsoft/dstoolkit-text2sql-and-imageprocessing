@@ -5,12 +5,12 @@ description = "AutoGen Based Implementation"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "autogen-agentchat==0.4.0.dev9",
-    "autogen-core==0.4.0.dev9",
-    "autogen-ext[azure,openai]==0.4.0.dev9",
+    "autogen-agentchat==0.4.0.dev11",
+    "autogen-core==0.4.0.dev11",
+    "autogen-ext[azure,openai]==0.4.0.dev11",
     "grpcio>=1.68.1",
     "pyyaml>=6.0.2",
-    "text_2_sql_core",
+    "text_2_sql_core[snowflake,databricks]",
 ]
 
 [dependency-groups]

@@ -12,9 +12,9 @@ import logging
 
 
 class SqlQueryCacheAgent(BaseChatAgent):
-    def __init__(self):
+    def __init__(self, name: str = "sql_query_cache_agent"):
         super().__init__(
-            "sql_query_cache_agent",
+            name,
             "An agent that fetches the queries from the cache based on the user question.",
         )
 
