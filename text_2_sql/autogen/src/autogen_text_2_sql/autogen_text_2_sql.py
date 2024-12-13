@@ -195,7 +195,18 @@ class AutoGenText2Sql:
         )
         return flow
 
-    async def process_question(self, task: str):
+    async def process_question(self, task: str, chat_history: list[str] = None):
         """Process the complete question through the unified system."""
-        result = await self.agentic_flow.run_stream(task=task)
+
+        logging.info("Processing question: %s", task)
+        logging.info("Chat history: %s", chat_history)
+
+        agent_input = {"user_question": task, "chat_history": {}}
+
+        if chat_history is not None:
+            # Update input
+            for idx, chat in enumerate(chat_history):
+                agent_input[f"chat_{idx}"] = chat
+
+        result = await self.agentic_flow.run_stream(task=json.dumps(agent_input))
         return result
