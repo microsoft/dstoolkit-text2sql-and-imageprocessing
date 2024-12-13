@@ -122,6 +122,13 @@ You can pass the following command line arguements:
 
 - `-- output_directory` or `-o`: Optional directory that the script will write the output files to.
 - `-- single_file` or `-s`: Optional flag that writes all schemas to a single file.
+- `-- generate_definitions` or `-gen`: Optional flag that uses OpenAI to generate descriptions.
+
+If you need control over the following, run the file directly:
+
+- `entities`: A list of entities to extract. Defaults to None.
+- `excluded_entities`: A list of entities to exclude.
+- `excluded_schemas`: A list of schemas to exclude.
 
 > [!IMPORTANT]
 >

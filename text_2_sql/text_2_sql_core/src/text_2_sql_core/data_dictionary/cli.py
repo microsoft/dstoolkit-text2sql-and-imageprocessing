@@ -37,6 +37,14 @@ def create(
             help="Optional flag that writes all schemas to a single file.",
         ),
     ] = False,
+    generate_definitions: Annotated[
+        bool,
+        typer.Option(
+            "--generate_definitions",
+            "-gen",
+            help="Optional flag that will use OpenAI to generate descriptions.",
+        ),
+    ] = False,
 ) -> None:
     """Execute a Text2SQL Data Dictionary Creator YAML file.
 
@@ -50,6 +58,12 @@ def create(
 
     """
 
+    kwargs = {
+        "output_directory": output_directory,
+        "single_file": single_file,
+        "generate_definitions": generate_definitions,
+    }
+
     try:
         if engine == DatabaseEngine.DATABRICKS:
             from text_2_sql_core.data_dictionary.databricks_data_dictionary_creator import (
@@ -57,7 +71,7 @@ def create(
             )
 
             data_dictionary_creator = DatabricksDataDictionaryCreator(
-                single_file=single_file, output_directory=output_directory
+                **kwargs,
             )
         elif engine == DatabaseEngine.SNOWFLAKE:
             from text_2_sql_core.data_dictionary.snowflake_data_dictionary_creator import (
@@ -65,7 +79,7 @@ def create(
             )
 
             data_dictionary_creator = SnowflakeDataDictionaryCreator(
-                single_file=single_file, output_directory=output_directory
+                **kwargs,
             )
         elif engine == DatabaseEngine.TSQL:
             from text_2_sql_core.data_dictionary.tsql_data_dictionary_creator import (
@@ -73,7 +87,7 @@ def create(
             )
 
             data_dictionary_creator = TSQLDataDictionaryCreator(
-                single_file=single_file, output_directory=output_directory
+                **kwargs,
             )
     except ImportError:
         detailed_error = f"""Failed to import {
@@ -82,10 +96,10 @@ def create(
         rich_print(detailed_error)
 
         raise typer.Exit(code=1)
+
     try:
         asyncio.run(data_dictionary_creator.create_data_dictionary())
     except Exception as e:
-        raise e
         logging.error(e)
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 

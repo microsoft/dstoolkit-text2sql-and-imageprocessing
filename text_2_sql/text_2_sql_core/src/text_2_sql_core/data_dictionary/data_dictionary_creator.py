@@ -237,7 +237,7 @@ class DataDictionaryCreator(ABC):
         excluded_entities: list[str] = None,
         excluded_schemas: list[str] = None,
         single_file: bool = False,
-        generate_definitions: bool = True,
+        generate_definitions: bool = False,
         output_directory: str = None,
     ):
         """A method to initialize the DataDictionaryCreator class.
@@ -249,6 +249,11 @@ class DataDictionaryCreator(ABC):
             single_file (bool, optional): A flag to indicate if the data dictionary should be saved to a single file. Defaults to False.
             generate_definitions (bool, optional): A flag to indicate if definitions should be generated. Defaults to True.
         """
+
+        if entities is not None and excluded_entities is not None:
+            raise ValueError(
+                "Cannot pass both entities and excluded_entities. Please pass only one."
+            )
 
         if excluded_entities is None:
             excluded_entities = []
