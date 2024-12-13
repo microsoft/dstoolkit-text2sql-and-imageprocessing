@@ -48,6 +48,7 @@ system_message:
       <unsuccessful_mapping_entry>
         - If you cannot map it to a column, add en entry to the disambiguation list with the clarification question you need from the user:
         - If there are multiple possible options, or you are unsure how it maps, make sure to ask a clarification question.
+        - If there are no possible options, ask a clarification question for more detail.
 
         {
           \"disambiguation\": [

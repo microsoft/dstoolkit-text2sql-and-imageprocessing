@@ -98,13 +98,12 @@ class DatabricksSqlConnector(SqlConnector):
         )
 
         for schema in schemas:
-            # schema["SelectFromEntity"] = ".".join(
-            #     [schema["Catalog"], schema["Schema"], schema["Entity"]]
-            # )
-            schema["SelectFromEntity"] = schema["Entity"]
+            schema["SelectFromEntity"] = ".".join(
+                [schema["Catalog"], schema["Schema"], schema["Entity"]]
+            )
 
             del schema["Entity"]
-            # del schema["Schema"]
+            del schema["Schema"]
             del schema["Catalog"]
 
         if as_json:
