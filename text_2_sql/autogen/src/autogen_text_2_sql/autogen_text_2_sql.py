@@ -18,11 +18,12 @@ from autogen_agentchat.messages import TextMessage
 from autogen_agentchat.base import Response
 import json
 import os
-import asyncio
 from datetime import datetime
+
 
 class EmptyResponseUserProxyAgent(UserProxyAgent):
     """UserProxyAgent that automatically responds with empty messages."""
+
     def __init__(self, name):
         super().__init__(name=name)
         self._has_responded = False
@@ -34,6 +35,7 @@ class EmptyResponseUserProxyAgent(UserProxyAgent):
             self._has_responded = True
             yield message
         yield Response(chat_message=message)
+
 
 class AutoGenText2Sql:
     def __init__(self, engine_specific_rules: str, **kwargs: dict):
@@ -65,32 +67,31 @@ class AutoGenText2Sql:
         """Get all agents for the complete flow."""
         # Get current datetime for the Query Rewrite Agent
         current_datetime = datetime.now()
-        
+
         QUERY_REWRITE_AGENT = LLMAgentCreator.create(
-            "query_rewrite_agent",
-            current_datetime=current_datetime
+            "query_rewrite_agent", current_datetime=current_datetime
         )
-        
+
         SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
             "sql_query_generation_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
-        
+
         SQL_SCHEMA_SELECTION_AGENT = SqlSchemaSelectionAgent(
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
-        
+
         SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
             "sql_query_correction_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
-        
+
         SQL_DISAMBIGUATION_AGENT = LLMAgentCreator.create(
             "sql_disambiguation_agent",
             target_engine=self.target_engine,
@@ -101,11 +102,9 @@ class AutoGenText2Sql:
         QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create(
             "question_decomposition_agent"
         )
-        
+
         # Auto-responding UserProxyAgent
-        USER_PROXY = EmptyResponseUserProxyAgent(
-            name="user_proxy"
-        )
+        USER_PROXY = EmptyResponseUserProxyAgent(name="user_proxy")
 
         agents = [
             USER_PROXY,
@@ -114,7 +113,7 @@ class AutoGenText2Sql:
             SQL_SCHEMA_SELECTION_AGENT,
             SQL_QUERY_CORRECTION_AGENT,
             QUESTION_DECOMPOSITION_AGENT,
-            SQL_DISAMBIGUATION_AGENT
+            SQL_DISAMBIGUATION_AGENT,
         ]
 
         if self.use_query_cache:
@@ -192,7 +191,6 @@ class AutoGenText2Sql:
             allow_repeated_speaker=False,
             model_client=LLMModelCreator.get_model("4o-mini"),
             termination_condition=self.termination_condition,
-            selector_func=self.selector,
             selector_func=self.unified_selector,
         )
         return flow
