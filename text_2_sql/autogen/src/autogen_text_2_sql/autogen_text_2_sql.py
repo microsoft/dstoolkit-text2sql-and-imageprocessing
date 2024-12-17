@@ -68,57 +68,52 @@ class AutoGenText2Sql:
         # Get current datetime for the Query Rewrite Agent
         current_datetime = datetime.now()
 
-        QUERY_REWRITE_AGENT = LLMAgentCreator.create(
+        self.query_rewrite_agent = LLMAgentCreator.create(
             "query_rewrite_agent", current_datetime=current_datetime
         )
 
-        SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
+        self.sql_query_generation_agent = LLMAgentCreator.create(
             "sql_query_generation_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        SQL_SCHEMA_SELECTION_AGENT = SqlSchemaSelectionAgent(
+        self.sql_schema_selection_agent = SqlSchemaSelectionAgent(
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
+        self.sql_query_correction_agent = LLMAgentCreator.create(
             "sql_query_correction_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        SQL_DISAMBIGUATION_AGENT = LLMAgentCreator.create(
+        self.sql_disambiguation_agent = LLMAgentCreator.create(
             "sql_disambiguation_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        QUESTION_DECOMPOSITION_AGENT = LLMAgentCreator.create(
-            "question_decomposition_agent"
-        )
-
         # Auto-responding UserProxyAgent
-        USER_PROXY = EmptyResponseUserProxyAgent(name="user_proxy")
+        self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
 
         agents = [
-            USER_PROXY,
-            QUERY_REWRITE_AGENT,
-            SQL_QUERY_GENERATION_AGENT,
-            SQL_SCHEMA_SELECTION_AGENT,
-            SQL_QUERY_CORRECTION_AGENT,
-            QUESTION_DECOMPOSITION_AGENT,
-            SQL_DISAMBIGUATION_AGENT,
+            self.user_proxy,
+            self.query_rewrite_agent,
+            self.sql_query_generation_agent,
+            self.sql_schema_selection_agent,
+            self.sql_query_correction_agent,
+            self.sql_disambiguation_agent,
         ]
 
         if self.use_query_cache:
-            SQL_QUERY_CACHE_AGENT = SqlQueryCacheAgent()
-            agents.append(SQL_QUERY_CACHE_AGENT)
+            self.query_cache_agent = SqlQueryCacheAgent()
+            agents.append(self.query_cache_agent)
 
         return agents
 
@@ -136,7 +131,7 @@ class AutoGenText2Sql:
         )
         return termination
 
-    def unified_selector(messages):
+    def unified_selector(self, messages):
         """Unified selector for the complete flow."""
         logging.info("Messages: %s", messages)
         decision = None
@@ -195,18 +190,34 @@ class AutoGenText2Sql:
         )
         return flow
 
-    async def process_question(self, task: str, chat_history: list[str] = None):
-        """Process the complete question through the unified system."""
+    async def process_question(
+        self, task: str, chat_history: list[str] = None, parameters: dict = None
+    ):
+        """Process the complete question through the unified system.
+
+        Args:
+        ----
+            task (str): The user question to process.
+            chat_history (list[str], optional): The chat history. Defaults to None.
+            parameters (dict, optional): The parameters to pass to the agents. Defaults to None.
+
+        Returns:
+        -------
+            dict: The response from the system.
+        """
 
         logging.info("Processing question: %s", task)
         logging.info("Chat history: %s", chat_history)
 
-        agent_input = {"user_question": task, "chat_history": {}}
+        agent_input = {
+            "user_question": task,
+            "chat_history": {},
+            "parameters": parameters,
+        }
 
         if chat_history is not None:
             # Update input
             for idx, chat in enumerate(chat_history):
                 agent_input[f"chat_{idx}"] = chat
 
-        result = await self.agentic_flow.run_stream(task=json.dumps(agent_input))
-        return result
+        return self.agentic_flow.run_stream(task=json.dumps(agent_input))
