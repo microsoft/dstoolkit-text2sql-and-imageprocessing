@@ -79,7 +79,11 @@ class AutoGenText2Sql:
             **self.kwargs,
         )
 
-        self.sql_schema_selection_agent = SqlSchemaSelectionAgent()
+        self.sql_schema_selection_agent = SqlSchemaSelectionAgent(
+            target_engine=self.target_engine,
+            engine_specific_rules=self.engine_specific_rules,
+            **self.kwargs,
+        )
 
         self.sql_query_correction_agent = LLMAgentCreator.create(
             "sql_query_correction_agent",
@@ -108,7 +112,7 @@ class AutoGenText2Sql:
         ]
 
         if self.use_query_cache:
-            self.query_cache_agent = SqlQueryCacheAgent(**self.kwargs)
+            self.query_cache_agent = SqlQueryCacheAgent()
             agents.append(self.query_cache_agent)
 
         return agents
@@ -127,7 +131,7 @@ class AutoGenText2Sql:
         )
         return termination
 
-    def unified_selector(messages):
+    def unified_selector(self, messages):
         """Unified selector for the complete flow."""
         logging.info("Messages: %s", messages)
         decision = None
@@ -216,5 +220,4 @@ class AutoGenText2Sql:
             for idx, chat in enumerate(chat_history):
                 agent_input[f"chat_{idx}"] = chat
 
-        result = await self.agentic_flow.run_stream(task=json.dumps(agent_input))
-        return result
+        return self.agentic_flow.run_stream(task=json.dumps(agent_input))

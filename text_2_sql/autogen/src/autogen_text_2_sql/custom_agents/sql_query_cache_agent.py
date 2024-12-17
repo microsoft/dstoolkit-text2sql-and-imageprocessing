@@ -45,6 +45,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
             user_questions = json.loads(last_response)
             user_parameters = json.loads(parameter_input)["parameters"]
             logging.info(f"Processing questions: {user_questions}")
+            logging.info(f"Input Parameters: {user_parameters}")
 
             # Initialize results dictionary
             cached_results = {
