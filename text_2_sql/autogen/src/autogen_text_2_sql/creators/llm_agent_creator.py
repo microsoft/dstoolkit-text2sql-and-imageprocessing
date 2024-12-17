@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from autogen_core.components.tools import FunctionTool
+from autogen_core.components.tools import FunctionToolAlias
 from autogen_agentchat.agents import AssistantAgent
 from text_2_sql_core.connectors.factory import ConnectorFactory
 from text_2_sql_core.prompts.load import load
@@ -32,25 +32,25 @@ class LLMAgentCreator:
             tool_name (str): The name of the tool to retrieve.
 
         Returns:
-            FunctionTool: The tool."""
+            FunctionToolAlias: The tool."""
 
         if tool_name == "sql_query_execution_tool":
-            return FunctionTool(
+            return FunctionToolAlias(
                 sql_helper.query_execution_with_limit,
                 description="Runs an SQL query against the SQL Database to extract information",
             )
         elif tool_name == "sql_get_entity_schemas_tool":
-            return FunctionTool(
+            return FunctionToolAlias(
                 sql_helper.get_entity_schemas,
                 description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned. Only use when the provided schemas in the system prompt are not sufficient to answer the question.",
             )
         elif tool_name == "sql_get_column_values_tool":
-            return FunctionTool(
+            return FunctionToolAlias(
                 ai_search_helper.get_column_values,
                 description="Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned. Use this to get the correct value to apply against a filter for a user's question.",
             )
         elif tool_name == "current_datetime_tool":
-            return FunctionTool(
+            return FunctionToolAlias(
                 sql_helper.get_current_datetime,
                 description="Gets the current date and time.",
             )

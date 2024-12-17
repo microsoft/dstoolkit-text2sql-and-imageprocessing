@@ -20,37 +20,25 @@ system_message:
 
   <output_format>
       - **If the SQL query is valid and the results are correct**:
-        ```json
+
         {
           \"answer\": \"<GENERATED ANSWER>\",
-          \"sources\": [
-            {
-              \"sql_result_snippet\": \"<SQL QUERY RESULT 1>\",
-              \"sql_query_used\": \"<SOURCE 1 SQL QUERY>\",
-              \"explanation\": \"<EXPLANATION OF SQL QUERY 1>\"
-            },
-            {
-              \"sql_result_snippet\": \"<SQL QUERY RESULT 2>\",
-              \"sql_query_used\": \"<SOURCE 2 SQL QUERY>\",
-              \"explanation\": \"<EXPLANATION OF SQL QUERY 2>\"
-            }
-          ]
         }
-        ```
+
       - **If the SQL query needs corrections**:
-        ```json
+
         [
           {
             \"requested_fix\": \"<EXPLANATION OF REQUESTED FIX OF THE SQL QUERY>\"
           }
         ]
-        ```
+
       - **If the SQL query cannot be corrected**:
-        ```json
+
         {
           \"error\": \"Unable to correct the SQL query. Please request a new SQL query.\"
         }
-        ```
+
         Followed by **TERMINATE**.
   </output_format>
   "
