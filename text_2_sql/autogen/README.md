@@ -78,6 +78,15 @@ The vector based with query cache uses the `fetch_queries_from_cache()` method t
 
 If the score of the top result is higher than the defined threshold, the query will be executed against the target data source and the results included in the prompt. This allows us to prompt the LLM to evaluated whether it can use these results to answer the question, **without further SQL Query generation** to speed up the process.
 
+The cache entires are rendered with Jinja templates before they are run. The following placesholders are prepopulated automatically:
+
+- date
+- datetime
+- time
+- unix_timestamp
+
+Additional parameters passed at runtime, such as a user_id, are populated automatically if included in the request.
+
 #### run_sql_query()
 
 This method is called by the AutoGen framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
