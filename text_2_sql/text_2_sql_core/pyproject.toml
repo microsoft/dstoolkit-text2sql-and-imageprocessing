@@ -16,7 +16,7 @@ dependencies = [
     "networkx>=3.4.2",
     "numpy<2.0.0",
     "openai>=1.55.3",
-    "pandas[tabulate]>=2.2.3",
+    "pandas>=2.2.3",
     "pydantic>=2.10.2",
     "python-dotenv>=1.0.1",
     "pyyaml>=6.0.2",
