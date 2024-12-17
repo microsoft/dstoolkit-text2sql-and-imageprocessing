@@ -8,6 +8,7 @@ import asyncio
 import sqlglot
 from abc import ABC, abstractmethod
 from datetime import datetime
+from jinja2 import Template
 
 
 class SqlConnector(ABC):
@@ -118,7 +119,9 @@ class SqlConnector(ABC):
             logging.info("SQL Query is valid.")
             return True
 
-    async def fetch_queries_from_cache(self, question: str) -> str:
+    async def fetch_queries_from_cache(
+        self, question: str, parameters: dict = None
+    ) -> str:
         """Fetch the queries from the cache based on the question.
 
         Args:
@@ -129,6 +132,10 @@ class SqlConnector(ABC):
         -------
             str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
         """
+
+        if parameters is None:
+            parameters = {}
+
         cached_schemas = await self.ai_search_connector.run_ai_search_query(
             question,
             ["QuestionEmbedding"],
@@ -145,6 +152,14 @@ class SqlConnector(ABC):
                 "contains_pre_run_results": False,
                 "cached_questions_and_schemas": None,
             }
+
+        # loop through all sql queries and populate the template in place
+        for schema in cached_schemas:
+            sql_queries = schema["SqlQueryDecomposition"]
+            for sql_query in sql_queries:
+                sql_query["SqlQuery"] = Template(sql_query["SqlQuery"]).render(
+                    **parameters
+                )
 
         logging.info("Cached schemas: %s", cached_schemas)
         if self.pre_run_query_cache and len(cached_schemas) > 0:

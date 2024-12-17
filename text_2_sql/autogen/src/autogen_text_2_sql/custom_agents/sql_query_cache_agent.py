@@ -12,9 +12,9 @@ import logging
 
 
 class SqlQueryCacheAgent(BaseChatAgent):
-    def __init__(self, name: str = "sql_query_cache_agent"):
+    def __init__(self):
         super().__init__(
-            name,
+            "sql_query_cache_agent",
             "An agent that fetches the queries from the cache based on the user question.",
         )
 
@@ -39,9 +39,11 @@ class SqlQueryCacheAgent(BaseChatAgent):
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentMessage | Response, None]:
         # Get the decomposed questions from the query_rewrite_agent
+        parameter_input = messages[0].content
         last_response = messages[-1].content
         try:
             user_questions = json.loads(last_response)
+            user_parameters = json.loads(parameter_input)["parameters"]
             logging.info(f"Processing questions: {user_questions}")
 
             # Initialize results dictionary
@@ -55,7 +57,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
                 # Fetch the queries from the cache based on the question
                 logging.info(f"Fetching queries from cache for question: {question}")
                 cached_query = await self.sql_connector.fetch_queries_from_cache(
-                    question
+                    question, parameters=user_parameters
                 )
 
                 # If any question has pre-run results, set the flag
