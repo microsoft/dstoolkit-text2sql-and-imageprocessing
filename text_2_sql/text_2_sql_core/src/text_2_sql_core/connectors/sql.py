@@ -31,6 +31,18 @@ class SqlConnector(ABC):
         """Get the current datetime."""
         return datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
 
+    def get_current_date(self) -> str:
+        """Get the current date."""
+        return datetime.now().strftime("%d/%m/%Y")
+
+    def get_current_time(self) -> str:
+        """Get the current time."""
+        return datetime.now().strftime("%H:%M:%S")
+
+    def get_current_unix_timestamp(self) -> int:
+        """Get the current unix timestamp."""
+        return int(datetime.now().timestamp())
+
     @abstractmethod
     async def query_execution(
         self,
@@ -135,6 +147,19 @@ class SqlConnector(ABC):
 
         if parameters is None:
             parameters = {}
+
+        # Populate the parameters
+        if "date" not in parameters:
+            parameters["date"] = self.get_current_date()
+
+        if "time" not in parameters:
+            parameters["time"] = self.get_current_time()
+
+        if "datetime" not in parameters:
+            parameters["datetime"] = self.get_current_datetime()
+
+        if "unix_timestamp" not in parameters:
+            parameters["unix_timestamp"] = self.get_current_unix_timestamp()
 
         cached_schemas = await self.ai_search_connector.run_ai_search_query(
             question,
