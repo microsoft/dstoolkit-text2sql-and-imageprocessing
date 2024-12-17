@@ -9,6 +9,7 @@ import sqlglot
 from abc import ABC, abstractmethod
 from datetime import datetime
 from jinja2 import Template
+import json
 
 
 class SqlConnector(ABC):
@@ -109,9 +110,23 @@ class SqlConnector(ABC):
         validation_result = await self.query_validation(sql_query)
 
         if isinstance(validation_result, bool) and validation_result:
-            return await self.query_execution(sql_query, cast_to=None, limit=25)
+            result = await self.query_execution(sql_query, cast_to=None, limit=25)
+
+            return json.dumps(
+                {
+                    "type": "query_execution_with_limit",
+                    "sql_query": sql_query,
+                    "sql_rows": result,
+                }
+            )
         else:
-            return validation_result
+            return json.dumps(
+                {
+                    "type": "errored_query_execution_with_limit",
+                    "sql_query": sql_query,
+                    "errors": validation_result,
+                }
+            )
 
     async def query_validation(
         self,

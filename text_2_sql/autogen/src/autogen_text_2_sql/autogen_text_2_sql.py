@@ -3,7 +3,6 @@
 from autogen_agentchat.conditions import (
     TextMentionTermination,
     MaxMessageTermination,
-    SourceMatchTermination,
 )
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
@@ -12,6 +11,9 @@ import logging
 from autogen_text_2_sql.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
 from autogen_text_2_sql.custom_agents.sql_schema_selection_agent import (
     SqlSchemaSelectionAgent,
+)
+from autogen_text_2_sql.custom_agents.answer_and_sources_agent import (
+    AnswerAndSourcesAgent,
 )
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
@@ -99,6 +101,8 @@ class AutoGenText2Sql:
             **self.kwargs,
         )
 
+        self.answer_and_sources_agent = AnswerAndSourcesAgent()
+
         # Auto-responding UserProxyAgent
         self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
 
@@ -109,6 +113,7 @@ class AutoGenText2Sql:
             self.sql_schema_selection_agent,
             self.sql_query_correction_agent,
             self.sql_disambiguation_agent,
+            self.answer_and_sources_agent,
         ]
 
         if self.use_query_cache:
@@ -122,11 +127,7 @@ class AutoGenText2Sql:
         """Define the termination condition for the chat."""
         termination = (
             TextMentionTermination("TERMINATE")
-            | (
-                TextMentionTermination("answer")
-                & TextMentionTermination("sources")
-                & SourceMatchTermination("sql_query_correction_agent")
-            )
+            | (TextMentionTermination("answer") & TextMentionTermination("sources"))
             | MaxMessageTermination(20)
         )
         return termination
@@ -166,14 +167,20 @@ class AutoGenText2Sql:
             decision = "sql_query_generation_agent"
 
         elif messages[-1].source == "sql_query_correction_agent":
-            decision = "sql_query_generation_agent"
+            if "answer" in messages[-1].content is not None:
+                decision = "answer_and_sources_agent"
+            else:
+                decision = "sql_query_generation_agent"
 
         elif messages[-1].source == "sql_query_generation_agent":
-            decision = "sql_query_correction_agent"
-        elif messages[-1].source == "sql_query_correction_agent":
-            decision = "sql_query_correction_agent"
-        elif messages[-1].source == "answer_agent":
-            return "user_proxy"  # Let user_proxy send TERMINATE
+            if "query_execution_with_limit" in messages[-1].content:
+                decision = "sql_query_correction_agent"
+            else:
+                # Rerun
+                decision = "sql_query_generation_agent"
+
+        elif messages[-1].source == "answer_and_sources_agent":
+            decision = "user_proxy"  # Let user_proxy send TERMINATE
 
         logging.info("Decision: %s", decision)
         return decision
