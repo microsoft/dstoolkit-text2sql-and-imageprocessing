@@ -1,9 +1,10 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+"""
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+"""
 from autogen_agentchat.conditions import (
     TextMentionTermination,
     MaxMessageTermination,
-    SourceMatchTermination,
 )
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
@@ -112,10 +113,7 @@ class AutoGenText2Sql:
         """Define the termination condition for the chat."""
         termination = (
             TextMentionTermination("TERMINATE")
-            | (
-                TextMentionTermination("answer")
-                & TextMentionTermination("sources")            
-            )
+            | (TextMentionTermination("answer") & TextMentionTermination("sources"))
             | MaxMessageTermination(20)
         )
         return termination
@@ -126,7 +124,7 @@ class AutoGenText2Sql:
         current_agent = messages[-1].source if messages else "start"
         decision = None
 
-        # If this is the first message, start with query_rewrite_agent
+        # If this is the first message start with query_rewrite_agent
         if len(messages) == 1:
             decision = "query_rewrite_agent"
         # Handle transition after query rewriting
@@ -134,12 +132,8 @@ class AutoGenText2Sql:
             decision = "sql_query_cache_agent"  # Always go to cache agent
         # Handle subsequent agent transitions
         elif current_agent == "sql_query_cache_agent":
-            try:
-                cache_result = json.loads(messages[-1].content)
-                # Always go through schema selection after cache check
-                decision = "sql_schema_selection_agent"
-            except json.JSONDecodeError:
-                decision = "sql_schema_selection_agent"
+            # Always go through schema selection after cache check
+            decision = "sql_schema_selection_agent"
         elif current_agent == "sql_schema_selection_agent":
             decision = "sql_disambiguation_agent"
         elif current_agent == "sql_disambiguation_agent":
@@ -162,7 +156,7 @@ class AutoGenText2Sql:
                 elif isinstance(correction_result, list) and len(correction_result) > 0:
                     if "requested_fix" in correction_result[0]:
                         decision = "sql_query_generation_agent"
-                
+
                 if decision is None:
                     decision = "sql_query_generation_agent"
             except json.JSONDecodeError:
@@ -170,7 +164,7 @@ class AutoGenText2Sql:
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")
-            
+
         return decision
 
     @property

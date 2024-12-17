@@ -37,11 +37,11 @@ system_message:
        - If it's a string filter (e.g., product category, country):
          * Map to COLUMN_OPTIONS_FOR_FILTERS and VALUE_OPTIONS_FOR_FILTERS
          * Consider hierarchical relationships
-       
+
        - If it's a temporal filter:
          * Map to appropriate date columns in SCHEMA_OPTIONS
          * Break down complex date expressions (e.g., 'June 2008' → month=6 AND year=2008)
-       
+
        - If it's a numeric filter:
          * Map to appropriate numeric columns in SCHEMA_OPTIONS
          * Consider both exact and range comparisons

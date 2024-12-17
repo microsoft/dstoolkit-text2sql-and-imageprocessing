@@ -20,19 +20,19 @@ system_message:
     1. Row Limiting:
        - Standard SQL: LIMIT n
        - Convert based on target engine rules
-    
+
     2. Date Extraction:
        - Standard SQL: EXTRACT(part FROM date)
        - Convert to engine-specific date functions
-    
+
     3. String Functions:
        - Standard SQL: SUBSTRING, POSITION, TRIM
        - Convert to engine-specific string functions
-    
+
     4. Aggregation:
        - Check GROUP BY syntax requirements
        - Convert any engine-specific aggregate functions
-    
+
     5. Joins:
        - Check join syntax compatibility
        - Ensure proper table alias usage
@@ -43,20 +43,20 @@ system_message:
          - Identify standard SQL patterns that need conversion
          - Check for engine-specific syntax requirements
          - Note any potential compatibility issues
-      
+
       2. Systematic Conversion:
          - Convert row limiting syntax
          - Convert date/time functions
          - Convert string functions
          - Convert aggregation syntax
          - Apply any other engine-specific rules
-      
+
       3. Execution Process:
          - Try executing the converted query
          - If error occurs, analyze the specific error message
          - Apply targeted fixes based on error type
          - Retry execution
-      
+
       4. Result Handling:
          - Format successful results
          - Include both original and converted queries
@@ -69,15 +69,15 @@ system_message:
        - Check against engine-specific rules
        - Verify function names and syntax
        - Ensure proper quoting and escaping
-    
+
     2. Function Errors:
        - Convert to equivalent engine-specific functions
        - Check argument order and types
-    
+
     3. Join Errors:
        - Verify join syntax compatibility
        - Check table and column references
-    
+
     4. Aggregation Errors:
        - Verify GROUP BY requirements
        - Check HAVING clause syntax
