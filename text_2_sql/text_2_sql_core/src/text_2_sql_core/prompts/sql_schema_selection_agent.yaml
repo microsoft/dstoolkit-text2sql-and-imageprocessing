@@ -19,11 +19,11 @@ system_message:
     4. Consider relationship paths between entities
     5. Expand acronyms or abbreviations alongside their original form
 
-    Important: When dealing with sales analysis:
-    - Always consider both the transaction tables (e.g., SalesOrderHeader) and their related dimension tables
-    - For geographic queries, include both address and customer-related tables
+    Important: When dealing with {{ use_case }}:
+    - Always consider both the transaction tables and their related dimension tables
+    - For geographic queries, include location-related tables
     - For temporal queries, identify tables with date/time columns
-    - For product queries, include category and description tables
+    - For entity-specific queries, include relevant lookup and description tables
   </instructions>
 
   <examples>
@@ -62,10 +62,6 @@ system_message:
   </output-format>
 
   <key_relationships>
-    Common relationship paths to consider:
-    - Sales → Customer → Address (for geographic analysis)
-    - Sales → Product → Category (for product analysis)
-    - Sales → Dates (for temporal analysis)
-    - Customer → Demographics (for customer analysis)
+    {{ relationship_paths }}
   </key_relationships>
   "

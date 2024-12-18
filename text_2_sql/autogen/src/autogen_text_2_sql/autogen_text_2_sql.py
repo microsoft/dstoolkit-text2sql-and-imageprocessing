@@ -10,9 +10,14 @@ from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
 import logging
-from autogen_text_2_sql.custom_agents.sql_query_cache_agent import SqlQueryCacheAgent
+from autogen_text_2_sql.custom_agents.sql_query_cache_agent import (
+    SqlQueryCacheAgent,
+)
 from autogen_text_2_sql.custom_agents.sql_schema_selection_agent import (
     SqlSchemaSelectionAgent,
+)
+from autogen_text_2_sql.custom_agents.answer_and_sources_agent import (
+    AnswerAndSourcesAgent,
 )
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
@@ -54,57 +59,76 @@ class AutoGenText2Sql:
         self.use_column_value_store = (
             os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
         )
+        self.use_query_cache = (
+            os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
+        )
 
     def get_all_agents(self):
         """Get all agents for the complete flow."""
         # Get current datetime for the Query Rewrite Agent
         current_datetime = datetime.now()
 
-        QUERY_REWRITE_AGENT = LLMAgentCreator.create(
+        self.query_rewrite_agent = LLMAgentCreator.create(
             "query_rewrite_agent", current_datetime=current_datetime
         )
 
-        SQL_QUERY_GENERATION_AGENT = LLMAgentCreator.create(
+        self.sql_query_generation_agent = LLMAgentCreator.create(
             "sql_query_generation_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        SQL_SCHEMA_SELECTION_AGENT = SqlSchemaSelectionAgent(
+        # If relationship_paths not provided, use a generic template
+        if "relationship_paths" not in self.kwargs:
+            self.kwargs[
+                "relationship_paths"
+            ] = """
+                Common relationship paths to consider:
+                - Transaction → Related Dimensions (for basic analysis)
+                - Geographic → Location hierarchies (for geographic analysis)
+                - Temporal → Date hierarchies (for time-based analysis)
+                - Entity → Attributes (for entity-specific analysis)
+            """
+
+        self.sql_schema_selection_agent = SqlSchemaSelectionAgent(
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        SQL_QUERY_CORRECTION_AGENT = LLMAgentCreator.create(
+        self.sql_query_correction_agent = LLMAgentCreator.create(
             "sql_query_correction_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        SQL_DISAMBIGUATION_AGENT = LLMAgentCreator.create(
+        self.sql_disambiguation_agent = LLMAgentCreator.create(
             "sql_disambiguation_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
-        SQL_QUERY_CACHE_AGENT = SqlQueryCacheAgent()
+        self.answer_and_sources_agent = AnswerAndSourcesAgent()
 
-        # Create User Proxy Agent
-        USER_PROXY = EmptyResponseUserProxyAgent(name="user_proxy")
+        # Auto-responding UserProxyAgent
+        self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
 
         agents = [
-            USER_PROXY,
-            QUERY_REWRITE_AGENT,
-            SQL_QUERY_CACHE_AGENT,  # Cache agent is now always included
-            SQL_SCHEMA_SELECTION_AGENT,
-            SQL_DISAMBIGUATION_AGENT,
-            SQL_QUERY_GENERATION_AGENT,
-            SQL_QUERY_CORRECTION_AGENT,
+            self.user_proxy,
+            self.query_rewrite_agent,
+            self.sql_query_generation_agent,
+            self.sql_schema_selection_agent,
+            self.sql_query_correction_agent,
+            self.sql_disambiguation_agent,
+            self.answer_and_sources_agent,
         ]
+
+        if self.use_query_cache:
+            self.query_cache_agent = SqlQueryCacheAgent()
+            agents.append(self.query_cache_agent)
 
         return agents
 
@@ -129,7 +153,11 @@ class AutoGenText2Sql:
             decision = "query_rewrite_agent"
         # Handle transition after query rewriting
         elif current_agent == "query_rewrite_agent":
-            decision = "sql_query_cache_agent"  # Always go to cache agent
+            decision = (
+                "sql_query_cache_agent"
+                if self.use_query_cache
+                else "sql_schema_selection_agent"
+            )
         # Handle subsequent agent transitions
         elif current_agent == "sql_query_cache_agent":
             # Always go through schema selection after cache check
@@ -145,7 +173,7 @@ class AutoGenText2Sql:
                 correction_result = json.loads(messages[-1].content)
                 if isinstance(correction_result, dict):
                     if "answer" in correction_result and "sources" in correction_result:
-                        decision = "user_proxy"
+                        decision = "answer_and_sources_agent"
                     elif "corrected_query" in correction_result:
                         if correction_result.get("executing", False):
                             decision = "sql_query_correction_agent"
@@ -161,6 +189,8 @@ class AutoGenText2Sql:
                     decision = "sql_query_generation_agent"
             except json.JSONDecodeError:
                 decision = "sql_query_generation_agent"
+        elif current_agent == "answer_and_sources_agent":
+            decision = "user_proxy"  # Let user_proxy send TERMINATE
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")
@@ -179,18 +209,36 @@ class AutoGenText2Sql:
         )
         return flow
 
-    async def process_question(self, task: str, chat_history: list[str] = None):
-        """Process the complete question through the unified system."""
+    async def process_question(
+        self,
+        task: str,
+        chat_history: list[str] = None,
+        parameters: dict = None,
+    ):
+        """Process the complete question through the unified system.
 
+        Args:
+        ----
+            task (str): The user question to process.
+            chat_history (list[str], optional): The chat history. Defaults to None.
+            parameters (dict, optional): Parameters to pass to agents. Defaults to None.
+
+        Returns:
+        -------
+            dict: The response from the system.
+        """
         logging.info("Processing question: %s", task)
         logging.info("Chat history: %s", chat_history)
 
-        agent_input = {"user_question": task, "chat_history": {}}
+        agent_input = {
+            "user_question": task,
+            "chat_history": {},
+            "parameters": parameters,
+        }
 
         if chat_history is not None:
             # Update input
             for idx, chat in enumerate(chat_history):
                 agent_input[f"chat_{idx}"] = chat
 
-        result = await self.agentic_flow.run_stream(task=json.dumps(agent_input))
-        return result
+        return self.agentic_flow.run_stream(task=json.dumps(agent_input))

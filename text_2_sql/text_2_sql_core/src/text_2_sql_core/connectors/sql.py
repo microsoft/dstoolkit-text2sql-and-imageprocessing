@@ -8,6 +8,8 @@ import asyncio
 import sqlglot
 from abc import ABC, abstractmethod
 from datetime import datetime
+from jinja2 import Template
+import json
 
 
 class SqlConnector(ABC):
@@ -29,6 +31,18 @@ class SqlConnector(ABC):
     def get_current_datetime(self) -> str:
         """Get the current datetime."""
         return datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
+
+    def get_current_date(self) -> str:
+        """Get the current date."""
+        return datetime.now().strftime("%d/%m/%Y")
+
+    def get_current_time(self) -> str:
+        """Get the current time."""
+        return datetime.now().strftime("%H:%M:%S")
+
+    def get_current_unix_timestamp(self) -> int:
+        """Get the current unix timestamp."""
+        return int(datetime.now().timestamp())
 
     @abstractmethod
     async def query_execution(
@@ -96,9 +110,23 @@ class SqlConnector(ABC):
         validation_result = await self.query_validation(sql_query)
 
         if isinstance(validation_result, bool) and validation_result:
-            return await self.query_execution(sql_query, cast_to=None, limit=25)
+            result = await self.query_execution(sql_query, cast_to=None, limit=25)
+
+            return json.dumps(
+                {
+                    "type": "query_execution_with_limit",
+                    "sql_query": sql_query,
+                    "sql_rows": result,
+                }
+            )
         else:
-            return validation_result
+            return json.dumps(
+                {
+                    "type": "errored_query_execution_with_limit",
+                    "sql_query": sql_query,
+                    "errors": validation_result,
+                }
+            )
 
     async def query_validation(
         self,
@@ -118,7 +146,9 @@ class SqlConnector(ABC):
             logging.info("SQL Query is valid.")
             return True
 
-    async def fetch_queries_from_cache(self, question: str) -> str:
+    async def fetch_queries_from_cache(
+        self, question: str, parameters: dict = None
+    ) -> str:
         """Fetch the queries from the cache based on the question.
 
         Args:
@@ -129,6 +159,23 @@ class SqlConnector(ABC):
         -------
             str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
         """
+
+        if parameters is None:
+            parameters = {}
+
+        # Populate the parameters
+        if "date" not in parameters:
+            parameters["date"] = self.get_current_date()
+
+        if "time" not in parameters:
+            parameters["time"] = self.get_current_time()
+
+        if "datetime" not in parameters:
+            parameters["datetime"] = self.get_current_datetime()
+
+        if "unix_timestamp" not in parameters:
+            parameters["unix_timestamp"] = self.get_current_unix_timestamp()
+
         cached_schemas = await self.ai_search_connector.run_ai_search_query(
             question,
             ["QuestionEmbedding"],
@@ -145,6 +192,14 @@ class SqlConnector(ABC):
                 "contains_pre_run_results": False,
                 "cached_questions_and_schemas": None,
             }
+
+        # loop through all sql queries and populate the template in place
+        for schema in cached_schemas:
+            sql_queries = schema["SqlQueryDecomposition"]
+            for sql_query in sql_queries:
+                sql_query["SqlQuery"] = Template(sql_query["SqlQuery"]).render(
+                    **parameters
+                )
 
         logging.info("Cached schemas: %s", cached_schemas)
         if self.pre_run_query_cache and len(cached_schemas) > 0:

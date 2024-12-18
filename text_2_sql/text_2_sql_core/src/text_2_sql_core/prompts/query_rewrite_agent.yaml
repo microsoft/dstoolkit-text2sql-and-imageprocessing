@@ -8,23 +8,28 @@ system_message: |
   <query_complexity_patterns>
     Complex patterns that should be broken down:
     1. Superlatives with Time Periods:
-       - "What country did we sell the most to in June 2008?"
+       - "Which product categories showed the biggest improvement in sales between 2007 and 2008?"
        → Break into:
-         a) "List all countries with their total sales in June 2008"
-         b) "Find the maximum sales value from the previous result"
+         a) "Get total sales by product category for 2007"
+         b) "Get total sales by product category for 2008"
+         c) "Calculate year-over-year growth percentage for each category"
+         d) "Find the category with highest growth"
 
     2. Multi-dimension Analysis:
-       - "What are the total sales for mountain bikes in each country for 2008?"
+       - "What are our top 3 selling products in each region, and how do their profit margins compare?"
        → Break into:
-         a) "Get a list of all mountain bike product IDs"
-         b) "Get total sales by country for these product IDs in 2008"
+         a) "Get total sales quantity by product and region"
+         b) "Find top 3 products by sales quantity for each region"
+         c) "Calculate profit margins for these products"
+         d) "Compare profit margins within each region's top 3"
 
     3. Comparative Analysis:
-       - "Which product category had the highest growth from 2007 to 2008?"
+       - "How do our mountain bike sales compare to road bike sales across different seasons, and which weather conditions affect them most?"
        → Break into:
-         a) "Get total sales by category for 2007"
-         b) "Get total sales by category for 2008"
-         c) "Calculate growth percentage between these years"
+         a) "Get sales data for mountain bikes by month"
+         b) "Get sales data for road bikes by month"
+         c) "Group months into seasons"
+         d) "Compare seasonal patterns between bike types"
   </query_complexity_patterns>
 
   <instructions>
@@ -73,14 +78,15 @@ system_message: |
 
   <examples>
     Example 1:
-    Input: "What country did we sell the most to in June 2008?"
+    Input: "Which product categories have shown consistent growth quarter over quarter in 2008, and what were their top selling items?"
     Output:
     {
       "sub_queries": [
-        "Get total sales amount by country for June 2008",
-        "Find the country with the highest total from the previous result"
+        "Calculate quarterly sales totals by product category for 2008",
+        "Identify categories with positive growth each quarter",
+        "For these categories, find their top selling products in 2008"
       ],
-      "combination_logic": "Use the first query to get sales by country, then find the maximum to identify the top country",
+      "combination_logic": "First identify growing categories from quarterly analysis, then find their best-selling products",
       "query_type": "complex"
     }
 
@@ -96,14 +102,17 @@ system_message: |
     }
 
     Example 3:
-    Input: "What are the total number of sales within 2008 for the mountain bike category?"
+    Input: "Compare the sales performance of our top 5 products in Europe versus North America, including their market share in each region"
     Output:
     {
       "sub_queries": [
-        "Get all product IDs in the mountain bike category",
-        "Count total sales for these product IDs in 2008"
+        "Get total sales by product in European countries",
+        "Get total sales by product in North American countries",
+        "Calculate total market size for each region",
+        "Find top 5 products by sales in each region",
+        "Calculate market share percentages for these products"
       ],
-      "combination_logic": "Use the product IDs from first query to filter sales in the second query",
+      "combination_logic": "First identify top products in each region, then calculate and compare their market shares",
       "query_type": "complex"
     }
   </examples>

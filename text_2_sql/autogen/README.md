@@ -2,10 +2,6 @@
 
 The implementation is written for [AutoGen](https://github.com/microsoft/autogen) in Python, although it can easily be adapted for C#.
 
-**Still work in progress, expect a lot of updates shortly**
-
-**The provided AutoGen code only implements Iterations 5 (Agentic Approach)**
-
 ## Full Logical Flow for Agentic Vector Based Approach
 
 The following diagram shows the logical flow within the multi-agent system. The flow begins with query rewriting to preprocess questions - this includes resolving relative dates (e.g., "last month" to "November 2024") and breaking down complex queries into simpler components. For each preprocessed question, if query cache is enabled, the system checks the cache for previously asked similar questions. In an ideal scenario, the preprocessed questions will be found in the cache, leading to the quickest answer generation. In cases where the question is not known, the system will fall back to the other agents accordingly and generate the SQL query using the LLMs. The cache is then updated with the newly generated query and schemas.
@@ -51,8 +47,14 @@ The agent flow is managed by a sophisticated selector system in `autogen_text_2_
    - Based on correction results:
      - If query needs execution: Returns to Correction Agent
      - If query needs fixes: Returns to Generation Agent
-     - If answer and sources ready: Completes flow
+     - If answer and sources ready: Goes to Answer and Sources Agent
      - If error occurs: Returns to Generation Agent
+
+6. **Final Answer Formatting**
+   - Answer and Sources Agent formats the final response
+   - Standardizes output format with markdown tables
+   - Combines all sources and query results
+   - Returns formatted answer to user
 
 The flow uses termination conditions:
 - Explicit "TERMINATE" mention
@@ -84,6 +86,12 @@ The agentic system contains the following agents:
 
 - **SQL Query Correction Agent:** Responsible for verifying and correcting the generated SQL queries, ensuring they are syntactically correct and will produce the expected results. This agent also handles the execution of queries and formatting of results.
 
+- **Answer and Sources Agent:** Final agent in the flow that:
+  1. Standardizes the output format across all responses
+  2. Formats query results into markdown tables for better readability
+  3. Combines all sources and results into a single coherent response
+  4. Ensures consistent JSON structure in the final output
+
 The combination of these agents allows the system to answer complex questions while staying under token limits when including database schemas. The query cache ensures that previously asked questions can be answered quickly to avoid degrading user experience.
 
 ## Project Structure
@@ -97,6 +105,7 @@ This is the main entry point for the agentic system. It configures the system wi
 3. Schema selection and disambiguation
 4. Query generation and correction
 5. Result verification and formatting
+6. Final answer standardization
 
 The system uses a custom transition selector that automatically moves between agents based on the previous agent's output and the current state. This allows for dynamic reactions to different scenarios, such as cache hits, schema ambiguities, or query corrections.
 
@@ -110,6 +119,7 @@ The system uses a custom transition selector that automatically moves between ag
 Contains specialized agent implementations:
 - **sql_query_cache_agent.py:** Implements the caching functionality
 - **sql_schema_selection_agent.py:** Handles schema selection and management
+- **answer_and_sources_agent.py:** Formats and standardizes final outputs
 
 ## Configuration
 
@@ -121,3 +131,47 @@ The system behavior can be controlled through environment variables:
 - `Text2Sql__DatabaseEngine`: Specifies the target database engine
 
 Each agent can be configured with specific parameters and prompts to optimize its behavior for different scenarios.
+
+## Query Cache Implementation Details
+
+The vector based with query cache uses the `fetch_queries_from_cache()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
+
+If the score of the top result is higher than the defined threshold, the query will be executed against the target data source and the results included in the prompt. This allows us to prompt the LLM to evaluated whether it can use these results to answer the question, **without further SQL Query generation** to speed up the process.
+
+The cache entries are rendered with Jinja templates before they are run. The following placeholders are prepopulated automatically:
+
+- date
+- datetime
+- time
+- unix_timestamp
+
+Additional parameters passed at runtime, such as a user_id, are populated automatically if included in the request.
+
+### run_sql_query()
+
+This method is called by the AutoGen framework automatically, when instructed to do so by the LLM, to run a SQL query against the given database. It returns a JSON string containing a row wise dump of the results returned. These results are then interpreted to answer the question.
+
+Additionally, if any of the cache functionality is enabled, this method will update the query cache index based on the SQL query run, and the schemas used in execution.
+
+## Output Format
+
+The system produces standardized JSON output through the Answer and Sources Agent:
+
+```json
+{
+  "answer": "The answer to the user's question",
+  "sources": [
+    {
+      "sql_query": "The SQL query used",
+      "sql_rows": ["Array of result rows"],
+      "markdown_table": "Formatted markdown table of results"
+    }
+  ]
+}
+```
+
+This consistent output format ensures:
+1. Clear separation between answer and supporting evidence
+2. Human-readable presentation of query results
+3. Access to raw data for further processing
+4. Traceable query execution for debugging

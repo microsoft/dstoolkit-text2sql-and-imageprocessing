@@ -99,6 +99,8 @@ system_message:
           ]
         }
         ```
+        Followed by **TERMINATE**.
+
       - **If corrections needed and retrying**:
         ```json
         {
@@ -115,6 +117,7 @@ system_message:
           \"executing\": true
         }
         ```
+
       - **If query cannot be corrected**:
         ```json
         {
@@ -128,6 +131,7 @@ system_message:
           ]
         }
         ```
+        Followed by **TERMINATE**.
   </output_format>
 
   Remember: Focus on converting standard SQL patterns to {{ target_engine }}-compliant syntax while preserving the original query logic.
