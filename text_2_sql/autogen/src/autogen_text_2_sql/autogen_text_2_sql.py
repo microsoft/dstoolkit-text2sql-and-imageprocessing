@@ -21,10 +21,12 @@ from autogen_text_2_sql.custom_agents.answer_and_sources_agent import (
 )
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
-from autogen_agentchat.base import Response
+from autogen_agentchat.base import Response, TaskResult
 import json
 import os
+import asyncio
 from datetime import datetime
+from typing import AsyncGenerator, Any, List
 
 
 class EmptyResponseUserProxyAgent(UserProxyAgent):
@@ -50,6 +52,12 @@ class AutoGenText2Sql:
         self.engine_specific_rules = engine_specific_rules
         self.kwargs = kwargs
         self.set_mode()
+        
+        # Initialize all agents
+        self.agents = self.get_all_agents()
+        
+        # Create the flow
+        self._flow = None
 
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
@@ -172,15 +180,17 @@ class AutoGenText2Sql:
             try:
                 correction_result = json.loads(messages[-1].content)
                 if isinstance(correction_result, dict):
-                    if "answer" in correction_result and "sources" in correction_result:
+                    if "error" in correction_result:
+                        # Let error response terminate naturally
+                        return None
+                    elif "answer" in correction_result and "sources" in correction_result:
+                        # Pass successful results to answer_and_sources_agent
                         decision = "answer_and_sources_agent"
                     elif "corrected_query" in correction_result:
                         if correction_result.get("executing", False):
                             decision = "sql_query_correction_agent"
                         else:
                             decision = "sql_query_generation_agent"
-                    elif "error" in correction_result:
-                        decision = "sql_query_generation_agent"
                 elif isinstance(correction_result, list) and len(correction_result) > 0:
                     if "requested_fix" in correction_result[0]:
                         decision = "sql_query_generation_agent"
@@ -200,21 +210,34 @@ class AutoGenText2Sql:
     @property
     def agentic_flow(self):
         """Create the unified flow for the complete process."""
-        flow = SelectorGroupChat(
-            self.get_all_agents(),
-            allow_repeated_speaker=False,
-            model_client=LLMModelCreator.get_model("4o-mini"),
-            termination_condition=self.termination_condition,
-            selector_func=self.unified_selector,
-        )
-        return flow
+        if self._flow is None:
+            self._flow = SelectorGroupChat(
+                self.agents,
+                allow_repeated_speaker=False,
+                model_client=LLMModelCreator.get_model("4o-mini"),
+                termination_condition=self.termination_condition,
+                selector_func=self.unified_selector,
+            )
+        return self._flow
+
+    async def process_sub_query(self, sub_query: dict, parameters: dict = None) -> AsyncGenerator[Any, None]:
+        """Process a single sub-query through the agent flow."""
+        agent_input = {
+            "user_question": sub_query["query"],
+            "chat_history": {},
+            "parameters": parameters,
+            "sub_query_id": sub_query.get("id"),
+        }
+        
+        async for item in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
+            yield item
 
     async def process_question(
         self,
         task: str,
         chat_history: list[str] = None,
         parameters: dict = None,
-    ):
+    ) -> AsyncGenerator[Any, None]:
         """Process the complete question through the unified system.
 
         Args:
@@ -225,11 +248,12 @@ class AutoGenText2Sql:
 
         Returns:
         -------
-            dict: The response from the system.
+            AsyncGenerator[Any, None]: Stream of responses from the system.
         """
         logging.info("Processing question: %s", task)
         logging.info("Chat history: %s", chat_history)
 
+        # Create input for initial flow
         agent_input = {
             "user_question": task,
             "chat_history": {},
@@ -237,8 +261,77 @@ class AutoGenText2Sql:
         }
 
         if chat_history is not None:
-            # Update input
             for idx, chat in enumerate(chat_history):
                 agent_input[f"chat_{idx}"] = chat
 
-        return self.agentic_flow.run_stream(task=json.dumps(agent_input))
+        # Run through the flow to get rewritten queries
+        messages = []
+        async for item in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
+            if hasattr(item, 'messages'):
+                messages.extend(item.messages)
+            elif hasattr(item, 'chat_message'):
+                messages.append(item.chat_message)
+            yield item
+        
+        try:
+            # Extract rewritten queries from the result
+            rewrite_message = next(
+                (m for m in messages if m.source == "query_rewrite_agent"),
+                None
+            )
+            
+            if not rewrite_message:
+                return
+                
+            rewrite_content = json.loads(rewrite_message.content)
+            sub_queries = rewrite_content.get("sub_queries", [])
+            
+            if not sub_queries:
+                return
+            
+            # Process independent sub-queries in parallel
+            independent_queries = [q for q in sub_queries if not q.get("depends_on", [])]
+            dependent_queries = [q for q in sub_queries if q.get("depends_on", [])]
+            
+            # Execute independent queries in parallel
+            tasks = [
+                self.process_sub_query(query, parameters)
+                for query in independent_queries
+            ]
+            
+            # Process each task's stream
+            for task_stream in asyncio.as_completed(tasks):
+                async for item in await task_stream:
+                    yield item
+            
+            # Process dependent queries sequentially
+            for query in dependent_queries:
+                # Check if dependencies are met
+                dependencies = query.get("depends_on", [])
+                all_results = messages  # Use all messages to check dependencies
+                dependencies_met = all(
+                    any(m.source == dep for m in all_results)
+                    for dep in dependencies
+                )
+                
+                if dependencies_met:
+                    # Add dependency results to query context
+                    query["dependency_results"] = {
+                        dep: next(m for m in all_results if m.source == dep)
+                        for dep in dependencies
+                    }
+                    async for item in self.process_sub_query(query, parameters):
+                        yield item
+            
+            # Send combined results to answer_and_sources_agent
+            combined_input = {
+                "original_question": task,
+                "messages": messages,
+                "combination_logic": rewrite_content.get("combination_logic", "")
+            }
+            
+            yield TaskResult(messages=messages)
+            
+        except (json.JSONDecodeError, AttributeError, StopIteration):
+            # Return the initial messages if any errors occur
+            yield TaskResult(messages=messages)
