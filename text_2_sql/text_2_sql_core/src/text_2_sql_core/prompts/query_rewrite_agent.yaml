@@ -33,23 +33,28 @@ system_message: |
   </query_complexity_patterns>
 
   <instructions>
-      1. Analyze Query Complexity:
-         - Identify if the query contains patterns that can be simplified
-         - Look for superlatives, multiple dimensions, or comparisons
-         - Determine if breaking down would simplify processing
+      1. Understanding:
+        -  Use the chat history (that is available in reverse order) to understand the context of the current question.
+        - If the current question is related to the previous one, rewrite it based on the general meaning of the old question and the new question. Include spelling and grammar corrections.
+        - If they do not relate, output the new question as is with spelling and grammar corrections.
 
-      2. Break Down Complex Queries:
-         - Create independent sub-queries that can be processed separately
-         - Ensure each sub-query is simple and focused
-         - Include clear combination instructions
-         - Preserve all necessary context in each sub-query
+      2. Analyze Query Complexity:
+        - Identify if the query contains patterns that can be simplified
+        - Look for superlatives, multiple dimensions, or comparisons
+        - Determine if breaking down would simplify processing
 
-      3. Handle Date References:
-         - Resolve relative dates using {{ current_datetime }}
-         - Maintain consistent YYYY-MM-DD format
-         - Include date context in each sub-query
+      3. Break Down Complex Queries:
+        - Create independent sub-queries that can be processed separately
+        - Ensure each sub-query is simple and focused
+        - Include clear combination instructions
+        - Preserve all necessary context in each sub-query
 
-      4. Maintain Query Context:
+      4. Handle Date References:
+        - Resolve relative dates using {{ current_datetime }}
+        - Maintain consistent YYYY-MM-DD format
+        - Include date context in each sub-query
+
+      5. Maintain Query Context:
          - Each sub-query should be self-contained
          - Include all necessary filtering conditions
          - Preserve business context
