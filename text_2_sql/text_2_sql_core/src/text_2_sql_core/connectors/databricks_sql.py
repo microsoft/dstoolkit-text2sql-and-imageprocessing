@@ -8,8 +8,15 @@ import os
 import logging
 import json
 
+from text_2_sql_core.utils.database import DatabaseEngine
+
 
 class DatabricksSqlConnector(SqlConnector):
+    def __init__(self):
+        super().__init__()
+
+        self.database_engine = DatabaseEngine.DATABRICKS
+
     async def query_execution(
         self,
         sql_query: Annotated[

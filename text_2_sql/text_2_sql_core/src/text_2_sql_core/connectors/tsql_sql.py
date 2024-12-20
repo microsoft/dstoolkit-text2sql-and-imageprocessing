@@ -7,8 +7,15 @@ import os
 import logging
 import json
 
+from text_2_sql_core.utils.database import DatabaseEngine
+
 
 class TSQLSqlConnector(SqlConnector):
+    def __init__(self):
+        super().__init__()
+
+        self.database_engine = DatabaseEngine.TSQL
+
     async def query_execution(
         self,
         sql_query: Annotated[

@@ -28,6 +28,8 @@ class SqlConnector(ABC):
 
         self.ai_search_connector = ConnectorFactory.get_ai_search_connector()
 
+        self.database_engine = None
+
     def get_current_datetime(self) -> str:
         """Get the current datetime."""
         return datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
@@ -138,7 +140,11 @@ class SqlConnector(ABC):
         """Validate the SQL query."""
         try:
             logging.info("Validating SQL Query: %s", sql_query)
-            sqlglot.transpile(sql_query)
+            sqlglot.transpile(
+                sql_query,
+                read=self.database_engine.value.lower(),
+                error_level=sqlglot.ErrorLevel.ERROR,
+            )
         except sqlglot.errors.ParseError as e:
             logging.error("SQL Query is invalid: %s", e.errors)
             return e.errors
