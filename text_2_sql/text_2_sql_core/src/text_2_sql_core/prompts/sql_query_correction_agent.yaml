@@ -136,3 +136,5 @@ system_message:
 
   Remember: Focus on converting standard SQL patterns to {{ target_engine }}-compliant syntax while preserving the original query logic.
   "
+tools:
+  - sql_query_execution_tool
