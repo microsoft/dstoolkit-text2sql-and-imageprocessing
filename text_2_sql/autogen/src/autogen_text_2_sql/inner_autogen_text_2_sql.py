@@ -126,10 +126,10 @@ class InnerAutoGenText2Sql:
         """Unified selector for the complete flow."""
         """Unified selector for the complete flow."""
         logging.info("Messages: %s", messages)
-        current_agent = messages[-1].source if messages else "start"
+        current_agent = messages[-1].source if messages else "user"
         decision = None
 
-        if current_agent == "start":
+        if current_agent == "user":
             decision = (
                 "sql_query_cache_agent"
                 if self.use_query_cache

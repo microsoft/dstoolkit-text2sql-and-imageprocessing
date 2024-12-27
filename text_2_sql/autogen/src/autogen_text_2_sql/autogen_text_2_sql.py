@@ -86,11 +86,11 @@ class AutoGenText2Sql:
     def unified_selector(self, messages):
         """Unified selector for the complete flow."""
         logging.info("Messages: %s", messages)
-        current_agent = messages[-1].source if messages else "start"
+        current_agent = messages[-1].source if messages else "user"
         decision = None
 
         # If this is the first message start with query_rewrite_agent
-        if current_agent == "start":
+        if current_agent == "user":
             decision = "query_rewrite_agent"
         # Handle transition after query rewriting
         elif current_agent == "query_rewrite_agent":
