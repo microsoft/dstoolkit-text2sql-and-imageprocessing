@@ -1,7 +1,5 @@
-"""
-Copyright (c) Microsoft Corporation.
-Licensed under the MIT License.
-"""
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from autogen_agentchat.conditions import (
     TextMentionTermination,
     MaxMessageTermination,
@@ -10,11 +8,8 @@ from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
 import logging
-from autogen_text_2_sql.custom_agents.sql_query_cache_agent import (
-    SqlQueryCacheAgent,
-)
-from autogen_text_2_sql.custom_agents.sql_schema_selection_agent import (
-    SqlSchemaSelectionAgent,
+from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
+    ParallelQuerySolvingAgent,
 )
 from autogen_text_2_sql.custom_agents.answer_and_sources_agent import (
     AnswerAndSourcesAgent,
@@ -45,23 +40,9 @@ class EmptyResponseUserProxyAgent(UserProxyAgent):
 
 class AutoGenText2Sql:
     def __init__(self, engine_specific_rules: str, **kwargs: dict):
-        self.pre_run_query_cache = False
         self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
         self.engine_specific_rules = engine_specific_rules
         self.kwargs = kwargs
-        self.set_mode()
-
-    def set_mode(self):
-        """Set the mode of the plugin based on the environment variables."""
-        self.pre_run_query_cache = (
-            os.environ.get("Text2Sql__PreRunQueryCache", "True").lower() == "true"
-        )
-        self.use_column_value_store = (
-            os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
-        )
-        self.use_query_cache = (
-            os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
-        )
 
     def get_all_agents(self):
         """Get all agents for the complete flow."""
@@ -72,43 +53,8 @@ class AutoGenText2Sql:
             "query_rewrite_agent", current_datetime=current_datetime
         )
 
-        self.sql_query_generation_agent = LLMAgentCreator.create(
-            "sql_query_generation_agent",
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
-        )
-
-        # If relationship_paths not provided, use a generic template
-        if "relationship_paths" not in self.kwargs:
-            self.kwargs[
-                "relationship_paths"
-            ] = """
-                Common relationship paths to consider:
-                - Transaction → Related Dimensions (for basic analysis)
-                - Geographic → Location hierarchies (for geographic analysis)
-                - Temporal → Date hierarchies (for time-based analysis)
-                - Entity → Attributes (for entity-specific analysis)
-            """
-
-        self.sql_schema_selection_agent = SqlSchemaSelectionAgent(
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
-        )
-
-        self.sql_query_correction_agent = LLMAgentCreator.create(
-            "sql_query_correction_agent",
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
-        )
-
-        self.sql_disambiguation_agent = LLMAgentCreator.create(
-            "sql_disambiguation_agent",
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
+        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(
+            engine_specific_rules=self.engine_specific_rules, **self.kwargs
         )
 
         self.answer_and_sources_agent = AnswerAndSourcesAgent()
@@ -119,16 +65,9 @@ class AutoGenText2Sql:
         agents = [
             self.user_proxy,
             self.query_rewrite_agent,
-            self.sql_query_generation_agent,
-            self.sql_schema_selection_agent,
-            self.sql_query_correction_agent,
-            self.sql_disambiguation_agent,
+            self.parallel_query_solving_agent,
             self.answer_and_sources_agent,
         ]
-
-        if self.use_query_cache:
-            self.query_cache_agent = SqlQueryCacheAgent()
-            agents.append(self.query_cache_agent)
 
         return agents
 
@@ -149,51 +88,19 @@ class AutoGenText2Sql:
         decision = None
 
         # If this is the first message start with query_rewrite_agent
-        if len(messages) == 1:
+        if current_agent == "start":
             decision = "query_rewrite_agent"
         # Handle transition after query rewriting
         elif current_agent == "query_rewrite_agent":
-            decision = (
-                "sql_query_cache_agent"
-                if self.use_query_cache
-                else "sql_schema_selection_agent"
-            )
-        # Handle subsequent agent transitions
-        elif current_agent == "sql_query_cache_agent":
-            # Always go through schema selection after cache check
-            decision = "sql_schema_selection_agent"
-        elif current_agent == "sql_schema_selection_agent":
-            decision = "sql_disambiguation_agent"
-        elif current_agent == "sql_disambiguation_agent":
-            decision = "sql_query_generation_agent"
-        elif current_agent == "sql_query_generation_agent":
-            decision = "sql_query_correction_agent"
-        elif current_agent == "sql_query_correction_agent":
-            try:
-                correction_result = json.loads(messages[-1].content)
-                if isinstance(correction_result, dict):
-                    if "answer" in correction_result and "sources" in correction_result:
-                        decision = "answer_and_sources_agent"
-                    elif "corrected_query" in correction_result:
-                        if correction_result.get("executing", False):
-                            decision = "sql_query_correction_agent"
-                        else:
-                            decision = "sql_query_generation_agent"
-                    elif "error" in correction_result:
-                        decision = "sql_query_generation_agent"
-                elif isinstance(correction_result, list) and len(correction_result) > 0:
-                    if "requested_fix" in correction_result[0]:
-                        decision = "sql_query_generation_agent"
-
-                if decision is None:
-                    decision = "sql_query_generation_agent"
-            except json.JSONDecodeError:
-                decision = "sql_query_generation_agent"
-        elif current_agent == "answer_and_sources_agent":
-            decision = "user_proxy"  # Let user_proxy send TERMINATE
+            decision = "parallel_query_solving_agent"
+        # Handle transition after parallel query solving
+        elif current_agent == "parallel_query_solving_agent":
+            decision = "answer_and_sources_agent"
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")
+        else:
+            logging.info(f"No agent transition defined from {current_agent}")
 
         return decision
 
