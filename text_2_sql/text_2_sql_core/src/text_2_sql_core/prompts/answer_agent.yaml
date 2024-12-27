@@ -1,0 +1,6 @@
+model: "4o-mini"
+description: "An agent that generates a response to a user's question."
+system_message: |
+  <role_and_objective>
+      You are a helpful AI Assistant specializing in answering a user's question.
+  </role_and_objective>

@@ -11,7 +11,7 @@ import logging
 from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
     ParallelQuerySolvingAgent,
 )
-from text_2_sql.autogen.src.autogen_text_2_sql.custom_agents.sources_agent import (
+from autogen_text_2_sql.custom_agents.sources_agent import (
     SourcesAgent,
 )
 from autogen_agentchat.agents import UserProxyAgent
@@ -120,7 +120,7 @@ class AutoGenText2Sql:
         )
         return flow
 
-    async def process_question(
+    def process_question(
         self,
         question: str,
         chat_history: list[str] = None,

@@ -188,7 +188,7 @@ class InnerAutoGenText2Sql:
         )
         return flow
 
-    async def process_question(
+    def process_question(
         self,
         question: str,
         parameters: dict = None,

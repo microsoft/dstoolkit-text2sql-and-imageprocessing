@@ -165,6 +165,18 @@ wheels = [
 ]
 
 [[package]]
+name = "aiostream"
+version = "0.6.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/fe/aa14603fcd5cc4333f81791bbdf58cd4cb8677c8e21e3cc691d27c00173f/aiostream-0.6.4.tar.gz", hash = "sha256:f99bc6b1b9cea3e70885dc235a233523597555fe4a585ed21d65264b3f1ff3d2", size = 67983 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/71/5c/639dc59441df1d5cec49a09c36eb89af651476760f950b7d018bdf0ec4a7/aiostream-0.6.4-py3-none-any.whl", hash = "sha256:bd8c6a8b90a52c0325a3b19406f0f2a131448e596c06398886f5be1c73b4cea9", size = 53665 },
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -347,6 +359,7 @@ name = "autogen-text-2-sql"
 version = "0.1.0"
 source = { virtual = "text_2_sql/autogen" }
 dependencies = [
+    { name = "aiostream" },
     { name = "autogen-agentchat" },
     { name = "autogen-core" },
     { name = "autogen-ext", extra = ["azure", "openai"] },
@@ -369,6 +382,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiostream", specifier = ">=0.6.4" },
     { name = "autogen-agentchat", specifier = "==0.4.0.dev11" },
     { name = "autogen-core", specifier = "==0.4.0.dev11" },
     { name = "autogen-ext", extras = ["azure", "openai"], specifier = "==0.4.0.dev11" },
