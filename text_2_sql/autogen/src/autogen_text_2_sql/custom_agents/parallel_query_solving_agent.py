@@ -45,8 +45,6 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentMessage | Response, None]:
-        inner_messages: List[AgentMessage | ChatMessage] = []
-
         last_response = messages[-1].content
         parameter_input = messages[0].content
         try:
@@ -58,9 +56,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         # Load the json of the last message to populate the final output object
         query_rewrites = json.loads(last_response)
 
-        logging.info(f"Query Rewrite: {query_rewrites}")
-
-        inner_solving_generators = []
+        logging.info(f"Query Rewrites: {query_rewrites}")
 
         async def consume_inner_messages_from_agentic_flow(
             agentic_flow, identifier, complete_inner_messages
@@ -81,10 +77,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
                 yield {"source": identifier, "message": inner_message}
 
+        inner_solving_generators = []
         complete_inner_messages = {}
 
         # Start processing sub-queries
         for query_rewrite in query_rewrites["sub_queries"]:
+            logging.info(f"Processing sub-query: {query_rewrite}")
             # Create an instance of the InnerAutoGenText2Sql class
             inner_autogen_text_2_sql = InnerAutoGenText2Sql(
                 self.engine_specific_rules, **self.kwargs
@@ -92,38 +90,36 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
             # Launch tasks for each sub-query
             inner_solving_generators.append(
-                inner_autogen_text_2_sql.process_question(
-                    question=query_rewrite, parameters=user_parameters
+                consume_inner_messages_from_agentic_flow(
+                    inner_autogen_text_2_sql.process_question(
+                        question=query_rewrite, parameters=user_parameters
+                    ),
+                    query_rewrite,
+                    complete_inner_messages,
                 )
             )
 
+        logging.info("Starting Inner Solving Generators")
         combined_message_streams = stream.merge(*inner_solving_generators)
 
         async with combined_message_streams.stream() as streamer:
             async for inner_message in streamer:
-                print(inner_message)
+                logging.info(f"Inner Solving Message: {inner_message}")
                 yield inner_message
 
-        # # Process the results as they are yielded
-        # for completed in asyncio.as_completed(inner_solving_generators):
-        #     async for inner_message in completed:
-        #         # Yield the result as soon as it's available
-        #         yield inner_message
-
-        # # Wait for all tasks to complete
-        # await asyncio.gather(*inner_solving_generators, return_exceptions=True)
-
-        # # Log final results for debugging or auditing
-        # logging.info(f"Formatted Results: {complete_inner_messages}")
+        # Log final results for debugging or auditing
+        logging.info(f"Formatted Results: {complete_inner_messages}")
 
         # TODO: Trim out unnecessary information from the final response
-
         # Final response
         yield Response(
             chat_message=TextMessage(
                 content=json.dumps(complete_inner_messages), source=self.name
             ),
-            inner_messages=complete_inner_messages,
+            inner_messages=[
+                complete_inner_message["message"]
+                for complete_inner_message in complete_inner_messages
+            ],
         )
 
     async def on_reset(self, cancellation_token: CancellationToken) -> None:
