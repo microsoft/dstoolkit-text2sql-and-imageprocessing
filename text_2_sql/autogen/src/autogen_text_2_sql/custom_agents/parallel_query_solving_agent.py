@@ -75,10 +75,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                     complete_inner_messages[identifier] = []
                 complete_inner_messages[identifier].append(inner_message)
 
-                yield TextMessage(
-                    content=json.dumps(inner_message),
-                    source=f"{self.name}-{identifier}",
-                )
+                yield inner_message
 
         inner_solving_generators = []
         complete_inner_messages = {}
@@ -102,6 +99,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 )
             )
 
+        logging.info("Created %i Inner Solving Generators", inner_solving_generators)
         logging.info("Starting Inner Solving Generators")
         combined_message_streams = stream.merge(*inner_solving_generators)
 
