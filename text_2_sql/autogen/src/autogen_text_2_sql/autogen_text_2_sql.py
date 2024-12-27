@@ -11,8 +11,8 @@ import logging
 from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
     ParallelQuerySolvingAgent,
 )
-from autogen_text_2_sql.custom_agents.answer_and_sources_agent import (
-    AnswerAndSourcesAgent,
+from text_2_sql.autogen.src.autogen_text_2_sql.custom_agents.sources_agent import (
+    SourcesAgent,
 )
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
@@ -57,7 +57,9 @@ class AutoGenText2Sql:
             engine_specific_rules=self.engine_specific_rules, **self.kwargs
         )
 
-        self.answer_and_sources_agent = AnswerAndSourcesAgent()
+        self.answer_agent = LLMAgentCreator.create("answer_agent")
+
+        self.sources_agent = SourcesAgent()
 
         # Auto-responding UserProxyAgent
         self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
@@ -66,7 +68,7 @@ class AutoGenText2Sql:
             self.user_proxy,
             self.query_rewrite_agent,
             self.parallel_query_solving_agent,
-            self.answer_and_sources_agent,
+            self.sources_agent,
         ]
 
         return agents
@@ -95,7 +97,9 @@ class AutoGenText2Sql:
             decision = "parallel_query_solving_agent"
         # Handle transition after parallel query solving
         elif current_agent == "parallel_query_solving_agent":
-            decision = "answer_and_sources_agent"
+            decision = "answer_agent"
+        elif current_agent == "answer_agent":
+            decision = "sources_agent"
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")
@@ -118,7 +122,7 @@ class AutoGenText2Sql:
 
     async def process_question(
         self,
-        task: str,
+        question: str,
         chat_history: list[str] = None,
         parameters: dict = None,
     ):
@@ -134,11 +138,11 @@ class AutoGenText2Sql:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing question: %s", task)
+        logging.info("Processing question: %s", question)
         logging.info("Chat history: %s", chat_history)
 
         agent_input = {
-            "user_question": task,
+            "question": question,
             "chat_history": {},
             "parameters": parameters,
         }

@@ -41,6 +41,13 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentMessage | Response, None]:
         last_response = messages[-1].content
+        parameter_input = messages[0].content
+        last_response = messages[-1].content
+        try:
+            user_parameters = json.loads(parameter_input)["parameters"]
+        except json.JSONDecodeError:
+            logging.error("Error decoding the user parameters.")
+            user_parameters = {}
 
         # Load the json of the last message to populate the final output object
         query_rewrites = json.loads(last_response)
@@ -49,14 +56,16 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
         inner_solving_tasks = []
 
-        for query_rewrite in query_rewrites:
+        for query_rewrite in query_rewrites["sub_queries"]:
             # Create an instance of the InnerAutoGenText2Sql class
             inner_autogen_text_2_sql = InnerAutoGenText2Sql(
                 self.engine_specific_rules, **self.kwargs
             )
 
             inner_solving_tasks.append(
-                inner_autogen_text_2_sql.run_stream(task=query_rewrite)
+                inner_autogen_text_2_sql.process_question(
+                    question=query_rewrite, parameters=user_parameters
+                )
             )
 
         # Wait for all the inner solving tasks to complete

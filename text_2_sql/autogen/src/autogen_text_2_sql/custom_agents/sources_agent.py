@@ -12,10 +12,10 @@ import logging
 import pandas as pd
 
 
-class AnswerAndSourcesAgent(BaseChatAgent):
+class SourcesAgent(BaseChatAgent):
     def __init__(self):
         super().__init__(
-            "answer_and_sources_agent",
+            "sources_agent",
             "An agent that formats the final answer and sources.",
         )
 

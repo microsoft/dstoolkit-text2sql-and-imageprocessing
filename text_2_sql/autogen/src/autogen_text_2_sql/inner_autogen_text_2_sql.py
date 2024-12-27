@@ -187,3 +187,29 @@ class InnerAutoGenText2Sql:
             selector_func=self.unified_selector,
         )
         return flow
+
+    async def process_question(
+        self,
+        question: str,
+        parameters: dict = None,
+    ):
+        """Process the complete question through the unified system.
+
+        Args:
+        ----
+            task (str): The user question to process.
+            parameters (dict, optional): Parameters to pass to agents. Defaults to None.
+
+        Returns:
+        -------
+            dict: The response from the system.
+        """
+        logging.info("Processing question: %s", question)
+
+        agent_input = {
+            "question": question,
+            "chat_history": {},
+            "parameters": parameters,
+        }
+
+        return self.agentic_flow.run_stream(task=json.dumps(agent_input))
