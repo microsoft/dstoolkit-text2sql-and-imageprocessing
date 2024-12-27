@@ -4,7 +4,12 @@ from typing import AsyncGenerator, List, Sequence
 
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
-from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
+from autogen_agentchat.messages import (
+    AgentEvent,
+    AgentMessage,
+    ChatMessage,
+    TextMessage,
+)
 from autogen_core import CancellationToken
 import json
 import logging
@@ -40,6 +45,8 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentMessage | Response, None]:
+        inner_messages: List[AgentEvent | ChatMessage] = []
+
         last_response = messages[-1].content
         parameter_input = messages[0].content
         last_response = messages[-1].content
@@ -76,8 +83,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         yield Response(
             chat_message=TextMessage(
                 content=json.dumps(inner_solving_results), source=self.name
-            )
+            ),
+            inner_messages=inner_messages,
         )
 
-    async def on_reset(self, cancellation_token: CancellationToken) -> None:
-        pass
+        async def on_reset(self, cancellation_token: CancellationToken) -> None:
+            pass
