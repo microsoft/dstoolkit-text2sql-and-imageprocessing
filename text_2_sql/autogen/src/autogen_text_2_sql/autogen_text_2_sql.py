@@ -3,6 +3,7 @@
 from autogen_agentchat.conditions import (
     TextMentionTermination,
     MaxMessageTermination,
+    SourceMatchTermination,
 )
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
@@ -10,9 +11,6 @@ from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
 import logging
 from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
     ParallelQuerySolvingAgent,
-)
-from autogen_text_2_sql.custom_agents.sources_agent import (
-    SourcesAgent,
 )
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
@@ -66,8 +64,6 @@ class AutoGenText2Sql:
 
         self.answer_agent = LLMAgentCreator.create("answer_agent")
 
-        self.sources_agent = SourcesAgent()
-
         # Auto-responding UserProxyAgent
         self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
 
@@ -75,7 +71,7 @@ class AutoGenText2Sql:
             self.user_proxy,
             self.query_rewrite_agent,
             self.parallel_query_solving_agent,
-            self.sources_agent,
+            self.answer_agent,
         ]
 
         return agents
@@ -85,8 +81,9 @@ class AutoGenText2Sql:
         """Define the termination condition for the chat."""
         termination = (
             TextMentionTermination("TERMINATE")
-            | (TextMentionTermination("answer") & TextMentionTermination("sources"))
-            | MaxMessageTermination(20)
+            | SourceMatchTermination("answer_agent")
+            | TextMentionTermination("requires_user_information_request")
+            | MaxMessageTermination(5)
         )
         return termination
 
@@ -105,8 +102,6 @@ class AutoGenText2Sql:
         # Handle transition after parallel query solving
         elif current_agent == "parallel_query_solving_agent":
             decision = "answer_agent"
-        elif current_agent == "answer_agent":
-            decision = "sources_agent"
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")
@@ -126,6 +121,45 @@ class AutoGenText2Sql:
             selector_func=self.unified_selector,
         )
         return flow
+
+    def extract_sources(self, messages: list) -> AnswerWithSources:
+        """Extract the sources from the answer."""
+
+        answer = messages[-1].content
+
+        sql_query_results = messages[-2].content
+
+        try:
+            sql_query_results = json.loads(sql_query_results)
+
+            logging.info("SQL Query Results: %s", sql_query_results)
+
+            sources = []
+
+            for question, sql_query_result_list in sql_query_results["results"].items():
+                logging.info(
+                    "SQL Query Result for question '%s': %s",
+                    question,
+                    sql_query_result_list,
+                )
+
+                for sql_query_result in sql_query_result_list:
+                    logging.info("SQL Query Result: %s", sql_query_result)
+                    sources.append(
+                        {
+                            "sql_query": sql_query_result["sql_query"],
+                            "sql_rows": sql_query_result["sql_rows"],
+                        }
+                    )
+
+        except json.JSONDecodeError:
+            logging.error("Could not load message: %s", sql_query_results)
+            raise ValueError("Could not load message")
+
+        return AnswerWithSources(
+            answer=answer,
+            sources=sources,
+        )
 
     async def process_question(
         self,
@@ -160,8 +194,7 @@ class AutoGenText2Sql:
                 agent_input[f"chat_{idx}"] = chat
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
-            logging.info("Message: %s", message)
-            logging.info("Message type: %s", type(message))
+            logging.debug("Message: %s", message)
 
             payload = None
 
@@ -184,17 +217,19 @@ class AutoGenText2Sql:
 
             elif isinstance(message, TaskResult):
                 # Now we need to return the final answer or the disambiguation request
+                logging.info("TaskResult: %s", message)
 
-                if message.source == "answer_agent":
+                if message.messages[-1].source == "answer_agent":
                     # If the message is from the answer_agent, we need to return the final answer
-                    payload = AnswerWithSources(
-                        **json.loads(message.content),
+                    payload = self.extract_sources(message.messages)
+                elif message.messages[-1].source == "parallel_query_solving_agent":
+                    payload = UserInformationRequest(
+                        **json.loads(message.messages[-1].content),
                     )
                 else:
-                    payload = UserInformationRequest(
-                        **json.loads(message.content),
-                    )
+                    logging.error("Unexpected TaskResult: %s", message)
+                    raise ValueError("Unexpected TaskResult")
 
             if payload is not None:
-                logging.info("Payload: %s", payload)
+                logging.debug("Payload: %s", payload)
                 yield payload

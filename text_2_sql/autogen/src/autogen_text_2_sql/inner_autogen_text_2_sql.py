@@ -150,7 +150,7 @@ class InnerAutoGenText2Sql:
                 correction_result = json.loads(messages[-1].content)
                 if isinstance(correction_result, dict):
                     if "answer" in correction_result and "sources" in correction_result:
-                        decision = "answer_and_sources_agent"
+                        decision = "user_proxy"
                     elif "corrected_query" in correction_result:
                         if correction_result.get("executing", False):
                             decision = "sql_query_correction_agent"
@@ -166,8 +166,6 @@ class InnerAutoGenText2Sql:
                     decision = "sql_query_generation_agent"
             except json.JSONDecodeError:
                 decision = "sql_query_generation_agent"
-        elif current_agent == "answer_and_sources_agent":
-            decision = "user_proxy"  # Let user_proxy send TERMINATE
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")

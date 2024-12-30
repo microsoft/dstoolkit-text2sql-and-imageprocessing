@@ -3,18 +3,14 @@
 from typing import AsyncGenerator, List, Sequence
 
 from autogen_agentchat.agents import BaseChatAgent
-from autogen_agentchat.base import Response
-from autogen_agentchat.messages import (
-    AgentMessage,
-    ChatMessage,
-    TextMessage,
-)
+from autogen_agentchat.base import Response, TaskResult
+from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
 from autogen_core import CancellationToken
 import json
 import logging
 from autogen_text_2_sql.inner_autogen_text_2_sql import InnerAutoGenText2Sql
-
 from aiostream import stream
+from json import JSONDecodeError
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
@@ -59,7 +55,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         logging.info(f"Query Rewrites: {query_rewrites}")
 
         async def consume_inner_messages_from_agentic_flow(
-            agentic_flow, identifier, complete_inner_messages
+            agentic_flow, identifier, database_results
         ):
             """
             Consume the inner messages and append them to the specified list.
@@ -71,14 +67,43 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             """
             async for inner_message in agentic_flow:
                 # Add message to results dictionary, tagged by the function name
-                if identifier not in complete_inner_messages:
-                    complete_inner_messages[identifier] = []
-                complete_inner_messages[identifier].append(inner_message)
+                if identifier not in database_results:
+                    database_results[identifier] = []
+
+                logging.info(f"Checking Inner Message: {inner_message}")
+
+                if isinstance(inner_message, TaskResult) is False:
+                    try:
+                        inner_message = json.loads(inner_message.content)
+                        logging.info(f"Loaded: {inner_message}")
+
+                        # Search for specific message types and add them to the final output object
+                        if (
+                            "type" in inner_message
+                            and inner_message["type"] == "query_execution_with_limit"
+                        ):
+                            database_results[identifier].append(
+                                {
+                                    "sql_query": inner_message["sql_query"].replace(
+                                        "\n", " "
+                                    ),
+                                    "sql_rows": inner_message["sql_rows"],
+                                }
+                            )
+
+                    except (JSONDecodeError, TypeError) as e:
+                        logging.error("Could not load message: %s", inner_message)
+                        logging.warning(f"Error processing message: {e}")
+
+                    except Exception as e:
+                        logging.error("Could not load message: %s", inner_message)
+                        logging.error(f"Error processing message: {e}")
+                        raise e
 
                 yield inner_message
 
         inner_solving_generators = []
-        complete_inner_messages = {}
+        database_results = {}
 
         # Start processing sub-queries
         for query_rewrite in query_rewrites["sub_queries"]:
@@ -95,32 +120,33 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                         question=query_rewrite, parameters=user_parameters
                     ),
                     query_rewrite,
-                    complete_inner_messages,
+                    database_results,
                 )
             )
 
-        logging.info("Created %i Inner Solving Generators", inner_solving_generators)
+        logging.info(
+            "Created %i Inner Solving Generators", len(inner_solving_generators)
+        )
         logging.info("Starting Inner Solving Generators")
         combined_message_streams = stream.merge(*inner_solving_generators)
 
         async with combined_message_streams.stream() as streamer:
             async for inner_message in streamer:
-                logging.info(f"Inner Solving Message: {inner_message}")
-                yield inner_message
+                if isinstance(inner_message, TextMessage):
+                    logging.debug(f"Inner Solving Message: {inner_message}")
+                    yield inner_message
 
         # Log final results for debugging or auditing
-        logging.info(f"Formatted Results: {complete_inner_messages}")
+        logging.info(f"Database Results: {database_results}")
 
-        # TODO: Trim out unnecessary information from the final response
         # Final response
         yield Response(
             chat_message=TextMessage(
-                content=json.dumps(complete_inner_messages), source=self.name
+                content=json.dumps(
+                    {"contains_results": True, "results": database_results}
+                ),
+                source=self.name,
             ),
-            inner_messages=[
-                complete_inner_message["message"]
-                for complete_inner_message in complete_inner_messages
-            ],
         )
 
     async def on_reset(self, cancellation_token: CancellationToken) -> None:
