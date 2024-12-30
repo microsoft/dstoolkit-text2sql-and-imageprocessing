@@ -189,14 +189,14 @@ class InnerAutoGenText2Sql:
     def process_question(
         self,
         question: str,
-        parameters: dict = None,
+        injected_parameters: dict = None,
     ):
         """Process the complete question through the unified system.
 
         Args:
         ----
             task (str): The user question to process.
-            parameters (dict, optional): Parameters to pass to agents. Defaults to None.
+            injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:
         -------
@@ -207,7 +207,7 @@ class InnerAutoGenText2Sql:
         agent_input = {
             "question": question,
             "chat_history": {},
-            "parameters": parameters,
+            "injected_parameters": injected_parameters,
         }
 
         return self.agentic_flow.run_stream(task=json.dumps(agent_input))

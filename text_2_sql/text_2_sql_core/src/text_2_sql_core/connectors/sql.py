@@ -153,7 +153,7 @@ class SqlConnector(ABC):
             return True
 
     async def fetch_queries_from_cache(
-        self, question: str, parameters: dict = None
+        self, question: str, injected_parameters: dict = None
     ) -> str:
         """Fetch the queries from the cache based on the question.
 
@@ -166,21 +166,21 @@ class SqlConnector(ABC):
             str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
         """
 
-        if parameters is None:
-            parameters = {}
+        if injected_parameters is None:
+            injected_parameters = {}
 
-        # Populate the parameters
-        if "date" not in parameters:
-            parameters["date"] = self.get_current_date()
+        # Populate the injected_parameters
+        if "date" not in injected_parameters:
+            injected_parameters["date"] = self.get_current_date()
 
-        if "time" not in parameters:
-            parameters["time"] = self.get_current_time()
+        if "time" not in injected_parameters:
+            injected_parameters["time"] = self.get_current_time()
 
-        if "datetime" not in parameters:
-            parameters["datetime"] = self.get_current_datetime()
+        if "datetime" not in injected_parameters:
+            injected_parameters["datetime"] = self.get_current_datetime()
 
-        if "unix_timestamp" not in parameters:
-            parameters["unix_timestamp"] = self.get_current_unix_timestamp()
+        if "unix_timestamp" not in injected_parameters:
+            injected_parameters["unix_timestamp"] = self.get_current_unix_timestamp()
 
         cached_schemas = await self.ai_search_connector.run_ai_search_query(
             question,
@@ -204,7 +204,7 @@ class SqlConnector(ABC):
             sql_queries = schema["SqlQueryDecomposition"]
             for sql_query in sql_queries:
                 sql_query["SqlQuery"] = Template(sql_query["SqlQuery"]).render(
-                    **parameters
+                    **injected_parameters
                 )
 
         logging.info("Cached schemas: %s", cached_schemas)

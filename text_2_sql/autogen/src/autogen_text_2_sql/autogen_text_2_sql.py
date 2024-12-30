@@ -22,6 +22,7 @@ from text_2_sql_core.payloads import (
     AnswerWithSources,
     UserInformationRequest,
     ProcessingUpdate,
+    ChatHistoryItem,
 )
 from autogen_agentchat.base import Response, TaskResult
 from typing import AsyncGenerator
@@ -164,8 +165,8 @@ class AutoGenText2Sql:
     async def process_question(
         self,
         question: str,
-        chat_history: list[str] = None,
-        parameters: dict = None,
+        chat_history: list[ChatHistoryItem] = None,
+        injected_parameters: dict = None,
     ) -> AsyncGenerator[AnswerWithSources | UserInformationRequest, None]:
         """Process the complete question through the unified system.
 
@@ -173,7 +174,7 @@ class AutoGenText2Sql:
         ----
             task (str): The user question to process.
             chat_history (list[str], optional): The chat history. Defaults to None.
-            parameters (dict, optional): Parameters to pass to agents. Defaults to None.
+            injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:
         -------
@@ -185,13 +186,14 @@ class AutoGenText2Sql:
         agent_input = {
             "question": question,
             "chat_history": {},
-            "parameters": parameters,
+            "injected_parameters": injected_parameters,
         }
 
         if chat_history is not None:
             # Update input
             for idx, chat in enumerate(chat_history):
-                agent_input[f"chat_{idx}"] = chat
+                # For now only consider the user query
+                agent_input[f"chat_{idx}"] = chat.user_query
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)

@@ -43,9 +43,9 @@ class SqlQueryCacheAgent(BaseChatAgent):
         last_response = messages[-1].content
         try:
             user_questions = json.loads(last_response)
-            user_parameters = json.loads(parameter_input)["parameters"]
+            injected_parameters = json.loads(parameter_input)["injected_parameters"]
             logging.info(f"Processing questions: {user_questions}")
-            logging.info(f"Input Parameters: {user_parameters}")
+            logging.info(f"Input Parameters: {injected_parameters}")
 
             # Initialize results dictionary
             cached_results = {
@@ -58,7 +58,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
                 # Fetch the queries from the cache based on the question
                 logging.info(f"Fetching queries from cache for question: {question}")
                 cached_query = await self.sql_connector.fetch_queries_from_cache(
-                    question, parameters=user_parameters
+                    question, injected_parameters=injected_parameters
                 )
 
                 # If any question has pre-run results, set the flag
