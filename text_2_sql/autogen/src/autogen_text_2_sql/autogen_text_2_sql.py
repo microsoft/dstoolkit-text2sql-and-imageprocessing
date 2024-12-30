@@ -16,10 +16,17 @@ from autogen_text_2_sql.custom_agents.sources_agent import (
 )
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
-from autogen_agentchat.base import Response
 import json
 import os
 from datetime import datetime
+
+from text_2_sql_core.payloads import (
+    AnswerWithSources,
+    UserInformationRequest,
+    ProcessingUpdate,
+)
+from autogen_agentchat.base import Response, TaskResult
+from asyncio import AsyncGenerator
 
 
 class EmptyResponseUserProxyAgent(UserProxyAgent):
@@ -120,12 +127,12 @@ class AutoGenText2Sql:
         )
         return flow
 
-    def process_question(
+    async def process_question(
         self,
         question: str,
         chat_history: list[str] = None,
         parameters: dict = None,
-    ):
+    ) -> AsyncGenerator[AnswerWithSources | UserInformationRequest]:
         """Process the complete question through the unified system.
 
         Args:
@@ -152,4 +159,42 @@ class AutoGenText2Sql:
             for idx, chat in enumerate(chat_history):
                 agent_input[f"chat_{idx}"] = chat
 
-        return self.agentic_flow.run_stream(task=json.dumps(agent_input))
+        async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
+            logging.info("Message: %s", message)
+            logging.info("Message type: %s", type(message))
+
+            payload = None
+
+            if isinstance(message, TextMessage):
+                if message.source == "query_rewrite_agent":
+                    # If the message is from the query_rewrite_agent, we need to update the chat history
+                    payload = ProcessingUpdate(
+                        title="Rewriting the query...",
+                    )
+                elif message.source == "parallel_query_solving_agent":
+                    # If the message is from the parallel_query_solving_agent, we need to update the chat history
+                    payload = ProcessingUpdate(
+                        title="Solving the query...",
+                    )
+                elif message.source == "answer_agent":
+                    # If the message is from the answer_agent, we need to update the chat history
+                    payload = ProcessingUpdate(
+                        title="Generating the answer...",
+                    )
+
+            elif isinstance(message, TaskResult):
+                # Now we need to return the final answer or the disambiguation request
+
+                if message.task == "answer_agent":
+                    # If the message is from the answer_agent, we need to return the final answer
+                    payload = AnswerWithSources(
+                        **json.loads(message.content),
+                    )
+                else:
+                    payload = UserInformationRequest(
+                        **json.loads(message.content),
+                    )
+
+            if payload is not None:
+                logging.info("Payload: %s", payload)
+                yield payload

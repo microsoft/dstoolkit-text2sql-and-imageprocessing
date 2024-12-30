@@ -143,7 +143,7 @@ class SqlConnector(ABC):
             sqlglot.transpile(
                 sql_query,
                 read=self.database_engine.value.lower(),
-                error_level=sqlglot.ErrorLevel.ERROR,
+                error_level=sqlglot.ErrorLevel.RAISE,
             )
         except sqlglot.errors.ParseError as e:
             logging.error("SQL Query is invalid: %s", e.errors)

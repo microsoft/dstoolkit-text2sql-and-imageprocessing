@@ -9,13 +9,13 @@ class RequestType(StrEnum):
 
 
 class ClarificationRequest(BaseModel):
-    type: Literal[RequestType.CLARIFICATION]
+    request_type: Literal[RequestType.CLARIFICATION]
     question: str
     other_user_choices: list[str]
 
 
 class DismabiguationRequest(BaseModel):
-    type: Literal[RequestType.DISAMBIGUATION]
+    request_type: Literal[RequestType.DISAMBIGUATION]
     question: str
     matching_columns: list[str]
     matching_filter_values: list[str]
@@ -23,4 +23,4 @@ class DismabiguationRequest(BaseModel):
 
 
 class UserInformationRequest(RootModel):
-    root: DismabiguationRequest = Field(..., discriminator="type")
+    root: DismabiguationRequest = Field(..., discriminator="request_type")
