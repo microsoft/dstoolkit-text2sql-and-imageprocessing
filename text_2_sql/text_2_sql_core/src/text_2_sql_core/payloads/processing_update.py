@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ProcessingUpdate(BaseModel):
-    title: str
-    message: str
+    title: str | None = Field(default="Processing...")
+    message: str | None = Field(default="Processing...")

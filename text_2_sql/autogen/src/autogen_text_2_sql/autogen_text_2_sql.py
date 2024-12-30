@@ -26,7 +26,7 @@ from text_2_sql_core.payloads import (
     ProcessingUpdate,
 )
 from autogen_agentchat.base import Response, TaskResult
-from asyncio import AsyncGenerator
+from typing import AsyncGenerator
 
 
 class EmptyResponseUserProxyAgent(UserProxyAgent):
@@ -132,7 +132,7 @@ class AutoGenText2Sql:
         question: str,
         chat_history: list[str] = None,
         parameters: dict = None,
-    ) -> AsyncGenerator[AnswerWithSources | UserInformationRequest]:
+    ) -> AsyncGenerator[AnswerWithSources | UserInformationRequest, None]:
         """Process the complete question through the unified system.
 
         Args:
@@ -169,23 +169,23 @@ class AutoGenText2Sql:
                 if message.source == "query_rewrite_agent":
                     # If the message is from the query_rewrite_agent, we need to update the chat history
                     payload = ProcessingUpdate(
-                        title="Rewriting the query...",
+                        message="Rewriting the query...",
                     )
                 elif message.source == "parallel_query_solving_agent":
                     # If the message is from the parallel_query_solving_agent, we need to update the chat history
                     payload = ProcessingUpdate(
-                        title="Solving the query...",
+                        message="Solving the query...",
                     )
                 elif message.source == "answer_agent":
                     # If the message is from the answer_agent, we need to update the chat history
                     payload = ProcessingUpdate(
-                        title="Generating the answer...",
+                        message="Generating the answer...",
                     )
 
             elif isinstance(message, TaskResult):
                 # Now we need to return the final answer or the disambiguation request
 
-                if message.task == "answer_agent":
+                if message.source == "answer_agent":
                     # If the message is from the answer_agent, we need to return the final answer
                     payload = AnswerWithSources(
                         **json.loads(message.content),
