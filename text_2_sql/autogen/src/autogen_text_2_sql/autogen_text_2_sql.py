@@ -1,30 +1,31 @@
-"""
-Copyright (c) Microsoft Corporation.
-Licensed under the MIT License.
-"""
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 from autogen_agentchat.conditions import (
     TextMentionTermination,
     MaxMessageTermination,
+    SourceMatchTermination,
 )
 from autogen_agentchat.teams import SelectorGroupChat
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from autogen_text_2_sql.creators.llm_agent_creator import LLMAgentCreator
 import logging
-from autogen_text_2_sql.custom_agents.sql_query_cache_agent import (
-    SqlQueryCacheAgent,
-)
-from autogen_text_2_sql.custom_agents.sql_schema_selection_agent import (
-    SqlSchemaSelectionAgent,
-)
-from autogen_text_2_sql.custom_agents.answer_and_sources_agent import (
-    AnswerAndSourcesAgent,
+from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
+    ParallelQuerySolvingAgent,
 )
 from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
-from autogen_agentchat.base import Response
 import json
 import os
 from datetime import datetime
+
+from text_2_sql_core.payloads import (
+    AnswerWithSources,
+    UserInformationRequest,
+    ProcessingUpdate,
+    ChatHistoryItem,
+)
+from autogen_agentchat.base import Response, TaskResult
+from typing import AsyncGenerator
 
 
 class EmptyResponseUserProxyAgent(UserProxyAgent):
@@ -45,23 +46,9 @@ class EmptyResponseUserProxyAgent(UserProxyAgent):
 
 class AutoGenText2Sql:
     def __init__(self, engine_specific_rules: str, **kwargs: dict):
-        self.pre_run_query_cache = False
         self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
         self.engine_specific_rules = engine_specific_rules
         self.kwargs = kwargs
-        self.set_mode()
-
-    def set_mode(self):
-        """Set the mode of the plugin based on the environment variables."""
-        self.pre_run_query_cache = (
-            os.environ.get("Text2Sql__PreRunQueryCache", "True").lower() == "true"
-        )
-        self.use_column_value_store = (
-            os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
-        )
-        self.use_query_cache = (
-            os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
-        )
 
     def get_all_agents(self):
         """Get all agents for the complete flow."""
@@ -72,46 +59,11 @@ class AutoGenText2Sql:
             "query_rewrite_agent", current_datetime=current_datetime
         )
 
-        self.sql_query_generation_agent = LLMAgentCreator.create(
-            "sql_query_generation_agent",
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
+        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(
+            engine_specific_rules=self.engine_specific_rules, **self.kwargs
         )
 
-        # If relationship_paths not provided, use a generic template
-        if "relationship_paths" not in self.kwargs:
-            self.kwargs[
-                "relationship_paths"
-            ] = """
-                Common relationship paths to consider:
-                - Transaction → Related Dimensions (for basic analysis)
-                - Geographic → Location hierarchies (for geographic analysis)
-                - Temporal → Date hierarchies (for time-based analysis)
-                - Entity → Attributes (for entity-specific analysis)
-            """
-
-        self.sql_schema_selection_agent = SqlSchemaSelectionAgent(
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
-        )
-
-        self.sql_query_correction_agent = LLMAgentCreator.create(
-            "sql_query_correction_agent",
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
-        )
-
-        self.sql_disambiguation_agent = LLMAgentCreator.create(
-            "sql_disambiguation_agent",
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
-        )
-
-        self.answer_and_sources_agent = AnswerAndSourcesAgent()
+        self.answer_agent = LLMAgentCreator.create("answer_agent")
 
         # Auto-responding UserProxyAgent
         self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
@@ -119,16 +71,9 @@ class AutoGenText2Sql:
         agents = [
             self.user_proxy,
             self.query_rewrite_agent,
-            self.sql_query_generation_agent,
-            self.sql_schema_selection_agent,
-            self.sql_query_correction_agent,
-            self.sql_disambiguation_agent,
-            self.answer_and_sources_agent,
+            self.parallel_query_solving_agent,
+            self.answer_agent,
         ]
-
-        if self.use_query_cache:
-            self.query_cache_agent = SqlQueryCacheAgent()
-            agents.append(self.query_cache_agent)
 
         return agents
 
@@ -137,63 +82,32 @@ class AutoGenText2Sql:
         """Define the termination condition for the chat."""
         termination = (
             TextMentionTermination("TERMINATE")
-            | (TextMentionTermination("answer") & TextMentionTermination("sources"))
-            | MaxMessageTermination(20)
+            | SourceMatchTermination("answer_agent")
+            | TextMentionTermination("requires_user_information_request")
+            | MaxMessageTermination(5)
         )
         return termination
 
     def unified_selector(self, messages):
         """Unified selector for the complete flow."""
         logging.info("Messages: %s", messages)
-        current_agent = messages[-1].source if messages else "start"
+        current_agent = messages[-1].source if messages else "user"
         decision = None
 
         # If this is the first message start with query_rewrite_agent
-        if len(messages) == 1:
+        if current_agent == "user":
             decision = "query_rewrite_agent"
         # Handle transition after query rewriting
         elif current_agent == "query_rewrite_agent":
-            decision = (
-                "sql_query_cache_agent"
-                if self.use_query_cache
-                else "sql_schema_selection_agent"
-            )
-        # Handle subsequent agent transitions
-        elif current_agent == "sql_query_cache_agent":
-            # Always go through schema selection after cache check
-            decision = "sql_schema_selection_agent"
-        elif current_agent == "sql_schema_selection_agent":
-            decision = "sql_disambiguation_agent"
-        elif current_agent == "sql_disambiguation_agent":
-            decision = "sql_query_generation_agent"
-        elif current_agent == "sql_query_generation_agent":
-            decision = "sql_query_correction_agent"
-        elif current_agent == "sql_query_correction_agent":
-            try:
-                correction_result = json.loads(messages[-1].content)
-                if isinstance(correction_result, dict):
-                    if "answer" in correction_result and "sources" in correction_result:
-                        decision = "answer_and_sources_agent"
-                    elif "corrected_query" in correction_result:
-                        if correction_result.get("executing", False):
-                            decision = "sql_query_correction_agent"
-                        else:
-                            decision = "sql_query_generation_agent"
-                    elif "error" in correction_result:
-                        decision = "sql_query_generation_agent"
-                elif isinstance(correction_result, list) and len(correction_result) > 0:
-                    if "requested_fix" in correction_result[0]:
-                        decision = "sql_query_generation_agent"
-
-                if decision is None:
-                    decision = "sql_query_generation_agent"
-            except json.JSONDecodeError:
-                decision = "sql_query_generation_agent"
-        elif current_agent == "answer_and_sources_agent":
-            decision = "user_proxy"  # Let user_proxy send TERMINATE
+            decision = "parallel_query_solving_agent"
+        # Handle transition after parallel query solving
+        elif current_agent == "parallel_query_solving_agent":
+            decision = "answer_agent"
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")
+        else:
+            logging.info(f"No agent transition defined from {current_agent}")
 
         return decision
 
@@ -209,36 +123,115 @@ class AutoGenText2Sql:
         )
         return flow
 
+    def extract_sources(self, messages: list) -> AnswerWithSources:
+        """Extract the sources from the answer."""
+
+        answer = messages[-1].content
+
+        sql_query_results = messages[-2].content
+
+        try:
+            sql_query_results = json.loads(sql_query_results)
+
+            logging.info("SQL Query Results: %s", sql_query_results)
+
+            sources = []
+
+            for question, sql_query_result_list in sql_query_results["results"].items():
+                logging.info(
+                    "SQL Query Result for question '%s': %s",
+                    question,
+                    sql_query_result_list,
+                )
+
+                for sql_query_result in sql_query_result_list:
+                    logging.info("SQL Query Result: %s", sql_query_result)
+                    sources.append(
+                        {
+                            "sql_query": sql_query_result["sql_query"],
+                            "sql_rows": sql_query_result["sql_rows"],
+                        }
+                    )
+
+        except json.JSONDecodeError:
+            logging.error("Could not load message: %s", sql_query_results)
+            raise ValueError("Could not load message")
+
+        return AnswerWithSources(
+            answer=answer,
+            sources=sources,
+        )
+
     async def process_question(
         self,
-        task: str,
-        chat_history: list[str] = None,
-        parameters: dict = None,
-    ):
+        question: str,
+        chat_history: list[ChatHistoryItem] = None,
+        injected_parameters: dict = None,
+    ) -> AsyncGenerator[AnswerWithSources | UserInformationRequest, None]:
         """Process the complete question through the unified system.
 
         Args:
         ----
             task (str): The user question to process.
             chat_history (list[str], optional): The chat history. Defaults to None.
-            parameters (dict, optional): Parameters to pass to agents. Defaults to None.
+            injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing question: %s", task)
+        logging.info("Processing question: %s", question)
         logging.info("Chat history: %s", chat_history)
 
         agent_input = {
-            "user_question": task,
+            "question": question,
             "chat_history": {},
-            "parameters": parameters,
+            "injected_parameters": injected_parameters,
         }
 
         if chat_history is not None:
             # Update input
             for idx, chat in enumerate(chat_history):
-                agent_input[f"chat_{idx}"] = chat
+                # For now only consider the user query
+                agent_input[f"chat_{idx}"] = chat.user_query
 
-        return self.agentic_flow.run_stream(task=json.dumps(agent_input))
+        async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
+            logging.debug("Message: %s", message)
+
+            payload = None
+
+            if isinstance(message, TextMessage):
+                if message.source == "query_rewrite_agent":
+                    # If the message is from the query_rewrite_agent, we need to update the chat history
+                    payload = ProcessingUpdate(
+                        message="Rewriting the query...",
+                    )
+                elif message.source == "parallel_query_solving_agent":
+                    # If the message is from the parallel_query_solving_agent, we need to update the chat history
+                    payload = ProcessingUpdate(
+                        message="Solving the query...",
+                    )
+                elif message.source == "answer_agent":
+                    # If the message is from the answer_agent, we need to update the chat history
+                    payload = ProcessingUpdate(
+                        message="Generating the answer...",
+                    )
+
+            elif isinstance(message, TaskResult):
+                # Now we need to return the final answer or the disambiguation request
+                logging.info("TaskResult: %s", message)
+
+                if message.messages[-1].source == "answer_agent":
+                    # If the message is from the answer_agent, we need to return the final answer
+                    payload = self.extract_sources(message.messages)
+                elif message.messages[-1].source == "parallel_query_solving_agent":
+                    payload = UserInformationRequest(
+                        **json.loads(message.messages[-1].content),
+                    )
+                else:
+                    logging.error("Unexpected TaskResult: %s", message)
+                    raise ValueError("Unexpected TaskResult")
+
+            if payload is not None:
+                logging.debug("Payload: %s", payload)
+                yield payload

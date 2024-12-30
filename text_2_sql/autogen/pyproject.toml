@@ -5,6 +5,7 @@ description = "AutoGen Based Implementation"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiostream>=0.6.4",
     "autogen-agentchat==0.4.0.dev11",
     "autogen-core==0.4.0.dev11",
     "autogen-ext[azure,openai]==0.4.0.dev11",
