@@ -228,7 +228,7 @@ class SqlConnector(ABC):
 
                 for sql_query, sql_result in zip(sql_queries, sql_results):
                     query_result_store[sql_query["SqlQuery"]] = {
-                        "result": sql_result,
+                        "sql_rows": sql_result,
                         "schemas": sql_query["Schemas"],
                     }
 

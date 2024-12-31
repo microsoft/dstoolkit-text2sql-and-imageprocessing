@@ -75,7 +75,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 if isinstance(inner_message, TaskResult) is False:
                     try:
                         inner_message = json.loads(inner_message.content)
-                        logging.info(f"Loaded: {inner_message}")
+                        logging.info(f"Inner Loaded: {inner_message}")
 
                         # Search for specific message types and add them to the final output object
                         if (
@@ -90,6 +90,21 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                     "sql_rows": inner_message["sql_rows"],
                                 }
                             )
+
+                        if ("contains_pre_run_results" in inner_message) and (
+                            inner_message["contains_pre_run_results"] is True
+                        ):
+                            for pre_run_sql_query, pre_run_result in inner_message[
+                                "cached_questions_and_schemas"
+                            ].items():
+                                database_results[identifier].append(
+                                    {
+                                        "sql_query": pre_run_sql_query.replace(
+                                            "\n", " "
+                                        ),
+                                        "sql_rows": pre_run_result["sql_rows"],
+                                    }
+                                )
 
                     except (JSONDecodeError, TypeError) as e:
                         logging.error("Could not load message: %s", inner_message)
@@ -113,13 +128,15 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 self.engine_specific_rules, **self.kwargs
             )
 
+            identifier = ", ".join(query_rewrite)
+
             # Launch tasks for each sub-query
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
                     inner_autogen_text_2_sql.process_question(
                         question=query_rewrite, injected_parameters=injected_parameters
                     ),
-                    query_rewrite,
+                    identifier,
                     database_results,
                 )
             )
