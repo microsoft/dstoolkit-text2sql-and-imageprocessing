@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from pydantic import BaseModel, RootModel, Field
+from pydantic import BaseModel, RootModel, Field, model_validator
 from enum import StrEnum
 
 from typing import Literal
@@ -58,6 +58,29 @@ class AgentResponseBody(RootModel):
 class AgentRequestBody(BaseModel):
     question: str
     injected_parameters: dict = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    def add_defaults_to_injected_parameters(cls, values):
+        if "injected_parameters" not in values:
+            values["injected_parameters"] = {}
+
+        if "date" not in values["injected_parameters"]:
+            values["injected_parameters"]["date"] = datetime.now().strftime("%d/%m/%Y")
+
+        if "time" not in values["injected_parameters"]:
+            values["injected_parameters"]["time"] = datetime.now().strftime("%H:%M:%S")
+
+        if "datetime" not in values["injected_parameters"]:
+            values["injected_parameters"]["datetime"] = datetime.now().strftime(
+                "%d/%m/%Y, %H:%M:%S"
+            )
+
+        if "unix_timestamp" not in values["injected_parameters"]:
+            values["injected_parameters"]["unix_timestamp"] = int(
+                datetime.now().timestamp()
+            )
+
+        return values
 
 
 class AgentResponse(BaseModel):
