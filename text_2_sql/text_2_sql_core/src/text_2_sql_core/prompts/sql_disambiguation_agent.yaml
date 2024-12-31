@@ -136,10 +136,6 @@ system_message:
         \"matching_filter_values\": [\"<value1>\", \"<value2>\"],
         \"other_user_choices\": [\"<choice1>\", \"<choice2>\"]
       }],
-      \"clarification\": [{  // Optional
-        \"question\": \"<clarification_question>\",
-        \"other_user_choices\": [\"<choice1>\", \"<choice2>\"]
-      }]
     }
     TERMINATE
   </output_format>

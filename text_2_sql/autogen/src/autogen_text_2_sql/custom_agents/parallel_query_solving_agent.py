@@ -44,10 +44,10 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         last_response = messages[-1].content
         parameter_input = messages[0].content
         try:
-            user_parameters = json.loads(parameter_input)["parameters"]
+            injected_parameters = json.loads(parameter_input)["injected_parameters"]
         except json.JSONDecodeError:
             logging.error("Error decoding the user parameters.")
-            user_parameters = {}
+            injected_parameters = {}
 
         # Load the json of the last message to populate the final output object
         query_rewrites = json.loads(last_response)
@@ -117,7 +117,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
                     inner_autogen_text_2_sql.process_question(
-                        question=query_rewrite, parameters=user_parameters
+                        question=query_rewrite, injected_parameters=injected_parameters
                     ),
                     query_rewrite,
                     database_results,
