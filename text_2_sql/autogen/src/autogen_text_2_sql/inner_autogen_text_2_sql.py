@@ -59,14 +59,6 @@ class InnerAutoGenText2Sql:
 
     def get_all_agents(self):
         """Get all agents for the complete flow."""
-        # Get current datetime for the Query Rewrite Agent
-        self.sql_query_generation_agent = LLMAgentCreator.create(
-            "sql_query_generation_agent",
-            target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
-            **self.kwargs,
-        )
-
         # If relationship_paths not provided, use a generic template
         if "relationship_paths" not in self.kwargs:
             self.kwargs[
@@ -92,22 +84,16 @@ class InnerAutoGenText2Sql:
             **self.kwargs,
         )
 
-        self.sql_disambiguation_agent = LLMAgentCreator.create(
-            "sql_disambiguation_agent",
+        self.disambiguation_and_sql_query_generation_agent = LLMAgentCreator.create(
+            "disambiguation_and_sql_query_generation_agent",
             target_engine=self.target_engine,
             engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
-
-        # Auto-responding UserProxyAgent
-        self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
-
         agents = [
-            self.user_proxy,
-            self.sql_query_generation_agent,
             self.sql_schema_selection_agent,
             self.sql_query_correction_agent,
-            self.sql_disambiguation_agent,
+            self.disambiguation_and_sql_query_generation_agent,
         ]
 
         if self.use_query_cache:
@@ -140,32 +126,11 @@ class InnerAutoGenText2Sql:
             # Always go through schema selection after cache check
             decision = "sql_schema_selection_agent"
         elif current_agent == "sql_schema_selection_agent":
-            decision = "sql_disambiguation_agent"
-        elif current_agent == "sql_disambiguation_agent":
-            decision = "sql_query_generation_agent"
-        elif current_agent == "sql_query_generation_agent":
+            decision = "disambiguation_and_sql_query_generation_agent"
+        elif current_agent == "disambiguation_and_sql_query_generation_agent":
             decision = "sql_query_correction_agent"
         elif current_agent == "sql_query_correction_agent":
-            try:
-                correction_result = json.loads(messages[-1].content)
-                if isinstance(correction_result, dict):
-                    if "answer" in correction_result and "sources" in correction_result:
-                        decision = "user_proxy"
-                    elif "corrected_query" in correction_result:
-                        if correction_result.get("executing", False):
-                            decision = "sql_query_correction_agent"
-                        else:
-                            decision = "sql_query_generation_agent"
-                    elif "error" in correction_result:
-                        decision = "sql_query_generation_agent"
-                elif isinstance(correction_result, list) and len(correction_result) > 0:
-                    if "requested_fix" in correction_result[0]:
-                        decision = "sql_query_generation_agent"
-
-                if decision is None:
-                    decision = "sql_query_generation_agent"
-            except json.JSONDecodeError:
-                decision = "sql_query_generation_agent"
+            decision = "sql_query_correction_agent"
 
         if decision:
             logging.info(f"Agent transition: {current_agent} -> {decision}")

@@ -42,17 +42,12 @@ class LLMAgentCreator:
         elif tool_name == "sql_get_entity_schemas_tool":
             return FunctionToolAlias(
                 sql_helper.get_entity_schemas,
-                description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned. Only use when the provided schemas in the system prompt are not sufficient to answer the question.",
+                description="Gets the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term. Extract key terms from the user question and use these as the search term. Several entities may be returned. Only use when the provided schemas in the message history are not sufficient to answer the question.",
             )
         elif tool_name == "sql_get_column_values_tool":
             return FunctionToolAlias(
                 ai_search_helper.get_column_values,
                 description="Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned. Use this to get the correct value to apply against a filter for a user's question.",
-            )
-        elif tool_name == "current_datetime_tool":
-            return FunctionToolAlias(
-                sql_helper.get_current_datetime,
-                description="Gets the current date and time.",
             )
         else:
             raise ValueError(f"Tool {tool_name} not found")

@@ -18,11 +18,17 @@ import json
 import os
 from datetime import datetime
 
-from text_2_sql_core.payloads import (
+from text_2_sql_core.payloads.agent_response import (
+    AgentResponse,
+    AgentRequestBody,
     AnswerWithSources,
-    UserInformationRequest,
+    Source,
+    DismabiguationRequests,
+)
+from text_2_sql_core.payloads.chat_history import ChatHistoryItem
+from text_2_sql_core.payloads.processing_update import (
+    ProcessingUpdateBody,
     ProcessingUpdate,
-    ChatHistoryItem,
 )
 from autogen_agentchat.base import Response, TaskResult
 from typing import AsyncGenerator
@@ -123,6 +129,16 @@ class AutoGenText2Sql:
         )
         return flow
 
+    def extract_disambiguation_request(self, messages: list) -> DismabiguationRequests:
+        """Extract the disambiguation request from the answer."""
+
+        disambiguation_request = messages[-1].content
+
+        # TODO: Properly extract the disambiguation request
+        return DismabiguationRequests(
+            disambiguation_request=disambiguation_request,
+        )
+
     def extract_sources(self, messages: list) -> AnswerWithSources:
         """Extract the sources from the answer."""
 
@@ -147,10 +163,10 @@ class AutoGenText2Sql:
                 for sql_query_result in sql_query_result_list:
                     logging.info("SQL Query Result: %s", sql_query_result)
                     sources.append(
-                        {
-                            "sql_query": sql_query_result["sql_query"],
-                            "sql_rows": sql_query_result["sql_rows"],
-                        }
+                        Source(
+                            sql_query=sql_query_result["sql_query"],
+                            sql_rows=sql_query_result["sql_rows"],
+                        )
                     )
 
         except json.JSONDecodeError:
@@ -164,10 +180,9 @@ class AutoGenText2Sql:
 
     async def process_question(
         self,
-        question: str,
+        request: AgentRequestBody,
         chat_history: list[ChatHistoryItem] = None,
-        injected_parameters: dict = None,
-    ) -> AsyncGenerator[AnswerWithSources | UserInformationRequest, None]:
+    ) -> AsyncGenerator[AgentResponse | ProcessingUpdate, None]:
         """Process the complete question through the unified system.
 
         Args:
@@ -180,20 +195,20 @@ class AutoGenText2Sql:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing question: %s", question)
+        logging.info("Processing question: %s", request.question)
         logging.info("Chat history: %s", chat_history)
 
         agent_input = {
-            "question": question,
+            "question": request.question,
             "chat_history": {},
-            "injected_parameters": injected_parameters,
+            "injected_parameters": request.injected_parameters,
         }
 
         if chat_history is not None:
             # Update input
             for idx, chat in enumerate(chat_history):
                 # For now only consider the user query
-                agent_input[f"chat_{idx}"] = chat.user_query
+                agent_input[f"chat_{idx}"] = chat.request.question
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)
@@ -201,36 +216,41 @@ class AutoGenText2Sql:
             payload = None
 
             if isinstance(message, TextMessage):
+                processing_update = None
                 if message.source == "query_rewrite_agent":
-                    # If the message is from the query_rewrite_agent, we need to update the chat history
-                    payload = ProcessingUpdate(
+                    processing_update = ProcessingUpdateBody(
                         message="Rewriting the query...",
                     )
                 elif message.source == "parallel_query_solving_agent":
-                    # If the message is from the parallel_query_solving_agent, we need to update the chat history
-                    payload = ProcessingUpdate(
+                    processing_update = ProcessingUpdateBody(
                         message="Solving the query...",
                     )
                 elif message.source == "answer_agent":
-                    # If the message is from the answer_agent, we need to update the chat history
-                    payload = ProcessingUpdate(
+                    processing_update = ProcessingUpdateBody(
                         message="Generating the answer...",
+                    )
+
+                if processing_update is not None:
+                    payload = ProcessingUpdate(
+                        processing_update=processing_update,
                     )
 
             elif isinstance(message, TaskResult):
                 # Now we need to return the final answer or the disambiguation request
                 logging.info("TaskResult: %s", message)
 
+                response = None
                 if message.messages[-1].source == "answer_agent":
                     # If the message is from the answer_agent, we need to return the final answer
-                    payload = self.extract_sources(message.messages)
+                    response = self.extract_sources(message.messages)
                 elif message.messages[-1].source == "parallel_query_solving_agent":
-                    payload = UserInformationRequest(
-                        **json.loads(message.messages[-1].content),
-                    )
+                    # Load into disambiguation request
+                    response = self.extract_disambiguation_request(message.messages)
                 else:
                     logging.error("Unexpected TaskResult: %s", message)
                     raise ValueError("Unexpected TaskResult")
+
+                payload = AgentResponse(request=request, response=response)
 
             if payload is not None:
                 logging.debug("Payload: %s", payload)
