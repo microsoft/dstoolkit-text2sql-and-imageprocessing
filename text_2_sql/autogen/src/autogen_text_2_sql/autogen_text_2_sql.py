@@ -17,8 +17,8 @@ import json
 import os
 from datetime import datetime
 
-from text_2_sql_core.payloads.agent_response import (
-    AgentResponse,
+from text_2_sql_core.payloads.agent_request_response_pair import (
+    AgentRequestResponsePair,
     AgentRequestBody,
     AnswerWithSources,
     Source,
@@ -161,7 +161,7 @@ class AutoGenText2Sql:
         self,
         request: AgentRequestBody,
         chat_history: list[ChatHistoryItem] = None,
-    ) -> AsyncGenerator[AgentResponse | ProcessingUpdate, None]:
+    ) -> AsyncGenerator[AgentRequestResponsePair | ProcessingUpdate, None]:
         """Process the complete question through the unified system.
 
         Args:
@@ -229,7 +229,7 @@ class AutoGenText2Sql:
                     logging.error("Unexpected TaskResult: %s", message)
                     raise ValueError("Unexpected TaskResult")
 
-                payload = AgentResponse(request=request, response=response)
+                payload = AgentRequestResponsePair(request=request, response=response)
 
             if payload is not None:
                 logging.debug("Payload: %s", payload)

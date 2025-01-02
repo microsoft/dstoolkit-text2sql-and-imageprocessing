@@ -83,7 +83,7 @@ class AgentRequestBody(BaseModel):
         return values
 
 
-class AgentResponse(BaseModel):
+class AgentRequestResponsePair(BaseModel):
     header: AgentResponseHeader | None = Field(default=None)
     request: AgentRequestBody
     response: AgentResponseBody
