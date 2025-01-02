@@ -7,7 +7,7 @@ from typing import Literal
 from datetime import datetime, timezone
 
 
-class AgentResponseHeader(BaseModel):
+class AgentRequestResponseHeader(BaseModel):
     prompt_tokens: int
     completion_tokens: int
     timestamp: datetime = Field(
@@ -84,6 +84,6 @@ class AgentRequestBody(BaseModel):
 
 
 class AgentRequestResponsePair(BaseModel):
-    header: AgentResponseHeader | None = Field(default=None)
+    header: AgentRequestResponseHeader | None = Field(default=None)
     request: AgentRequestBody
     response: AgentResponseBody
