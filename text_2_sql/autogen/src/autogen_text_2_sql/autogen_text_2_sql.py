@@ -187,7 +187,10 @@ class AutoGenText2Sql:
             # Update input
             for idx, chat in enumerate(chat_history):
                 # For now only consider the user query
-                agent_input[f"chat_{idx}"] = chat.request.question
+                chat_history_key = f"chat_{idx}"
+                agent_input[
+                    chat_history_key
+                ] = chat.request_response_pair.request.question
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)
