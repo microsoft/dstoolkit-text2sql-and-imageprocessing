@@ -8,13 +8,14 @@ from datetime import datetime, timezone
 
 
 class PayloadBase(BaseModel):
-    prompt_tokens: int | None = Field(default=None)
-    completion_tokens: int | None = Field(default=None)
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
     timestamp: datetime = Field(
-        ...,
-        description="Timestamp in UTC",
         default_factory=lambda: datetime.now(timezone.utc),
+        description="Timestamp in UTC",
     )
+    payload_type: str
+    payload_source: str
 
 
 class PayloadSource(StrEnum):
@@ -29,90 +30,89 @@ class PayloadType(StrEnum):
     QUESTION = "question"
 
 
-class DismabiguationRequest(BaseModel):
-    question: str
-    matching_columns: list[str]
-    matching_filter_values: list[str]
-    other_user_choices: list[str]
-
-
-class DismabiguationRequestBody(BaseModel):
-    disambiguation_requests: list[DismabiguationRequest]
-
-
 class DismabiguationRequestPayload(PayloadBase):
-    payload_type: Literal[PayloadType.DISAMBIGUATION_REQUEST] = Field(
-        default=PayloadType.DISAMBIGUATION_REQUEST
-    )
-    payload_source: Literal[PayloadSource.USER] = Field(default=PayloadSource.AGENT)
-    body: DismabiguationRequestBody
+    class Body(BaseModel):
+        class DismabiguationRequest(BaseModel):
+            question: str
+            matching_columns: list[str]
+            matching_filter_values: list[str]
+            other_user_choices: list[str]
 
+        disambiguation_requests: list[DismabiguationRequest]
 
-class Source(BaseModel):
-    sql_query: str
-    sql_rows: list[dict]
+    payload_type: Literal[
+        PayloadType.DISAMBIGUATION_REQUEST
+    ] = PayloadType.DISAMBIGUATION_REQUEST
+    payload_source: Literal[PayloadSource.AGENT] = PayloadSource.AGENT
+    body: Body | None = Field(default=None)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-class AnswerWithSourcesBody(BaseModel):
-    answer: str
-    sources: list[Source] = Field(default_factory=list)
+        self.body = self.Body(**kwargs)
 
 
 class AnswerWithSourcesPayload(PayloadBase):
-    payload_type: Literal[PayloadType.ANSWER_WITH_SOURCES] = Field(
-        default=PayloadType.ANSWER_WITH_SOURCES
-    )
-    payload_source: Literal[PayloadSource.USER] = Field(default=PayloadSource.AGENT)
-    body: AnswerWithSourcesBody
+    class Body(BaseModel):
+        class Source(BaseModel):
+            sql_query: str
+            sql_rows: list[dict]
 
+        answer: str
+        sources: list[Source] = Field(default_factory=list)
 
-class ProcessingUpdateBody(BaseModel):
-    title: str | None = Field(default="Processing...")
-    message: str | None = Field(default="Processing...")
+    payload_type: Literal[
+        PayloadType.ANSWER_WITH_SOURCES
+    ] = PayloadType.ANSWER_WITH_SOURCES
+    payload_source: Literal[PayloadSource.AGENT] = PayloadSource.AGENT
+    body: Body | None = Field(default=None)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.body = self.Body(**kwargs)
 
 
 class ProcessingUpdatePayload(PayloadBase):
-    payload_type: Literal[PayloadType.PROCESSING_UPDATE] = Field(
-        default=PayloadType.PROCESSING_UPDATE
-    )
-    payload_source: Literal[PayloadSource.USER] = Field(default=PayloadSource.AGENT)
+    class Body(BaseModel):
+        title: str | None = "Processing..."
+        message: str | None = "Processing..."
 
-    body: ProcessingUpdateBody
+    payload_type: Literal[PayloadType.PROCESSING_UPDATE] = PayloadType.PROCESSING_UPDATE
+    payload_source: Literal[PayloadSource.AGENT] = PayloadSource.AGENT
+    body: Body | None = Field(default=None)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-class QuestionBody(BaseModel):
-    question: str
-    injected_parameters: dict = Field(default_factory=dict)
-
-    @model_validator(mode="before")
-    def add_defaults_to_injected_parameters(cls, values):
-        if "injected_parameters" not in values:
-            values["injected_parameters"] = {}
-
-        if "date" not in values["injected_parameters"]:
-            values["injected_parameters"]["date"] = datetime.now().strftime("%d/%m/%Y")
-
-        if "time" not in values["injected_parameters"]:
-            values["injected_parameters"]["time"] = datetime.now().strftime("%H:%M:%S")
-
-        if "datetime" not in values["injected_parameters"]:
-            values["injected_parameters"]["datetime"] = datetime.now().strftime(
-                "%d/%m/%Y, %H:%M:%S"
-            )
-
-        if "unix_timestamp" not in values["injected_parameters"]:
-            values["injected_parameters"]["unix_timestamp"] = int(
-                datetime.now().timestamp()
-            )
-
-        return values
+        self.body = self.Body(**kwargs)
 
 
 class QuestionPayload(PayloadBase):
-    payload_type: Literal[PayloadType.QUESTION] = Field(default=PayloadType.QUESTION)
-    payload_source: Literal[PayloadSource.USER] = Field(default=PayloadSource.AGENT)
+    class Body(BaseModel):
+        question: str
+        injected_parameters: dict = Field(default_factory=dict)
 
-    body: QuestionBody
+        @model_validator(mode="before")
+        def add_defaults(cls, values):
+            defaults = {
+                "date": datetime.now().strftime("%d/%m/%Y"),
+                "time": datetime.now().strftime("%H:%M:%S"),
+                "datetime": datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+                "unix_timestamp": int(datetime.now().timestamp()),
+            }
+            injected = values.get("injected_parameters", {})
+            values["injected_parameters"] = {**defaults, **injected}
+            return values
+
+    payload_type: Literal[PayloadType.QUESTION] = PayloadType.QUESTION
+    payload_source: Literal[PayloadSource.USER] = PayloadSource.USER
+    body: Body | None = Field(default=None)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.body = self.Body(**kwargs)
 
 
 class InteractionPayload(RootModel):

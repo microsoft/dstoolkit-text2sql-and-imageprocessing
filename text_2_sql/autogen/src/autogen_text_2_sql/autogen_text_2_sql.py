@@ -20,10 +20,7 @@ from datetime import datetime
 from text_2_sql_core.payloads.interaction_payloads import (
     QuestionPayload,
     AnswerWithSourcesPayload,
-    AnswerWithSourcesBody,
-    Source,
     DismabiguationRequestPayload,
-    ProcessingUpdateBody,
     ProcessingUpdatePayload,
     InteractionPayload,
     PayloadType,
@@ -131,7 +128,7 @@ class AutoGenText2Sql:
 
             logging.info("SQL Query Results: %s", sql_query_results)
 
-            sources = []
+            payload = AnswerWithSourcesPayload(answer=answer)
 
             for question, sql_query_result_list in sql_query_results["results"].items():
                 logging.info(
@@ -142,23 +139,18 @@ class AutoGenText2Sql:
 
                 for sql_query_result in sql_query_result_list:
                     logging.info("SQL Query Result: %s", sql_query_result)
-                    sources.append(
-                        Source(
-                            sql_query=sql_query_result["sql_query"],
-                            sql_rows=sql_query_result["sql_rows"],
-                        )
+                    # Instantiate Source and append to the payload's sources list
+                    source = AnswerWithSourcesPayload.Body.Source(
+                        sql_query=sql_query_result["sql_query"],
+                        sql_rows=sql_query_result["sql_rows"],
                     )
+                    payload.body.sources.append(source)
+
+            return payload
 
         except json.JSONDecodeError:
             logging.error("Could not load message: %s", sql_query_results)
             raise ValueError("Could not load message")
-
-        return AnswerWithSourcesPayload(
-            body=AnswerWithSourcesBody(
-                answer=answer,
-                sources=sources,
-            )
-        )
 
     async def process_question(
         self,
@@ -200,23 +192,17 @@ class AutoGenText2Sql:
             payload = None
 
             if isinstance(message, TextMessage):
-                processing_update = None
                 if message.source == "query_rewrite_agent":
-                    processing_update = ProcessingUpdateBody(
+                    payload = ProcessingUpdatePayload(
                         message="Rewriting the query...",
                     )
                 elif message.source == "parallel_query_solving_agent":
-                    processing_update = ProcessingUpdateBody(
+                    payload = ProcessingUpdatePayload(
                         message="Solving the query...",
                     )
                 elif message.source == "answer_agent":
-                    processing_update = ProcessingUpdateBody(
-                        message="Generating the answer...",
-                    )
-
-                if processing_update is not None:
                     payload = ProcessingUpdatePayload(
-                        body=processing_update,
+                        message="Generating the answer...",
                     )
 
             elif isinstance(message, TaskResult):
@@ -229,9 +215,9 @@ class AutoGenText2Sql:
                 elif message.messages[-1].source == "parallel_query_solving_agent":
                     # Load into disambiguation request
                     payload = self.extract_disambiguation_request(message.messages)
-                else:
-                    logging.error("Unexpected TaskResult: %s", message)
-                    raise ValueError("Unexpected TaskResult")
+            else:
+                logging.error("Unexpected TaskResult: %s", message)
+                raise ValueError("Unexpected TaskResult")
 
             if payload is not None:
                 logging.debug("Payload: %s", payload)
