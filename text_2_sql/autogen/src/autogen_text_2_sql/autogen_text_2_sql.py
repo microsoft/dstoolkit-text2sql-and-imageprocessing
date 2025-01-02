@@ -12,14 +12,13 @@ import logging
 from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
     ParallelQuerySolvingAgent,
 )
-from autogen_agentchat.agents import UserProxyAgent
 from autogen_agentchat.messages import TextMessage
 import json
 import os
 from datetime import datetime
 
-from text_2_sql_core.payloads.agent_response import (
-    AgentResponse,
+from text_2_sql_core.payloads.agent_request_response_pair import (
+    AgentRequestResponsePair,
     AgentRequestBody,
     AnswerWithSources,
     Source,
@@ -30,24 +29,8 @@ from text_2_sql_core.payloads.processing_update import (
     ProcessingUpdateBody,
     ProcessingUpdate,
 )
-from autogen_agentchat.base import Response, TaskResult
+from autogen_agentchat.base import TaskResult
 from typing import AsyncGenerator
-
-
-class EmptyResponseUserProxyAgent(UserProxyAgent):
-    """UserProxyAgent that automatically responds with empty messages."""
-
-    def __init__(self, name):
-        super().__init__(name=name)
-        self._has_responded = False
-
-    async def on_messages_stream(self, messages, sender=None, config=None):
-        """Auto-respond with empty message and return Response object."""
-        message = TextMessage(content="", source=self.name)
-        if not self._has_responded:
-            self._has_responded = True
-            yield message
-        yield Response(chat_message=message)
 
 
 class AutoGenText2Sql:
@@ -71,11 +54,7 @@ class AutoGenText2Sql:
 
         self.answer_agent = LLMAgentCreator.create("answer_agent")
 
-        # Auto-responding UserProxyAgent
-        self.user_proxy = EmptyResponseUserProxyAgent(name="user_proxy")
-
         agents = [
-            self.user_proxy,
             self.query_rewrite_agent,
             self.parallel_query_solving_agent,
             self.answer_agent,
@@ -182,7 +161,7 @@ class AutoGenText2Sql:
         self,
         request: AgentRequestBody,
         chat_history: list[ChatHistoryItem] = None,
-    ) -> AsyncGenerator[AgentResponse | ProcessingUpdate, None]:
+    ) -> AsyncGenerator[AgentRequestResponsePair | ProcessingUpdate, None]:
         """Process the complete question through the unified system.
 
         Args:
@@ -208,7 +187,10 @@ class AutoGenText2Sql:
             # Update input
             for idx, chat in enumerate(chat_history):
                 # For now only consider the user query
-                agent_input[f"chat_{idx}"] = chat.request.question
+                chat_history_key = f"chat_{idx}"
+                agent_input[
+                    chat_history_key
+                ] = chat.request_response_pair.request.question
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)
@@ -250,7 +232,7 @@ class AutoGenText2Sql:
                     logging.error("Unexpected TaskResult: %s", message)
                     raise ValueError("Unexpected TaskResult")
 
-                payload = AgentResponse(request=request, response=response)
+                payload = AgentRequestResponsePair(request=request, response=response)
 
             if payload is not None:
                 logging.debug("Payload: %s", payload)
