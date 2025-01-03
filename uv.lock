@@ -365,7 +365,18 @@ dependencies = [
     { name = "autogen-ext", extra = ["azure", "openai"] },
     { name = "grpcio" },
     { name = "pyyaml" },
-    { name = "text-2-sql-core", extra = ["databricks", "postgresql", "snowflake"] },
+    { name = "text-2-sql-core" },
+]
+
+[package.optional-dependencies]
+databricks = [
+    { name = "text-2-sql-core", extra = ["databricks"] },
+]
+postgresql = [
+    { name = "text-2-sql-core", extra = ["postgresql"] },
+]
+snowflake = [
+    { name = "text-2-sql-core", extra = ["snowflake"] },
 ]
 
 [package.dev-dependencies]
@@ -388,7 +399,10 @@ requires-dist = [
     { name = "autogen-ext", extras = ["azure", "openai"], specifier = "==0.4.0.dev11" },
     { name = "grpcio", specifier = ">=1.68.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "text-2-sql-core", extras = ["snowflake", "databricks", "postgresql"], editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["databricks"], marker = "extra == 'databricks'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["postgresql"], marker = "extra == 'postgresql'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["snowflake"], marker = "extra == 'snowflake'", editable = "text_2_sql/text_2_sql_core" },
 ]
 
 [package.metadata.requires-dev]
@@ -929,6 +943,17 @@ dependencies = [
     { name = "text-2-sql-core" },
 ]
 
+[package.optional-dependencies]
+databricks = [
+    { name = "text-2-sql-core", extra = ["databricks"] },
+]
+postgresql = [
+    { name = "text-2-sql-core", extra = ["postgresql"] },
+]
+snowflake = [
+    { name = "text-2-sql-core", extra = ["snowflake"] },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "black" },
@@ -948,6 +973,9 @@ requires-dist = [
     { name = "azure-storage-blob", specifier = ">=12.24.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["databricks"], marker = "extra == 'databricks'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["postgresql"], marker = "extra == 'postgresql'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["snowflake"], marker = "extra == 'snowflake'", editable = "text_2_sql/text_2_sql_core" },
 ]
 
 [package.metadata.requires-dev]
