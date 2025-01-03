@@ -645,17 +645,12 @@ class DataDictionaryCreator(ABC):
         api_version = os.environ["OpenAI__ApiVersion"]
         model = os.environ["OpenAI__CompletionDeployment"]
 
-        if get_identity_type() == IdentityType.SYSTEM_ASSIGNED:
+        if get_identity_type() in [
+            IdentityType.SYSTEM_ASSIGNED,
+            IdentityType.USER_ASSIGNED,
+        ]:
             token_provider = get_bearer_token_provider(
                 DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
-            )
-            api_key = None
-        elif get_identity_type() == IdentityType.USER_ASSIGNED:
-            token_provider = get_bearer_token_provider(
-                DefaultAzureCredential(
-                    managed_identity_client_id=os.environ["FunctionApp__ClientId"]
-                ),
-                "https://cognitiveservices.azure.com/.default",
             )
             api_key = None
         else:

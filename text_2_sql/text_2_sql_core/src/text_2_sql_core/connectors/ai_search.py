@@ -289,12 +289,11 @@ class AISearchConnector:
                 document["Question"].encode()
             ).decode("utf-8")
 
-            if identity_type == IdentityType.SYSTEM_ASSIGNED:
+            if identity_type in [
+                IdentityType.SYSTEM_ASSIGNED,
+                IdentityType.USER_ASSIGNED,
+            ]:
                 credential = DefaultAzureCredential()
-            elif identity_type == IdentityType.USER_ASSIGNED:
-                credential = DefaultAzureCredential(
-                    managed_identity_client_id=os.environ["ClientID"]
-                )
             else:
                 credential = AzureKeyCredential(
                     os.environ["AIService__AzureSearchOptions__Key"]
