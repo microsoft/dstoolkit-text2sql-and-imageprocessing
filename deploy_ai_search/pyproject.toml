@@ -26,3 +26,14 @@ dev = [
 
 [tool.uv.sources]
 text_2_sql_core = { workspace = true }
+
+[project.optional-dependencies]
+snowflake = [
+    "text_2_sql_core[snowflake]",
+]
+databricks = [
+    "text_2_sql_core[databricks]",
+]
+postgresql = [
+    "text_2_sql_core[postgresql]",
+]

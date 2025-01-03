@@ -10,6 +10,7 @@ from sqlglot.expressions import Parameter, Select, Identifier
 from abc import ABC, abstractmethod
 from jinja2 import Template
 import json
+from text_2_sql_core.utils.database import DatabaseEngineSpecificFields
 
 
 class SqlConnector(ABC):
@@ -35,6 +36,22 @@ class SqlConnector(ABC):
     def invalid_identifiers(self) -> list[str]:
         """Get the invalid identifiers upon which a sql query is rejected."""
         pass
+
+    @property
+    @abstractmethod
+    def engine_specific_fields(self) -> list[str]:
+        """Get the engine specific fields."""
+        pass
+
+    @property
+    def excluded_engine_specific_fields(self):
+        """A method to get the excluded fields for the database engine."""
+
+        return [
+            field.value.capitalize()
+            for field in DatabaseEngineSpecificFields
+            if field not in self.engine_specific_fields
+        ]
 
     @abstractmethod
     async def query_execution(
@@ -155,7 +172,7 @@ class SqlConnector(ABC):
 
             for token in expressions + identifiers:
                 if isinstance(token, Parameter):
-                    identifier = token.this.this
+                    identifier = str(token.this.this).upper()
                 else:
                     identifier = str(token).strip("()").upper()
 

@@ -26,6 +26,7 @@ from environment import (
 )
 import os
 from text_2_sql_core.utils.database import DatabaseEngine
+from text_2_sql_core.connectors.factory import ConnectorFactory
 
 
 class Text2SqlSchemaStoreAISearch(AISearch):
@@ -49,28 +50,12 @@ class Text2SqlSchemaStoreAISearch(AISearch):
             os.environ["Text2Sql__DatabaseEngine"].upper()
         ]
 
+        self.database_connector = ConnectorFactory.get_database_connector()
+
         if single_data_dictionary_file:
             self.parsing_mode = BlobIndexerParsingMode.JSON_ARRAY
         else:
             self.parsing_mode = BlobIndexerParsingMode.JSON
-
-    @property
-    def excluded_fields_for_database_engine(self):
-        """A method to get the excluded fields for the database engine."""
-
-        all_engine_specific_fields = ["Warehouse", "Database", "Catalog"]
-        if self.database_engine == DatabaseEngine.SNOWFLAKE:
-            engine_specific_fields = ["Warehouse", "Database"]
-        elif self.database_engine == DatabaseEngine.TSQL:
-            engine_specific_fields = ["Database"]
-        elif self.database_engine == DatabaseEngine.DATABRICKS:
-            engine_specific_fields = ["Catalog"]
-
-        return [
-            field
-            for field in all_engine_specific_fields
-            if field not in engine_specific_fields
-        ]
 
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for sql index.
@@ -196,7 +181,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
         fields = [
             field
             for field in fields
-            if field.name not in self.excluded_fields_for_database_engine
+            if field.name not in self.database_connector.excluded_engine_specific_fields
         ]
 
         return fields

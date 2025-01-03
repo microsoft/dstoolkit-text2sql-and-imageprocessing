@@ -25,6 +25,12 @@ class ConnectorFactory:
                 from text_2_sql_core.connectors.tsql_sql import TSQLSqlConnector
 
                 return TSQLSqlConnector()
+            elif os.environ["Text2Sql__DatabaseEngine"].upper() == "POSTGRESQL":
+                from text_2_sql_core.connectors.postgresql_sql import (
+                    PostgresqlSqlConnector,
+                )
+
+                return PostgresqlSqlConnector()
             else:
                 raise ValueError(
                     f"""Database engine {

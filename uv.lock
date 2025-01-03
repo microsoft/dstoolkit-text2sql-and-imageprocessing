@@ -365,7 +365,18 @@ dependencies = [
     { name = "autogen-ext", extra = ["azure", "openai"] },
     { name = "grpcio" },
     { name = "pyyaml" },
-    { name = "text-2-sql-core", extra = ["databricks", "snowflake"] },
+    { name = "text-2-sql-core" },
+]
+
+[package.optional-dependencies]
+databricks = [
+    { name = "text-2-sql-core", extra = ["databricks"] },
+]
+postgresql = [
+    { name = "text-2-sql-core", extra = ["postgresql"] },
+]
+snowflake = [
+    { name = "text-2-sql-core", extra = ["snowflake"] },
 ]
 
 [package.dev-dependencies]
@@ -388,7 +399,10 @@ requires-dist = [
     { name = "autogen-ext", extras = ["azure", "openai"], specifier = "==0.4.0.dev11" },
     { name = "grpcio", specifier = ">=1.68.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "text-2-sql-core", extras = ["snowflake", "databricks"], editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["databricks"], marker = "extra == 'databricks'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["postgresql"], marker = "extra == 'postgresql'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["snowflake"], marker = "extra == 'snowflake'", editable = "text_2_sql/text_2_sql_core" },
 ]
 
 [package.metadata.requires-dev]
@@ -929,6 +943,17 @@ dependencies = [
     { name = "text-2-sql-core" },
 ]
 
+[package.optional-dependencies]
+databricks = [
+    { name = "text-2-sql-core", extra = ["databricks"] },
+]
+postgresql = [
+    { name = "text-2-sql-core", extra = ["postgresql"] },
+]
+snowflake = [
+    { name = "text-2-sql-core", extra = ["snowflake"] },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "black" },
@@ -948,6 +973,9 @@ requires-dist = [
     { name = "azure-storage-blob", specifier = ">=12.24.0" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["databricks"], marker = "extra == 'databricks'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["postgresql"], marker = "extra == 'postgresql'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["snowflake"], marker = "extra == 'snowflake'", editable = "text_2_sql/text_2_sql_core" },
 ]
 
 [package.metadata.requires-dev]
@@ -2482,6 +2510,19 @@ wheels = [
 ]
 
 [[package]]
+name = "psycopg"
+version = "3.2.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "tzdata", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d1/ad/7ce016ae63e231575df0498d2395d15f005f05e32d3a2d439038e1bd0851/psycopg-3.2.3.tar.gz", hash = "sha256:a5764f67c27bec8bfac85764d23c534af2c27b893550377e37ce59c12aac47a2", size = 155550 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ce/21/534b8f5bd9734b7a2fcd3a16b1ee82ef6cad81a4796e95ebf4e0c6a24119/psycopg-3.2.3-py3-none-any.whl", hash = "sha256:644d3973fe26908c73d4be746074f6e5224b03c1101d302d9a53bf565ad64907", size = 197934 },
+]
+
+[[package]]
 name = "ptyprocess"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3376,6 +3417,9 @@ databricks = [
     { name = "databricks-sql-connector" },
     { name = "pyarrow" },
 ]
+postgresql = [
+    { name = "psycopg" },
+]
 snowflake = [
     { name = "snowflake-connector-python" },
 ]
@@ -3403,6 +3447,7 @@ requires-dist = [
     { name = "numpy", specifier = "<2.0.0" },
     { name = "openai", specifier = ">=1.55.3" },
     { name = "pandas", specifier = ">=2.2.3" },
+    { name = "psycopg", marker = "extra == 'postgresql'", specifier = ">=3.2.3" },
     { name = "pyarrow", marker = "extra == 'databricks'", specifier = ">=14.0.2,<17" },
     { name = "pydantic", specifier = ">=2.10.2" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
