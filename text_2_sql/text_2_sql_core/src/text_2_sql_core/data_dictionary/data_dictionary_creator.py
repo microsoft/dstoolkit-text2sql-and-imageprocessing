@@ -758,6 +758,8 @@ class DataDictionaryCreator(ABC):
             engine_specific_fields = ["Database"]
         elif self.database_engine == DatabaseEngine.DATABRICKS:
             engine_specific_fields = ["Catalog"]
+        elif self.database_engine == DatabaseEngine.POSTGRESQL:
+            engine_specific_fields = ["Database"]
         else:
             engine_specific_fields = []
 

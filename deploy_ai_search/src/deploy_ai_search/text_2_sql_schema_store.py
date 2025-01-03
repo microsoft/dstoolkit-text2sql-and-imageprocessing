@@ -65,6 +65,8 @@ class Text2SqlSchemaStoreAISearch(AISearch):
             engine_specific_fields = ["Database"]
         elif self.database_engine == DatabaseEngine.DATABRICKS:
             engine_specific_fields = ["Catalog"]
+        elif self.database_engine == DatabaseEngine.POSTGRESQL:
+            engine_specific_fields = ["Database"]
 
         return [
             field

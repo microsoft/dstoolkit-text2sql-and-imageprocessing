@@ -7,3 +7,4 @@ class DatabaseEngine(StrEnum):
     DATABRICKS = "DATABRICKS"
     SNOWFLAKE = "SNOWFLAKE"
     TSQL = "TSQL"
+    POSTGRESQL = "POSTGRESQL"
