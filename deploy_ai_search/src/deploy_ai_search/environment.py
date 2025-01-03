@@ -109,12 +109,11 @@ class AISearchEnvironment:
         Returns:
             DefaultAzureCredential | AzureKeyCredential: The ai search credential
         """
-        if self.identity_type == IdentityType.SYSTEM_ASSIGNED:
+        if self.identity_type in [
+            IdentityType.SYSTEM_ASSIGNED,
+            IdentityType.USER_ASSIGNED,
+        ]:
             return DefaultAzureCredential()
-        elif self.identity_type == IdentityType.USER_ASSIGNED:
-            return DefaultAzureCredential(
-                managed_identity_client_id=self.ai_search_identity_id
-            )
         else:
             return AzureKeyCredential(
                 os.environ.get("AIService__AzureSearchOptions__Key")
@@ -180,7 +179,7 @@ class AISearchEnvironment:
         if container is None:
             raise ValueError(
                 f"""Populate environment variable 'StorageAccount__{
-                             self.normalised_indexer_type}__Container' with container name."""
+                    self.normalised_indexer_type}__Container' with container name."""
             )
 
         return container
