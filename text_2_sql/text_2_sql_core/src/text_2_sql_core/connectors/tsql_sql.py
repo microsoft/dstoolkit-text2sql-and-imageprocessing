@@ -21,6 +21,45 @@ class TSQLSqlConnector(SqlConnector):
         """Get the engine specific fields."""
         return [DatabaseEngineSpecificFields.DATABASE]
 
+    @property
+    def invalid_identifiers(self) -> list[str]:
+        """Get the invalid identifiers upon which a sql query is rejected."""
+        return [
+            "CONNECTIONS",
+            "CPU_BUSY",
+            "CURSOR_ROWS",
+            "DATEFIRST",
+            "DBTS",
+            "ERROR",
+            "FETCH_STATUS",
+            "IDENTITY",
+            "IDLE",
+            "IO_BUSY",
+            "LANGID",
+            "LANGUAGE",
+            "LOCK_TIMEOUT",
+            "MAX_CONNECTIONS",
+            "MAX_PRECISION",
+            "NESTLEVEL",
+            "OPTIONS",
+            "PACK_RECEIVED",
+            "PACK_SENT",
+            "PACKET_ERRORS",
+            "PROCID",
+            "REMSERVER",
+            "ROWCOUNT",
+            "SERVERNAME",
+            "SERVICENAME",
+            "SPID",
+            "TEXTSIZE",
+            "TIMETICKS",
+            "TOTAL_ERRORS",
+            "TOTAL_READ",
+            "TOTAL_WRITE",
+            "TRANCOUNT",
+            "VERSION",
+        ]
+
     async def query_execution(
         self,
         sql_query: Annotated[
