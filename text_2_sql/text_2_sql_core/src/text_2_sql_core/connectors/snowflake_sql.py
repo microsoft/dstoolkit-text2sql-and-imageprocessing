@@ -8,7 +8,7 @@ import os
 import logging
 import json
 
-from text_2_sql_core.utils.database import DatabaseEngine
+from text_2_sql_core.utils.database import DatabaseEngine, DatabaseEngineSpecificFields
 
 
 class SnowflakeSqlConnector(SqlConnector):
@@ -16,6 +16,14 @@ class SnowflakeSqlConnector(SqlConnector):
         super().__init__()
 
         self.database_engine = DatabaseEngine.SNOWFLAKE
+
+    @property
+    def engine_specific_fields(self) -> list[str]:
+        """Get the engine specific fields."""
+        return [
+            DatabaseEngineSpecificFields.WAREHOUSE,
+            DatabaseEngineSpecificFields.DATABASE,
+        ]
 
     async def query_execution(
         self,

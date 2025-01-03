@@ -11,7 +11,6 @@ from typing import Optional
 import random
 import re
 import networkx as nx
-from text_2_sql_core.utils.database import DatabaseEngine
 from tenacity import retry, stop_after_attempt, wait_exponential
 from text_2_sql_core.connectors.open_ai import OpenAIConnector
 
@@ -751,23 +750,9 @@ class DataDictionaryCreator(ABC):
     def excluded_fields_for_database_engine(self):
         """A method to get the excluded fields for the database engine."""
 
-        all_engine_specific_fields = ["Warehouse", "Database", "Catalog"]
-        if self.database_engine == DatabaseEngine.SNOWFLAKE:
-            engine_specific_fields = ["Warehouse", "Database"]
-        elif self.database_engine == DatabaseEngine.TSQL:
-            engine_specific_fields = ["Database"]
-        elif self.database_engine == DatabaseEngine.DATABRICKS:
-            engine_specific_fields = ["Catalog"]
-        elif self.database_engine == DatabaseEngine.POSTGRESQL:
-            engine_specific_fields = ["Database"]
-        else:
-            engine_specific_fields = []
-
         # Determine top-level fields to exclude
         filtered_entitiy_specific_fields = {
-            field.lower(): ...
-            for field in all_engine_specific_fields
-            if field not in engine_specific_fields
+            field.lower(): ... for field in self.excluded_engine_specific_fields
         }
 
         if filtered_entitiy_specific_fields:

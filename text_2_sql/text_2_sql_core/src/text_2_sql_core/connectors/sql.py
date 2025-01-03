@@ -9,6 +9,7 @@ import sqlglot
 from abc import ABC, abstractmethod
 from jinja2 import Template
 import json
+from text_2_sql_core.utils.database import DatabaseEngineSpecificFields
 
 
 class SqlConnector(ABC):
@@ -28,6 +29,22 @@ class SqlConnector(ABC):
         self.ai_search_connector = ConnectorFactory.get_ai_search_connector()
 
         self.database_engine = None
+
+    @abstractmethod
+    @property
+    def engine_specific_fields(self) -> list[str]:
+        """Get the engine specific fields."""
+        pass
+
+    @property
+    def excluded_engine_specific_fields(self):
+        """A method to get the excluded fields for the database engine."""
+
+        return [
+            field.value.capitalize()
+            for field in DatabaseEngineSpecificFields
+            if field not in self.engine_specific_fields
+        ]
 
     @abstractmethod
     async def query_execution(
