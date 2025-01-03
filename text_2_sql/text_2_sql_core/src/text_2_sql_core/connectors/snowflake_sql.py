@@ -17,6 +17,48 @@ class SnowflakeSqlConnector(SqlConnector):
 
         self.database_engine = DatabaseEngine.SNOWFLAKE
 
+    @property
+    def invalid_identifiers(self) -> list[str]:
+        """Get the invalid identifiers upon which a sql query is rejected."""
+        return [
+            "CURRENT_CLIENT",
+            "CURRENT_IP_ADDRESS",
+            "CURRENT_REGION",
+            "CURRENT_VERSION",
+            "ALL_USER_NAMES",
+            "CURRENT_ACCOUNT",
+            "CURRENT_ACCOUNT_NAME",
+            "CURRENT_ORGANIZATION_NAME",
+            "CURRENT_ROLE",
+            "CURRENT_AVAILABLE_ROLES",
+            "CURRENT_SECONDARY_ROLES",
+            "CURRENT_SESSION",
+            "CURRENT_STATEMENT",
+            "CURRENT_TRANSACTION",
+            "CURRENT_USER",
+            "GETVARIABLE",
+            "LAST_QUERY_ID",
+            "LAST_TRANSACTION",
+            "CURRENT_DATABASE",
+            "CURRENT_ROLE_TYPE",
+            "CURRENT_SCHEMA",
+            "CURRENT_SCHEMAS",
+            "CURRENT_WAREHOUSE",
+            "INVOKER_ROLE",
+            "INVOKER_SHARE",
+            "IS_APPLICATION_ROLE_IN_SESSION",
+            "IS_DATABASE_ROLE_IN_SESSION",
+            "IS_GRANTED_TO_INVOKER_ROLE",
+            "IS_INSTANCE_ROLE_IN_SESSION",
+            "IS_ROLE_IN_SESSION",
+            "POLICY_CONTEXT",
+            "CURRENT_SESSION_USER",
+            "SESSION_ID",
+            "QUERY_START_TIME",
+            "QUERY_ELAPSED_TIME",
+            "QUERY_MEMORY_USAGE",
+        ]
+
     async def query_execution(
         self,
         sql_query: Annotated[

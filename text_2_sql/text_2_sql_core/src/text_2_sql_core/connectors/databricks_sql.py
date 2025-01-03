@@ -17,6 +17,35 @@ class DatabricksSqlConnector(SqlConnector):
 
         self.database_engine = DatabaseEngine.DATABRICKS
 
+    @property
+    def invalid_identifiers(self) -> list[str]:
+        """Get the invalid identifiers upon which a sql query is rejected."""
+        return [
+            # Session and system variables
+            "CURRENT_CATALOG",
+            "CURRENT_DATABASE",
+            "CURRENT_USER",
+            "SESSION_USER",
+            "CURRENT_ROLE",
+            "CURRENT_QUERY",
+            "CURRENT_WAREHOUSE",
+            "SESSION_ID",
+            # System metadata functions
+            "DATABASE",
+            "USER",
+            # Potentially unsafe built-in functions
+            "CURRENT_USER",
+            "SESSION_USER",
+            "SYSTEM",
+            "SHOW",
+            "DESCRIBE",
+            "EXPLAIN",
+            "SET",
+            "SHOW TABLES",
+            "SHOW COLUMNS",
+            "SHOW DATABASES",
+        ]
+
     async def query_execution(
         self,
         sql_query: Annotated[
