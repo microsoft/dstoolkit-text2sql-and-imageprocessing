@@ -172,7 +172,7 @@ class SqlConnector(ABC):
 
             for token in expressions + identifiers:
                 if isinstance(token, Parameter):
-                    identifier = token.this.this
+                    identifier = str(token.this.this).upper()
                 else:
                     identifier = str(token).strip("()").upper()
 

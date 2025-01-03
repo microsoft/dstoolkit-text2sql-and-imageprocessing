@@ -21,6 +21,28 @@ class PostgresqlSqlConnector(SqlConnector):
         """Get the engine specific fields."""
         return [DatabaseEngineSpecificFields.DATABASE]
 
+    @property
+    def invalid_identifiers(self) -> list[str]:
+        """Get the invalid identifiers upon which a sql query is rejected."""
+
+        return [
+            "CURRENT_USER",  # Returns the name of the current user
+            "SESSION_USER",  # Returns the name of the user that initiated the session
+            "USER",  # Returns the name of the current user
+            "CURRENT_ROLE",  # Returns the current role
+            "CURRENT_DATABASE",  # Returns the name of the current database
+            "CURRENT_SCHEMA()",  # Returns the name of the current schema
+            "CURRENT_SETTING()",  # Returns the value of a specified configuration parameter
+            "PG_CURRENT_XACT_ID()",  # Returns the current transaction ID
+            # (if the extension is enabled) Provides a view of query statistics
+            "PG_STAT_STATEMENTS()",
+            "PG_SLEEP()",  # Delays execution by the specified number of seconds
+            "CLIENT_ADDR()",  # Returns the IP address of the client (from pg_stat_activity)
+            "CLIENT_HOSTNAME()",  # Returns the hostname of the client (from pg_stat_activity)
+            "PGP_SYM_DECRYPT()",  # (from pgcrypto extension) Symmetric decryption function
+            "PGP_PUB_DECRYPT()",  # (from pgcrypto extension) Asymmetric decryption function
+        ]
+
     async def query_execution(
         self,
         sql_query: Annotated[str, "The SQL query to run against the database."],
