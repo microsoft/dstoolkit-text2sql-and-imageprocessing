@@ -16,6 +16,7 @@ from autogen_agentchat.messages import TextMessage
 import json
 import os
 from datetime import datetime
+import re
 
 from text_2_sql_core.payloads.interaction_payloads import (
     QuestionPayload,
@@ -108,49 +109,67 @@ class AutoGenText2Sql:
         self, messages: list
     ) -> DismabiguationRequestPayload:
         """Extract the disambiguation request from the answer."""
-
         disambiguation_request = messages[-1].content
-
-        # TODO: Properly extract the disambiguation request
         return DismabiguationRequestPayload(
             disambiguation_request=disambiguation_request,
         )
 
+    def parse_message_content(self, content):
+        """Parse different message content formats into a dictionary."""
+        if isinstance(content, (list, dict)):
+            # If it's already a list or dict, convert to JSON string
+            return json.dumps(content)
+
+        # Try to extract JSON from markdown-style code blocks
+        json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+        if json_match:
+            try:
+                return json.loads(json_match.group(1))
+            except json.JSONDecodeError:
+                pass
+
+        # Try parsing as regular JSON
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            pass
+
+        # If all parsing attempts fail, return the content as-is
+        return content
+
     def extract_sources(self, messages: list) -> AnswerWithSourcesPayload:
         """Extract the sources from the answer."""
-
         answer = messages[-1].content
-
-        sql_query_results = messages[-2].content
+        sql_query_results = self.parse_message_content(messages[-2].content)
 
         try:
-            sql_query_results = json.loads(sql_query_results)
+            if isinstance(sql_query_results, str):
+                sql_query_results = json.loads(sql_query_results)
 
             logging.info("SQL Query Results: %s", sql_query_results)
-
             payload = AnswerWithSourcesPayload(answer=answer)
 
-            for question, sql_query_result_list in sql_query_results["results"].items():
-                logging.info(
-                    "SQL Query Result for question '%s': %s",
-                    question,
-                    sql_query_result_list,
-                )
-
-                for sql_query_result in sql_query_result_list:
-                    logging.info("SQL Query Result: %s", sql_query_result)
-                    # Instantiate Source and append to the payload's sources list
-                    source = AnswerWithSourcesPayload.Body.Source(
-                        sql_query=sql_query_result["sql_query"],
-                        sql_rows=sql_query_result["sql_rows"],
+            if isinstance(sql_query_results, dict) and "results" in sql_query_results:
+                for question, sql_query_result_list in sql_query_results["results"].items():
+                    logging.info(
+                        "SQL Query Result for question '%s': %s",
+                        question,
+                        sql_query_result_list,
                     )
-                    payload.body.sources.append(source)
+
+                    for sql_query_result in sql_query_result_list:
+                        logging.info("SQL Query Result: %s", sql_query_result)
+                        source = AnswerWithSourcesPayload.Body.Source(
+                            sql_query=sql_query_result["sql_query"],
+                            sql_rows=sql_query_result["sql_rows"],
+                        )
+                        payload.body.sources.append(source)
 
             return payload
 
-        except json.JSONDecodeError:
-            logging.error("Could not load message: %s", sql_query_results)
-            raise ValueError("Could not load message")
+        except Exception as e:
+            logging.error("Error processing results: %s", str(e))
+            return AnswerWithSourcesPayload(answer=answer)
 
     async def process_question(
         self,

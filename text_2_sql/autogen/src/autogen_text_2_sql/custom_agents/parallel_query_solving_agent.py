@@ -38,6 +38,36 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         assert response is not None
         return response
 
+    def parse_inner_message(self, message):
+        """Parse inner message content into a structured format."""
+        try:
+            if isinstance(message, (dict, list)):
+                return message
+
+            if not isinstance(message, str):
+                message = str(message)
+
+            # Try to parse as JSON first
+            try:
+                return json.loads(message)
+            except JSONDecodeError:
+                pass
+
+            # Try to extract JSON from markdown code blocks
+            import re
+            json_match = re.search(r'```json\s*(.*?)\s*```', message, re.DOTALL)
+            if json_match:
+                try:
+                    return json.loads(json_match.group(1))
+                except JSONDecodeError:
+                    pass
+
+            # If we can't parse it, return it as-is
+            return message
+        except Exception as e:
+            logging.warning(f"Error parsing message: {e}")
+            return message
+
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentMessage | Response, None]:
@@ -74,46 +104,41 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
                 if isinstance(inner_message, TaskResult) is False:
                     try:
-                        inner_message = json.loads(inner_message.content)
-                        logging.info(f"Inner Loaded: {inner_message}")
+                        parsed_message = self.parse_inner_message(inner_message.content)
+                        logging.info(f"Inner Loaded: {parsed_message}")
 
                         # Search for specific message types and add them to the final output object
-                        if (
-                            "type" in inner_message
-                            and inner_message["type"] == "query_execution_with_limit"
-                        ):
-                            database_results[identifier].append(
-                                {
-                                    "sql_query": inner_message["sql_query"].replace(
-                                        "\n", " "
-                                    ),
-                                    "sql_rows": inner_message["sql_rows"],
-                                }
-                            )
-
-                        if ("contains_pre_run_results" in inner_message) and (
-                            inner_message["contains_pre_run_results"] is True
-                        ):
-                            for pre_run_sql_query, pre_run_result in inner_message[
-                                "cached_questions_and_schemas"
-                            ].items():
+                        if isinstance(parsed_message, dict):
+                            if (
+                                "type" in parsed_message
+                                and parsed_message["type"] == "query_execution_with_limit"
+                            ):
                                 database_results[identifier].append(
                                     {
-                                        "sql_query": pre_run_sql_query.replace(
+                                        "sql_query": parsed_message["sql_query"].replace(
                                             "\n", " "
                                         ),
-                                        "sql_rows": pre_run_result["sql_rows"],
+                                        "sql_rows": parsed_message["sql_rows"],
                                     }
                                 )
 
-                    except (JSONDecodeError, TypeError) as e:
-                        logging.error("Could not load message: %s", inner_message)
-                        logging.warning(f"Error processing message: {e}")
+                            if ("contains_pre_run_results" in parsed_message) and (
+                                parsed_message["contains_pre_run_results"] is True
+                            ):
+                                for pre_run_sql_query, pre_run_result in parsed_message[
+                                    "cached_questions_and_schemas"
+                                ].items():
+                                    database_results[identifier].append(
+                                        {
+                                            "sql_query": pre_run_sql_query.replace(
+                                                "\n", " "
+                                            ),
+                                            "sql_rows": pre_run_result["sql_rows"],
+                                        }
+                                    )
 
                     except Exception as e:
-                        logging.error("Could not load message: %s", inner_message)
-                        logging.error(f"Error processing message: {e}")
-                        raise e
+                        logging.warning(f"Error processing message: {e}")
 
                 yield inner_message
 
