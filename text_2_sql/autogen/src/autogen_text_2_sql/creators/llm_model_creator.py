@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from autogen_ext.models import AzureOpenAIChatCompletionClient
+from autogen_ext.models.openai import AzureOpenAIChatCompletionClient
 from text_2_sql_core.utils.environment import IdentityType, get_identity_type
 
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
@@ -57,7 +57,7 @@ class LLMModelCreator:
         return AzureOpenAIChatCompletionClient(
             azure_deployment=os.environ["OpenAI__MiniCompletionDeployment"],
             model=os.environ["OpenAI__MiniCompletionDeployment"],
-            api_version="2024-08-01-preview",
+            api_version=os.environ["OpenAI__ApiVersion"],
             azure_endpoint=os.environ["OpenAI__Endpoint"],
             azure_ad_token_provider=token_provider,
             api_key=api_key,
@@ -75,7 +75,7 @@ class LLMModelCreator:
         return AzureOpenAIChatCompletionClient(
             azure_deployment=os.environ["OpenAI__CompletionDeployment"],
             model=os.environ["OpenAI__CompletionDeployment"],
-            api_version="2024-08-01-preview",
+            api_version=os.environ["OpenAI__ApiVersion"],
             azure_endpoint=os.environ["OpenAI__Endpoint"],
             azure_ad_token_provider=token_provider,
             api_key=api_key,

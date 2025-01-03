@@ -34,10 +34,13 @@ class OpenAIConnector:
         return token_provider, api_key
 
     async def run_completion_request(self, messages: list[dict], temperature=0):
+        token_provider, api_key = self.get_authentication_properties()
         async with AsyncAzureOpenAI(
-            api_key=os.environ["OpenAI__ApiKey"],
-            azure_endpoint=os.environ["OpenAI__Endpoint"],
+            azure_deployment=os.environ["OpenAI__MiniCompletionDeployment"],
             api_version=os.environ["OpenAI__ApiVersion"],
+            azure_endpoint=os.environ["OpenAI__Endpoint"],
+            azure_ad_token_provider=token_provider,
+            api_key=api_key,
         ) as open_ai_client:
             response = await open_ai_client.chat.completions.create(
                 model=os.environ["OpenAI__MiniCompletionDeployment"],
