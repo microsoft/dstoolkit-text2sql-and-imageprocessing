@@ -6,6 +6,7 @@ from typing import Annotated, Union
 from text_2_sql_core.connectors.factory import ConnectorFactory
 import asyncio
 import sqlglot
+from sqlglot.expressions import Parameter, Select, Identifier
 from abc import ABC, abstractmethod
 from jinja2 import Template
 import json
@@ -28,6 +29,12 @@ class SqlConnector(ABC):
         self.ai_search_connector = ConnectorFactory.get_ai_search_connector()
 
         self.database_engine = None
+
+    @property
+    @abstractmethod
+    def invalid_identifiers(self) -> list[str]:
+        """Get the invalid identifiers upon which a sql query is rejected."""
+        pass
 
     @abstractmethod
     async def query_execution(
@@ -123,11 +130,49 @@ class SqlConnector(ABC):
         """Validate the SQL query."""
         try:
             logging.info("Validating SQL Query: %s", sql_query)
-            sqlglot.transpile(
+            parsed_queries = sqlglot.parse(
                 sql_query,
                 read=self.database_engine.value.lower(),
-                error_level=sqlglot.ErrorLevel.RAISE,
             )
+
+            expressions = []
+            identifiers = []
+
+            def handle_node(node):
+                if isinstance(node, Select):
+                    # Extract expressions
+                    for expr in node.expressions:
+                        expressions.append(expr)
+                elif isinstance(node, Identifier):
+                    # Extract identifiers
+                    identifiers.append(node.this)
+
+            detected_invalid_identifiers = []
+
+            for parsed_query in parsed_queries:
+                for node in parsed_query.walk():
+                    handle_node(node)
+
+            for token in expressions + identifiers:
+                if isinstance(token, Parameter):
+                    identifier = token.this.this
+                else:
+                    identifier = str(token).strip("()").upper()
+
+                if identifier in self.invalid_identifiers:
+                    logging.warning("Detected invalid identifier: %s", identifier)
+                    detected_invalid_identifiers.append(identifier)
+
+            if len(detected_invalid_identifiers) > 0:
+                logging.error(
+                    "SQL Query contains invalid identifiers: %s",
+                    detected_invalid_identifiers,
+                )
+                return (
+                    "SQL Query contains invalid identifiers: %s"
+                    % detected_invalid_identifiers
+                )
+
         except sqlglot.errors.ParseError as e:
             logging.error("SQL Query is invalid: %s", e.errors)
             return e.errors
