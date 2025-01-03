@@ -55,7 +55,8 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
             # Try to extract JSON from markdown code blocks
             import re
-            json_match = re.search(r'```json\s*(.*?)\s*```', message, re.DOTALL)
+
+            json_match = re.search(r"```json\s*(.*?)\s*```", message, re.DOTALL)
             if json_match:
                 try:
                     return json.loads(json_match.group(1))
@@ -111,13 +112,14 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                         if isinstance(parsed_message, dict):
                             if (
                                 "type" in parsed_message
-                                and parsed_message["type"] == "query_execution_with_limit"
+                                and parsed_message["type"]
+                                == "query_execution_with_limit"
                             ):
                                 database_results[identifier].append(
                                     {
-                                        "sql_query": parsed_message["sql_query"].replace(
-                                            "\n", " "
-                                        ),
+                                        "sql_query": parsed_message[
+                                            "sql_query"
+                                        ].replace("\n", " "),
                                         "sql_rows": parsed_message["sql_rows"],
                                     }
                                 )

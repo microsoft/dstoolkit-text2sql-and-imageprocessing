@@ -121,7 +121,7 @@ class AutoGenText2Sql:
             return json.dumps(content)
 
         # Try to extract JSON from markdown-style code blocks
-        json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+        json_match = re.search(r"```json\s*(.*?)\s*```", content, re.DOTALL)
         if json_match:
             try:
                 return json.loads(json_match.group(1))
@@ -150,7 +150,9 @@ class AutoGenText2Sql:
             payload = AnswerWithSourcesPayload(answer=answer)
 
             if isinstance(sql_query_results, dict) and "results" in sql_query_results:
-                for question, sql_query_result_list in sql_query_results["results"].items():
+                for question, sql_query_result_list in sql_query_results[
+                    "results"
+                ].items():
                     logging.info(
                         "SQL Query Result for question '%s': %s",
                         question,
