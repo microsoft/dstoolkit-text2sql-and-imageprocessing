@@ -33,18 +33,28 @@ class OpenAIConnector:
 
         return token_provider, api_key
 
-    async def run_completion_request(self, messages: list[dict], temperature=0):
+    async def run_completion_request(
+        self, messages: list[dict], temperature=0, max_tokens=2000, model="4o-mini"
+    ) -> str:
+        if model == "4o-mini":
+            model_deployment = os.environ["OpenAI__MiniCompletionDeployment"]
+        elif model == "4o":
+            model_deployment = os.environ["OpenAI__CompletionDeployment"]
+        else:
+            raise ValueError(f"Model {model} not found")
+
         token_provider, api_key = self.get_authentication_properties()
         async with AsyncAzureOpenAI(
-            azure_deployment=os.environ["OpenAI__MiniCompletionDeployment"],
+            azure_deployment=model_deployment,
             api_version=os.environ["OpenAI__ApiVersion"],
             azure_endpoint=os.environ["OpenAI__Endpoint"],
             azure_ad_token_provider=token_provider,
             api_key=api_key,
         ) as open_ai_client:
             response = await open_ai_client.chat.completions.create(
-                model=os.environ["OpenAI__MiniCompletionDeployment"],
+                model=model_deployment,
                 messages=messages,
                 temperature=temperature,
+                max_tokens=max_tokens,
             )
         return response.choices[0].message.content

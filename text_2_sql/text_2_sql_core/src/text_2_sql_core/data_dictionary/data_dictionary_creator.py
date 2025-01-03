@@ -8,14 +8,12 @@ from dotenv import find_dotenv, load_dotenv
 import logging
 from pydantic import BaseModel, Field, ConfigDict, computed_field
 from typing import Optional
-from text_2_sql_core.utils.environment import IdentityType, get_identity_type
-from openai import AsyncAzureOpenAI
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 import random
 import re
 import networkx as nx
 from text_2_sql_core.utils.database import DatabaseEngine
 from tenacity import retry, stop_after_attempt, wait_exponential
+from text_2_sql_core.connectors.open_ai import OpenAIConnector
 
 logging.basicConfig(level=logging.INFO)
 
@@ -278,6 +276,8 @@ class DataDictionaryCreator(ABC):
 
         if output_directory is None:
             self.output_directory = "."
+
+        self.open_ai_connector = OpenAIConnector()
 
         load_dotenv(find_dotenv())
 
@@ -627,9 +627,6 @@ class DataDictionaryCreator(ABC):
 
         return columns
 
-    @retry(
-        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10)
-    )
     async def send_request_to_llm(self, system_prompt: str, input: str):
         """A method to use GPT to generate a definition for an entity.
 
@@ -640,55 +637,23 @@ class DataDictionaryCreator(ABC):
         Returns:
             str: The generated definition."""
 
-        MAX_TOKENS = 2000
+        messages = [
+            {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": input,
+                    },
+                ],
+            },
+        ]
 
-        api_version = os.environ["OpenAI__ApiVersion"]
-        model = os.environ["OpenAI__CompletionDeployment"]
-
-        if get_identity_type() in [
-            IdentityType.SYSTEM_ASSIGNED,
-            IdentityType.USER_ASSIGNED,
-        ]:
-            token_provider = get_bearer_token_provider(
-                DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
-            )
-            api_key = None
-        else:
-            token_provider = None
-            api_key = os.environ["OpenAI__ApiKey"]
-
-        try:
-            async with AsyncAzureOpenAI(
-                api_key=api_key,
-                api_version=api_version,
-                azure_ad_token_provider=token_provider,
-                azure_endpoint=os.environ.get("OpenAI__Endpoint"),
-            ) as client:
-                response = await client.chat.completions.create(
-                    model=model,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": system_prompt,
-                        },
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": input,
-                                },
-                            ],
-                        },
-                    ],
-                    max_tokens=MAX_TOKENS,
-                )
-
-            return response.choices[0].message.content
-        except Exception as e:
-            logging.error(f"Unable to generate definition for {input}")
-            logging.error(f"Error generating definition: {e}")
-            return None
+        return await self.open_ai_connector.run_completion_request(messages)
 
     async def generate_entity_definition(self, entity: EntityItem):
         """A method to generate a definition for an entity.
