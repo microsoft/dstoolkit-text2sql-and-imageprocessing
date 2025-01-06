@@ -3,14 +3,20 @@
 from typing import AsyncGenerator, List, Sequence
 
 from autogen_agentchat.agents import BaseChatAgent
-from autogen_agentchat.base import Response, TaskResult
-from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
+from autogen_agentchat.base import Response
+from autogen_agentchat.messages import (
+    AgentMessage,
+    ChatMessage,
+    TextMessage,
+    ToolCallResultMessage,
+)
 from autogen_core import CancellationToken
 import json
 import logging
 from autogen_text_2_sql.inner_autogen_text_2_sql import InnerAutoGenText2Sql
 from aiostream import stream
 from json import JSONDecodeError
+import re
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
@@ -52,9 +58,6 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 return json.loads(message)
             except JSONDecodeError:
                 pass
-
-            # Try to extract JSON from markdown code blocks
-            import re
 
             json_match = re.search(r"```json\s*(.*?)\s*```", message, re.DOTALL)
             if json_match:
@@ -103,12 +106,13 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
                 logging.info(f"Checking Inner Message: {inner_message}")
 
-                if isinstance(inner_message, TaskResult) is False:
-                    try:
+                try:
+                    if isinstance(inner_message, ToolCallResultMessage):
+                        # Check for SQL query results
                         parsed_message = self.parse_inner_message(inner_message.content)
+
                         logging.info(f"Inner Loaded: {parsed_message}")
 
-                        # Search for specific message types and add them to the final output object
                         if isinstance(parsed_message, dict):
                             if (
                                 "type" in parsed_message
@@ -124,6 +128,13 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                     }
                                 )
 
+                    elif isinstance(inner_message, TextMessage):
+                        parsed_message = self.parse_inner_message(inner_message.content)
+
+                        logging.info(f"Inner Loaded: {parsed_message}")
+
+                        # Search for specific message types and add them to the final output object
+                        if isinstance(parsed_message, dict):
                             if ("contains_pre_run_results" in parsed_message) and (
                                 parsed_message["contains_pre_run_results"] is True
                             ):
@@ -139,8 +150,8 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                         }
                                     )
 
-                    except Exception as e:
-                        logging.warning(f"Error processing message: {e}")
+                except Exception as e:
+                    logging.warning(f"Error processing message: {e}")
 
                 yield inner_message
 

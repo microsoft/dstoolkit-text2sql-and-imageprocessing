@@ -127,6 +127,7 @@ class TSQLSqlConnector(SqlConnector):
 
             del schema["Entity"]
             del schema["Schema"]
+            del schema["Database"]
 
         if as_json:
             return json.dumps(schemas, default=str)

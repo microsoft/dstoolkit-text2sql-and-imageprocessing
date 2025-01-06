@@ -28,7 +28,12 @@ class OpenAIConnector:
         return token_provider, api_key
 
     async def run_completion_request(
-        self, messages: list[dict], temperature=0, max_tokens=2000, model="4o-mini"
+        self,
+        messages: list[dict],
+        temperature=0,
+        max_tokens=2000,
+        model="4o-mini",
+        response_format=None,
     ) -> str:
         if model == "4o-mini":
             model_deployment = os.environ["OpenAI__MiniCompletionDeployment"]
@@ -45,13 +50,29 @@ class OpenAIConnector:
             azure_ad_token_provider=token_provider,
             api_key=api_key,
         ) as open_ai_client:
-            response = await open_ai_client.chat.completions.create(
-                model=model_deployment,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-        return response.choices[0].message.content
+            if response_format is not None:
+                response = await open_ai_client.beta.chat.completions.parse(
+                    model=model_deployment,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    response_format=response_format,
+                )
+            else:
+                response = await open_ai_client.chat.completions.create(
+                    model=model_deployment,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
+
+        message = response.choices[0].message
+        if response_format is not None and message.parsed is not None:
+            return message.parsed
+        elif response_format is not None:
+            return message.refusal
+        else:
+            return message.content
 
     async def run_embedding_request(self, batch: list[str]):
         token_provider, api_key = self.get_authentication_properties()
