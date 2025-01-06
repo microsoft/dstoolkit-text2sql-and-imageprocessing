@@ -22,6 +22,11 @@ class SQLiteSqlConnector(SqlConnector):
         """Get the invalid identifiers upon which a sql query is rejected."""
         return []  # SQLite has no reserved words that conflict with our use case
 
+    @property
+    def engine_specific_fields(self) -> list[str]:
+        """Get the engine specific fields."""
+        return []  # SQLite doesn't use warehouses, catalogs, or separate databases
+
     async def query_execution(
         self,
         sql_query: Annotated[

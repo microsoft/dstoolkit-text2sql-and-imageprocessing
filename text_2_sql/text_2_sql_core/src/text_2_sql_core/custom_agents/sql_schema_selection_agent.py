@@ -63,17 +63,42 @@ class SqlSchemaSelectionAgentCustomAgent:
         schemas_results = await asyncio.gather(*entity_search_tasks)
         column_value_results = await asyncio.gather(*column_search_tasks)
 
-        # deduplicate schemas
-        final_schemas = []
-
+        # Group schemas by database for Spider evaluation support
+        schemas_by_db = {}
         for schema_result in schemas_results:
             for schema in schema_result:
-                if schema not in final_schemas:
-                    final_schemas.append(schema)
+                db_path = schema.get("DatabasePath")
+                if db_path:
+                    if db_path not in schemas_by_db:
+                        schemas_by_db[db_path] = []
+                    if schema not in schemas_by_db[db_path]:
+                        schemas_by_db[db_path].append(schema)
+
+        # Select most relevant database based on schema matches
+        selected_db = None
+        max_schemas = 0
+        for db_path, schemas in schemas_by_db.items():
+            if len(schemas) > max_schemas:
+                max_schemas = len(schemas)
+                selected_db = db_path
+
+        # Set selected database in connector
+        if selected_db:
+            self.sql_connector.current_db_path = selected_db
+
+        # Use schemas from selected database or all schemas if no database selection
+        final_schemas = schemas_by_db.get(selected_db, []) if selected_db else []
+        if not final_schemas:
+            # Fallback to original deduplication if no database was selected
+            for schema_result in schemas_results:
+                for schema in schema_result:
+                    if schema not in final_schemas:
+                        final_schemas.append(schema)
 
         final_results = {
             "COLUMN_OPTIONS_AND_VALUES_FOR_FILTERS": column_value_results,
             "SCHEMA_OPTIONS": final_schemas,
+            "SELECTED_DATABASE": selected_db
         }
 
         logging.info(f"Final results: {final_results}")
