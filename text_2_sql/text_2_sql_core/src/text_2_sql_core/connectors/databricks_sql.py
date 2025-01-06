@@ -8,7 +8,7 @@ import os
 import logging
 import json
 
-from text_2_sql_core.utils.database import DatabaseEngine
+from text_2_sql_core.utils.database import DatabaseEngine, DatabaseEngineSpecificFields
 
 
 class DatabricksSqlConnector(SqlConnector):
@@ -16,6 +16,11 @@ class DatabricksSqlConnector(SqlConnector):
         super().__init__()
 
         self.database_engine = DatabaseEngine.DATABRICKS
+
+    @property
+    def engine_specific_fields(self) -> list[str]:
+        """Get the engine specific fields."""
+        return [DatabaseEngineSpecificFields.CATALOG]
 
     @property
     def invalid_identifiers(self) -> list[str]:

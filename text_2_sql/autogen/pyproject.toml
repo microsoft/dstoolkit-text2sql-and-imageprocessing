@@ -11,7 +11,7 @@ dependencies = [
     "autogen-ext[azure,openai]==0.4.0.dev11",
     "grpcio>=1.68.1",
     "pyyaml>=6.0.2",
-    "text_2_sql_core[snowflake,databricks]",
+    "text_2_sql_core",
 ]
 
 [dependency-groups]
@@ -28,3 +28,14 @@ dev = [
 
 [tool.uv.sources]
 text_2_sql_core = { workspace = true }
+
+[project.optional-dependencies]
+snowflake = [
+    "text_2_sql_core[snowflake]",
+]
+databricks = [
+    "text_2_sql_core[databricks]",
+]
+postgresql = [
+    "text_2_sql_core[postgresql]",
+]
