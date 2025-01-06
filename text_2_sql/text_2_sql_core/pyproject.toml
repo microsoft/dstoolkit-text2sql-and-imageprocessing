@@ -46,6 +46,10 @@ databricks = [
     "databricks-sql-connector>=3.0.1",
     "pyarrow>=14.0.2,<17",
 ]
+postgresql = [
+    "psycopg>=3.2.3",
+]
+
 
 [build-system]
 requires = ["hatchling"]

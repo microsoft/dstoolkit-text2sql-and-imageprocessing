@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 from text_2_sql_core.connectors.sql import SqlConnector
-import aioodbc
+import psycopg
 from typing import Annotated
 import os
 import logging
@@ -10,11 +10,11 @@ import json
 from text_2_sql_core.utils.database import DatabaseEngine, DatabaseEngineSpecificFields
 
 
-class TSQLSqlConnector(SqlConnector):
+class PostgresqlSqlConnector(SqlConnector):
     def __init__(self):
         super().__init__()
 
-        self.database_engine = DatabaseEngine.TSQL
+        self.database_engine = DatabaseEngine.POSTGRESQL
 
     @property
     def engine_specific_fields(self) -> list[str]:
@@ -24,52 +24,32 @@ class TSQLSqlConnector(SqlConnector):
     @property
     def invalid_identifiers(self) -> list[str]:
         """Get the invalid identifiers upon which a sql query is rejected."""
+
         return [
-            "CONNECTIONS",
-            "CPU_BUSY",
-            "CURSOR_ROWS",
-            "DATEFIRST",
-            "DBTS",
-            "ERROR",
-            "FETCH_STATUS",
-            "IDENTITY",
-            "IDLE",
-            "IO_BUSY",
-            "LANGID",
-            "LANGUAGE",
-            "LOCK_TIMEOUT",
-            "MAX_CONNECTIONS",
-            "MAX_PRECISION",
-            "NESTLEVEL",
-            "OPTIONS",
-            "PACK_RECEIVED",
-            "PACK_SENT",
-            "PACKET_ERRORS",
-            "PROCID",
-            "REMSERVER",
-            "ROWCOUNT",
-            "SERVERNAME",
-            "SERVICENAME",
-            "SPID",
-            "TEXTSIZE",
-            "TIMETICKS",
-            "TOTAL_ERRORS",
-            "TOTAL_READ",
-            "TOTAL_WRITE",
-            "TRANCOUNT",
-            "VERSION",
+            "CURRENT_USER",  # Returns the name of the current user
+            "SESSION_USER",  # Returns the name of the user that initiated the session
+            "USER",  # Returns the name of the current user
+            "CURRENT_ROLE",  # Returns the current role
+            "CURRENT_DATABASE",  # Returns the name of the current database
+            "CURRENT_SCHEMA()",  # Returns the name of the current schema
+            "CURRENT_SETTING()",  # Returns the value of a specified configuration parameter
+            "PG_CURRENT_XACT_ID()",  # Returns the current transaction ID
+            # (if the extension is enabled) Provides a view of query statistics
+            "PG_STAT_STATEMENTS()",
+            "PG_SLEEP()",  # Delays execution by the specified number of seconds
+            "CLIENT_ADDR()",  # Returns the IP address of the client (from pg_stat_activity)
+            "CLIENT_HOSTNAME()",  # Returns the hostname of the client (from pg_stat_activity)
+            "PGP_SYM_DECRYPT()",  # (from pgcrypto extension) Symmetric decryption function
+            "PGP_PUB_DECRYPT()",  # (from pgcrypto extension) Asymmetric decryption function
         ]
 
     async def query_execution(
         self,
-        sql_query: Annotated[
-            str,
-            "The SQL query to run against the database.",
-        ],
+        sql_query: Annotated[str, "The SQL query to run against the database."],
         cast_to: any = None,
         limit=None,
     ) -> list[dict]:
-        """Run the SQL query against the database.
+        """Run the SQL query against the PostgreSQL database asynchronously.
 
         Args:
         ----
@@ -82,16 +62,23 @@ class TSQLSqlConnector(SqlConnector):
         logging.info(f"Running query: {sql_query}")
         results = []
         connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
-        async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
-            async with sql_db_client.cursor() as cursor:
+
+        # Establish an asynchronous connection to the PostgreSQL database
+        async with psycopg.AsyncConnection.connect(connection_string) as conn:
+            # Create an asynchronous cursor
+            async with conn.cursor() as cursor:
                 await cursor.execute(sql_query)
 
+                # Fetch column names
                 columns = [column[0] for column in cursor.description]
 
+                # Fetch rows based on the limit
                 if limit is not None:
                     rows = await cursor.fetchmany(limit)
                 else:
                     rows = await cursor.fetchall()
+
+                # Process the rows
                 for row in rows:
                     if cast_to:
                         results.append(cast_to.from_sql_row(row, columns))
