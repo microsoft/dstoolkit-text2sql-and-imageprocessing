@@ -98,7 +98,7 @@ class SqlSchemaSelectionAgentCustomAgent:
         final_results = {
             "COLUMN_OPTIONS_AND_VALUES_FOR_FILTERS": column_value_results,
             "SCHEMA_OPTIONS": final_schemas,
-            "SELECTED_DATABASE": selected_db
+            "SELECTED_DATABASE": selected_db,
         }
 
         logging.info(f"Final results: {final_results}")

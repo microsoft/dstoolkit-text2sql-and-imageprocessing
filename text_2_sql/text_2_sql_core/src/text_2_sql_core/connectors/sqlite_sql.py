@@ -58,7 +58,11 @@ class SQLiteSqlConnector(SqlConnector):
             cursor = conn.cursor()
             cursor.execute(sql_query)
 
-            columns = [column[0] for column in cursor.description] if cursor.description else []
+            columns = (
+                [column[0] for column in cursor.description]
+                if cursor.description
+                else []
+            )
 
             if limit is not None:
                 rows = cursor.fetchmany(limit)
@@ -82,8 +86,8 @@ class SQLiteSqlConnector(SqlConnector):
         4. Removing common prefixes/suffixes
         """
         term = term.lower()
-        term = re.sub(r'[_\s]+', '', term)
-        term = re.sub(r's$', '', term)  # Remove trailing 's' for plurals
+        term = re.sub(r"[_\s]+", "", term)
+        term = re.sub(r"s$", "", term)  # Remove trailing 's' for plurals
         return term
 
     def terms_match(self, term1: str, term2: str) -> bool:
@@ -111,9 +115,9 @@ class SQLiteSqlConnector(SqlConnector):
             return matches
 
         # Try matching parts of compound table names
-        search_terms = set(re.split(r'[_\s]+', text.lower()))
+        search_terms = set(re.split(r"[_\s]+", text.lower()))
         for idx, name in enumerate(table_names):
-            table_terms = set(re.split(r'[_\s]+', name.lower()))
+            table_terms = set(re.split(r"[_\s]+", name.lower()))
             if search_terms & table_terms:  # If there's any overlap in terms
                 matches.append(idx)
 
@@ -178,14 +182,16 @@ class SQLiteSqlConnector(SqlConnector):
             columns = []
             for j, (t_idx, c_name) in enumerate(db_schema["column_names"]):
                 if t_idx == table_idx:
-                    columns.append({
-                        "Name": db_schema["column_names_original"][j][1],
-                        "Type": db_schema["column_types"][j]
-                    })
+                    columns.append(
+                        {
+                            "Name": db_schema["column_names_original"][j][1],
+                            "Type": db_schema["column_types"][j],
+                        }
+                    )
 
             schema = {
                 "SelectFromEntity": db_schema["table_names"][table_idx],
-                "Columns": columns
+                "Columns": columns,
             }
             schemas.append(schema)
 

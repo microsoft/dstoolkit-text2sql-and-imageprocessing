@@ -2,6 +2,7 @@ import re
 import json
 from typing import Optional, List, Dict, Any
 
+
 def extract_sql_queries_from_results(results: Dict[str, Any]) -> List[str]:
     """
     Extract SQL queries from the results dictionary returned by the query processing.
@@ -14,15 +15,16 @@ def extract_sql_queries_from_results(results: Dict[str, Any]) -> List[str]:
     """
     queries = []
 
-    if results.get('contains_results') and results.get('results'):
-        for question_results in results['results'].values():
+    if results.get("contains_results") and results.get("results"):
+        for question_results in results["results"].values():
             for result in question_results:
-                if isinstance(result, dict) and 'sql_query' in result:
-                    sql_query = result['sql_query'].strip()
+                if isinstance(result, dict) and "sql_query" in result:
+                    sql_query = result["sql_query"].strip()
                     if sql_query and sql_query != "SELECT NULL -- No query found":
                         queries.append(sql_query)
 
     return queries
+
 
 def extract_sql_queries_from_logs(log_text: str) -> List[str]:
     """
@@ -61,6 +63,7 @@ def extract_sql_queries_from_logs(log_text: str) -> List[str]:
             unique_queries.append(query)
 
     return unique_queries
+
 
 def get_final_sql_query(results: Dict[str, Any], log_text: str) -> Optional[str]:
     """
