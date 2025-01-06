@@ -31,6 +31,10 @@ class ConnectorFactory:
                 )
 
                 return PostgresqlSqlConnector()
+            elif os.environ["Text2Sql__DatabaseEngine"].upper() == "SQLITE":
+                from text_2_sql_core.connectors.sqlite_sql import SQLiteSqlConnector
+
+                return SQLiteSqlConnector()
             else:
                 raise ValueError(
                     f"""Database engine {

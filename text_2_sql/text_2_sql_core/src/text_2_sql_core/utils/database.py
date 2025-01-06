@@ -8,6 +8,7 @@ class DatabaseEngine(StrEnum):
     SNOWFLAKE = "SNOWFLAKE"
     TSQL = "TSQL"
     POSTGRESQL = "POSTGRESQL"
+    SQLITE = "SQLITE"
 
 
 class DatabaseEngineSpecificFields(StrEnum):

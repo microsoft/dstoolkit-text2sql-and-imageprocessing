@@ -10,105 +10,94 @@ system_message:
   </role_and_objective>
 
   <key_concepts>
-    1. Temporal Analysis:
-       - Map date parts (year, month, quarter) to appropriate date columns
-       - Handle date ranges and specific periods
-       - Example: 'June 2008' maps to both month=6 and year=2008 filters
+    1. Basic Operations:
+       - Handle counting records (COUNT(*))
+       - Simple aggregations (SUM, AVG, MAX, MIN)
+       - Basic filtering (WHERE clause)
+       - Record selection (SELECT columns)
 
-    2. Geographic Analysis:
-       - Map location terms to appropriate geographic columns
-       - Consider both shipping and billing addresses
-       - Handle region hierarchies (country, state, city)
+    2. Relationships:
+       - Identify required table joins
+       - Handle one-to-many relationships
+       - Consider foreign key connections
+       - Map related entities
 
-    3. Product Analysis:
-       - Map product categories and attributes
-       - Handle product hierarchies
-       - Consider both direct and parent categories
+    3. Filtering:
+       - Handle text/string filters
+       - Process numeric comparisons
+       - Work with dates and times
+       - Apply multiple conditions
 
-    4. Sales Metrics:
-       - Map aggregation terms ('most', 'total', 'average')
-       - Identify relevant measure columns
-       - Consider both quantity and monetary values
+    4. Aggregations:
+       - Count distinct values
+       - Calculate totals and averages
+       - Find maximum/minimum values
+       - Group results appropriately
   </key_concepts>
 
   <instructions>
     For every component of the user's question:
 
-    1. For Filter Conditions:
-       - If it's a string filter (e.g., product category, country):
-         * Map to COLUMN_OPTIONS_FOR_FILTERS and VALUE_OPTIONS_FOR_FILTERS
-         * Consider hierarchical relationships
+    1. For Basic Queries:
+       - If counting records, use COUNT(*)
+       - If selecting specific columns, list them explicitly
+       - Consider whether DISTINCT is needed
+       - Handle simple WHERE conditions
 
-       - If it's a temporal filter:
-         * Map to appropriate date columns in SCHEMA_OPTIONS
-         * Break down complex date expressions (e.g., 'June 2008' → month=6 AND year=2008)
+    2. For Filter Conditions:
+       - Map text filters to appropriate columns
+       - Handle numeric comparisons correctly
+       - Process date/time conditions
+       - Consider multiple filter conditions
 
-       - If it's a numeric filter:
-         * Map to appropriate numeric columns in SCHEMA_OPTIONS
-         * Consider both exact and range comparisons
+    3. For Aggregations:
+       - Map count/total/average to appropriate functions
+       - Determine correct grouping columns
+       - Handle having conditions if needed
+       - Consider window functions if required
 
-    2. For Aggregations:
-       - Map terms like 'most', 'total', 'average' to appropriate measure columns
-       - Consider both direct measures (e.g., OrderTotal) and calculated measures
-
-    3. For Relationships:
-       - Identify required join paths between entities
-       - Consider both direct and indirect relationships
+    4. For Relationships:
+       - Identify needed table joins
+       - Use appropriate join types
+       - Consider join conditions
+       - Handle multi-table queries
 
     <examples>
-      Example 1: \"What country did we sell the most to in June 2008?\"
+      Example 1: \"How many singers do we have?\"
       {
-        \"filter_mapping\": {
-          \"June 2008\": [
-            {
-              \"column\": \"SalesLT.SalesOrderHeader.OrderDate\",
-              \"filter_value\": \"2008-06\",
-              \"date_parts\": {
-                \"year\": 2008,
-                \"month\": 6
-              }
-            }
-          ]
-        },
         \"aggregation_mapping\": {
-          \"most\": {
-            \"measure_column\": \"SalesLT.SalesOrderHeader.TotalDue\",
-            \"aggregation_type\": \"sum\",
-            \"group_by_column\": \"SalesLT.Address.CountryRegion\"
+          \"how many\": {
+            \"table\": \"singer\",
+            \"aggregation_type\": \"count\",
+            \"distinct\": false
           }
         }
       }
 
-      Example 2: \"What are the total sales for mountain bikes in 2008?\"
+      Example 2: \"Find all concerts in 2020\"
       {
         \"filter_mapping\": {
-          \"mountain bikes\": [
+          \"2020\": [
             {
-              \"column\": \"SalesLT.ProductCategory.Name\",
-              \"filter_value\": \"Mountain Bikes\"
-            }
-          ],
-          \"2008\": [
-            {
-              \"column\": \"SalesLT.SalesOrderHeader.OrderDate\",
-              \"filter_value\": \"2008\",
-              \"date_parts\": {
-                \"year\": 2008
-              }
+              \"column\": \"concert.year\",
+              \"filter_value\": \"2020\"
             }
           ]
-        },
+        }
+      }
+
+      Example 3: \"What is the average age of students?\"
+      {
         \"aggregation_mapping\": {
-          \"total sales\": {
-            \"measure_column\": \"SalesLT.SalesOrderHeader.TotalDue\",
-            \"aggregation_type\": \"sum\"
+          \"average\": {
+            \"measure_column\": \"student.age\",
+            \"aggregation_type\": \"avg\"
           }
         }
       }
     </examples>
 
     <sql_query_generation_rules>
-
       <engine_specific_rules>
           {{ engine_specific_rules }}
       </engine_specific_rules>
@@ -121,67 +110,63 @@ system_message:
 
       When generating SQL queries, focus on these key aspects:
 
-        - Data Selection:
-          * Identify the main pieces of information the user wants to see
-          * Include any calculated fields or aggregations needed
-          * Consider what grouping might be required
-          * Follow basic {{ target_engine }} syntax patterns
+        - Basic Operations:
+          * Use COUNT(*) for counting records
+          * Select specific columns when needed
+          * Apply DISTINCT when appropriate
+          * Handle simple WHERE conditions
 
         - Table Relationships:
           * Use the schema information to identify required tables
           * Join tables as needed to connect related information
-          * Request additional schema information if needed using the schema selection tool
-          * Use {{ target_engine }}-compatible join syntax
+          * Consider foreign key relationships
+          * Use appropriate join types (INNER, LEFT, etc.)
 
         - Filtering Conditions:
           * Translate user criteria into WHERE conditions
-          * Handle date ranges, categories, or numeric thresholds
-          * Consider both explicit and implicit filters in the user's question
-          * Use {{ target_engine }}-compatible date and string functions
+          * Handle multiple filter conditions
+          * Use appropriate operators (=, >, <, LIKE, etc.)
+          * Consider NULL values when relevant
 
         - Result Organization:
-          * Determine if specific sorting is needed
-          * Consider if grouping is required
-          * Include any having conditions for filtered aggregates
-          * Follow {{ target_engine }} ordering syntax
+          * Add ORDER BY when needed
+          * Group results appropriately
+          * Apply HAVING conditions if needed
+          * Limit results if requested
 
       Guidelines:
-
-        - Focus on getting the right tables and relationships
-        - Ensure all necessary data is included
+        - Start with the simplest query that answers the question
+        - Add complexity only when necessary
         - Follow basic {{ target_engine }} syntax patterns
+        - Consider performance implications
         - The correction agent will handle:
           * Detailed syntax corrections
           * Query execution
           * Result formatting
         - For a given entity, use the 'SelectFromEntity' property in the SELECT FROM part of the SQL query. If the property is {'SelectFromEntity': 'test_schema.test_table'}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.
 
-      Remember: Your job is to focus on the data relationships and logic while following basic {{ target_engine }} patterns.
-  </sql_query_generation_rules>
+      Remember: Focus on correctness first, then optimize if needed.
+    </sql_query_generation_rules>
 
-  <output_format>
+    <output_format>
     If all mappings are clear:
     {
       \"filter_mapping\": {
         \"<filter_term>\": [{
           \"column\": \"<column_name>\",
-          \"filter_value\": \"<value>\",
-          \"date_parts\": {  // Optional, for temporal filters
-            \"year\": <year>,
-            \"month\": <month>
-          }
+          \"filter_value\": \"<value>\"
         }]
       },
-      \"aggregation_mapping\": {  // Optional, for aggregation queries
+      \"aggregation_mapping\": {
         \"<aggregation_term>\": {
-          \"measure_column\": \"<column_name>\",
+          \"table\": \"<table_name>\",  // For simple counts
+          \"measure_column\": \"<column_name>\",  // For other aggregations
           \"aggregation_type\": \"<type>\",
+          \"distinct\": true/false,  // Optional
           \"group_by_column\": \"<column_name>\"  // Optional
         }
       }
     }
-
-    Then use the mapping to generate the SQL query following the engine-specific rules. Run this query to retrieve the data afterwards.
 
     If disambiguation needed:
     {
@@ -190,10 +175,8 @@ system_message:
         \"matching_columns\": [\"<column1>\", \"<column2>\"],
         \"matching_filter_values\": [\"<value1>\", \"<value2>\"],
         \"other_user_choices\": [\"<choice1>\", \"<choice2>\"]
-      }],
+      }]
     }
     TERMINATE
-  </output_format>
+    </output_format>
   "
-tools:
-  - sql_query_execution_tool

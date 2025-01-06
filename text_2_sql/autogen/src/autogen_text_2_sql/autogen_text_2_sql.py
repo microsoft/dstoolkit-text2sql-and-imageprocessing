@@ -138,8 +138,7 @@ class AutoGenText2Sql:
         """Extract the sources from the answer."""
         answer = messages[-1].content
         sql_query_results = self.parse_message_content(messages[-2].content)
-        logging.info("SQL Query Results: %s", sql_query_results)
-
+        
         try:
             if isinstance(sql_query_results, str):
                 sql_query_results = json.loads(sql_query_results)
@@ -164,29 +163,45 @@ class AutoGenText2Sql:
                 answer=answer, sub_questions=sub_questions
             )
 
-            if isinstance(sql_query_results, dict) and "results" in sql_query_results:
-                for question, sql_query_result_list in sql_query_results[
-                    "results"
-                ].items():
-                    logging.info(
-                        "SQL Query Result for question '%s': %s",
-                        question,
-                        sql_query_result_list,
+            if not isinstance(sql_query_results, dict):
+                logging.error(f"Expected dict, got {type(sql_query_results)}")
+                return payload
+
+            if "results" not in sql_query_results:
+                logging.error("No 'results' key in sql_query_results")
+                return payload
+
+            for question, sql_query_result_list in sql_query_results["results"].items():
+                if not sql_query_result_list:  # Check if list is empty
+                    logging.warning(f"No results for question: {question}")
+                    continue
+
+                for sql_query_result in sql_query_result_list:
+                    if not isinstance(sql_query_result, dict):
+                        logging.error(f"Expected dict for sql_query_result, got {type(sql_query_result)}")
+                        continue
+                        
+                    if "sql_query" not in sql_query_result or "sql_rows" not in sql_query_result:
+                        logging.error("Missing required keys in sql_query_result")
+                        continue
+
+                    source = AnswerWithSourcesPayload.Body.Source(
+                        sql_query=sql_query_result["sql_query"],
+                        sql_rows=sql_query_result["sql_rows"],
                     )
+                    payload.body.sources.append(source)
 
-                    for sql_query_result in sql_query_result_list:
-                        logging.info("SQL Query Result: %s", sql_query_result)
-                        source = AnswerWithSourcesPayload.Body.Source(
-                            sql_query=sql_query_result["sql_query"],
-                            sql_rows=sql_query_result["sql_rows"],
-                        )
-                        payload.body.sources.append(source)
-
+            if not payload.body.sources:
+                logging.error("No valid sources extracted")
+                
             return payload
 
         except Exception as e:
             logging.error("Error processing results: %s", str(e))
-            return AnswerWithSourcesPayload(answer=answer)
+            # Return payload with error context instead of empty
+            return AnswerWithSourcesPayload(
+                answer=f"{answer}\nError processing results: {str(e)}"
+            )
 
     async def process_question(
         self,
