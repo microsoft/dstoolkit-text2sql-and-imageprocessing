@@ -163,7 +163,7 @@ cython_debug/
 
 # Spider Test Suite
 # These directories contain large test databases and data that can be downloaded separately:
-# Spider test suite: https://github.com/taoyds/spider
-# Spider test suite evaluation scripts: https://github.com/taoyds/spider/tree/master/evaluation_examples
+# Spider test suite evaluation scripts: https://github.com/taoyds/test-suite-sql-eval
+# Spider data: https://drive.google.com/file/d/1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J/view
 /text_2_sql/test-suite-sql-eval/
 /text_2_sql/spider_data/
