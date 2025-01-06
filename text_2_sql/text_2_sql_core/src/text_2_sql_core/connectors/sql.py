@@ -74,6 +74,48 @@ class SqlConnector(ABC):
             list[dict]: The results of the SQL query.
         """
 
+    async def get_column_values(
+        self,
+        text: Annotated[
+            str,
+            "The text to run a semantic search against. Relevant entities will be returned.",
+        ],
+        as_json: bool = True,
+    ):
+        """Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
+
+        Args:
+        ----
+            text (str): The text to run the search against.
+
+        Returns:
+        -------
+            str: The values of the column in JSON format.
+        """
+
+        values = await self.ai_search_connector.get_column_values(text)
+
+        # build into a common format
+        column_values = {}
+
+        starting = len(self.engine_specific_fields)
+
+        for value in values:
+            trimmed_fqn = ".".join(value["FQN"].split(".")[starting:-1])
+            if trimmed_fqn not in column_values:
+                column_values[trimmed_fqn] = []
+
+            column_values[trimmed_fqn].append(value["Value"])
+
+        logging.info("Column Values: %s", column_values)
+
+        filter_to_column = {text: column_values}
+
+        if as_json:
+            return json.dumps(filter_to_column, default=str)
+        else:
+            return filter_to_column
+
     @abstractmethod
     async def get_entity_schemas(
         self,

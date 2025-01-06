@@ -154,6 +154,7 @@ system_message:
           * Detailed syntax corrections
           * Query execution
           * Result formatting
+        - For a given entity, use the 'SelectFromEntity' property in the SELECT FROM part of the SQL query. If the property is {'SelectFromEntity': 'test_schema.test_table'}, the select statement will be formulated from 'SELECT <VALUES> FROM test_schema.test_table WHERE <CONDITION>.
 
       Remember: Your job is to focus on the data relationships and logic while following basic {{ target_engine }} patterns.
   </sql_query_generation_rules>

@@ -135,7 +135,7 @@ class DatabricksSqlConnector(SqlConnector):
         """
 
         schemas = await self.ai_search_connector.get_entity_schemas(
-            text, excluded_entities, engine_specific_fields=["Catalog"]
+            text, excluded_entities, engine_specific_fields=self.engine_specific_fields
         )
 
         for schema in schemas:
