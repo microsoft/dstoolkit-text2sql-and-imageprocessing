@@ -13,6 +13,8 @@ import json
 from typing import Annotated
 from text_2_sql_core.connectors.open_ai import OpenAIConnector
 
+from text_2_sql_core.utils.database import DatabaseEngineSpecificFields
+
 
 class AISearchConnector:
     def __init__(self):
@@ -167,7 +169,7 @@ class AISearchConnector:
             "The entities to exclude from the search results. Pass the entity property of entities (e.g. 'SalesLT.Address') you already have the schemas for to avoid getting repeated entities.",
         ] = [],
         engine_specific_fields: Annotated[
-            list[str],
+            list[DatabaseEngineSpecificFields],
             "The fields specific to the engine to be included in the search results.",
         ] = [],
     ) -> str:
@@ -192,7 +194,7 @@ class AISearchConnector:
             "Columns",
             "EntityRelationships",
             "CompleteEntityRelationshipsGraph",
-        ] + engine_specific_fields
+        ] + list(map(str, engine_specific_fields))
 
         schemas = await self.run_ai_search_query(
             text,
