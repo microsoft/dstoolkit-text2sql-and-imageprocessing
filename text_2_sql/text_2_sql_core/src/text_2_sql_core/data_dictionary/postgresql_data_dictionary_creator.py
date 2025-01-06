@@ -7,18 +7,19 @@ from text_2_sql_core.data_dictionary.data_dictionary_creator import (
 import os
 
 from text_2_sql_core.utils.database import DatabaseEngine
-from text_2_sql_core.connectors.postgresql_sql import PostgresSqlConnector
+from text_2_sql_core.connectors.postgresql_sql import PostgresqlSqlConnector
 
 
 class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
     def __init__(self, **kwargs):
         """A method to initialize the DataDictionaryCreator class."""
-        super().__init__(**kwargs)
+        excluded_schemas = ["information_schema", "pg_catalog"]
+        super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
         self.database = os.environ["Text2Sql__DatabaseName"]
         self.database_engine = DatabaseEngine.POSTGRESQL
 
-        self.sql_connector = PostgresSqlConnector()
+        self.sql_connector = PostgresqlSqlConnector()
 
     @property
     def extract_table_entities_sql_query(self) -> str:
@@ -29,14 +30,16 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
             pg_catalog.obj_description(c.oid, 'pg_class') AS "Definition"
         FROM
             information_schema.tables t
-        JOIN
-            pg_catalog.pg_class c ON c.relname = t.table_name
-            AND c.relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = t.table_schema)
         LEFT JOIN
-            pg_catalog.pg_description pd ON pd.objoid = c.oid
+            pg_catalog.pg_class c
+            ON c.relname = t.table_name
+            AND c.relnamespace = (
+                SELECT oid
+                FROM pg_catalog.pg_namespace
+                WHERE nspname = t.table_schema
+            )
         WHERE
             t.table_type = 'BASE TABLE'
-            AND pd.objsubid = 0  -- 0 indicates the table description, not column descriptions
         ORDER BY
             "EntitySchema", "Entity";"""
 
@@ -44,18 +47,19 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
     def extract_view_entities_sql_query(self) -> str:
         """A property to extract view entities from a PostgreSQL database."""
         return """SELECT
-            v.viewname AS "Entity",
-            v.schemaname AS "EntitySchema",
+            v.table_name AS "Entity",
+            v.table_schema AS "EntitySchema",
             pg_catalog.obj_description(c.oid, 'pg_class') AS "Definition"
         FROM
-            pg_catalog.pg_views v
-        JOIN
-            pg_catalog.pg_class c ON c.relname = v.viewname
-            AND c.relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = v.schemaname)
+            information_schema.views v
         LEFT JOIN
-            pg_catalog.pg_description pd ON pd.objoid = c.oid
-        WHERE
-            pd.objsubid = 0  -- 0 indicates the view description, not a column description
+            pg_catalog.pg_class c
+            ON c.relname = v.table_name
+            AND c.relnamespace = (
+                SELECT oid
+                FROM pg_catalog.pg_namespace
+                WHERE nspname = v.table_schema
+            )
         ORDER BY
             "EntitySchema", "Entity";"""
 
@@ -95,7 +99,7 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
         FROM
             pg_constraint fk
         INNER JOIN
-            pg_attribute fk_col ON fk.conrelid = fk_col.attrelid AND fk.attnum = fk_col.attnum
+            pg_attribute fk_col ON fk.conrelid = fk_col.attrelid AND fk.conkey[1] = fk_col.attnum
         INNER JOIN
             pg_class fk_tab ON fk.conrelid = fk_tab.oid
         INNER JOIN
