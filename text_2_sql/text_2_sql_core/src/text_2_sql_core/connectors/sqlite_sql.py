@@ -47,19 +47,19 @@ class SQLiteSqlConnector(SqlConnector):
             List of dictionaries containing query results.
         """
         db_file = os.environ["Text2Sql__DatabaseConnectionString"]
-        
+
         if not os.path.exists(db_file):
             raise FileNotFoundError(f"Database file not found: {db_file}")
 
         logging.info(f"Running query against {db_file}: {sql_query}")
-        
+
         results = []
         with sqlite3.connect(db_file) as conn:
             cursor = conn.cursor()
             cursor.execute(sql_query)
-            
+
             columns = [column[0] for column in cursor.description] if cursor.description else []
-            
+
             if limit is not None:
                 rows = cursor.fetchmany(limit)
             else:
@@ -92,31 +92,31 @@ class SQLiteSqlConnector(SqlConnector):
 
     def find_matching_tables(self, text: str, table_names: list[str]) -> list[int]:
         """Find all matching table indices using flexible matching rules.
-        
+
         Args:
             text: The search term
             table_names: List of table names to search
-            
+
         Returns:
             List of matching table indices
         """
         matches = []
-        
+
         # First try exact matches
         for idx, name in enumerate(table_names):
             if self.terms_match(text, name):
                 matches.append(idx)
-                
+
         if matches:
             return matches
-                
+
         # Try matching parts of compound table names
         search_terms = set(re.split(r'[_\s]+', text.lower()))
         for idx, name in enumerate(table_names):
             table_terms = set(re.split(r'[_\s]+', name.lower()))
             if search_terms & table_terms:  # If there's any overlap in terms
                 matches.append(idx)
-                
+
         return matches
 
     async def get_entity_schemas(
@@ -143,34 +143,34 @@ class SQLiteSqlConnector(SqlConnector):
         """
         # Load Spider schema file using SPIDER_DATA_DIR environment variable
         schema_file = os.path.join(os.environ["SPIDER_DATA_DIR"], "tables.json")
-        
+
         if not os.path.exists(schema_file):
             raise FileNotFoundError(f"Schema file not found: {schema_file}")
-            
+
         with open(schema_file) as f:
             spider_schemas = json.load(f)
-            
+
         # Get current database name from path
         db_path = os.environ["Text2Sql__DatabaseConnectionString"]
         db_name = os.path.splitext(os.path.basename(db_path))[0]
-        
+
         # Find schema for current database
         db_schema = None
         for schema in spider_schemas:
             if schema["db_id"] == db_name:
                 db_schema = schema
                 break
-                
+
         if not db_schema:
             raise ValueError(f"Schema not found for database: {db_name}")
-            
+
         # Find all matching tables using flexible matching
         table_indices = self.find_matching_tables(text, db_schema["table_names"])
-                
+
         if not table_indices:
             logging.warning(f"No tables found matching: {text}")
             return [] if not as_json else "[]"
-            
+
         # Get schemas for all matching tables
         schemas = []
         for table_idx in table_indices:
@@ -182,7 +182,7 @@ class SQLiteSqlConnector(SqlConnector):
                         "Name": db_schema["column_names_original"][j][1],
                         "Type": db_schema["column_types"][j]
                     })
-            
+
             schema = {
                 "SelectFromEntity": db_schema["table_names"][table_idx],
                 "Columns": columns

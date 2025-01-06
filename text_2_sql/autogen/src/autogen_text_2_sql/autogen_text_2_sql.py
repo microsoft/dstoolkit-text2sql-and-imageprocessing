@@ -138,7 +138,7 @@ class AutoGenText2Sql:
         """Extract the sources from the answer."""
         answer = messages[-1].content
         sql_query_results = self.parse_message_content(messages[-2].content)
-        
+
         try:
             if isinstance(sql_query_results, str):
                 sql_query_results = json.loads(sql_query_results)
@@ -180,7 +180,7 @@ class AutoGenText2Sql:
                     if not isinstance(sql_query_result, dict):
                         logging.error(f"Expected dict for sql_query_result, got {type(sql_query_result)}")
                         continue
-                        
+
                     if "sql_query" not in sql_query_result or "sql_rows" not in sql_query_result:
                         logging.error("Missing required keys in sql_query_result")
                         continue
@@ -193,7 +193,7 @@ class AutoGenText2Sql:
 
             if not payload.body.sources:
                 logging.error("No valid sources extracted")
-                
+
             return payload
 
         except Exception as e:
