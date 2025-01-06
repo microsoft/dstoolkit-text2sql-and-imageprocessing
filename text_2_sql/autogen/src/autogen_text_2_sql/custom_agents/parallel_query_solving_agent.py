@@ -108,25 +108,28 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
                 try:
                     if isinstance(inner_message, ToolCallResultMessage):
-                        # Check for SQL query results
-                        parsed_message = self.parse_inner_message(inner_message.content)
+                        for call_result in inner_message.content:
+                            # Check for SQL query results
+                            parsed_message = self.parse_inner_message(
+                                call_result.content
+                            )
+                            logging.info(f"Inner Loaded: {parsed_message}")
 
-                        logging.info(f"Inner Loaded: {parsed_message}")
-
-                        if isinstance(parsed_message, dict):
-                            if (
-                                "type" in parsed_message
-                                and parsed_message["type"]
-                                == "query_execution_with_limit"
-                            ):
-                                database_results[identifier].append(
-                                    {
-                                        "sql_query": parsed_message[
-                                            "sql_query"
-                                        ].replace("\n", " "),
-                                        "sql_rows": parsed_message["sql_rows"],
-                                    }
-                                )
+                            if isinstance(parsed_message, dict):
+                                if (
+                                    "type" in parsed_message
+                                    and parsed_message["type"]
+                                    == "query_execution_with_limit"
+                                ):
+                                    logging.info("Contains query results")
+                                    database_results[identifier].append(
+                                        {
+                                            "sql_query": parsed_message[
+                                                "sql_query"
+                                            ].replace("\n", " "),
+                                            "sql_rows": parsed_message["sql_rows"],
+                                        }
+                                    )
 
                     elif isinstance(inner_message, TextMessage):
                         parsed_message = self.parse_inner_message(inner_message.content)
@@ -138,6 +141,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                             if ("contains_pre_run_results" in parsed_message) and (
                                 parsed_message["contains_pre_run_results"] is True
                             ):
+                                logging.info("Contains pre-run results")
                                 for pre_run_sql_query, pre_run_result in parsed_message[
                                     "cached_questions_and_schemas"
                                 ].items():

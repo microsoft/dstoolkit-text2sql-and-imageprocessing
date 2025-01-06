@@ -24,7 +24,7 @@ class LLMAgentCreator:
         return load(name.lower())
 
     @classmethod
-    def get_tool(cls, sql_helper, ai_search_helper, tool_name: str):
+    def get_tool(cls, sql_helper, tool_name: str):
         """Gets the tool based on the tool name.
         Args:
         ----
@@ -46,7 +46,7 @@ class LLMAgentCreator:
             )
         elif tool_name == "sql_get_column_values_tool":
             return FunctionToolAlias(
-                ai_search_helper.get_column_values,
+                sql_helper.get_column_values,
                 description="Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned. Use this to get the correct value to apply against a filter for a user's question.",
             )
         else:
@@ -88,12 +88,11 @@ class LLMAgentCreator:
         agent_file = cls.load_agent_file(name)
 
         sql_helper = ConnectorFactory.get_database_connector()
-        ai_search_helper = ConnectorFactory.get_ai_search_connector()
 
         tools = []
         if "tools" in agent_file and len(agent_file["tools"]) > 0:
             for tool in agent_file["tools"]:
-                tools.append(cls.get_tool(sql_helper, ai_search_helper, tool))
+                tools.append(cls.get_tool(sql_helper, tool))
 
         agent = AssistantAgent(
             name=name,

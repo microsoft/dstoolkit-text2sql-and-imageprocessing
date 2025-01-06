@@ -9,7 +9,6 @@ import os
 import logging
 import base64
 from datetime import datetime, timezone
-import json
 from typing import Annotated
 from text_2_sql_core.connectors.open_ai import OpenAIConnector
 
@@ -111,7 +110,6 @@ class AISearchConnector:
             str,
             "The text to run a semantic search against. Relevant entities will be returned.",
         ],
-        as_json: bool = True,
     ):
         """Gets the values of a column in the SQL Database by selecting the most relevant entity based on the search term. Several entities may be returned.
 
@@ -139,24 +137,7 @@ class AISearchConnector:
             minimum_score=5,
         )
 
-        # build into a common format
-        column_values = {}
-
-        for value in values:
-            trimmed_fqn = ".".join(value["FQN"].split(".")[:-1])
-            if trimmed_fqn not in column_values:
-                column_values[trimmed_fqn] = []
-
-            column_values[trimmed_fqn].append(value["Value"])
-
-        logging.info("Column Values: %s", column_values)
-
-        filter_to_column = {text: column_values}
-
-        if as_json:
-            return json.dumps(filter_to_column, default=str)
-        else:
-            return filter_to_column
+        return values
 
     async def get_entity_schemas(
         self,
@@ -185,6 +166,8 @@ class AISearchConnector:
 
         logging.info("Search Text: %s", text)
 
+        stringified_engine_specific_fields = list(map(str, engine_specific_fields))
+
         retrieval_fields = [
             "FQN",
             "Entity",
@@ -194,7 +177,7 @@ class AISearchConnector:
             "Columns",
             "EntityRelationships",
             "CompleteEntityRelationshipsGraph",
-        ] + list(map(str, engine_specific_fields))
+        ] + stringified_engine_specific_fields
 
         schemas = await self.run_ai_search_query(
             text,
@@ -206,6 +189,8 @@ class AISearchConnector:
             ],
             top=3,
         )
+
+        fqn_to_trim = ".".join(stringified_engine_specific_fields)
 
         if len(excluded_entities) == 0:
             return schemas
@@ -220,12 +205,16 @@ class AISearchConnector:
                 and len(schema["CompleteEntityRelationshipsGraph"]) == 0
             ):
                 del schema["CompleteEntityRelationshipsGraph"]
+            else:
+                schema["CompleteEntityRelationshipsGraph"] = list(
+                    map(
+                        lambda x: x.replace(fqn_to_trim, ""),
+                        schema["CompleteEntityRelationshipsGraph"],
+                    )
+                )
 
-            if (
-                schema["SammpleValues"] is not None
-                and len(schema["SammpleValues"]) == 0
-            ):
-                del schema["SammpleValues"]
+            if schema["SampleValues"] is not None and len(schema["SampleValues"]) == 0:
+                del schema["SampleValues"]
 
             if (
                 schema["EntityRelationships"] is not None

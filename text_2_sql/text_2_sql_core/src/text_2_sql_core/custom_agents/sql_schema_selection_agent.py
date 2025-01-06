@@ -55,7 +55,7 @@ class SqlSchemaSelectionAgentCustomAgent:
 
             for filter_condition in entity_result.filter_conditions:
                 column_search_tasks.append(
-                    self.ai_search_connector.get_column_values(
+                    self.sql_connector.get_column_values(
                         filter_condition, as_json=False
                     )
                 )
