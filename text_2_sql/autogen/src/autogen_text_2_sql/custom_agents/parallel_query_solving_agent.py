@@ -20,13 +20,12 @@ import re
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
-    def __init__(self, engine_specific_rules: str, **kwargs: dict):
+    def __init__(self, **kwargs: dict):
         super().__init__(
             "parallel_query_solving_agent",
             "An agent that solves each query in parallel.",
         )
 
-        self.engine_specific_rules = engine_specific_rules
         self.kwargs = kwargs
 
     @property
@@ -177,9 +176,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         for question_rewrite in question_rewrites["sub_questions"]:
             logging.info(f"Processing sub-query: {question_rewrite}")
             # Create an instance of the InnerAutoGenText2Sql class
-            inner_autogen_text_2_sql = InnerAutoGenText2Sql(
-                self.engine_specific_rules, **self.kwargs
-            )
+            inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
 
             identifier = ", ".join(question_rewrite)
 

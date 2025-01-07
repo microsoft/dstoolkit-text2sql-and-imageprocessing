@@ -17,6 +17,11 @@ class TSQLSqlConnector(SqlConnector):
         self.database_engine = DatabaseEngine.TSQL
 
     @property
+    def engine_specific_rules(self) -> str:
+        """Get the engine specific rules."""
+        return """Use TOP X instead of LIMIT X to limit the number of rows returned."""
+
+    @property
     def engine_specific_fields(self) -> list[str]:
         """Get the engine specific fields."""
         return [DatabaseEngineSpecificFields.DATABASE]

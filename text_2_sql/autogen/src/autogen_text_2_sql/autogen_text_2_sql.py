@@ -31,9 +31,8 @@ from typing import AsyncGenerator
 
 
 class AutoGenText2Sql:
-    def __init__(self, engine_specific_rules: str, **kwargs: dict):
+    def __init__(self, **kwargs: dict):
         self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
-        self.engine_specific_rules = engine_specific_rules
         self.kwargs = kwargs
 
     def get_all_agents(self):
@@ -45,9 +44,7 @@ class AutoGenText2Sql:
             "question_rewrite_agent", current_datetime=current_datetime
         )
 
-        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(
-            engine_specific_rules=self.engine_specific_rules, **self.kwargs
-        )
+        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
 
         self.answer_agent = LLMAgentCreator.create("answer_agent")
 
