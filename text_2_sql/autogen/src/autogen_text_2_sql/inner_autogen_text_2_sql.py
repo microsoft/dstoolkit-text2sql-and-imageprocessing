@@ -38,10 +38,9 @@ class EmptyResponseUserProxyAgent(UserProxyAgent):
 
 
 class InnerAutoGenText2Sql:
-    def __init__(self, engine_specific_rules: str, **kwargs: dict):
+    def __init__(self, **kwargs: dict):
         self.pre_run_query_cache = False
         self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
-        self.engine_specific_rules = engine_specific_rules
         self.kwargs = kwargs
         self.set_mode()
 
@@ -73,21 +72,18 @@ class InnerAutoGenText2Sql:
 
         self.sql_schema_selection_agent = SqlSchemaSelectionAgent(
             target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
         self.sql_query_correction_agent = LLMAgentCreator.create(
             "sql_query_correction_agent",
             target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
 
         self.disambiguation_and_sql_query_generation_agent = LLMAgentCreator.create(
             "disambiguation_and_sql_query_generation_agent",
             target_engine=self.target_engine,
-            engine_specific_rules=self.engine_specific_rules,
             **self.kwargs,
         )
         agents = [

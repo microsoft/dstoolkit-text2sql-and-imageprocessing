@@ -6,6 +6,7 @@ from text_2_sql_core.connectors.factory import ConnectorFactory
 from text_2_sql_core.prompts.load import load
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
+import logging
 
 
 class LLMAgentCreator:
@@ -88,6 +89,17 @@ class LLMAgentCreator:
         agent_file = cls.load_agent_file(name)
 
         sql_helper = ConnectorFactory.get_database_connector()
+
+        # Handle engine specific rules
+        if "engine_specific_rules" not in kwargs:
+            if sql_helper.engine_specific_rules is not None:
+                kwargs["engine_specific_fields"] = sql_helper.engine_specific_rules
+                logging.info(
+                    "Engine specific fields pulled from in-built: %s",
+                    kwargs["engine_specific_fields"],
+                )
+            else:
+                kwargs["engine_specific_fields"] = ""
 
         tools = []
         if "tools" in agent_file and len(agent_file["tools"]) > 0:
