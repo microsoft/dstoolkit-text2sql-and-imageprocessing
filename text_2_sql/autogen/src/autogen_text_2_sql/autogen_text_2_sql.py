@@ -41,8 +41,8 @@ class AutoGenText2Sql:
         # Get current datetime for the Query Rewrite Agent
         current_datetime = datetime.now()
 
-        self.query_rewrite_agent = LLMAgentCreator.create(
-            "query_rewrite_agent", current_datetime=current_datetime
+        self.question_rewrite_agent = LLMAgentCreator.create(
+            "question_rewrite_agent", current_datetime=current_datetime
         )
 
         self.parallel_query_solving_agent = ParallelQuerySolvingAgent(
@@ -52,7 +52,7 @@ class AutoGenText2Sql:
         self.answer_agent = LLMAgentCreator.create("answer_agent")
 
         agents = [
-            self.query_rewrite_agent,
+            self.question_rewrite_agent,
             self.parallel_query_solving_agent,
             self.answer_agent,
         ]
@@ -76,11 +76,11 @@ class AutoGenText2Sql:
         current_agent = messages[-1].source if messages else "user"
         decision = None
 
-        # If this is the first message start with query_rewrite_agent
+        # If this is the first message start with question_rewrite_agent
         if current_agent == "user":
-            decision = "query_rewrite_agent"
+            decision = "question_rewrite_agent"
         # Handle transition after query rewriting
-        elif current_agent == "query_rewrite_agent":
+        elif current_agent == "question_rewrite_agent":
             decision = "parallel_query_solving_agent"
         # Handle transition after parallel query solving
         elif current_agent == "parallel_query_solving_agent":
@@ -137,17 +137,35 @@ class AutoGenText2Sql:
         # If all parsing attempts fail, return the content as-is
         return content
 
-    def extract_sources(self, messages: list) -> AnswerWithSourcesPayload:
+    def extract_answer_payload(self, messages: list) -> AnswerWithSourcesPayload:
         """Extract the sources from the answer."""
         answer = messages[-1].content
         sql_query_results = self.parse_message_content(messages[-2].content)
+        logging.info("SQL Query Results: %s", sql_query_results)
 
         try:
             if isinstance(sql_query_results, str):
                 sql_query_results = json.loads(sql_query_results)
+        except json.JSONDecodeError:
+            logging.warning("Unable to read SQL query results: %s", sql_query_results)
+            sql_query_results = {}
+            sub_question_results = {}
+        else:
+            # Only load sub-question results if we have a database result
+            sub_question_results = self.parse_message_content(messages[1].content)
+            logging.info("Sub-Question Results: %s", sub_question_results)
+
+        try:
+            sub_questions = [
+                sub_question
+                for sub_question_group in sub_question_results.get("sub_questions", [])
+                for sub_question in sub_question_group
+            ]
 
             logging.info("SQL Query Results: %s", sql_query_results)
-            payload = AnswerWithSourcesPayload(answer=answer)
+            payload = AnswerWithSourcesPayload(
+                answer=answer, sub_questions=sub_questions
+            )
 
             if isinstance(sql_query_results, dict) and "results" in sql_query_results:
                 for question, sql_query_result_list in sql_query_results[
@@ -213,7 +231,7 @@ class AutoGenText2Sql:
             payload = None
 
             if isinstance(message, TextMessage):
-                if message.source == "query_rewrite_agent":
+                if message.source == "question_rewrite_agent":
                     payload = ProcessingUpdatePayload(
                         message="Rewriting the query...",
                     )
@@ -232,10 +250,15 @@ class AutoGenText2Sql:
 
                 if message.messages[-1].source == "answer_agent":
                     # If the message is from the answer_agent, we need to return the final answer
-                    payload = self.extract_sources(message.messages)
+                    payload = self.extract_answer_payload(message.messages)
                 elif message.messages[-1].source == "parallel_query_solving_agent":
                     # Load into disambiguation request
                     payload = self.extract_disambiguation_request(message.messages)
+                elif message.messages[-1].source == "question_rewrite_agent":
+                    # Load into empty response
+                    payload = AnswerWithSourcesPayload(
+                        answer="Apologies, I cannot answer that question as it is not relevant. Please try another question or rephrase your current question."
+                    )
             else:
                 logging.error("Unexpected TaskResult: %s", message)
                 raise ValueError("Unexpected TaskResult")

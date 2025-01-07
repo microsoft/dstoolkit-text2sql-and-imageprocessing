@@ -269,6 +269,7 @@ class DataDictionaryCreator(ABC):
         self.catalog = None
 
         self.database_engine = None
+        self.sql_connector = None
 
         self.database_semaphore = asyncio.Semaphore(20)
         self.llm_semaphone = asyncio.Semaphore(10)
@@ -383,7 +384,7 @@ class DataDictionaryCreator(ABC):
 
             if relationship.foreign_fqn not in self.entity_relationships:
                 self.entity_relationships[relationship.foreign_fqn] = {
-                    relationship.entity: relationship.pivot()
+                    relationship.fqn: relationship.pivot()
                 }
             else:
                 if (
@@ -402,10 +403,8 @@ class DataDictionaryCreator(ABC):
         """A method to build a complete entity relationship graph."""
 
         for fqn, foreign_entities in self.entity_relationships.items():
-            for foreign_fqn, relationship in foreign_entities.items():
-                self.relationship_graph.add_edge(
-                    fqn, foreign_fqn, relationship=relationship
-                )
+            for foreign_fqn, _ in foreign_entities.items():
+                self.relationship_graph.add_edge(fqn, foreign_fqn)
 
     def get_entity_relationships_from_graph(
         self, entity: str, path=None, result=None, visited=None
@@ -752,7 +751,8 @@ class DataDictionaryCreator(ABC):
 
         # Determine top-level fields to exclude
         filtered_entitiy_specific_fields = {
-            field.lower(): ... for field in self.excluded_engine_specific_fields
+            field.lower(): ...
+            for field in self.sql_connector.excluded_engine_specific_fields
         }
 
         if filtered_entitiy_specific_fields:

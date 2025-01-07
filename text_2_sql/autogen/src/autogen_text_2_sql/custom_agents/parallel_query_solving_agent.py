@@ -84,9 +84,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             injected_parameters = {}
 
         # Load the json of the last message to populate the final output object
-        query_rewrites = json.loads(last_response)
+        question_rewrites = json.loads(last_response)
 
-        logging.info(f"Query Rewrites: {query_rewrites}")
+        logging.info(f"Query Rewrites: {question_rewrites}")
 
         async def consume_inner_messages_from_agentic_flow(
             agentic_flow, identifier, database_results
@@ -162,21 +162,33 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         inner_solving_generators = []
         database_results = {}
 
+        all_non_database_query = question_rewrites.get("all_non_database_query", False)
+
+        if all_non_database_query:
+            yield Response(
+                chat_message=TextMessage(
+                    content="All queries are non-database queries. Nothing to process.",
+                    source=self.name,
+                ),
+            )
+            return
+
         # Start processing sub-queries
-        for query_rewrite in query_rewrites["sub_queries"]:
-            logging.info(f"Processing sub-query: {query_rewrite}")
+        for question_rewrite in question_rewrites["sub_questions"]:
+            logging.info(f"Processing sub-query: {question_rewrite}")
             # Create an instance of the InnerAutoGenText2Sql class
             inner_autogen_text_2_sql = InnerAutoGenText2Sql(
                 self.engine_specific_rules, **self.kwargs
             )
 
-            identifier = ", ".join(query_rewrite)
+            identifier = ", ".join(question_rewrite)
 
             # Launch tasks for each sub-query
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
                     inner_autogen_text_2_sql.process_question(
-                        question=query_rewrite, injected_parameters=injected_parameters
+                        question=question_rewrite,
+                        injected_parameters=injected_parameters,
                     ),
                     identifier,
                     database_results,
