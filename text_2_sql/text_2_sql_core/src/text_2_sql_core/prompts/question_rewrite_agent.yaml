@@ -37,6 +37,7 @@ system_message: |
         - Use the provided list of topics to filter out malicious or unrelated queries.
         - Ensure the question is relevant to the system's use case.
         - If the question cannot be filtered, output an empty sub-query list in the JSON format. Followed by TERMINATE.
+        - Retain and decompose general questions, such as Hello, What can you do?, etc. Set "all_non_database_query" to true.
 
       2. Understanding:
         - Use the chat history (that is available in reverse order) to understand the context of the current question.
@@ -97,6 +98,7 @@ system_message: |
           ],
           "combination_logic": "<instructions for combining results>",
           "query_type": "<simple|complex>",
+          "all_non_database_query": "<true|false>"
         }
     </output_format>
   </instructions>

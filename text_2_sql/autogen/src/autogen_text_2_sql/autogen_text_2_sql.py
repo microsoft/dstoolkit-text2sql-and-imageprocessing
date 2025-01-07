@@ -143,16 +143,22 @@ class AutoGenText2Sql:
         sql_query_results = self.parse_message_content(messages[-2].content)
         logging.info("SQL Query Results: %s", sql_query_results)
 
-        sub_question_results = self.parse_message_content(messages[1].content)
-        logging.info("Sub-Question Results: %s", sub_question_results)
-
         try:
             if isinstance(sql_query_results, str):
                 sql_query_results = json.loads(sql_query_results)
+        except json.JSONDecodeError:
+            logging.warning("Unable to read SQL query results: %s", sql_query_results)
+            sql_query_results = {}
+            sub_question_results = {}
+        else:
+            # Only load sub-question results if we have a database result
+            sub_question_results = self.parse_message_content(messages[1].content)
+            logging.info("Sub-Question Results: %s", sub_question_results)
 
+        try:
             sub_questions = [
                 sub_question
-                for sub_question_group in sub_question_results["sub_questions"]
+                for sub_question_group in sub_question_results.get("sub_questions", [])
                 for sub_question in sub_question_group
             ]
 
