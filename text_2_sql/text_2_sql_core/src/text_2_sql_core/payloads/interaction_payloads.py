@@ -5,11 +5,13 @@ from enum import StrEnum
 
 from typing import Literal
 from datetime import datetime, timezone
+from uuid import uuid4
 
 
 class PayloadBase(BaseModel):
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
+    message_id: str = Field(..., default_factory=lambda: str(uuid4()))
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         description="Timestamp in UTC",
