@@ -33,6 +33,12 @@ class SqlConnector(ABC):
 
     @property
     @abstractmethod
+    def engine_specific_rules(self) -> str:
+        """Get the engine specific rules."""
+        pass
+
+    @property
+    @abstractmethod
     def invalid_identifiers(self) -> list[str]:
         """Get the invalid identifiers upon which a sql query is rejected."""
         pass

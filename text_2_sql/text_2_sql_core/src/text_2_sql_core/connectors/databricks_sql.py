@@ -18,6 +18,11 @@ class DatabricksSqlConnector(SqlConnector):
         self.database_engine = DatabaseEngine.DATABRICKS
 
     @property
+    def engine_specific_rules(self) -> str:
+        """Get the engine specific rules."""
+        return
+
+    @property
     def engine_specific_fields(self) -> list[str]:
         """Get the engine specific fields."""
         return [DatabaseEngineSpecificFields.CATALOG]

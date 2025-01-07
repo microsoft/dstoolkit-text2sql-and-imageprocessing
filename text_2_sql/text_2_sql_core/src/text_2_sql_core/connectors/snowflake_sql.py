@@ -18,6 +18,11 @@ class SnowflakeSqlConnector(SqlConnector):
         self.database_engine = DatabaseEngine.SNOWFLAKE
 
     @property
+    def engine_specific_rules(self) -> str:
+        """Get the engine specific rules."""
+        return """When an ORDER BY clause is included in the SQL query, always append the ORDER BY clause with 'NULLS LAST' to ensure that NULL values are at the end of the result set. e.g. 'ORDER BY column_name DESC NULLS LAST'."""
+
+    @property
     def engine_specific_fields(self) -> list[str]:
         """Get the engine specific fields."""
         return [
