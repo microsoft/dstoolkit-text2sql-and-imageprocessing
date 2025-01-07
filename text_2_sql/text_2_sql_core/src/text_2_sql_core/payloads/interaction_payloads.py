@@ -61,6 +61,7 @@ class AnswerWithSourcesPayload(PayloadBase):
             sql_rows: list[dict]
 
         answer: str
+        sub_questions: list[str] = Field(default_factory=list)
         sources: list[Source] = Field(default_factory=list)
 
     payload_type: Literal[

@@ -163,7 +163,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         database_results = {}
 
         # Start processing sub-queries
-        for query_rewrite in query_rewrites["sub_queries"]:
+        for query_rewrite in query_rewrites["sub_questions"]:
             logging.info(f"Processing sub-query: {query_rewrite}")
             # Create an instance of the InnerAutoGenText2Sql class
             inner_autogen_text_2_sql = InnerAutoGenText2Sql(

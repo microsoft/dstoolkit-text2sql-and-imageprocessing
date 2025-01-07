@@ -269,6 +269,7 @@ class DataDictionaryCreator(ABC):
         self.catalog = None
 
         self.database_engine = None
+        self.sql_connector = None
 
         self.database_semaphore = asyncio.Semaphore(20)
         self.llm_semaphone = asyncio.Semaphore(10)
@@ -752,7 +753,8 @@ class DataDictionaryCreator(ABC):
 
         # Determine top-level fields to exclude
         filtered_entitiy_specific_fields = {
-            field.lower(): ... for field in self.excluded_engine_specific_fields
+            field.lower(): ...
+            for field in self.sql_connector.excluded_engine_specific_fields
         }
 
         if filtered_entitiy_specific_fields:
