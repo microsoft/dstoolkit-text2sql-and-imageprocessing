@@ -47,6 +47,7 @@ class SqlSchemaSelectionAgentCustomAgent:
             logging.info(f"Entity result: {entity_result}")
 
             for entity_group in entity_result.entities:
+                logging.info(f"Searching for schemas for entity group: {entity_group}")
                 entity_search_tasks.append(
                     self.sql_connector.get_entity_schemas(
                         " ".join(entity_group), as_json=False
@@ -54,6 +55,9 @@ class SqlSchemaSelectionAgentCustomAgent:
                 )
 
             for filter_condition in entity_result.filter_conditions:
+                logging.info(
+                    f"Searching for column values for filter: {filter_condition}"
+                )
                 column_search_tasks.append(
                     self.sql_connector.get_column_values(
                         filter_condition, as_json=False

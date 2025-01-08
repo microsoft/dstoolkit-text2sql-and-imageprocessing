@@ -17,6 +17,23 @@ class SQLiteSqlConnector(SqlConnector):
         super().__init__()
         self.database_engine = DatabaseEngine.SQLITE
 
+    def engine_specific_rules(self) -> list[str]:
+        """Get SQLite specific rules.
+
+        Returns:
+            list[str]: List of SQLite specific rules.
+        """
+        return [
+            "Use SQLite syntax for queries",
+            "Use double quotes for identifiers",
+            "Use single quotes for string literals",
+            "LIMIT clause comes after ORDER BY",
+            "No FULL OUTER JOIN support - use LEFT JOIN or RIGHT JOIN instead",
+            "Use || for string concatenation",
+            "Use datetime('now') for current timestamp",
+            "Use strftime() for date/time formatting",
+        ]
+
     @property
     def invalid_identifiers(self) -> list[str]:
         """Get the invalid identifiers upon which a sql query is rejected."""
@@ -92,7 +109,12 @@ class SQLiteSqlConnector(SqlConnector):
 
     def terms_match(self, term1: str, term2: str) -> bool:
         """Check if two terms match after normalization."""
-        return self.normalize_term(term1) == self.normalize_term(term2)
+        normalized1 = self.normalize_term(term1)
+        normalized2 = self.normalize_term(term2)
+        logging.debug(
+            f"Comparing normalized terms: '{normalized1}' and '{normalized2}'"
+        )
+        return normalized1 == normalized2
 
     def find_matching_tables(self, text: str, table_names: list[str]) -> list[int]:
         """Find all matching table indices using flexible matching rules.
@@ -105,10 +127,12 @@ class SQLiteSqlConnector(SqlConnector):
             List of matching table indices
         """
         matches = []
+        logging.info(f"Looking for tables matching '{text}' in tables: {table_names}")
 
         # First try exact matches
         for idx, name in enumerate(table_names):
             if self.terms_match(text, name):
+                logging.info(f"Found exact match: '{name}'")
                 matches.append(idx)
 
         if matches:
@@ -116,9 +140,11 @@ class SQLiteSqlConnector(SqlConnector):
 
         # Try matching parts of compound table names
         search_terms = set(re.split(r"[_\s]+", text.lower()))
+        logging.info(f"Trying partial matches with terms: {search_terms}")
         for idx, name in enumerate(table_names):
             table_terms = set(re.split(r"[_\s]+", name.lower()))
             if search_terms & table_terms:  # If there's any overlap in terms
+                logging.info(f"Found partial match: '{name}' with terms {table_terms}")
                 matches.append(idx)
 
         return matches
@@ -158,6 +184,8 @@ class SQLiteSqlConnector(SqlConnector):
         db_path = os.environ["Text2Sql__DatabaseConnectionString"]
         db_name = os.path.splitext(os.path.basename(db_path))[0]
 
+        logging.info(f"Looking for schemas in database: {db_name}")
+
         # Find schema for current database
         db_schema = None
         for schema in spider_schemas:
@@ -168,12 +196,17 @@ class SQLiteSqlConnector(SqlConnector):
         if not db_schema:
             raise ValueError(f"Schema not found for database: {db_name}")
 
+        logging.info(f"Looking for tables matching '{text}' in database '{db_name}'")
+        logging.info(f"Available tables: {db_schema['table_names']}")
+
         # Find all matching tables using flexible matching
         table_indices = self.find_matching_tables(text, db_schema["table_names"])
 
         if not table_indices:
             logging.warning(f"No tables found matching: {text}")
             return [] if not as_json else "[]"
+
+        logging.info(f"Found matching table indices: {table_indices}")
 
         # Get schemas for all matching tables
         schemas = []
@@ -194,6 +227,9 @@ class SQLiteSqlConnector(SqlConnector):
                 "Columns": columns,
             }
             schemas.append(schema)
+            logging.info(
+                f"Added schema for table '{db_schema['table_names'][table_idx]}': {schema}"
+            )
 
         if as_json:
             return json.dumps(schemas, default=str)

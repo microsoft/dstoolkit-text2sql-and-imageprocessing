@@ -15,19 +15,24 @@ from text_2_sql_core.utils.database import DatabaseEngineSpecificFields
 
 class SqlConnector(ABC):
     def __init__(self):
+        # Feature flags from environment variables
         self.use_query_cache = (
             os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
         )
-
         self.pre_run_query_cache = (
             os.environ.get("Text2Sql__PreRunQueryCache", "True").lower() == "true"
         )
-
         self.use_column_value_store = (
             os.environ.get("Text2Sql__UseColumnValueStore", "True").lower() == "true"
         )
+        self.use_ai_search = (
+            os.environ.get("Text2Sql__UseAISearch", "True").lower() == "true"
+        )
 
-        self.ai_search_connector = ConnectorFactory.get_ai_search_connector()
+        # Only initialize AI Search connector if enabled
+        self.ai_search_connector = (
+            ConnectorFactory.get_ai_search_connector() if self.use_ai_search else None
+        )
 
         self.database_engine = None
 
@@ -98,6 +103,14 @@ class SqlConnector(ABC):
         -------
             str: The values of the column in JSON format.
         """
+        # Return empty results if AI Search is disabled
+        if not self.use_ai_search:
+            filter_to_column = {text: {}}
+            return (
+                json.dumps(filter_to_column, default=str)
+                if as_json
+                else filter_to_column
+            )
 
         values = await self.ai_search_connector.get_column_values(text)
 
@@ -258,6 +271,12 @@ class SqlConnector(ABC):
         -------
             str: The formatted string of the queries fetched from the cache. This is injected into the prompt.
         """
+        # Return empty results if AI Search is disabled
+        if not self.use_ai_search:
+            return {
+                "contains_pre_run_results": False,
+                "cached_questions_and_schemas": None,
+            }
 
         if injected_parameters is None:
             injected_parameters = {}

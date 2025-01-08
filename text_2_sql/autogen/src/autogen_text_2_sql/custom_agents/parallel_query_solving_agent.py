@@ -17,6 +17,7 @@ from autogen_text_2_sql.inner_autogen_text_2_sql import InnerAutoGenText2Sql
 from aiostream import stream
 from json import JSONDecodeError
 import re
+import os
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
@@ -161,9 +162,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         inner_solving_generators = []
         database_results = {}
 
-        all_non_database_query = question_rewrites.get("all_non_database_query", False)
+        # Convert all_non_database_query to lowercase string and compare
+        all_non_database_query = str(
+            question_rewrites.get("all_non_database_query", "false")
+        ).lower()
 
-        if all_non_database_query:
+        if all_non_database_query == "true":
             yield Response(
                 chat_message=TextMessage(
                     content="All queries are non-database queries. Nothing to process.",
@@ -180,12 +184,21 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
             identifier = ", ".join(question_rewrite)
 
+            # Add database connection info to injected parameters
+            query_params = injected_parameters.copy() if injected_parameters else {}
+            if "Text2Sql__DatabaseConnectionString" in os.environ:
+                query_params["database_connection_string"] = os.environ[
+                    "Text2Sql__DatabaseConnectionString"
+                ]
+            if "Text2Sql__DatabaseName" in os.environ:
+                query_params["database_name"] = os.environ["Text2Sql__DatabaseName"]
+
             # Launch tasks for each sub-query
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
                     inner_autogen_text_2_sql.process_question(
                         question=question_rewrite,
-                        injected_parameters=injected_parameters,
+                        injected_parameters=query_params,
                     ),
                     identifier,
                     database_results,

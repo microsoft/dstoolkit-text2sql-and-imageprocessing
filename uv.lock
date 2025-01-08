@@ -380,11 +380,7 @@ dependencies = [
     { name = "nltk" },
     { name = "pyyaml" },
     { name = "sqlparse" },
-<<<<<<< HEAD
     { name = "text-2-sql-core", extra = ["databricks", "snowflake"] },
-=======
-    { name = "text-2-sql-core" },
->>>>>>> 1019e36 (feat: Improved SQL schema selection and SQLite connector for Spider evaluation)
 ]
 
 [package.optional-dependencies]
@@ -420,17 +416,10 @@ requires-dist = [
     { name = "nltk", specifier = ">=3.8.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "sqlparse", specifier = ">=0.4.4" },
-<<<<<<< HEAD
     { name = "text-2-sql-core", extras = ["databricks"], marker = "extra == 'databricks'", editable = "text_2_sql/text_2_sql_core" },
     { name = "text-2-sql-core", extras = ["postgresql"], marker = "extra == 'postgresql'", editable = "text_2_sql/text_2_sql_core" },
     { name = "text-2-sql-core", extras = ["snowflake"], marker = "extra == 'snowflake'", editable = "text_2_sql/text_2_sql_core" },
     { name = "text-2-sql-core", extras = ["snowflake", "databricks"], editable = "text_2_sql/text_2_sql_core" },
-=======
-    { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
-    { name = "text-2-sql-core", extras = ["databricks"], marker = "extra == 'databricks'", editable = "text_2_sql/text_2_sql_core" },
-    { name = "text-2-sql-core", extras = ["postgresql"], marker = "extra == 'postgresql'", editable = "text_2_sql/text_2_sql_core" },
-    { name = "text-2-sql-core", extras = ["snowflake"], marker = "extra == 'snowflake'", editable = "text_2_sql/text_2_sql_core" },
->>>>>>> 1019e36 (feat: Improved SQL schema selection and SQLite connector for Spider evaluation)
 ]
 
 [package.metadata.requires-dev]
@@ -906,11 +895,7 @@ wheels = [
 
 [[package]]
 name = "databricks-sql-connector"
-<<<<<<< HEAD
 version = "3.7.1"
-=======
-version = "3.7.0"
->>>>>>> 1019e36 (feat: Improved SQL schema selection and SQLite connector for Spider evaluation)
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lz4" },
@@ -923,15 +908,9 @@ dependencies = [
     { name = "thrift" },
     { name = "urllib3" },
 ]
-<<<<<<< HEAD
 sdist = { url = "https://files.pythonhosted.org/packages/77/62/22db394c7d99d8a942fdc10c63f6e6fb6d9625664a4d67f176ad4a51b432/databricks_sql_connector-3.7.1.tar.gz", hash = "sha256:b0e48b2acc73b6ab4e63b1a8688f3e7e0eed538bebee67526960239f873b99ef", size = 414196 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4e/a2/5a6215f0539176ef1fe3213631455d3a39f05c3820014ccba73540ca56cd/databricks_sql_connector-3.7.1-py3-none-any.whl", hash = "sha256:ffcb840f31246ce636a70374c89c5c22e7553225c64cada8ec8d90d377080266", size = 430721 },
-=======
-sdist = { url = "https://files.pythonhosted.org/packages/ef/17/8e854159235f2f04e97e8c45136d87431b794fd86b9660347eacf56b71dd/databricks_sql_connector-3.7.0.tar.gz", hash = "sha256:0f0ba7a929cdcd1b9e039282bb71e1c0e82fd5c8d3609045a216f58ea51dd2bc", size = 414091 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a7/9d/d658f1b88663f62f379bca828fb86152c2dafdfb4a14b1c92c84e9056beb/databricks_sql_connector-3.7.0-py3-none-any.whl", hash = "sha256:52380eb84c2b4237342993771af8bfe8095a90c95d5d327f32cf599322dd150e", size = 430687 },
->>>>>>> 1019e36 (feat: Improved SQL schema selection and SQLite connector for Spider evaluation)
 ]
 
 [[package]]
@@ -2147,11 +2126,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-<<<<<<< HEAD
 version = "1.59.4"
-=======
-version = "1.59.3"
->>>>>>> 1019e36 (feat: Improved SQL schema selection and SQLite connector for Spider evaluation)
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -2163,15 +2138,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-<<<<<<< HEAD
 sdist = { url = "https://files.pythonhosted.org/packages/38/db/0e1376bdee3de8c16d91647d47dc47a26d2d6036931c76844e7d3e3fb989/openai-1.59.4.tar.gz", hash = "sha256:b946dc5a2308dc1e03efbda80bf1cd64b6053b536851ad519f57ee44401663d2", size = 344405 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/99/01/1eefc235bb79174826b2fa0cad05bc2eab90eae97bf78c765887d7430e46/openai-1.59.4-py3-none-any.whl", hash = "sha256:82113498699998e98104f87c19a890e82df9b01251a0395484360575d3a1d98a", size = 454810 },
-=======
-sdist = { url = "https://files.pythonhosted.org/packages/73/d0/def3c7620e1cb446947f098aeac9d88fc826b1760d66da279e4712d37666/openai-1.59.3.tar.gz", hash = "sha256:7f7fff9d8729968588edf1524e73266e8593bb6cab09298340efb755755bb66f", size = 344192 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/26/0e0fb582bcb2a7cb6802447a749a2fc938fe4b82324097abccb86abfd5d1/openai-1.59.3-py3-none-any.whl", hash = "sha256:b041887a0d8f3e70d1fc6ffbb2bf7661c3b9a2f3e806c04bf42f572b9ac7bc37", size = 454793 },
->>>>>>> 1019e36 (feat: Improved SQL schema selection and SQLite connector for Spider evaluation)
 ]
 
 [[package]]
