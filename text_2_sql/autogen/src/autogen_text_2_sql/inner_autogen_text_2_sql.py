@@ -44,6 +44,29 @@ class InnerAutoGenText2Sql:
         self.kwargs = kwargs
         self.set_mode()
 
+        # Store original environment variables
+        self.original_db_conn = os.environ.get("Text2Sql__DatabaseConnectionString")
+        self.original_db_name = os.environ.get("Text2Sql__DatabaseName")
+
+    def _update_environment(self, injected_parameters: dict = None):
+        """Update environment variables with injected parameters."""
+        if injected_parameters:
+            if "database_connection_string" in injected_parameters:
+                os.environ["Text2Sql__DatabaseConnectionString"] = injected_parameters[
+                    "database_connection_string"
+                ]
+            if "database_name" in injected_parameters:
+                os.environ["Text2Sql__DatabaseName"] = injected_parameters[
+                    "database_name"
+                ]
+
+    def _restore_environment(self):
+        """Restore original environment variables."""
+        if self.original_db_conn:
+            os.environ["Text2Sql__DatabaseConnectionString"] = self.original_db_conn
+        if self.original_db_name:
+            os.environ["Text2Sql__DatabaseName"] = self.original_db_name
+
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
         self.pre_run_query_cache = (
@@ -106,7 +129,6 @@ class InnerAutoGenText2Sql:
 
     def unified_selector(self, messages):
         """Unified selector for the complete flow."""
-        """Unified selector for the complete flow."""
         logging.info("Messages: %s", messages)
         current_agent = messages[-1].source if messages else "user"
         decision = None
@@ -165,10 +187,17 @@ class InnerAutoGenText2Sql:
         """
         logging.info("Processing question: %s", question)
 
-        agent_input = {
-            "question": question,
-            "chat_history": {},
-            "injected_parameters": injected_parameters,
-        }
+        # Update environment with injected parameters
+        self._update_environment(injected_parameters)
 
-        return self.agentic_flow.run_stream(task=json.dumps(agent_input))
+        try:
+            agent_input = {
+                "question": question,
+                "chat_history": {},
+                "injected_parameters": injected_parameters,
+            }
+
+            return self.agentic_flow.run_stream(task=json.dumps(agent_input))
+        finally:
+            # Restore original environment
+            self._restore_environment()

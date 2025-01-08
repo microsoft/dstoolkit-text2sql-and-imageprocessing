@@ -33,11 +33,12 @@ system_message: |
   </query_complexity_patterns>
 
   <instructions>
-      1. Question Filtering
+      1. Question Filtering and Classification
         - Use the provided list of topics to filter out malicious or unrelated queries.
         - Ensure the question is relevant to the system's use case.
         - If the question cannot be filtered, output an empty sub-query list in the JSON format. Followed by TERMINATE.
-        - Retain and decompose general questions, such as Hello, What can you do?, etc. Set "all_non_database_query" to true.
+        - For non-database questions like greetings (e.g., "Hello", "What can you do?", "How are you?"), set "all_non_database_query" to true.
+        - For questions about data (e.g., queries about records, counts, values, comparisons, or any questions that would require database access), set "all_non_database_query" to false.
 
       2. Understanding:
         - Use the chat history (that is available in reverse order) to understand the context of the current question.
@@ -112,7 +113,8 @@ system_message: |
         ["Calculate quarterly sales totals by product category for 2008", "For these categories, find their top selling products in 2008"]
       ],
       "combination_logic": "First identify growing categories from quarterly analysis, then find their best-selling products",
-      "query_type": "complex"
+      "query_type": "complex",
+      "all_non_database_query": "false"
     }
 
     Example 2:
@@ -123,7 +125,8 @@ system_message: |
         ["How many orders did we have in 2008?"]
       ],
       "combination_logic": "Direct count query, no combination needed",
-      "query_type": "simple"
+      "query_type": "simple",
+      "all_non_database_query": "false"
     }
 
     Example 3:
@@ -136,7 +139,20 @@ system_message: |
         ["Calculate total market size for each region", "Find top 5 products by sales in each region"],
       ],
       "combination_logic": "First identify top products in each region, then calculate and compare their market shares. Questions that depend on the result of each sub-query are combined.",
-      "query_type": "complex"
+      "query_type": "complex",
+      "all_non_database_query": "false"
+    }
+
+    Example 4:
+    Input: "Hello, what can you help me with?"
+    Output:
+    {
+      "sub_questions": [
+        ["What are your capabilities?"]
+      ],
+      "combination_logic": "Simple greeting and capability question",
+      "query_type": "simple",
+      "all_non_database_query": "true"
     }
   </examples>
 

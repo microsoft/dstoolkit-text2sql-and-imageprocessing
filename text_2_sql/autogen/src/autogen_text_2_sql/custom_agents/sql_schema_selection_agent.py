@@ -40,13 +40,20 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentMessage | Response, None]:
+        # Try to parse as JSON first
         try:
             request_details = json.loads(messages[0].content)
             user_questions = request_details["question"]
-            logging.info(f"Processing questions: {user_questions}")
-        except json.JSONDecodeError:
-            # If not JSON array, process as single question
-            raise ValueError("Could not load message")
+        except (json.JSONDecodeError, KeyError):
+            # If not JSON or missing question key, use content directly
+            user_questions = messages[0].content
+
+        if isinstance(user_questions, str):
+            user_questions = [user_questions]
+        elif not isinstance(user_questions, list):
+            user_questions = [str(user_questions)]
+
+        logging.info(f"Processing questions: {user_questions}")
 
         final_results = await self.agent.process_message(user_questions)
 

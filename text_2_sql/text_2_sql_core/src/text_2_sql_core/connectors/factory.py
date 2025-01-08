@@ -31,6 +31,10 @@ class ConnectorFactory:
                 )
 
                 return PostgresqlSqlConnector()
+            elif os.environ["Text2Sql__DatabaseEngine"].upper() == "SQLITE":
+                from text_2_sql_core.connectors.sqlite_sql import SQLiteSqlConnector
+
+                return SQLiteSqlConnector()
             else:
                 raise ValueError(
                     f"""Database engine {
@@ -44,6 +48,9 @@ class ConnectorFactory:
 
     @staticmethod
     def get_ai_search_connector():
+        # Return None if AI Search is disabled
+        if os.environ.get("Text2Sql__UseAISearch", "True").lower() != "true":
+            return None
         return AISearchConnector()
 
     @staticmethod
