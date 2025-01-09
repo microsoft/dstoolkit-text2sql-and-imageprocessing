@@ -21,7 +21,7 @@ import re
 from text_2_sql_core.payloads.interaction_payloads import (
     QuestionPayload,
     AnswerWithSourcesPayload,
-    DismabiguationRequestPayload,
+    DismabiguationRequestsPayload,
     ProcessingUpdatePayload,
     InteractionPayload,
     PayloadType,
@@ -104,10 +104,10 @@ class AutoGenText2Sql:
 
     def extract_disambiguation_request(
         self, messages: list
-    ) -> DismabiguationRequestPayload:
+    ) -> DismabiguationRequestsPayload:
         """Extract the disambiguation request from the answer."""
         disambiguation_request = messages[-1].content
-        return DismabiguationRequestPayload(
+        return DismabiguationRequestsPayload(
             disambiguation_request=disambiguation_request,
         )
 
@@ -179,7 +179,8 @@ class AutoGenText2Sql:
                 for sql_query_result in sql_query_result_list:
                     if not isinstance(sql_query_result, dict):
                         logging.error(
-                            f"Expected dict for sql_query_result, got {type(sql_query_result)}"
+                            "Expected dict for sql_query_result, got %s",
+                            type(sql_query_result),
                         )
                         continue
 

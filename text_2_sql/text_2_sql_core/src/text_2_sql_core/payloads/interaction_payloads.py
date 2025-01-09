@@ -32,13 +32,16 @@ class PayloadType(StrEnum):
     QUESTION = "question"
 
 
-class DismabiguationRequestPayload(PayloadBase):
+class ColumnFilterPair(BaseModel):
+    column: str
+    filter_value: str | None = Field(default=None)
+
+
+class DismabiguationRequestsPayload(PayloadBase):
     class Body(BaseModel):
         class DismabiguationRequest(BaseModel):
             question: str
-            matching_columns: list[str]
-            matching_filter_values: list[str]
-            other_user_choices: list[str]
+            choices: list[ColumnFilterPair] | None = Field(default=None)
 
         disambiguation_requests: list[DismabiguationRequest]
 
@@ -119,6 +122,6 @@ class QuestionPayload(PayloadBase):
 
 
 class InteractionPayload(RootModel):
-    root: QuestionPayload | ProcessingUpdatePayload | DismabiguationRequestPayload | AnswerWithSourcesPayload = Field(
+    root: QuestionPayload | ProcessingUpdatePayload | DismabiguationRequestsPayload | AnswerWithSourcesPayload = Field(
         ..., discriminator="payload_type"
     )
