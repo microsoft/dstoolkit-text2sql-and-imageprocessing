@@ -29,10 +29,11 @@ class PayloadType(StrEnum):
     ANSWER_WITH_SOURCES = "answer_with_sources"
     DISAMBIGUATION_REQUEST = "disambiguation_request"
     PROCESSING_UPDATE = "processing_update"
-    QUESTION = "question"
+    USER_INPUT = "user_input"
 
 
 class ColumnFilterPair(BaseModel):
+    fqn: str
     column: str
     filter_value: str | None = Field(default=None)
 
@@ -55,6 +56,32 @@ class DismabiguationRequestsPayload(PayloadBase):
         super().__init__(**kwargs)
 
         self.body = self.Body(**kwargs)
+
+
+request = DismabiguationRequestsPayload(
+    disambiguation_requests=[
+        {
+            "question": "Which of the following do you mean?",
+            "choices": [
+                {"fqn": "<fqn>", "column": "product_name", "filter_value": "Road Bike"},
+                {
+                    "fqn": "<fqn>",
+                    "column": "product_name",
+                    "filter_value": "Mountain Bike",
+                },
+            ],
+        },
+        {
+            "question": "Do you mean total sales by volume or number of customers?",
+            "choices": [
+                {"fqn": "<fqn>", "column": "sales_volume", "filter_value": None},
+                {"fqn": "<fqn>", "column": "customer_count", "filter_value": None},
+            ],
+        },
+    ]
+)
+
+print(request.model_dump())
 
 
 class AnswerWithSourcesPayload(PayloadBase):
@@ -94,7 +121,7 @@ class ProcessingUpdatePayload(PayloadBase):
         self.body = self.Body(**kwargs)
 
 
-class QuestionPayload(PayloadBase):
+class UserInputPayload(PayloadBase):
     class Body(BaseModel):
         question: str
         injected_parameters: dict = Field(default_factory=dict)
@@ -111,7 +138,7 @@ class QuestionPayload(PayloadBase):
             values["injected_parameters"] = {**defaults, **injected}
             return values
 
-    payload_type: Literal[PayloadType.QUESTION] = PayloadType.QUESTION
+    payload_type: Literal[PayloadType.USER_INPUT] = PayloadType.USER_INPUT
     payload_source: Literal[PayloadSource.USER] = PayloadSource.USER
     body: Body | None = Field(default=None)
 
@@ -122,6 +149,6 @@ class QuestionPayload(PayloadBase):
 
 
 class InteractionPayload(RootModel):
-    root: QuestionPayload | ProcessingUpdatePayload | DismabiguationRequestsPayload | AnswerWithSourcesPayload = Field(
+    root: UserInputPayload | ProcessingUpdatePayload | DismabiguationRequestsPayload | AnswerWithSourcesPayload = Field(
         ..., discriminator="payload_type"
     )

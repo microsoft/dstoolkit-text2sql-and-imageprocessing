@@ -19,7 +19,7 @@ from datetime import datetime
 import re
 
 from text_2_sql_core.payloads.interaction_payloads import (
-    QuestionPayload,
+    UserInputPayload,
     AnswerWithSourcesPayload,
     DismabiguationRequestsPayload,
     ProcessingUpdatePayload,
@@ -211,7 +211,7 @@ class AutoGenText2Sql:
 
     async def process_question(
         self,
-        question_payload: QuestionPayload,
+        question_payload: UserInputPayload,
         chat_history: list[InteractionPayload] = None,
     ) -> AsyncGenerator[InteractionPayload, None]:
         """Process the complete question through the unified system.
@@ -238,7 +238,7 @@ class AutoGenText2Sql:
         if chat_history is not None:
             # Update input
             for idx, chat in enumerate(chat_history):
-                if chat.root.payload_type == PayloadType.QUESTION:
+                if chat.root.payload_type == PayloadType.USER_INPUT:
                     # For now only consider the user query
                     chat_history_key = f"chat_{idx}"
                     agent_input[chat_history_key] = chat.root.body.question
