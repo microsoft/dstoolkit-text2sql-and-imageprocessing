@@ -22,15 +22,15 @@ class SqlSchemaSelectionAgentCustomAgent:
 
         self.system_prompt = Template(system_prompt).render(kwargs)
 
-    async def process_message(self, user_questions: list[str]) -> dict:
-        logging.info(f"User questions: {user_questions}")
+    async def process_message(self, user_inputs: list[str]) -> dict:
+        logging.info(f"user inputs: {user_inputs}")
 
         entity_tasks = []
 
-        for user_question in user_questions:
+        for user_input in user_inputs:
             messages = [
                 {"role": "system", "content": self.system_prompt},
-                {"role": "user", "content": user_question},
+                {"role": "user", "content": user_input},
             ]
             entity_tasks.append(
                 self.open_ai_connector.run_completion_request(
@@ -47,7 +47,7 @@ class SqlSchemaSelectionAgentCustomAgent:
             logging.info(f"Entity result: {entity_result}")
 
             for entity_group in entity_result.entities:
-                logging.info(f"Searching for schemas for entity group: {entity_group}")
+                logging.info("Searching for schemas for entity group: %s", entity_group)
                 entity_search_tasks.append(
                     self.sql_connector.get_entity_schemas(
                         " ".join(entity_group), as_json=False
@@ -56,7 +56,7 @@ class SqlSchemaSelectionAgentCustomAgent:
 
             for filter_condition in entity_result.filter_conditions:
                 logging.info(
-                    f"Searching for column values for filter: {filter_condition}"
+                    "Searching for column values for filter: %s", filter_condition
                 )
                 column_search_tasks.append(
                     self.sql_connector.get_column_values(

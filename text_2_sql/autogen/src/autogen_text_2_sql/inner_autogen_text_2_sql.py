@@ -178,7 +178,7 @@ class InnerAutoGenText2Sql:
 
         Args:
         ----
-            task (str): The user question to process.
+            task (str): The user input to process.
             injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:

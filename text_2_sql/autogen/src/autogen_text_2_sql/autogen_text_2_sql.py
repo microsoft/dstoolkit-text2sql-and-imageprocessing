@@ -40,8 +40,8 @@ class AutoGenText2Sql:
         # Get current datetime for the Query Rewrite Agent
         current_datetime = datetime.now()
 
-        self.question_rewrite_agent = LLMAgentCreator.create(
-            "question_rewrite_agent", current_datetime=current_datetime
+        self.user_input_rewrite_agent = LLMAgentCreator.create(
+            "user_input_rewrite_agent", current_datetime=current_datetime
         )
 
         self.parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
@@ -49,7 +49,7 @@ class AutoGenText2Sql:
         self.answer_agent = LLMAgentCreator.create("answer_agent")
 
         agents = [
-            self.question_rewrite_agent,
+            self.user_input_rewrite_agent,
             self.parallel_query_solving_agent,
             self.answer_agent,
         ]
@@ -73,11 +73,11 @@ class AutoGenText2Sql:
         current_agent = messages[-1].source if messages else "user"
         decision = None
 
-        # If this is the first message start with question_rewrite_agent
+        # If this is the first message start with user_input_rewrite_agent
         if current_agent == "user":
-            decision = "question_rewrite_agent"
+            decision = "user_input_rewrite_agent"
         # Handle transition after query rewriting
-        elif current_agent == "question_rewrite_agent":
+        elif current_agent == "user_input_rewrite_agent":
             decision = "parallel_query_solving_agent"
         # Handle transition after parallel query solving
         elif current_agent == "parallel_query_solving_agent":
@@ -145,22 +145,24 @@ class AutoGenText2Sql:
         except json.JSONDecodeError:
             logging.warning("Unable to read SQL query results: %s", sql_query_results)
             sql_query_results = {}
-            sub_question_results = {}
+            sub_user_input_results = {}
         else:
-            # Only load sub-question results if we have a database result
-            sub_question_results = self.parse_message_content(messages[1].content)
-            logging.info("Sub-Question Results: %s", sub_question_results)
+            # Only load sub-user_input results if we have a database result
+            sub_user_input_results = self.parse_message_content(messages[1].content)
+            logging.info("Sub-user_input Results: %s", sub_user_input_results)
 
         try:
-            sub_questions = [
-                sub_question
-                for sub_question_group in sub_question_results.get("sub_questions", [])
-                for sub_question in sub_question_group
+            sub_user_inputs = [
+                sub_user_input
+                for sub_user_input_group in sub_user_input_results.get(
+                    "sub_user_inputs", []
+                )
+                for sub_user_input in sub_user_input_group
             ]
 
             logging.info("SQL Query Results: %s", sql_query_results)
             payload = AnswerWithSourcesPayload(
-                answer=answer, sub_questions=sub_questions
+                answer=answer, sub_user_inputs=sub_user_inputs
             )
 
             if not isinstance(sql_query_results, dict):
@@ -171,9 +173,11 @@ class AutoGenText2Sql:
                 logging.error("No 'results' key in sql_query_results")
                 return payload
 
-            for question, sql_query_result_list in sql_query_results["results"].items():
+            for user_input, sql_query_result_list in sql_query_results[
+                "results"
+            ].items():
                 if not sql_query_result_list:  # Check if list is empty
-                    logging.warning(f"No results for question: {question}")
+                    logging.warning(f"No results for user_input: {user_input}")
                     continue
 
                 for sql_query_result in sql_query_result_list:
@@ -209,16 +213,16 @@ class AutoGenText2Sql:
                 answer=f"{answer}\nError processing results: {str(e)}"
             )
 
-    async def process_question(
+    async def process_user_input(
         self,
-        question_payload: UserInputPayload,
+        user_input_payload: UserInputPayload,
         chat_history: list[InteractionPayload] = None,
     ) -> AsyncGenerator[InteractionPayload, None]:
-        """Process the complete question through the unified system.
+        """Process the complete user_input through the unified system.
 
         Args:
         ----
-            task (str): The user question to process.
+            task (str): The user user_input to process.
             chat_history (list[str], optional): The chat history. Defaults to None.
             injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
@@ -226,13 +230,13 @@ class AutoGenText2Sql:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing question: %s", question_payload.body.question)
+        logging.info("Processing user_input: %s", user_input_payload.body.user_input)
         logging.info("Chat history: %s", chat_history)
 
         agent_input = {
-            "question": question_payload.body.question,
+            "user_input": user_input_payload.body.user_input,
             "chat_history": {},
-            "injected_parameters": question_payload.body.injected_parameters,
+            "injected_parameters": user_input_payload.body.injected_parameters,
         }
 
         if chat_history is not None:
@@ -241,7 +245,7 @@ class AutoGenText2Sql:
                 if chat.root.payload_type == PayloadType.USER_INPUT:
                     # For now only consider the user query
                     chat_history_key = f"chat_{idx}"
-                    agent_input[chat_history_key] = chat.root.body.question
+                    agent_input[chat_history_key] = chat.root.body.user_input
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)
@@ -249,7 +253,7 @@ class AutoGenText2Sql:
             payload = None
 
             if isinstance(message, TextMessage):
-                if message.source == "question_rewrite_agent":
+                if message.source == "user_input_rewrite_agent":
                     payload = ProcessingUpdatePayload(
                         message="Rewriting the query...",
                     )
@@ -272,10 +276,10 @@ class AutoGenText2Sql:
                 elif message.messages[-1].source == "parallel_query_solving_agent":
                     # Load into disambiguation request
                     payload = self.extract_disambiguation_request(message.messages)
-                elif message.messages[-1].source == "question_rewrite_agent":
+                elif message.messages[-1].source == "user_input_rewrite_agent":
                     # Load into empty response
                     payload = AnswerWithSourcesPayload(
-                        answer="Apologies, I cannot answer that question as it is not relevant. Please try another question or rephrase your current question."
+                        answer="Apologies, I cannot answer that user_input as it is not relevant. Please try another user_input or rephrase your current user_input."
                     )
             else:
                 logging.error("Unexpected TaskResult: %s", message)

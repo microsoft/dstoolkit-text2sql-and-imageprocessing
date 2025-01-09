@@ -17,7 +17,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
     def __init__(self):
         super().__init__(
             "sql_query_cache_agent",
-            "An agent that fetches the queries from the cache based on the user question.",
+            "An agent that fetches the queries from the cache based on the user user_input.",
         )
 
         self.agent = SqlQueryCacheAgentCustomAgent()
@@ -40,19 +40,19 @@ class SqlQueryCacheAgent(BaseChatAgent):
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentMessage | Response, None]:
-        # Get the decomposed questions from the question_rewrite_agent
+        # Get the decomposed user_inputs from the user_input_rewrite_agent
         try:
             request_details = json.loads(messages[0].content)
             injected_parameters = request_details["injected_parameters"]
-            user_questions = request_details["question"]
-            logging.info(f"Processing questions: {user_questions}")
+            user_user_inputs = request_details["user_input"]
+            logging.info(f"Processing user_inputs: {user_user_inputs}")
             logging.info(f"Input Parameters: {injected_parameters}")
         except json.JSONDecodeError:
-            # If not JSON array, process as single question
+            # If not JSON array, process as single user_input
             raise ValueError("Could not load message")
 
         cached_results = await self.agent.process_message(
-            user_questions, injected_parameters
+            user_user_inputs, injected_parameters
         )
         yield Response(
             chat_message=TextMessage(

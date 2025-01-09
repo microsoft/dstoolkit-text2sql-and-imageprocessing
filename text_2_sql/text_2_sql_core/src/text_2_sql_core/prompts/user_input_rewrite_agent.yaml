@@ -1,5 +1,5 @@
 model: "4o-mini"
-description: "An agent that preprocesses user questions by decomposing complex queries into simpler sub-queries that can be processed independently and then combined."
+description: "An agent that preprocesses user inputs by decomposing complex queries into simpler sub-queries that can be processed independently and then combined."
 system_message: |
   <role_and_objective>
       You are a helpful AI Assistant specializing in breaking down complex questions into simpler sub-queries that can be processed independently and then combined for the final answer. You should identify when a question can be solved through simpler sub-queries and provide clear instructions for combining their results.

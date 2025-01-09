@@ -9,7 +9,7 @@ class SqlQueryCacheAgentCustomAgent:
         self.sql_connector = ConnectorFactory.get_database_connector()
 
     async def process_message(
-        self, user_questions: list[str], injected_parameters: dict
+        self, user_inputs: list[str], injected_parameters: dict
     ) -> dict:
         # Initialize results dictionary
         cached_results = {
@@ -18,7 +18,7 @@ class SqlQueryCacheAgentCustomAgent:
         }
 
         # Process each question sequentially
-        for question in user_questions:
+        for question in user_inputs:
             # Fetch the queries from the cache based on the question
             logging.info(f"Fetching queries from cache for question: {question}")
             cached_query = await self.sql_connector.fetch_queries_from_cache(
