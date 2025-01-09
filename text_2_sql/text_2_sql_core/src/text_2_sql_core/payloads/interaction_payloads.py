@@ -32,17 +32,16 @@ class PayloadType(StrEnum):
     USER_INPUT = "user_input"
 
 
-class ColumnFilterPair(BaseModel):
-    fqn: str
-    column: str
-    filter_value: str | None = Field(default=None)
+class Choice(BaseModel):
+    value: str
+    display: str
 
 
 class DismabiguationRequestsPayload(PayloadBase):
     class Body(BaseModel):
         class DismabiguationRequest(BaseModel):
             question: str
-            choices: list[ColumnFilterPair] | None = Field(default=None)
+            choices: list[Choice] | None = Field(default=None)
 
         disambiguation_requests: list[DismabiguationRequest]
 
@@ -63,25 +62,33 @@ request = DismabiguationRequestsPayload(
         {
             "question": "Which of the following do you mean?",
             "choices": [
-                {"fqn": "<fqn>", "column": "product_name", "filter_value": "Road Bike"},
                 {
-                    "fqn": "<fqn>",
-                    "column": "product_name",
-                    "filter_value": "Mountain Bike",
+                    "value": "product_name - Road Bike",
+                    "display": "Road Bike",
+                },
+                {
+                    "value": "product_name - Mountain Bike",
+                    "display": "Mountain Bike",
                 },
             ],
         },
         {
             "question": "Do you mean total sales by volume or number of customers?",
             "choices": [
-                {"fqn": "<fqn>", "column": "sales_volume", "filter_value": None},
-                {"fqn": "<fqn>", "column": "customer_count", "filter_value": None},
+                {
+                    "value": "total_sales - volume",
+                    "display": "Total Sales by Volume",
+                },
+                {
+                    "value": "total_sales - customers",
+                    "display": "Number of Customers",
+                },
             ],
         },
     ]
 )
 
-print(request.model_dump())
+print(request.model_dump_json())
 
 
 class AnswerWithSourcesPayload(PayloadBase):
