@@ -22,15 +22,15 @@ class SqlSchemaSelectionAgentCustomAgent:
 
         self.system_prompt = Template(system_prompt).render(kwargs)
 
-    async def process_message(self, user_inputs: list[str]) -> dict:
-        logging.info(f"user inputs: {user_inputs}")
+    async def process_message(self, messages: list[str]) -> dict:
+        logging.info(f"user inputs: {messages}")
 
         entity_tasks = []
 
-        for user_input in user_inputs:
+        for message in messages:
             messages = [
                 {"role": "system", "content": self.system_prompt},
-                {"role": "user", "content": user_input},
+                {"role": "user", "content": message},
             ]
             entity_tasks.append(
                 self.open_ai_connector.run_completion_request(

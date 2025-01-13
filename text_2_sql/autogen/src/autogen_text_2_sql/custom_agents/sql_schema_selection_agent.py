@@ -43,19 +43,19 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
         # Try to parse as JSON first
         try:
             request_details = json.loads(messages[0].content)
-            user_inputs = request_details["question"]
+            messages = request_details["question"]
         except (json.JSONDecodeError, KeyError):
             # If not JSON or missing question key, use content directly
-            user_inputs = messages[0].content
+            messages = messages[0].content
 
-        if isinstance(user_inputs, str):
-            user_inputs = [user_inputs]
-        elif not isinstance(user_inputs, list):
-            user_inputs = [str(user_inputs)]
+        if isinstance(messages, str):
+            messages = [messages]
+        elif not isinstance(messages, list):
+            messages = [str(messages)]
 
-        logging.info(f"Processing questions: {user_inputs}")
+        logging.info(f"Processing questions: {messages}")
 
-        final_results = await self.agent.process_message(user_inputs)
+        final_results = await self.agent.process_message(messages)
 
         yield Response(
             chat_message=TextMessage(

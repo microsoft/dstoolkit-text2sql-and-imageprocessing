@@ -84,9 +84,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             injected_parameters = {}
 
         # Load the json of the last message to populate the final output object
-        user_input_rewrites = json.loads(last_response)
+        message_rewrites = json.loads(last_response)
 
-        logging.info(f"Query Rewrites: {user_input_rewrites}")
+        logging.info(f"Query Rewrites: {message_rewrites}")
 
         async def consume_inner_messages_from_agentic_flow(
             agentic_flow, identifier, database_results
@@ -143,7 +143,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                             ):
                                 logging.info("Contains pre-run results")
                                 for pre_run_sql_query, pre_run_result in parsed_message[
-                                    "cached_user_inputs_and_schemas"
+                                    "cached_messages_and_schemas"
                                 ].items():
                                     database_results[identifier].append(
                                         {
@@ -164,7 +164,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
         # Convert all_non_database_query to lowercase string and compare
         all_non_database_query = str(
-            user_input_rewrites.get("all_non_database_query", "false")
+            message_rewrites.get("all_non_database_query", "false")
         ).lower()
 
         if all_non_database_query == "true":
@@ -177,12 +177,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             return
 
         # Start processing sub-queries
-        for user_input_rewrite in user_input_rewrites["sub_user_inputs"]:
-            logging.info(f"Processing sub-query: {user_input_rewrite}")
+        for message_rewrite in message_rewrites["decomposed_messages"]:
+            logging.info(f"Processing sub-query: {message_rewrite}")
             # Create an instance of the InnerAutoGenText2Sql class
             inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
 
-            identifier = ", ".join(user_input_rewrite)
+            identifier = ", ".join(message_rewrite)
 
             # Add database connection info to injected parameters
             query_params = injected_parameters.copy() if injected_parameters else {}
@@ -196,8 +196,8 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             # Launch tasks for each sub-query
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
-                    inner_autogen_text_2_sql.process_user_input(
-                        user_input=user_input_rewrite,
+                    inner_autogen_text_2_sql.process_message(
+                        message=message_rewrite,
                         injected_parameters=query_params,
                     ),
                     identifier,
