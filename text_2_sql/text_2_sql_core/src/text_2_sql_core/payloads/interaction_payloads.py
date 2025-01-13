@@ -42,8 +42,8 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
             agent_question: str | None = Field(..., alias="agentQuestion")
             user_choices: list[str] | None = Field(default=None, alias="userChoices")
 
-        disambiguation_requests: list[DismabiguationRequest] = Field(
-            alias="disambiguationRequests"
+        disambiguation_requests: list[DismabiguationRequest] | None = Field(
+            default_factory=list, alias="disambiguationRequests"
         )
         decomposed_user_messages: list[list[str]] = Field(
             default_factory=list, alias="decomposedUserMessages"

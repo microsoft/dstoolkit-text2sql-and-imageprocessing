@@ -187,7 +187,8 @@ class SqlConnector(ABC):
                     "type": "query_execution_with_limit",
                     "sql_query": sql_query,
                     "sql_rows": result,
-                }
+                },
+                default=str,
             )
         else:
             return json.dumps(
@@ -195,7 +196,8 @@ class SqlConnector(ABC):
                     "type": "errored_query_execution_with_limit",
                     "sql_query": sql_query,
                     "errors": validation_result,
-                }
+                },
+                default=str,
             )
 
     async def query_validation(

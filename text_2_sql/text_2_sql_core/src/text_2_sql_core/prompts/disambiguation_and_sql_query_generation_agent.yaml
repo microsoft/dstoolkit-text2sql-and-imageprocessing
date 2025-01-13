@@ -170,12 +170,16 @@ system_message:
 
     If disambiguation needed:
     {
-      \"disambiguation\": [{
-        \"question\": \"<specific_question>\",
-        \"matching_columns\": [\"<column1>\", \"<column2>\"],
-        \"matching_filter_values\": [\"<value1>\", \"<value2>\"],
-        \"other_user_choices\": [\"<choice1>\", \"<choice2>\"]
-      }]
+      \"disambiguation_requests\": [
+        {
+          \"agent_question\": \"<specific_question>\",
+          \"user_choices\": [\"<choice1>\", \"<choice2>\"]
+        },
+        {
+          \"agent_question\": \"<specific_question>\",
+          \"user_choices\": [\"<choice1>\", \"<choice2>\"]
+        }
+      ]
     }
     TERMINATE
     </output_format>

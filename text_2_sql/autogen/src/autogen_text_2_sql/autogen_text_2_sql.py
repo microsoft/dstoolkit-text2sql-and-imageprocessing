@@ -62,7 +62,7 @@ class AutoGenText2Sql:
         termination = (
             TextMentionTermination("TERMINATE")
             | SourceMatchTermination("answer_agent")
-            | TextMentionTermination("requires_user_information_request")
+            | TextMentionTermination("contains_disambiguation_requests")
             | MaxMessageTermination(5)
         )
         return termination
@@ -131,19 +131,42 @@ class AutoGenText2Sql:
         sub_message_results = self.parse_message_content(messages[1].content)
         logging.info("Decomposed Results: %s", sub_message_results)
 
-        return sub_message_results.get("decomposed_user_messages", [])
+        decomposed_user_messages = sub_message_results.get(
+            "decomposed_user_messages", []
+        )
+
+        logging.debug(
+            "Returning decomposed_user_messages: %s", decomposed_user_messages
+        )
+
+        return decomposed_user_messages
 
     def extract_disambiguation_request(
         self, messages: list
     ) -> DismabiguationRequestsPayload:
         """Extract the disambiguation request from the answer."""
-        disambiguation_request = messages[-1].content
+        all_disambiguation_requests = self.parse_message_content(messages[-1].content)
 
         decomposed_user_messages = self.extract_decomposed_user_messages(messages)
-        return DismabiguationRequestsPayload(
-            disambiguation_request=disambiguation_request,
-            decomposed_user_messages=decomposed_user_messages,
+        request_payload = DismabiguationRequestsPayload(
+            decomposed_user_messages=decomposed_user_messages
         )
+
+        for per_question_disambiguation_request in all_disambiguation_requests[
+            "disambiguation_requests"
+        ].values():
+            for disambiguation_request in per_question_disambiguation_request:
+                logging.info(
+                    "Disambiguation Request Identified: %s", disambiguation_request
+                )
+
+                request = DismabiguationRequestsPayload.Body.DismabiguationRequest(
+                    agent_question=disambiguation_request["agent_question"],
+                    user_choices=disambiguation_request["user_choices"],
+                )
+                request_payload.body.disambiguation_requests.append(request)
+
+        return request_payload
 
     def extract_answer_payload(self, messages: list) -> AnswerWithSourcesPayload:
         """Extract the sources from the answer."""
@@ -169,11 +192,13 @@ class AutoGenText2Sql:
                 logging.error(f"Expected dict, got {type(sql_query_results)}")
                 return payload
 
-            if "results" not in sql_query_results:
+            if "database_results" not in sql_query_results:
                 logging.error("No 'results' key in sql_query_results")
                 return payload
 
-            for message, sql_query_result_list in sql_query_results["results"].items():
+            for message, sql_query_result_list in sql_query_results[
+                "database_results"
+            ].items():
                 if not sql_query_result_list:  # Check if list is empty
                     logging.warning(f"No results for message: {message}")
                     continue

@@ -124,7 +124,11 @@ class InnerAutoGenText2Sql:
     @property
     def termination_condition(self):
         """Define the termination condition for the chat."""
-        termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
+        termination = (
+            TextMentionTermination("TERMINATE")
+            | MaxMessageTermination(10)
+            | TextMentionTermination("disambiguation_request")
+        )
         return termination
 
     def unified_selector(self, messages):

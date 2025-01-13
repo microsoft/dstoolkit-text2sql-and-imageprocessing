@@ -18,6 +18,18 @@ from aiostream import stream
 from json import JSONDecodeError
 import re
 import os
+from pydantic import BaseModel, Field
+
+
+class FilteredParallelMessagesCollection(BaseModel):
+    database_results: dict[str, list] = Field(default_factory=dict)
+    disambiguation_requests: dict[str, list] = Field(default_factory=dict)
+
+    def add_identifier(self, identifier):
+        if identifier not in self.database_results:
+            self.database_results[identifier] = []
+        if identifier not in self.disambiguation_requests:
+            self.disambiguation_requests[identifier] = []
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
@@ -89,7 +101,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         logging.info(f"Query Rewrites: {message_rewrites}")
 
         async def consume_inner_messages_from_agentic_flow(
-            agentic_flow, identifier, database_results
+            agentic_flow, identifier, filtered_parallel_messages
         ):
             """
             Consume the inner messages and append them to the specified list.
@@ -101,8 +113,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             """
             async for inner_message in agentic_flow:
                 # Add message to results dictionary, tagged by the function name
-                if identifier not in database_results:
-                    database_results[identifier] = []
+                filtered_parallel_messages.add_identifier(identifier)
 
                 logging.info(f"Checking Inner Message: {inner_message}")
 
@@ -122,7 +133,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                     == "query_execution_with_limit"
                                 ):
                                     logging.info("Contains query results")
-                                    database_results[identifier].append(
+                                    filtered_parallel_messages.database_results[
+                                        identifier
+                                    ].append(
                                         {
                                             "sql_query": parsed_message[
                                                 "sql_query"
@@ -138,6 +151,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
                         # Search for specific message types and add them to the final output object
                         if isinstance(parsed_message, dict):
+                            # Check if the message contains pre-run results
                             if ("contains_pre_run_results" in parsed_message) and (
                                 parsed_message["contains_pre_run_results"] is True
                             ):
@@ -145,7 +159,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                 for pre_run_sql_query, pre_run_result in parsed_message[
                                     "cached_messages_and_schemas"
                                 ].items():
-                                    database_results[identifier].append(
+                                    filtered_parallel_messages.database_results[
+                                        identifier
+                                    ].append(
                                         {
                                             "sql_query": pre_run_sql_query.replace(
                                                 "\n", " "
@@ -153,6 +169,17 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             "sql_rows": pre_run_result["sql_rows"],
                                         }
                                     )
+                            # Check if disambiguation is required
+                            elif ("disambiguation_requests" in parsed_message) and (
+                                parsed_message["disambiguation_requests"]
+                            ):
+                                logging.info("Contains disambiguation requests")
+                                for disambiguation_request in parsed_message[
+                                    "disambiguation_requests"
+                                ]:
+                                    filtered_parallel_messages.disambiguation_requests[
+                                        identifier
+                                    ].append(disambiguation_request)
 
                 except Exception as e:
                     logging.warning(f"Error processing message: {e}")
@@ -160,7 +187,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 yield inner_message
 
         inner_solving_generators = []
-        database_results = {}
+        filtered_parallel_messages = FilteredParallelMessagesCollection()
 
         # Convert all_non_database_query to lowercase string and compare
         all_non_database_query = str(
@@ -201,7 +228,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                         injected_parameters=query_params,
                     ),
                     identifier,
-                    database_results,
+                    filtered_parallel_messages,
                 )
             )
 
@@ -218,17 +245,43 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                     yield inner_message
 
         # Log final results for debugging or auditing
-        logging.info(f"Database Results: {database_results}")
-
-        # Final response
-        yield Response(
-            chat_message=TextMessage(
-                content=json.dumps(
-                    {"contains_results": True, "results": database_results}
-                ),
-                source=self.name,
-            ),
+        logging.info(
+            "Database Results: %s", filtered_parallel_messages.database_results
         )
+        logging.info(
+            "Disambiguation Requests: %s",
+            filtered_parallel_messages.disambiguation_requests,
+        )
+
+        if (
+            max(map(len, filtered_parallel_messages.disambiguation_requests.values()))
+            > 0
+        ):
+            # Final response
+            yield Response(
+                chat_message=TextMessage(
+                    content=json.dumps(
+                        {
+                            "contains_disambiguation_requests": True,
+                            "disambiguation_requests": filtered_parallel_messages.disambiguation_requests,
+                        }
+                    ),
+                    source=self.name,
+                ),
+            )
+        else:
+            # Final response
+            yield Response(
+                chat_message=TextMessage(
+                    content=json.dumps(
+                        {
+                            "contains_database_results": True,
+                            "database_results": filtered_parallel_messages.database_results,
+                        }
+                    ),
+                    source=self.name,
+                ),
+            )
 
     async def on_reset(self, cancellation_token: CancellationToken) -> None:
         pass
