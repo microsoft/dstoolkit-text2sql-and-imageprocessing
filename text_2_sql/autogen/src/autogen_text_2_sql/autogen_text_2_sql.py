@@ -40,8 +40,8 @@ class AutoGenText2Sql:
         # Get current datetime for the Query Rewrite Agent
         current_datetime = datetime.now()
 
-        self.message_rewrite_agent = LLMAgentCreator.create(
-            "message_rewrite_agent", current_datetime=current_datetime
+        self.user_message_rewrite_agent = LLMAgentCreator.create(
+            "user_message_rewrite_agent", current_datetime=current_datetime
         )
 
         self.parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
@@ -49,7 +49,7 @@ class AutoGenText2Sql:
         self.answer_agent = LLMAgentCreator.create("answer_agent")
 
         agents = [
-            self.message_rewrite_agent,
+            self.user_message_rewrite_agent,
             self.parallel_query_solving_agent,
             self.answer_agent,
         ]
@@ -73,11 +73,11 @@ class AutoGenText2Sql:
         current_agent = messages[-1].source if messages else "user"
         decision = None
 
-        # If this is the first message start with message_rewrite_agent
+        # If this is the first message start with user_message_rewrite_agent
         if current_agent == "user":
-            decision = "message_rewrite_agent"
+            decision = "user_message_rewrite_agent"
         # Handle transition after query rewriting
-        elif current_agent == "message_rewrite_agent":
+        elif current_agent == "user_message_rewrite_agent":
             decision = "parallel_query_solving_agent"
         # Handle transition after parallel query solving
         elif current_agent == "parallel_query_solving_agent":
@@ -131,7 +131,7 @@ class AutoGenText2Sql:
         sub_message_results = self.parse_message_content(messages[1].content)
         logging.info("Decomposed Results: %s", sub_message_results)
 
-        return sub_message_results.get("decomposed_messages", [])
+        return sub_message_results.get("decomposed_user_messages", [])
 
     def extract_disambiguation_request(
         self, messages: list
@@ -211,7 +211,7 @@ class AutoGenText2Sql:
                 answer=f"{answer}\nError processing results: {str(e)}"
             )
 
-    async def process_message(
+    async def process_user_message(
         self,
         message_payload: UserMessagePayload,
         chat_history: list[InteractionPayload] = None,
@@ -251,7 +251,7 @@ class AutoGenText2Sql:
             payload = None
 
             if isinstance(message, TextMessage):
-                if message.source == "message_rewrite_agent":
+                if message.source == "user_message_rewrite_agent":
                     payload = ProcessingUpdatePayload(
                         message="Rewriting the query...",
                     )
@@ -274,7 +274,7 @@ class AutoGenText2Sql:
                 elif message.messages[-1].source == "parallel_query_solving_agent":
                     # Load into disambiguation request
                     payload = self.extract_disambiguation_request(message.messages)
-                elif message.messages[-1].source == "message_rewrite_agent":
+                elif message.messages[-1].source == "user_message_rewrite_agent":
                     # Load into empty response
                     payload = AnswerWithSourcesPayload(
                         answer="Apologies, I cannot answer that message as it is not relevant. Please try another message or rephrase your current message."
