@@ -169,9 +169,9 @@ class InnerAutoGenText2Sql:
         )
         return flow
 
-    def process_question(
+    def process_user_message(
         self,
-        question: str,
+        user_message: str,
         injected_parameters: dict = None,
     ):
         """Process the complete question through the unified system.
@@ -185,15 +185,14 @@ class InnerAutoGenText2Sql:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing question: %s", question)
+        logging.info("Processing question: %s", user_message)
 
         # Update environment with injected parameters
         self._update_environment(injected_parameters)
 
         try:
             agent_input = {
-                "question": question,
-                "chat_history": {},
+                "user_message": user_message,
                 "injected_parameters": injected_parameters,
             }
 

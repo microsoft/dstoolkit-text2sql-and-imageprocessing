@@ -17,7 +17,7 @@ class PayloadType(StrEnum):
     ANSWER_WITH_SOURCES = "answer_with_sources"
     DISAMBIGUATION_REQUESTS = "disambiguation_requests"
     PROCESSING_UPDATE = "processing_update"
-    USER_INPUT = "user_input"
+    USER_MESSAGE = "user_message"
 
 
 class InteractionPayloadBase(BaseModel):
@@ -51,6 +51,9 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
         disambiguation_requests: list[DismabiguationRequest] = Field(
             alias="disambiguationRequests"
         )
+        decomposed_user_messages: list[list[str]] = Field(
+            default_factory=list, alias="decomposedUserMessages"
+        )
 
     payload_type: Literal[PayloadType.DISAMBIGUATION_REQUESTS] = Field(
         PayloadType.DISAMBIGUATION_REQUESTS, alias="payloadType"
@@ -73,7 +76,7 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
             sql_rows: list[dict] = Field(default_factory=list, alias="sqlRows")
 
         answer: str
-        decomposed_user_messages: list[str] = Field(
+        decomposed_user_messages: list[list[str]] = Field(
             default_factory=list, alias="decomposedUserMessages"
         )
         sources: list[Source] = Field(default_factory=list)
@@ -111,7 +114,7 @@ class ProcessingUpdatePayload(InteractionPayloadBase):
         self.body = self.Body(**kwargs)
 
 
-class UserInputPayload(InteractionPayloadBase):
+class UserMessagePayload(InteractionPayloadBase):
     class Body(InteractionPayloadBase):
         user_message: str = Field(..., alias="userMessage")
         injected_parameters: dict = Field(
@@ -130,8 +133,8 @@ class UserInputPayload(InteractionPayloadBase):
             values["injected_parameters"] = {**defaults, **injected}
             return values
 
-    payload_type: Literal[PayloadType.USER_INPUT] = Field(
-        PayloadType.USER_INPUT, alias="payloadType"
+    payload_type: Literal[PayloadType.USER_MESSAGE] = Field(
+        PayloadType.USER_MESSAGE, alias="payloadType"
     )
     payload_source: Literal[PayloadSource.USER] = Field(
         PayloadSource.USER, alias="payloadSource"
@@ -145,6 +148,6 @@ class UserInputPayload(InteractionPayloadBase):
 
 
 class InteractionPayload(RootModel):
-    root: UserInputPayload | ProcessingUpdatePayload | DismabiguationRequestsPayload | AnswerWithSourcesPayload = Field(
+    root: UserMessagePayload | ProcessingUpdatePayload | DismabiguationRequestsPayload | AnswerWithSourcesPayload = Field(
         ..., discriminator="payload_type"
     )

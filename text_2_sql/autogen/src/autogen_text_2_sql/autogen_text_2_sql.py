@@ -19,7 +19,7 @@ from datetime import datetime
 import re
 
 from text_2_sql_core.payloads.interaction_payloads import (
-    UserInputPayload,
+    UserMessagePayload,
     AnswerWithSourcesPayload,
     DismabiguationRequestsPayload,
     ProcessingUpdatePayload,
@@ -102,15 +102,6 @@ class AutoGenText2Sql:
         )
         return flow
 
-    def extract_disambiguation_request(
-        self, messages: list
-    ) -> DismabiguationRequestsPayload:
-        """Extract the disambiguation request from the answer."""
-        disambiguation_request = messages[-1].content
-        return DismabiguationRequestsPayload(
-            disambiguation_request=disambiguation_request,
-        )
-
     def parse_message_content(self, content):
         """Parse different message content formats into a dictionary."""
         if isinstance(content, (list, dict)):
@@ -134,6 +125,26 @@ class AutoGenText2Sql:
         # If all parsing attempts fail, return the content as-is
         return content
 
+    def extract_decomposed_user_messages(self, messages: list) -> list[list[str]]:
+        """Extract the decomposed messages from the answer."""
+        # Only load sub-message results if we have a database result
+        sub_message_results = self.parse_message_content(messages[1].content)
+        logging.info("Decomposed Results: %s", sub_message_results)
+
+        return sub_message_results.get("decomposed_messages", [])
+
+    def extract_disambiguation_request(
+        self, messages: list
+    ) -> DismabiguationRequestsPayload:
+        """Extract the disambiguation request from the answer."""
+        disambiguation_request = messages[-1].content
+
+        decomposed_user_messages = self.extract_decomposed_user_messages(messages)
+        return DismabiguationRequestsPayload(
+            disambiguation_request=disambiguation_request,
+            decomposed_user_messages=decomposed_user_messages,
+        )
+
     def extract_answer_payload(self, messages: list) -> AnswerWithSourcesPayload:
         """Extract the sources from the answer."""
         answer = messages[-1].content
@@ -145,24 +156,13 @@ class AutoGenText2Sql:
         except json.JSONDecodeError:
             logging.warning("Unable to read SQL query results: %s", sql_query_results)
             sql_query_results = {}
-            sub_message_results = {}
-        else:
-            # Only load sub-message results if we have a database result
-            sub_message_results = self.parse_message_content(messages[1].content)
-            logging.info("Sub-message Results: %s", sub_message_results)
 
         try:
-            decomposed_messages = [
-                sub_message
-                for sub_message_group in sub_message_results.get(
-                    "decomposed_messages", []
-                )
-                for sub_message in sub_message_group
-            ]
+            decomposed_user_messages = self.extract_decomposed_user_messages(messages)
 
             logging.info("SQL Query Results: %s", sql_query_results)
             payload = AnswerWithSourcesPayload(
-                answer=answer, decomposed_messages=decomposed_messages
+                answer=answer, decomposed_user_messages=decomposed_user_messages
             )
 
             if not isinstance(sql_query_results, dict):
@@ -213,7 +213,7 @@ class AutoGenText2Sql:
 
     async def process_message(
         self,
-        message_payload: UserInputPayload,
+        message_payload: UserMessagePayload,
         chat_history: list[InteractionPayload] = None,
     ) -> AsyncGenerator[InteractionPayload, None]:
         """Process the complete message through the unified system.
@@ -228,11 +228,11 @@ class AutoGenText2Sql:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing message: %s", message_payload.body.message)
+        logging.info("Processing message: %s", message_payload.body.user_message)
         logging.info("Chat history: %s", chat_history)
 
         agent_input = {
-            "message": message_payload.body.message,
+            "message": message_payload.body.user_message,
             "chat_history": {},
             "injected_parameters": message_payload.body.injected_parameters,
         }
@@ -240,10 +240,10 @@ class AutoGenText2Sql:
         if chat_history is not None:
             # Update input
             for idx, chat in enumerate(chat_history):
-                if chat.root.payload_type == PayloadType.message:
+                if chat.root.payload_type == PayloadType.USER_MESSAGE:
                     # For now only consider the user query
                     chat_history_key = f"chat_{idx}"
-                    agent_input[chat_history_key] = chat.root.body.message
+                    agent_input[chat_history_key] = chat.root.body.user_message
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)
