@@ -8,15 +8,6 @@ The sample provided works with Azure SQL Server, although it has been easily ada
 >
 > - Previous versions of this approach have now been moved to `previous_iterations/semantic_kernel`. These will not be updated.
 
-## High Level Workflow
-
-The following diagram shows a workflow for how the Text2SQL plugin would be incorporated into a RAG application. Using the plugins available, alongside the [Function Calling](https://platform.openai.com/docs/guides/function-calling) capabilities of LLMs, the LLM can do [Chain of Thought](https://learn.microsoft.com/en-us/dotnet/ai/conceptual/chain-of-thought-prompting) reasoning to determine the steps needed to answer the question. This allows the LLM to recognise intent and therefore pick appropriate data sources based on the intent of the question.
-
-![High level workflow for a plugin driven RAG application](../images/Plugin%20Based%20RAG%20Flow.png "High Level Workflow")
-
-> [!NOTE]
-> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
-
 ## Why Text2SQL instead of indexing the database contents?
 
 Generating SQL queries and executing them to provide context for the RAG application provided several benefits in the use case this was designed for.
@@ -28,7 +19,7 @@ Generating SQL queries and executing them to provide context for the RAG applica
 - Pushing numerical calculations onto the source SQL engine ensures accuracy in the maths.
 - Data can be updated real-time in the source database and be immediately accessible to the LLM.
 
-## Multi-Shot Approach
+## High Level Workflow - Multi-Shot Approach
 
 A common way to perform Text2SQL generation _(Iteration 1)_ is to provide the complete schema information (either a full schema or a plain text description) inside the initial prompt. Whilst this works for small databases, there are issues with scalability as the number of tables and views exposed to the LLM increases:
 
@@ -47,6 +38,9 @@ Using Auto-Function calling capabilities, the LLM is able to retrieve from the p
 To improve the scalability and accuracy in SQL Query generation, the entity relationships within the database are stored within the vector store. This allows the LLM to use **entity relationship graph** to navigate complex system joins. See the details in `./data_dictionary` for more details.
 
 For the query cache enabled approach, AI Search is used as a vector based cache, but any other cache that supports vector queries could be used, such as Redis.
+
+> [!NOTE]
+> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
 
 ### Full Logical Flow for Agentic Vector Based Approach
 
