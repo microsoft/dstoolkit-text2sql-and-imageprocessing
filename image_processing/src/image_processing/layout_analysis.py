@@ -2,11 +2,9 @@
 # Licensed under the MIT License.
 # This code originates from: https://github.com/microsoft/dstoolkit-text2sql-and-imageprocessing
 
-import json
 import logging
 import os
 import urllib
-import azure.functions as func
 import tempfile
 from azure.storage.blob.aio import BlobServiceClient
 from azure.identity import DefaultAzureCredential
@@ -546,40 +544,3 @@ async def process_layout_analysis(
             ],
             "warnings": None,
         }
-
-
-async def main(req: func.HttpRequest) -> func.HttpResponse:
-    try:
-        req_body = req.get_json()
-        values = req_body.get("values")
-        adi_config = req.headers
-
-        page_wise = adi_config.get("page_wise", "False").lower() == "true"
-        extract_figures = adi_config.get("extract_figures", "True").lower() == "true"
-        logging.info(f"Chunk by Page: {page_wise}")
-    except ValueError:
-        return func.HttpResponse(
-            "Please valid Custom Skill Payload in the request body", status_code=400
-        )
-    else:
-        logging.info("Input Values: %s", values)
-
-        record_tasks = []
-
-        for value in values:
-            record_tasks.append(
-                asyncio.create_task(
-                    process_layout_analysis(
-                        value, page_wise=page_wise, extract_figures=extract_figures
-                    )
-                )
-            )
-
-        results = await asyncio.gather(*record_tasks)
-        logging.info("Results: %s", results)
-
-        return func.HttpResponse(
-            json.dumps({"values": results}),
-            status_code=200,
-            mimetype="application/json",
-        )

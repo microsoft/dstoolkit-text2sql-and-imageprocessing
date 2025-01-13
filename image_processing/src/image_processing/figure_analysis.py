@@ -1,12 +1,9 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-import json
 import logging
 import os
-import azure.functions as func
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-import asyncio
 from openai import (
     AsyncAzureOpenAI,
     OpenAIError,
@@ -152,31 +149,3 @@ class FigureAnalysis:
                 "errors": None,
                 "warnings": None,
             }
-
-
-async def main(req: func.HttpRequest) -> func.HttpResponse:
-    try:
-        req_body = req.get_json()
-        values = req_body.get("values")
-    except ValueError:
-        return func.HttpResponse(
-            "Please valid Custom Skill Payload in the request body", status_code=400
-        )
-    else:
-        logging.info("Input Values: %s", values)
-
-        record_tasks = []
-
-        figure_analysis = FigureAnalysis()
-
-        for value in values:
-            record_tasks.append(asyncio.create_task(figure_analysis.analyse(value)))
-
-        results = await asyncio.gather(*record_tasks)
-        logging.info("Results: %s", results)
-
-        return func.HttpResponse(
-            json.dumps({"values": results}),
-            status_code=200,
-            mimetype="application/json",
-        )
