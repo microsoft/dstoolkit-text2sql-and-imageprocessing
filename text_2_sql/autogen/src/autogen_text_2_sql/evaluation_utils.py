@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 import re
 from typing import Optional, List, Dict, Any
 
@@ -14,7 +16,7 @@ def extract_sql_queries_from_results(results: Dict[str, Any]) -> List[str]:
     """
     queries = []
 
-    if results.get("contains_results") and results.get("results"):
+    if results.get("contains_database_results") and results.get("results"):
         for question_results in results["results"].values():
             for result in question_results:
                 if isinstance(result, dict) and "sql_query" in result:

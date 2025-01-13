@@ -124,7 +124,11 @@ class InnerAutoGenText2Sql:
     @property
     def termination_condition(self):
         """Define the termination condition for the chat."""
-        termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
+        termination = (
+            TextMentionTermination("TERMINATE")
+            | MaxMessageTermination(10)
+            | TextMentionTermination("disambiguation_request")
+        )
         return termination
 
     def unified_selector(self, messages):
@@ -169,31 +173,30 @@ class InnerAutoGenText2Sql:
         )
         return flow
 
-    def process_question(
+    def process_user_message(
         self,
-        question: str,
+        user_message: str,
         injected_parameters: dict = None,
     ):
         """Process the complete question through the unified system.
 
         Args:
         ----
-            task (str): The user question to process.
+            task (str): The user input to process.
             injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing question: %s", question)
+        logging.info("Processing question: %s", user_message)
 
         # Update environment with injected parameters
         self._update_environment(injected_parameters)
 
         try:
             agent_input = {
-                "question": question,
-                "chat_history": {},
+                "user_message": user_message,
                 "injected_parameters": injected_parameters,
             }
 

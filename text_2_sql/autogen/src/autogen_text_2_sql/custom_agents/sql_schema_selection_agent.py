@@ -17,7 +17,7 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
     def __init__(self, **kwargs):
         super().__init__(
             "sql_schema_selection_agent",
-            "An agent that fetches the schemas from the cache based on the user question.",
+            "An agent that fetches the schemas from the cache based on the user input.",
         )
 
         self.agent = SqlSchemaSelectionAgentCustomAgent(**kwargs)
@@ -43,19 +43,19 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
         # Try to parse as JSON first
         try:
             request_details = json.loads(messages[0].content)
-            user_questions = request_details["question"]
+            messages = request_details["question"]
         except (json.JSONDecodeError, KeyError):
             # If not JSON or missing question key, use content directly
-            user_questions = messages[0].content
+            messages = messages[0].content
 
-        if isinstance(user_questions, str):
-            user_questions = [user_questions]
-        elif not isinstance(user_questions, list):
-            user_questions = [str(user_questions)]
+        if isinstance(messages, str):
+            messages = [messages]
+        elif not isinstance(messages, list):
+            messages = [str(messages)]
 
-        logging.info(f"Processing questions: {user_questions}")
+        logging.info(f"Processing questions: {messages}")
 
-        final_results = await self.agent.process_message(user_questions)
+        final_results = await self.agent.process_message(messages)
 
         yield Response(
             chat_message=TextMessage(
