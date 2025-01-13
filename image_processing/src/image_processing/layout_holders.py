@@ -27,7 +27,7 @@ class FigureHolder(BaseModel):
         --------
             str: The Markdown string representation of the figure."""
 
-        return f"<figure FigureId='{self.figure_id}' Uri='{self.uri}'>{self.description}</figure>"
+        return f"<figure FigureId='{self.figure_id}'>{self.description}</figure>"
 
 
 class LayoutHolder(BaseModel):
