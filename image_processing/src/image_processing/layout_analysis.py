@@ -34,7 +34,7 @@ class StorageAccountHelper:
     @property
     def account_url(self) -> str:
         """Get the account URL of the Azure Blob Storage."""
-        storage_account_name = os.environ.get("DATA_STORAGE_ACCOUNT_NAME")
+        storage_account_name = os.environ.get("StorageAccount__Name")
         return f"https://{storage_account_name}.blob.core.windows.net"
 
     async def get_client(self):
@@ -345,7 +345,7 @@ class LayoutAnalysis:
         credential = DefaultAzureCredential()
 
         return DocumentIntelligenceClient(
-            endpoint=os.environ["COGNITIVE_SERVICES_ENDPOINT"],
+            endpoint=os.environ["AIService__DocumentIntelligence__Endpoint"],
             credential=credential,
         )
 

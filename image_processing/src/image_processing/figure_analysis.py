@@ -35,8 +35,8 @@ class FigureAnalysis:
         """
 
         MAX_TOKENS = 2000
-        api_version = os.environ["AZURE_OPENAI_API_VERSION"]
-        model = os.environ["OPENAI_MAIN_DEPLOYMENT_NAME"]
+        api_version = os.environ["OpenAI__ApiVersion"]
+        model = os.environ["OpenAI__CompletionDeployment"]
 
         token_provider = get_bearer_token_provider(
             DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
