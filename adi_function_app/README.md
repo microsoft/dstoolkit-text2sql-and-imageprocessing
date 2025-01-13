@@ -42,6 +42,9 @@ The properties returned from the ADI Custom Skill and Chunking are then used to 
 - Keyphrase extraction
 - Vectorisation
 
+> [!NOTE]
+> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
+
 ## Sample Output
 
 Using the [Phi-3 Technical Report: A Highly Capable Language Model Locally on Your Phone](https://arxiv.org/pdf/2404.14219) as an example, the following output can be obtained for page 7:
