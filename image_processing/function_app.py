@@ -6,7 +6,7 @@ import json
 import asyncio
 
 from adi_2_ai_search import process_adi_2_ai_search
-from adi_function_app.mark_up_cleaner import process_mark_up_cleaner
+from image_processing.mark_up_cleaner import process_mark_up_cleaner
 from key_phrase_extraction import process_key_phrase_extraction
 from semantic_text_chunker import process_semantic_text_chunker, SemanticTextChunker
 

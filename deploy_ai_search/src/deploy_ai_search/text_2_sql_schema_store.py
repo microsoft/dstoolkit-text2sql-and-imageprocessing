@@ -346,7 +346,7 @@ class Text2SqlSchemaStoreAISearch(AISearch):
             field_mapping
             for field_mapping in indexer.output_field_mappings
             if field_mapping.target_field_name
-            not in self.excluded_fields_for_database_engine
+            not in self.database_connector.excluded_engine_specific_fields
         ]
 
         return indexer

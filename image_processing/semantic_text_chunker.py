@@ -6,8 +6,7 @@ import re
 import tiktoken
 import spacy
 import numpy as np
-
-logging.basicConfig(level=logging.INFO)
+from model2vec import StaticModel
 
 
 class SemanticTextChunker:
@@ -17,11 +16,16 @@ class SemanticTextChunker:
         similarity_threshold: float = 0.8,
         max_chunk_tokens: int = 200,
         min_chunk_tokens: int = 50,
+        distill_model=True,
     ):
         self.num_surrounding_sentences = num_surrounding_sentences
         self.similarity_threshold = similarity_threshold
         self.max_chunk_tokens = max_chunk_tokens
         self.min_chunk_tokens = min_chunk_tokens
+
+        self.distill_model = distill_model
+        model_name = "minishlab/M2V_base_output"
+        self.distilled_model = StaticModel.from_pretrained(model_name)
         try:
             self._nlp_model = spacy.load("en_core_web_md")
         except IOError as e:
@@ -68,7 +72,11 @@ class SemanticTextChunker:
         Returns:
             list(str): The list of chunks"""
 
+        logging.info(f"Chunking text: {text}")
+
         sentences = self.split_into_sentences(text)
+
+        logging.info(f"Number of sentences: {len(sentences)}")
 
         (
             grouped_sentences,
@@ -105,6 +113,9 @@ class SemanticTextChunker:
 
         logging.info(f"Number of final chunks: {len(cleaned_final_chunks)}")
         logging.info(f"Chunks: {cleaned_final_chunks}")
+
+        if len(cleaned_final_chunks) == 0:
+            raise ValueError("No chunks were generated")
 
         return cleaned_final_chunks
 
@@ -143,6 +154,8 @@ class SemanticTextChunker:
         # Filter out empty <figure>...</figure> tags
         cleaned_text = self.filter_empty_figures(cleaned_text)
 
+        logging.info(f"Cleaned text: {cleaned_text}")
+
         doc = self._nlp_model(cleaned_text)
 
         tag_split_sentences = []
@@ -179,6 +192,7 @@ class SemanticTextChunker:
                         and part.endswith("\n\n") is False
                     ):
                         part = part + "\n\n"
+
                     heading_split_sentences.append(part)
 
         return heading_split_sentences
@@ -215,7 +229,12 @@ class SemanticTextChunker:
                 else:
                     holding_sentences.append(current_sentence)
 
-        assert len(holding_sentences) == 0, "Holding sentences should be empty"
+        if len(holding_sentences) > 0:
+            full_sentence = " ".join(holding_sentences)
+            grouped_sentences.append(full_sentence)
+            holding_sentences = []
+
+            is_table_or_figure_map.append(True)
 
         return grouped_sentences, is_table_or_figure_map
 
@@ -285,7 +304,7 @@ class SemanticTextChunker:
         current_chunk_tokens = self.num_tokens_from_string(" ".join(current_chunk))
 
         if len(current_chunk) >= 2 and current_chunk_tokens >= self.min_chunk_tokens:
-            logging.debug("Comparing chunks")
+            logging.info("Comparing chunks")
             cosine_sim = self.sentence_similarity(
                 retrieve_current_chunks_from_n(-2), current_sentence
             )
@@ -300,7 +319,7 @@ class SemanticTextChunker:
                     new_chunk = retrive_current_chunk_at_n(0)
                     current_chunk = [retrive_current_chunk_at_n(1)]
         else:
-            logging.debug("Chunk too small to compare")
+            logging.info("Chunk too small to compare")
 
         return new_chunk, current_chunk
 
@@ -427,14 +446,18 @@ class SemanticTextChunker:
         return chunks, new_is_table_or_figure_map
 
     def sentence_similarity(self, text_1, text_2):
-        vec1 = self._nlp_model(text_1).vector
-        vec2 = self._nlp_model(text_2).vector
+        if self.distill_model:
+            vec1 = self.distilled_model.encode(text_1)
+            vec2 = self.distilled_model.encode(text_2)
+        else:
+            vec1 = self._nlp_model(text_1).vector
+            vec2 = self._nlp_model(text_2).vector
 
         dot_product = np.dot(vec1, vec2)
         magnitude = np.linalg.norm(vec1) * np.linalg.norm(vec2)
         similarity = dot_product / magnitude if magnitude != 0 else 0.0
 
-        logging.debug(
+        logging.info(
             f"""Similarity between '{text_1}' and '{
                 text_2}': {similarity}"""
         )

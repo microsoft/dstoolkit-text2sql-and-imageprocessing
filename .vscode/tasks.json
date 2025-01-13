@@ -5,7 +5,7 @@
       "isBackground": true,
       "label": "func: host start",
       "options": {
-        "cwd": "${workspaceFolder}/ai_search_with_adi_function_app"
+        "cwd": "${workspaceFolder}/ai_search_with_image_processing"
       },
       "problemMatcher": "$func-python-watch",
       "type": "func"

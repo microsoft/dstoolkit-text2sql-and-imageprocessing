@@ -20,6 +20,7 @@ from environment import (
 )
 import os
 from text_2_sql_core.utils.database import DatabaseEngine
+from text_2_sql_core.connectors.factory import ConnectorFactory
 
 
 class Text2SqlColumnValueStoreAISearch(AISearch):
@@ -43,25 +44,9 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
             os.environ["Text2Sql__DatabaseEngine"].upper()
         ]
 
+        self.database_connector = ConnectorFactory.get_database_connector()
+
         self.parsing_mode = BlobIndexerParsingMode.JSON_LINES
-
-    @property
-    def excluded_fields_for_database_engine(self):
-        """A method to get the excluded fields for the database engine."""
-
-        all_engine_specific_fields = ["Warehouse", "Database", "Catalog"]
-        if self.database_engine == DatabaseEngine.SNOWFLAKE:
-            engine_specific_fields = ["Warehouse", "Database"]
-        elif self.database_engine == DatabaseEngine.TSQL:
-            engine_specific_fields = ["Database"]
-        elif self.database_engine == DatabaseEngine.DATABRICKS:
-            engine_specific_fields = ["Catalog"]
-
-        return [
-            field
-            for field in all_engine_specific_fields
-            if field not in engine_specific_fields
-        ]
 
     def get_index_fields(self) -> list[SearchableField]:
         """This function returns the index fields for sql index.
@@ -123,7 +108,7 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
         fields = [
             field
             for field in fields
-            if field.name not in self.excluded_fields_for_database_engine
+            if field.name not in self.database_connector.excluded_engine_specific_fields
         ]
 
         return fields
@@ -238,7 +223,7 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
             field_mapping
             for field_mapping in indexer.output_field_mappings
             if field_mapping.target_field_name
-            not in self.excluded_fields_for_database_engine
+            not in self.database_connector.excluded_engine_specific_fields
         ]
 
         return indexer

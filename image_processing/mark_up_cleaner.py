@@ -29,13 +29,6 @@ def clean_sections(sections: list) -> list:
     return cleaned_sections
 
 
-def extract_figure_ids(text: str) -> list:
-    # Regex pattern to capture FigureId values
-    figure_id_pattern = r'<figure(?:\s+FigureId="([^"]+)")?'
-    figure_ids = re.findall(figure_id_pattern, text)
-    return figure_ids
-
-
 def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     """
     Remove specified Markdown tags from the text, keeping the contents of the tags.
@@ -51,7 +44,10 @@ def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
         for tag, pattern in tag_patterns.items():
             try:
                 # Replace the tags using the specific pattern, keeping the content inside the tags
-                text = re.sub(pattern, r"\1", text, flags=re.DOTALL)
+                if tag == "header":
+                    text = re.sub(pattern, r"\2", text, flags=re.DOTALL | re.MULTILINE)
+                else:
+                    text = re.sub(pattern, r"\1", text, flags=re.DOTALL)
             except re.error as e:
                 logging.error(f"Regex error for tag '{tag}': {e}")
     except Exception as e:
@@ -59,9 +55,7 @@ def remove_markdown_tags(text: str, tag_patterns: dict) -> str:
     return text
 
 
-def clean_text_and_extract_metadata(
-    src_text: str, figure_storage_prefix: str
-) -> tuple[str, str]:
+def clean_text_and_extract_metadata(src_text: str) -> tuple[str, str]:
     """This function performs following cleanup activities on the text, remove all unicode characters
     remove line spacing,remove stop words, normalize characters
 
@@ -82,14 +76,7 @@ def clean_text_and_extract_metadata(
         return_record["marked_up_chunk"] = src_text
         return_record["sections"] = get_sections(src_text)
 
-        figure_ids = extract_figure_ids(src_text)
-
-        figures = []
-        for figure_id in figure_ids:
-            figure_uri = f"{figure_storage_prefix}/{figure_id}.png"
-            figures.append({"figure_id": figure_id, "figure_uri": figure_uri})
-
-        return_record["figures"] = figures
+        logging.info(f"Sections: {return_record['sections']}")
 
         # Define specific patterns for each tag
         tag_patterns = {
@@ -97,8 +84,11 @@ def clean_text_and_extract_metadata(
             "figure": r"<figure(?:\s+FigureId=\"[^\"]*\")?>(.*?)</figure>",
             "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
             "figcaption": r"<figcaption>(.*?)</figcaption>",
+            "header": r"^\s*(#{1,6})\s*(.*?)\s*$",
         }
         cleaned_text = remove_markdown_tags(src_text, tag_patterns)
+
+        logging.info(f"Removed markdown tags: {cleaned_text}")
 
         # Updated regex to keep Unicode letters, punctuation, whitespace, currency symbols, and percentage signs,
         # while also removing non-printable characters
@@ -138,7 +128,7 @@ async def process_mark_up_cleaner(record: dict) -> dict:
         }
 
         cleaned_record["data"] = clean_text_and_extract_metadata(
-            record["data"]["chunk"], record["data"]["figure_storage_prefix"]
+            record["data"]["chunk"]
         )
 
     except Exception as e:
