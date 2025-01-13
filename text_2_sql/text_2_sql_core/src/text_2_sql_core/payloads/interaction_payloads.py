@@ -25,12 +25,6 @@ class InteractionPayloadBase(BaseModel):
 
 
 class PayloadBase(InteractionPayloadBase):
-    prompt_tokens: int | None = Field(
-        None, description="Number of tokens in the prompt", alias="promptTokens"
-    )
-    completion_tokens: int | None = Field(
-        None, description="Number of tokens in the completion", alias="completionTokens"
-    )
     message_id: str = Field(
         ..., default_factory=lambda: str(uuid4()), alias="messageId"
     )

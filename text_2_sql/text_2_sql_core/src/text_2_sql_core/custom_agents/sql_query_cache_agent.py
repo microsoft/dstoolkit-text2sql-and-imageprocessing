@@ -18,11 +18,11 @@ class SqlQueryCacheAgentCustomAgent:
         }
 
         # Process each question sequentially
-        for question in messages:
+        for message in messages:
             # Fetch the queries from the cache based on the question
-            logging.info(f"Fetching queries from cache for question: {question}")
+            logging.info(f"Fetching queries from cache for question: {message}")
             cached_query = await self.sql_connector.fetch_queries_from_cache(
-                question, injected_parameters=injected_parameters
+                message, injected_parameters=injected_parameters
             )
 
             # If any question has pre-run results, set the flag

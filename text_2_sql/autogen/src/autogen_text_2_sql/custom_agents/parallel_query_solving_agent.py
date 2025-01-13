@@ -196,8 +196,8 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             # Launch tasks for each sub-query
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
-                    inner_autogen_text_2_sql.process_message(
-                        message=message_rewrite,
+                    inner_autogen_text_2_sql.process_user_message(
+                        user_message=message_rewrite,
                         injected_parameters=query_params,
                     ),
                     identifier,

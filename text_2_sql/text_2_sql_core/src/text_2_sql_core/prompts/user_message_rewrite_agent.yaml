@@ -91,7 +91,7 @@ system_message: |
     <output_format>
         Return a JSON object with sub-messages and combination instructions:
         {
-          "decomposed_messages": [
+          "decomposed_user_messages": [
             ["<sub_message_1>"],
             ["<sub_message_2>"],
             ...
@@ -108,7 +108,7 @@ system_message: |
     Input: "Which product categories have shown consistent growth quarter over quarter in 2008, and what were their top selling items?"
     Output:
     {
-      "decomposed_messages": [
+      "decomposed_user_messages": [
         ["Calculate quarterly sales totals by product category for 2008", "For these categories, find their top selling products in 2008"]
       ],
       "combination_logic": "First identify growing categories from quarterly analysis, then find their best-selling products",
@@ -120,7 +120,7 @@ system_message: |
     Input: "How many orders did we have in 2008?"
     Output:
     {
-      "decomposed_messages": [
+      "decomposed_user_messages": [
         ["How many orders did we have in 2008?"]
       ],
       "combination_logic": "Direct count query, no combination needed",
@@ -132,7 +132,7 @@ system_message: |
     Input: "Compare the sales performance of our top 5 products in Europe versus North America, including their market share in each region"
     Output:
     {
-      "decomposed_messages": [
+      "decomposed_user_messages": [
         ["Get total sales by product in European countries"],
         ["Get total sales by product in North American countries"],
         ["Calculate total market size for each region", "Find top 5 products by sales in each region"],
@@ -146,7 +146,7 @@ system_message: |
     Input: "Hello, what can you help me with?"
     Output:
     {
-      "decomposed_messages": [
+      "decomposed_user_messages": [
         ["What are your capabilities?"]
       ],
       "combination_logic": "Simple greeting and capability question",

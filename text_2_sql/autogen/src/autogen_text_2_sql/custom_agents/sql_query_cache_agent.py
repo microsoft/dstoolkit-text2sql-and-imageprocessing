@@ -44,7 +44,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
         try:
             request_details = json.loads(messages[0].content)
             injected_parameters = request_details["injected_parameters"]
-            user_messages = request_details["message"]
+            user_messages = request_details["user_message"]
             logging.info(f"Processing messages: {user_messages}")
             logging.info(f"Input Parameters: {injected_parameters}")
         except json.JSONDecodeError:
