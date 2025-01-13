@@ -4,7 +4,7 @@ This portion of the repo contains code to implement a multi-shot approach to Tex
 
 The sample provided works with Azure SQL Server, although it has been easily adapted to other SQL sources such as Snowflake.
 
-> [!IMPORTANT]
+> [!NOTE]
 >
 > - Previous versions of this approach have now been moved to `previous_iterations/semantic_kernel`. These will not be updated.
 
@@ -13,6 +13,9 @@ The sample provided works with Azure SQL Server, although it has been easily ada
 The following diagram shows a workflow for how the Text2SQL plugin would be incorporated into a RAG application. Using the plugins available, alongside the [Function Calling](https://platform.openai.com/docs/guides/function-calling) capabilities of LLMs, the LLM can do [Chain of Thought](https://learn.microsoft.com/en-us/dotnet/ai/conceptual/chain-of-thought-prompting) reasoning to determine the steps needed to answer the question. This allows the LLM to recognise intent and therefore pick appropriate data sources based on the intent of the question.
 
 ![High level workflow for a plugin driven RAG application](../images/Plugin%20Based%20RAG%20Flow.png "High Level Workflow")
+
+> [!NOTE]
+> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
 
 ## Why Text2SQL instead of indexing the database contents?
 
@@ -57,6 +60,10 @@ As the query cache is shared between users (no data is stored in the cache), a n
 
 ![Vector Based with Query Cache Logical Flow.](./images/Agentic%20Text2SQL%20Query%20Cache.png "Agentic Vector Based with Query Cache Logical Flow")
 
+#### Parallel execution
+
+After the first agent has rewritten and decomposed the user input, we execute each of the individual questions in parallel for the quickest time to generate an answer.
+
 ### Caching Strategy
 
 The cache strategy implementation is a simple way to prove that the system works. You can adopt several different strategies for cache population. Below are some of the strategies that could be used:
@@ -67,6 +74,10 @@ The cache strategy implementation is a simple way to prove that the system works
 - **Always update:** Always add all questions into the cache when they are asked. The sample code in the repository currently implements this approach, but this could lead to poor SQL queries reaching the cache. One of the other caching strategies would be better production version.
 
 ## Sample Output
+
+> [!NOTE]
+>
+> - Full payloads for input / outputs can be found in `text_2_sql_core/src/text_2_sql_core/payloads/interaction_payloads.py`.
 
 ### What is the top performing product by quantity of units sold?
 
@@ -81,14 +92,12 @@ The cache strategy implementation is a simple way to prove that the system works
     "answer": "The top-performing product by quantity of units sold is the **Classic Vest, S** from the **Classic Vest** product model, with a total of 87 units sold [1][2].",
     "sources": [
         {
-            "title": "Sales Order Detail",
-            "chunk": "| ProductID | TotalUnitsSold |\n|-----------|----------------|\n| 864       | 87             |\n",
-            "reference": "SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC;"
+            "sql_rows": "| ProductID | TotalUnitsSold |\n|-----------|----------------|\n| 864       | 87             |\n",
+            "sql_query": "SELECT TOP 1 ProductID, SUM(OrderQty) AS TotalUnitsSold FROM SalesLT.SalesOrderDetail GROUP BY ProductID ORDER BY TotalUnitsSold DESC;"
         },
         {
-            "title": "Product and Description",
-            "chunk": "| Name           | ProductModel  |\n|----------------|---------------|\n| Classic Vest, S| Classic Vest  |\n",
-            "reference": "SELECT Name, ProductModel FROM SalesLT.vProductAndDescription WHERE ProductID = 864;"
+            "sql_rows": "| Name           | ProductModel  |\n|----------------|---------------|\n| Classic Vest, S| Classic Vest  |\n",
+            "sql_query": "SELECT Name, ProductModel FROM SalesLT.vProductAndDescription WHERE ProductID = 864;"
         }
     ]
 }
@@ -109,6 +118,10 @@ The top-performing product by quantity of units sold is the **Classic Vest, S** 
 | Name           | ProductModel  |
 |----------------|---------------|
 | Classic Vest, S| Classic Vest  |
+
+## Disambiguation Requests
+
+If the LLM is unable to understand or answer the question asked, it can ask the user follow up questions with a DisambiguationRequest. In cases where multiple columns may be the correct one, or that there user may be referring to several different filter values, the LLM can produce a series of options for the end user to select from.
 
 ## Data Dictionary
 

@@ -163,8 +163,7 @@ The system produces standardized JSON output through the Answer and Sources Agen
   "sources": [
     {
       "sql_query": "The SQL query used",
-      "sql_rows": ["Array of result rows"],
-      "markdown_table": "Formatted markdown table of results"
+      "sql_rows": ["Array of result rows"]
     }
   ]
 }
