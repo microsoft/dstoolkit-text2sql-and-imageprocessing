@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-from pydantic import BaseModel, RootModel, Field, model_validator
+from pydantic import BaseModel, RootModel, Field, model_validator, ConfigDict
 from enum import StrEnum
 
 from typing import Literal
@@ -20,7 +20,11 @@ class PayloadType(StrEnum):
     USER_INPUT = "user_input"
 
 
-class PayloadBase(BaseModel):
+class InteractionPayloadBase(BaseModel):
+    model_config = ConfigDict(allow_population_by_field_name=True, extra="ignore")
+
+
+class PayloadBase(InteractionPayloadBase):
     prompt_tokens: int | None = Field(
         None, description="Number of tokens in the prompt", alias="promptTokens"
     )
@@ -38,9 +42,9 @@ class PayloadBase(BaseModel):
     payload_source: PayloadSource = Field(..., alias="payloadSource")
 
 
-class DismabiguationRequestsPayload(PayloadBase):
-    class Body(BaseModel):
-        class DismabiguationRequest(BaseModel):
+class DismabiguationRequestsPayload(InteractionPayloadBase):
+    class Body(InteractionPayloadBase):
+        class DismabiguationRequest(InteractionPayloadBase):
             agent_question: str | None = Field(..., alias="agentQuestion")
             user_choices: list[str] | None = Field(default=None, alias="userChoices")
 
@@ -62,9 +66,9 @@ class DismabiguationRequestsPayload(PayloadBase):
         self.body = self.Body(**kwargs)
 
 
-class AnswerWithSourcesPayload(PayloadBase):
-    class Body(BaseModel):
-        class Source(BaseModel):
+class AnswerWithSourcesPayload(InteractionPayloadBase):
+    class Body(InteractionPayloadBase):
+        class Source(InteractionPayloadBase):
             sql_query: str = Field(alias="sqlQuery")
             sql_rows: list[dict] = Field(default_factory=list, alias="sqlRows")
 
@@ -88,8 +92,8 @@ class AnswerWithSourcesPayload(PayloadBase):
         self.body = self.Body(**kwargs)
 
 
-class ProcessingUpdatePayload(PayloadBase):
-    class Body(BaseModel):
+class ProcessingUpdatePayload(InteractionPayloadBase):
+    class Body(InteractionPayloadBase):
         title: str | None = "Processing..."
         message: str | None = "Processing..."
 
@@ -107,8 +111,8 @@ class ProcessingUpdatePayload(PayloadBase):
         self.body = self.Body(**kwargs)
 
 
-class UserInputPayload(PayloadBase):
-    class Body(BaseModel):
+class UserInputPayload(InteractionPayloadBase):
+    class Body(InteractionPayloadBase):
         user_message: str = Field(..., alias="userMessage")
         injected_parameters: dict = Field(
             default_factory=dict, alias="injectedParameters"
