@@ -16,13 +16,9 @@ It is intended that the plugins and skills provided in this repository, are adap
 
 The above components have been successfully used on production RAG projects to increase the quality of responses.
 
-_The code provided in this repo is a sample of the implementation and should be adjusted before being used in production._
-
-## High Level Implementation
-
-The following diagram shows a workflow for how the Text2SQL and AI Search plugin would be incorporated into a RAG application. Using the plugins available, alongside the Function Calling capabilities of LLMs, the LLM can do Chain of Thought reasoning to determine the steps needed to answer the question. This allows the LLM to recognise intent and therefore pick appropriate data sources based on the intent of the question, or a combination of both.
-
-![High level workflow for a plugin driven RAG application](./images/Plugin%20Based%20RAG%20Flow.png "High Level Workflow")
+> [!WARNING]
+>
+> - The code provided in this repo is a accelerator of the implementation and should be review / adjusted before being used in production.
 
 ## Contributing
 
