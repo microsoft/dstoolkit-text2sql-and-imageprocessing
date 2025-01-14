@@ -322,8 +322,10 @@ class AISearch(ABC):
 
         return semantic_text_chunker_skill
 
-    def get_adi_skill(self, chunk_by_page=False) -> WebApiSkill:
-        """Get the custom skill for adi.
+    def get_layout_analysis_skill(
+        self, chunk_by_page=False, extract_figures=True
+    ) -> WebApiSkill:
+        """Get the custom skill for layout analysis.
 
         Args:
         -----
@@ -343,25 +345,24 @@ class AISearch(ABC):
 
         if chunk_by_page:
             output = [
-                OutputFieldMappingEntry(name="extracted_content", target_name="chunks")
+                OutputFieldMappingEntry(name="layout", target_name="page_wise_layout")
             ]
         else:
-            output = [
-                OutputFieldMappingEntry(
-                    name="extracted_content", target_name="extracted_content"
-                )
-            ]
+            output = [OutputFieldMappingEntry(name="layout", target_name="layout")]
 
-        adi_skill = WebApiSkill(
-            name="ADI Skill",
+        layout_analysis_skill = WebApiSkill(
+            name="Layout Analysis Skill",
             description="Skill to generate ADI",
             context="/document",
-            uri=self.environment.get_custom_skill_function_url("adi"),
+            uri=self.environment.get_custom_skill_function_url("layout_analysis"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
-            http_headers={"chunk_by_page": chunk_by_page},
+            http_headers={
+                "chunk_by_page": chunk_by_page,
+                "extract_figures": extract_figures,
+            },
             inputs=[
                 InputFieldMappingEntry(
                     name="source", source="/document/metadata_storage_path"
@@ -371,14 +372,114 @@ class AISearch(ABC):
         )
 
         if self.environment.identity_type != IdentityType.KEY:
-            adi_skill.auth_identity = (
+            layout_analysis_skill.auth_identity = (
                 self.environment.function_app_app_registration_resource_id
             )
 
         if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            adi_skill.auth_identity = self.environment.ai_search_user_assigned_identity
+            layout_analysis_skill.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
 
-        return adi_skill
+        return layout_analysis_skill
+
+    def get_figure_analysis_skill(self, figure_source) -> WebApiSkill:
+        """Get the custom skill for figure analysis.
+
+        Args:
+        -----
+            chunk_by_page (bool, optional): Whether to chunk by page. Defaults to False.
+
+        Returns:
+        --------
+            WebApiSkill: The custom skill for adi"""
+
+        if self.test:
+            batch_size = 1
+            degree_of_parallelism = 4
+        else:
+            # Depending on your GPT Token limit, you may need to adjust the batch size and degree of parallelism
+            batch_size = 1
+            degree_of_parallelism = 8
+
+        output = [
+            OutputFieldMappingEntry(name="updated_figure", target_name="updated_figure")
+        ]
+
+        figure_analysis_skill = WebApiSkill(
+            name="Figure Analysis Skill",
+            description="Skill to generate figure analysis",
+            context=figure_source,
+            uri=self.environment.get_custom_skill_function_url("figure_analysis"),
+            timeout="PT230S",
+            batch_size=batch_size,
+            degree_of_parallelism=degree_of_parallelism,
+            http_method="POST",
+            inputs=[InputFieldMappingEntry(name="figure", source=figure_source)],
+            outputs=output,
+        )
+
+        if self.environment.identity_type != IdentityType.KEY:
+            figure_analysis_skill.auth_identity = (
+                self.environment.function_app_app_registration_resource_id
+            )
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            figure_analysis_skill.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
+
+        return figure_analysis_skill
+
+    def get_layout_and_figure_merger_skill(self, figure_source) -> WebApiSkill:
+        """Get the custom skill for layout and figure merger.
+
+        Args:
+        -----
+            chunk_by_page (bool, optional): Whether to chunk by page. Defaults to False.
+
+        Returns:
+        --------
+            WebApiSkill: The custom skill for adi"""
+
+        if self.test:
+            batch_size = 1
+            degree_of_parallelism = 4
+        else:
+            # Depending on your GPT Token limit, you may need to adjust the batch size and degree of parallelism
+            batch_size = 1
+            degree_of_parallelism = 8
+
+        output = [
+            OutputFieldMappingEntry(name="updated_figure", target_name="updated_figure")
+        ]
+
+        figure_analysis_skill = WebApiSkill(
+            name="Layout and Figure Merger Skill",
+            description="Skill to merge layout and figure analysis",
+            context=figure_source,
+            uri=self.environment.get_custom_skill_function_url(
+                "layout_and_figure_merger"
+            ),
+            timeout="PT230S",
+            batch_size=batch_size,
+            degree_of_parallelism=degree_of_parallelism,
+            http_method="POST",
+            inputs=[InputFieldMappingEntry(name="figure", source=figure_source)],
+            outputs=output,
+        )
+
+        if self.environment.identity_type != IdentityType.KEY:
+            figure_analysis_skill.auth_identity = (
+                self.environment.function_app_app_registration_resource_id
+            )
+
+        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
+            figure_analysis_skill.auth_identity = (
+                self.environment.ai_search_user_assigned_identity
+            )
+
+        return figure_analysis_skill
 
     def get_vector_skill(
         self, context, source, target_name="vector"
@@ -415,56 +516,6 @@ class AISearch(ABC):
             )
 
         return vector_skill
-
-    def get_key_phrase_extraction_skill(self, context, source) -> WebApiSkill:
-        """Get the key phrase extraction skill.
-
-        Args:
-        -----
-            context (str): The context of the skill
-            source (str): The source of the skill
-
-        Returns:
-        --------
-            WebApiSkill: The key phrase extraction skill"""
-
-        if self.test:
-            batch_size = 4
-            degree_of_parallelism = 4
-        else:
-            batch_size = 16
-            degree_of_parallelism = 16
-
-        key_phrase_extraction_skill_inputs = [
-            InputFieldMappingEntry(name="text", source=source),
-        ]
-        key_phrase_extraction__skill_outputs = [
-            OutputFieldMappingEntry(name="key_phrases", target_name="keywords")
-        ]
-        key_phrase_extraction_skill = WebApiSkill(
-            name="Key phrase extraction API",
-            description="Skill to extract keyphrases",
-            context=context,
-            uri=self.environment.get_custom_skill_function_url("key_phrase_extraction"),
-            timeout="PT230S",
-            batch_size=batch_size,
-            degree_of_parallelism=degree_of_parallelism,
-            http_method="POST",
-            inputs=key_phrase_extraction_skill_inputs,
-            outputs=key_phrase_extraction__skill_outputs,
-        )
-
-        if self.environment.identity_type != IdentityType.KEY:
-            key_phrase_extraction_skill.auth_identity = (
-                self.environment.function_app_app_registration_resource_id
-            )
-
-        if self.environment.identity_type == IdentityType.USER_ASSIGNED:
-            key_phrase_extraction_skill.auth_identity = (
-                self.environment.ai_search_user_assigned_identity
-            )
-
-        return key_phrase_extraction_skill
 
     def get_vector_search(self) -> VectorSearch:
         """Get the vector search configuration for compass.

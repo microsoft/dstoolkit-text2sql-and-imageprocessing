@@ -247,7 +247,7 @@ class LayoutAnalysis:
                         )
                     )
 
-                    image_blob = f"{self.blob}/{figure.id}.png"
+                    blob = f"{self.blob}/{figure.id}.png"
 
                     caption = (
                         figure.caption.content if figure.caption is not None else None
@@ -257,7 +257,7 @@ class LayoutAnalysis:
                     uri = "{}/{}/{}".format(
                         storage_account_helper.account_url,
                         self.images_container,
-                        image_blob,
+                        blob,
                     )
 
                     offset = figure.spans[0].offset - text_holder.page_offsets
@@ -265,7 +265,7 @@ class LayoutAnalysis:
                     image_processing_data = FigureHolder(
                         figure_id=figure.id,
                         container=self.images_container,
-                        image_blob=image_blob,
+                        blob=blob,
                         caption=caption,
                         offset=offset,
                         length=figure.spans[0].length,
@@ -293,7 +293,7 @@ class LayoutAnalysis:
             figure_upload_tasks.append(
                 storage_account_helper.upload_blob(
                     figure_processing_data.container,
-                    figure_processing_data.image_blob,
+                    figure_processing_data.blob,
                     image_data,
                     "image/png",
                 )

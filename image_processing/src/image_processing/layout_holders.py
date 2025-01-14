@@ -9,16 +9,16 @@ class FigureHolder(BaseModel):
 
     """A class to hold the figure extracted from the document."""
 
-    figure_id: str = Field(alias="FigureId")
-    container: str = Field(default="Container")
-    image_blob: str = Field(default="ImageBlob")
-    caption: Optional[str] = Field(default=None, alias="Caption")
-    offset: int = Field(alias="Offset")
-    length: int = Field(alias="Length")
-    page_number: Optional[int] = Field(default=None, alias="PageNumber")
-    uri: str = Field(alias="Uri")
-    description: Optional[str] = Field(default="", alias="Description")
-    data: Optional[str] = Field(default=None, alias="Data")
+    figure_id: str
+    container: str = Field(exclude=True)
+    blob: str = Field(exclude=True)
+    caption: Optional[str] = Field(default=None)
+    offset: int
+    length: int
+    page_number: Optional[int] = Field(default=None)
+    uri: str
+    description: Optional[str] = Field(default="")
+    data: Optional[str] = Field(default=None)
 
     @property
     def markdown(self) -> str:

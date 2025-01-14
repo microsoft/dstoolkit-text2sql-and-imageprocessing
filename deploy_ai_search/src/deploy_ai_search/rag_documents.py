@@ -98,7 +98,7 @@ class RagDocumentsAISearch(AISearch):
                 facetable=True,
             ),
             ComplexField(
-                name="Figures",
+                name="ChunkFigures",
                 collection=True,
                 fields=[
                     SearchableField(
@@ -108,28 +108,8 @@ class RagDocumentsAISearch(AISearch):
                         searchable=False,
                     ),
                     SimpleField(
-                        name="Container",
-                        type=SearchFieldDataType.String,
-                        filterable=True,
-                    ),
-                    SimpleField(
-                        name="ImageBlob",
-                        type=SearchFieldDataType.String,
-                        filterable=True,
-                    ),
-                    SimpleField(
                         name="Caption",
                         type=SearchFieldDataType.String,
-                        filterable=True,
-                    ),
-                    SimpleField(
-                        name="Offset",
-                        type=SearchFieldDataType.Int64,
-                        filterable=True,
-                    ),
-                    SimpleField(
-                        name="Length",
-                        type=SearchFieldDataType.Int64,
                         filterable=True,
                     ),
                     SimpleField(
@@ -258,16 +238,7 @@ class RagDocumentsAISearch(AISearch):
             ),
             InputFieldMappingEntry(
                 name="Figures",
-                source_context="/document/chunks/*/figures/*",
-                inputs=[
-                    InputFieldMappingEntry(
-                        name="FigureId", source="/document/chunks/*/figures/*/figure_id"
-                    ),
-                    InputFieldMappingEntry(
-                        name="FigureUri",
-                        source="/document/chunks/*/figures/*/figure_uri",
-                    ),
-                ],
+                source_context="/document/chunks/*/chunk_figures/*",
             ),
             InputFieldMappingEntry(
                 name="DateLastModified", source="/document/DateLastModified"
