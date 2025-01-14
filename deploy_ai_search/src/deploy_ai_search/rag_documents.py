@@ -107,11 +107,50 @@ class RagDocumentsAISearch(AISearch):
                         collection=True,
                         searchable=False,
                     ),
-                    SearchableField(
-                        name="FigureUri",
+                    SimpleField(
+                        name="Container",
                         type=SearchFieldDataType.String,
-                        collection=True,
-                        searchable=False,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="ImageBlob",
+                        type=SearchFieldDataType.String,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="Caption",
+                        type=SearchFieldDataType.String,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="Offset",
+                        type=SearchFieldDataType.Int64,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="Length",
+                        type=SearchFieldDataType.Int64,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="PageNumber",
+                        type=SearchFieldDataType.Int64,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="Uri",
+                        type=SearchFieldDataType.String,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="Description",
+                        type=SearchFieldDataType.String,
+                        filterable=True,
+                    ),
+                    SimpleField(
+                        name="Data",
+                        type=SearchFieldDataType.String,
+                        filterable=True,
                     ),
                 ],
             ),
