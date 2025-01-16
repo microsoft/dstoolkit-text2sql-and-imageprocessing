@@ -47,22 +47,15 @@ repos:
 
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.5.5
+    rev: 0.5.20
     hooks:
       # Update the uv lockfile
       - id: uv-lock
-
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    # uv version.
-    rev: 0.5.8
-    hooks:
-      - id: uv-export
-        args: [--all-extras, --directory, image_processing]
 
   - repo: local
     hooks:
       - id: compile-image-processing-requirements
         name: compile-image-processing-requirements
         language: system
-        entry: bash -c 'cd image_processing && exec uv export --all-extras'
+        entry: bash -c 'cd image_processing && exec uv export --all-extras > requirements.txt'
         pass_filenames: false
