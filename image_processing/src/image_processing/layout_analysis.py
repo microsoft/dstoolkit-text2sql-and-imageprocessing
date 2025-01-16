@@ -1,6 +1,5 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-# This code originates from: https://github.com/microsoft/dstoolkit-text2sql-and-imageprocessing
 
 import logging
 import os
@@ -32,7 +31,7 @@ class StorageAccountHelper:
     @property
     def account_url(self) -> str:
         """Get the account URL of the Azure Blob Storage."""
-        storage_account_name = os.environ.get("StorageAccount__Name")
+        storage_account_name = os.environ["StorageAccount__Name"]
         return f"https://{storage_account_name}.blob.core.windows.net"
 
     async def get_client(self):
@@ -42,7 +41,7 @@ class StorageAccountHelper:
         return BlobServiceClient(account_url=self.account_url, credential=credential)
 
     async def add_metadata_to_blob(
-        self, source: str, container: str, metadata: dict
+        self, source: str, container: str, metadata: dict, upsert: bool = False
     ) -> None:
         """Add metadata to the blob.
 
@@ -51,14 +50,24 @@ class StorageAccountHelper:
             container (str): The container of the blob.
             metadata (dict): The metadata to add to the blob."""
 
-        blob = urllib.parse.unquote_plus(source)
+        logging.info("Adding Metadata")
+
+        blob = urllib.parse.unquote(source, encoding="utf-8")
 
         blob_service_client = await self.get_client()
         async with blob_service_client:
             async with blob_service_client.get_blob_client(
                 container=container, blob=blob
             ) as blob_client:
-                await blob_client.set_blob_metadata(metadata)
+                blob_properties = await blob_client.get_blob_properties()
+
+                if upsert:
+                    updated_metadata = blob_properties.metadata
+                    updated_metadata.update(metadata)
+                else:
+                    updated_metadata = metadata
+
+                await blob_client.set_blob_metadata(updated_metadata)
 
         logging.info("Metadata Added")
 
@@ -103,7 +112,7 @@ class StorageAccountHelper:
             container (str): The container of the blob.
             target_file_name (str): The target file name."""
 
-        blob = urllib.parse.unquote_plus(source)
+        blob = urllib.parse.unquote(source)
 
         blob_service_client = await self.get_client()
         async with blob_service_client:
@@ -254,11 +263,9 @@ class LayoutAnalysis:
                     )
 
                     logging.info(f"Figure Caption: {caption}")
-                    uri = "{}/{}/{}".format(
-                        storage_account_helper.account_url,
-                        self.images_container,
-                        blob,
-                    )
+
+                    uri = f"""{
+                        storage_account_helper.account_url}/{self.images_container}/{blob}"""
 
                     offset = figure.spans[0].offset - text_holder.page_offsets
 
@@ -414,7 +421,7 @@ class LayoutAnalysis:
             logging.error(f"Failed to download the blob: {e}")
             return {
                 "recordId": self.record_id,
-                "data": {},
+                "data": None,
                 "errors": [
                     {
                         "message": f"Failed to download the blob. Check the source and try again. {e}",
@@ -430,9 +437,12 @@ class LayoutAnalysis:
             logging.error(
                 "Failed to analyse %s with Azure Document Intelligence.", self.blob
             )
+            await storage_account_helper.add_metadata_to_blob(
+                self.blob, self.container, {"AzureSearch_Skip": "true"}, upsert=True
+            )
             return {
                 "recordId": self.record_id,
-                "data": {},
+                "data": None,
                 "errors": [
                     {
                         "message": f"Failed to analyze the document with Azure Document Intelligence. Check the logs and try again. {e}",
@@ -484,7 +494,7 @@ class LayoutAnalysis:
             logging.error(f"Failed to process the extracted content: {e}")
             return {
                 "recordId": self.record_id,
-                "data": {},
+                "data": None,
                 "errors": [
                     {
                         "message": f"Failed to process the extracted content. Check the logs and try again. {e}",
@@ -536,7 +546,7 @@ async def process_layout_analysis(
     except KeyError:
         return {
             "recordId": record["recordId"],
-            "data": {},
+            "data": None,
             "errors": [
                 {
                     "message": "Failed to extract data with ADI. Pass a valid source in the request body.",

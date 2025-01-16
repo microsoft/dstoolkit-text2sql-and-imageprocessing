@@ -1,6 +1,6 @@
 # AI Search Indexing with Azure Document Intelligence
 
-This portion of the repo contains code for linking Azure Document Intelligence with AI Search to process complex documents with charts and images, and uses multi-modal models (gpt4o) to interpret and understand these.
+This portion of the repo contains code for linking Azure Document Intelligence with AI Search to process complex documents with charts and images, and uses multi-modal models (gpt-4o-mini) to interpret and understand these.
 
 The implementation in Python, although it can easily be adapted for C# or another language. The code is designed to run in an Azure Function App inside the tenant.
 
@@ -22,7 +22,7 @@ Instead of using OCR to extract the contents of the document, ADIv4 is used to a
 
 Once the Markdown is obtained, several steps are carried out:
 
-1. **Extraction of images / charts**. The figures identified are extracted from the original document and passed to a multi-modal model (gpt4o in this case) for analysis. We obtain a description and summary of the chart / image to infer the meaning of the figure. This allows us to index and perform RAG analysis the information that is visually obtainable from a chart, without it being explicitly mentioned in the text surrounding. The information is added back into the original chart.
+1. **Extraction of images / charts**. The figures identified are extracted from the original document and passed to a multi-modal model (gpt-4o-mini in this case) for analysis. We obtain a description and summary of the chart / image to infer the meaning of the figure. This allows us to index and perform RAG analysis the information that is visually obtainable from a chart, without it being explicitly mentioned in the text surrounding. The information is added back into the original chart.
 
 2. **Chunking**. The obtained content is chunked accordingly depending on the chunking strategy. This function app supports two chunking methods, **page wise** and **semantic chunking**. The page wise chunking is performed natively by Azure Document Intelligence. For a Semantic Chunking, we include a customer chunker that splits the text with the following strategy:
 
@@ -82,7 +82,7 @@ You can then test the chunking by sending a AI Search JSON format to the `/seman
 ### Deployment Steps
 
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication. Use this template to update the environment variables in the function app.
-2. Make sure the infra and required identities are setup. This setup requires Azure Document Intelligence and GPT4o.
+2. Make sure the infra and required identities are setup. This setup requires Azure Document Intelligence and gpt-4o-mini.
 3. [Deploy your function app](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies?tabs=windows) and test with a HTTP request.
 
 ### Code Files
