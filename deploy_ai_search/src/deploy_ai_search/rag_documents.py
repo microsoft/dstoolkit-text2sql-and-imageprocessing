@@ -88,9 +88,6 @@ class RagDocumentsAISearch(AISearch):
                 vector_search_profile_name=self.vector_search_profile_name,
             ),
             SearchableField(
-                name="Keywords", type=SearchFieldDataType.String, collection=True
-            ),
-            SearchableField(
                 name="SourceUri",
                 type=SearchFieldDataType.String,
                 sortable=True,
@@ -129,7 +126,7 @@ class RagDocumentsAISearch(AISearch):
                     SimpleField(
                         name="Data",
                         type=SearchFieldDataType.String,
-                        filterable=True,
+                        filterable=False,
                     ),
                 ],
             ),
@@ -167,7 +164,6 @@ class RagDocumentsAISearch(AISearch):
                 title_field=SemanticField(field_name="Title"),
                 content_fields=[SemanticField(field_name="Chunk")],
                 keywords_fields=[
-                    SemanticField(field_name="Keywords"),
                     SemanticField(field_name="Sections"),
                 ],
             ),
@@ -193,10 +189,6 @@ class RagDocumentsAISearch(AISearch):
             "/document/chunks/*", "/document/chunks/*/content"
         )
 
-        key_phrase_extraction_skill = self.get_key_phrase_extraction_skill(
-            "/document/chunks/*", "/document/chunks/*/cleaned_chunk"
-        )
-
         embedding_skill = self.get_vector_skill(
             "/document/chunks/*", "/document/chunks/*/cleaned_chunk"
         )
@@ -205,7 +197,6 @@ class RagDocumentsAISearch(AISearch):
             skills = [
                 adi_skill,
                 mark_up_cleaner_skill,
-                key_phrase_extraction_skill,
                 embedding_skill,
             ]
         else:
@@ -213,7 +204,6 @@ class RagDocumentsAISearch(AISearch):
                 adi_skill,
                 text_split_skill,
                 mark_up_cleaner_skill,
-                key_phrase_extraction_skill,
                 embedding_skill,
             ]
 
@@ -229,9 +219,6 @@ class RagDocumentsAISearch(AISearch):
             ),
             InputFieldMappingEntry(name="Title", source="/document/Title"),
             InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
-            InputFieldMappingEntry(
-                name="Keywords", source="/document/chunks/*/keywords"
-            ),
             InputFieldMappingEntry(
                 name="Sections", source="/document/chunks/*/sections"
             ),
