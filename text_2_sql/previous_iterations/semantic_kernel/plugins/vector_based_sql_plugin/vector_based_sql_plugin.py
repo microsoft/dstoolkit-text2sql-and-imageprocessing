@@ -137,7 +137,7 @@ class VectorBasedSQLPlugin:
 
         return schemas
 
-    async def fetch_queries_from_cache(self, question: str) -> str:
+    async def fetch_sql_queries_with_schemas_from_cache(self, question: str) -> str:
         """Fetch the queries from the cache based on the question.
 
         Args:
@@ -151,7 +151,7 @@ class VectorBasedSQLPlugin:
         if not self.use_query_cache:
             return None
 
-        cached_schemas = await self.ai_search.run_ai_search_query(
+        sql_queries_with_schemas = await self.ai_search.run_ai_search_query(
             question,
             ["QuestionEmbedding"],
             ["Question", "SqlQueryDecomposition"],
@@ -164,11 +164,11 @@ class VectorBasedSQLPlugin:
             minimum_score=1.5,
         )
 
-        if len(cached_schemas) == 0:
+        if len(sql_queries_with_schemas) == 0:
             return None
         else:
             database = os.environ["Text2Sql__DatabaseName"]
-            for entry in cached_schemas["SqlQueryDecomposition"]:
+            for entry in sql_queries_with_schemas["SqlQueryDecomposition"]:
                 for schema in entry["Schemas"]:
                     entity = schema["Entity"]
                     schema["SelectFromEntity"] = f"{database}.{entity}"
@@ -176,14 +176,16 @@ class VectorBasedSQLPlugin:
                     self.schemas[entity] = schema
 
         pre_fetched_results_string = ""
-        if self.pre_run_query_cache and len(cached_schemas) > 0:
-            logging.info("Cached schemas: %s", cached_schemas)
+        if self.pre_run_query_cache and len(sql_queries_with_schemas) > 0:
+            logging.info(
+                "Cached SQL Queries with Schemas: %s", sql_queries_with_schemas
+            )
 
             # check the score
-            if cached_schemas[0]["@search.reranker_score"] > 2.75:
+            if sql_queries_with_schemas[0]["@search.reranker_score"] > 2.75:
                 logging.info("Score is greater than 3")
 
-                sql_queries = cached_schemas[0]["SqlQueryDecomposition"]
+                sql_queries = sql_queries_with_schemas[0]["SqlQueryDecomposition"]
                 query_result_store = {}
 
                 query_tasks = []
@@ -208,7 +210,7 @@ class VectorBasedSQLPlugin:
                 return pre_fetched_results_string
 
         formatted_sql_cache_string = f"""[BEGIN CACHED QUERIES AND SCHEMAS]:\n{
-            json.dumps(cached_schemas, default=str)}[END CACHED QUERIES AND SCHEMAS]"""
+            json.dumps(sql_queries_with_schemas, default=str)}[END CACHED QUERIES AND SCHEMAS]"""
 
         return formatted_sql_cache_string
 
@@ -230,7 +232,9 @@ class VectorBasedSQLPlugin:
         self.set_mode()
 
         if self.use_query_cache:
-            query_cache_string = await self.fetch_queries_from_cache(question)
+            query_cache_string = await self.fetch_sql_queries_with_schemas_from_cache(
+                question
+            )
         else:
             query_cache_string = None
 

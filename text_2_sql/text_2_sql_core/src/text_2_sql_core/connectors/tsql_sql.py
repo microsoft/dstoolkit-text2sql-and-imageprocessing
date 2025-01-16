@@ -10,7 +10,7 @@ import json
 from text_2_sql_core.utils.database import DatabaseEngine, DatabaseEngineSpecificFields
 
 
-class TSQLSqlConnector(SqlConnector):
+class TsqlSqlConnector(SqlConnector):
     def __init__(self):
         super().__init__()
 
