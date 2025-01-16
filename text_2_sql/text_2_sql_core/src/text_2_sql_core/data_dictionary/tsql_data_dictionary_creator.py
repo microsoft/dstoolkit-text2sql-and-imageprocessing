@@ -7,10 +7,10 @@ from text_2_sql_core.data_dictionary.data_dictionary_creator import (
 import asyncio
 import os
 from text_2_sql_core.utils.database import DatabaseEngine
-from text_2_sql_core.connectors.tsql_sql import TSQLSqlConnector
+from text_2_sql_core.connectors.tsql_sql import TsqlSqlConnector
 
 
-class TSQLDataDictionaryCreator(DataDictionaryCreator):
+class TsqlDataDictionaryCreator(DataDictionaryCreator):
     def __init__(self, **kwargs):
         """A method to initialize the DataDictionaryCreator class.
 
@@ -25,7 +25,7 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
 
         self.database_engine = DatabaseEngine.TSQL
 
-        self.sql_connector = TSQLSqlConnector()
+        self.sql_connector = TsqlSqlConnector()
 
     """A class to extract data dictionary information from a SQL Server database."""
 
@@ -115,5 +115,5 @@ class TSQLDataDictionaryCreator(DataDictionaryCreator):
 
 
 if __name__ == "__main__":
-    data_dictionary_creator = TSQLDataDictionaryCreator()
+    data_dictionary_creator = TsqlDataDictionaryCreator()
     asyncio.run(data_dictionary_creator.create_data_dictionary())

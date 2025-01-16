@@ -83,11 +83,23 @@ def create(
             )
         elif engine == DatabaseEngine.TSQL:
             from text_2_sql_core.data_dictionary.tsql_data_dictionary_creator import (
-                TSQLDataDictionaryCreator,
+                TsqlDataDictionaryCreator,
             )
 
-            data_dictionary_creator = TSQLDataDictionaryCreator(
+            data_dictionary_creator = TsqlDataDictionaryCreator(
                 **kwargs,
+            )
+        elif engine == DatabaseEngine.POSTGRESQL:
+            from text_2_sql_core.data_dictionary.postgresql_data_dictionary_creator import (
+                PostgresqlDataDictionaryCreator,
+            )
+
+            data_dictionary_creator = PostgresqlDataDictionaryCreator(
+                **kwargs,
+            )
+        else:
+            raise NotImplementedError(
+                f"Data Dictionary Creator for {engine.value} is not implemented."
             )
     except ImportError:
         detailed_error = f"""Failed to import {
