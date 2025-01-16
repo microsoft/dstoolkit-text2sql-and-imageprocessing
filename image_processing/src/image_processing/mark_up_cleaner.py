@@ -3,10 +3,11 @@
 import logging
 import json
 import regex as re
+from layout_holders import FigureHolder
 
 
-class MarkDownCleaner:
-    def get_sections(self, text: str) -> list:
+class MarkUpCleaner:
+    def get_sections(self, text) -> list:
         """
         Returns the section details from the content.
 
@@ -21,14 +22,15 @@ class MarkDownCleaner:
         doc_metadata = re.findall(combined_pattern, text, re.DOTALL)
         return self.clean_sections(doc_metadata)
 
-    def clean_sections(self, sections: list) -> list:
+    def get_figure_ids(self, text: str) -> list:
         """
-        Cleans the sections by removing special characters and extra white spaces.
-        """
-        cleaned_sections = [re.sub(r"[=#]", "", match).strip() for match in sections]
-        return cleaned_sections
+        Get the FigureIds from the text.
 
-    def get_figures(self, text: str) -> list:
+        Args:
+            text: The input text.
+
+        Returns:
+            list: The list of FigureIds."""
         # Regex pattern to extract FigureIds
         pattern = r"FigureId='([^']+)'"
 
@@ -36,6 +38,13 @@ class MarkDownCleaner:
         figure_ids = re.findall(pattern, text)
 
         return figure_ids
+
+    def clean_sections(self, sections: list) -> list:
+        """
+        Cleans the sections by removing special characters and extra white spaces.
+        """
+        cleaned_sections = [re.sub(r"[=#]", "", match).strip() for match in sections]
+        return cleaned_sections
 
     def remove_markdown_tags(self, text: str, tag_patterns: dict) -> str:
         """
@@ -64,12 +73,15 @@ class MarkDownCleaner:
             logging.error(f"An error occurred in remove_markdown_tags: {e}")
         return text
 
-    def clean_text_and_extract_metadata(self, src_text: str) -> tuple[str, str]:
+    def clean_text_and_extract_metadata(
+        self, text: str, figures: list[FigureHolder]
+    ) -> tuple[str, str]:
         """This function performs following cleanup activities on the text, remove all unicode characters
         remove line spacing,remove stop words, normalize characters
 
         Args:
-            src_text (str): The text to cleanup.
+            text (str): The input text to clean.
+            figures (list): The list of figures.
 
         Returns:
             str: The clean text."""
@@ -77,13 +89,21 @@ class MarkDownCleaner:
         return_record = {}
 
         try:
-            logging.info(f"Input text: {src_text}")
-            if len(src_text) == 0:
+            logging.info(f"Input text: {text}")
+            if len(text) == 0:
                 logging.error("Input text is empty")
                 raise ValueError("Input text is empty")
 
-            return_record["marked_up_chunk"] = src_text
-            return_record["sections"] = self.get_sections(src_text)
+            return_record["marked_up_chunk"] = text
+
+            figure_ids = self.get_figure_ids(text)
+
+            return_record["sections"] = self.get_sections(text)
+            return_record["figures"] = [
+                figure.model_dump(by_alias=True)
+                for figure in figures
+                if figure.figure_id in figure_ids
+            ]
 
             logging.info(f"Sections: {return_record['sections']}")
 
@@ -95,7 +115,7 @@ class MarkDownCleaner:
                 "figcaption": r"<figcaption>(.*?)</figcaption>",
                 "header": r"^\s*(#{1,6})\s*(.*?)\s*$",
             }
-            cleaned_text = self.remove_markdown_tags(src_text, tag_patterns)
+            cleaned_text = self.remove_markdown_tags(text, tag_patterns)
 
             logging.info(f"Removed markdown tags: {cleaned_text}")
 
@@ -114,7 +134,7 @@ class MarkDownCleaner:
             return ""
         return return_record
 
-    async def process_mark_up_cleaner(self, record: dict) -> dict:
+    async def clean(self, record: dict) -> dict:
         """Cleanup the data using standard python libraries.
 
         Args:
@@ -135,15 +155,17 @@ class MarkDownCleaner:
                 "warnings": None,
             }
 
+            figures = [FigureHolder(**figure) for figure in record["data"]["figures"]]
+
             cleaned_record["data"] = self.clean_text_and_extract_metadata(
-                record["data"]["chunk"]
+                record["data"]["chunk"], figures
             )
 
         except Exception as e:
             logging.error("string cleanup Error: %s", e)
             return {
                 "recordId": record["recordId"],
-                "data": {},
+                "data": None,
                 "errors": [
                     {
                         "message": "Failed to cleanup data. Check function app logs for more details of exact failure."
