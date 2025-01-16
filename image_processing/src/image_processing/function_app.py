@@ -8,7 +8,7 @@ import asyncio
 from figure_analysis import FigureAnalysis
 from layout_and_figure_merger import LayoutAndFigureMerger
 from layout_analysis import process_layout_analysis
-from image_processing.mark_up_cleaner import process_mark_up_cleaner
+from image_processing.mark_up_cleaner import MarkUpCleaner
 from semantic_text_chunker import process_semantic_text_chunker, SemanticTextChunker
 
 logging.basicConfig(level=logging.DEBUG)
@@ -136,8 +136,10 @@ async def mark_up_cleaner(req: func.HttpRequest) -> func.HttpResponse:
 
         record_tasks = []
 
+        mark_up_cleaner = MarkUpCleaner()
+
         for value in values:
-            record_tasks.append(asyncio.create_task(process_mark_up_cleaner(value)))
+            record_tasks.append(asyncio.create_task(mark_up_cleaner.clean(value)))
 
         results = await asyncio.gather(*record_tasks)
         logging.debug("Results: %s", results)

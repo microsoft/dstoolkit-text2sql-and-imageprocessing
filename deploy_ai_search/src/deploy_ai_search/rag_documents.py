@@ -101,11 +101,10 @@ class RagDocumentsAISearch(AISearch):
                 name="ChunkFigures",
                 collection=True,
                 fields=[
-                    SearchableField(
+                    SimpleField(
                         name="FigureId",
                         type=SearchFieldDataType.String,
-                        collection=True,
-                        searchable=False,
+                        filterable=True,
                     ),
                     SimpleField(
                         name="Caption",

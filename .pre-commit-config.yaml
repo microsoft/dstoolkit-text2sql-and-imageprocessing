@@ -57,6 +57,6 @@ repos:
       - id: compile-image-processing-requirements
         name: compile-image-processing-requirements
         language: system
-        entry: bash -c 'cd image_processing && exec uv pip compile'
+        entry: bash -c 'cd image_processing && exec uv pip compile --all-extras pyproject.toml'
         pass_filenames: false
         files: ^image_processing/
