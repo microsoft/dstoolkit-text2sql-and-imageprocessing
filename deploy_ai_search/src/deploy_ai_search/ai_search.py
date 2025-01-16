@@ -253,7 +253,7 @@ class AISearch(ABC):
 
         return mark_up_cleaner_skill
 
-    def get_text_split_skill(
+    def get_semantic_chunker_skill(
         self,
         context,
         source,
@@ -292,7 +292,7 @@ class AISearch(ABC):
         ]
 
         semantic_text_chunker_skill = WebApiSkill(
-            name="Mark Up Cleaner Skill",
+            name="Semantic Chunker Skill",
             description="Skill to clean the data before sending to embedding",
             context=context,
             uri=self.environment.get_custom_skill_function_url("semantic_text_chunker"),

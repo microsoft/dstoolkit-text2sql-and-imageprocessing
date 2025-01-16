@@ -179,9 +179,13 @@ class RagDocumentsAISearch(AISearch):
         Returns:
             list: The skillsets  used in the indexer"""
 
-        adi_skill = self.get_adi_skill(self.enable_page_by_chunking)
+        layout_skill = self.get_layout_analysis_skill(self.enable_page_by_chunking)
 
-        text_split_skill = self.get_text_split_skill(
+        figure_skill = self.get_figure_analysis_skill()
+
+        merger_skill = self.get_layout_and_figure_merger_skill()
+
+        text_split_skill = self.get_semantic_chunker_skill(
             "/document", "/document/extracted_content/content"
         )
 
@@ -195,13 +199,17 @@ class RagDocumentsAISearch(AISearch):
 
         if self.enable_page_by_chunking:
             skills = [
-                adi_skill,
+                layout_skill,
+                figure_skill,
+                merger_skill,
                 mark_up_cleaner_skill,
                 embedding_skill,
             ]
         else:
             skills = [
-                adi_skill,
+                layout_skill,
+                figure_skill,
+                merger_skill,
                 text_split_skill,
                 mark_up_cleaner_skill,
                 embedding_skill,

@@ -210,7 +210,7 @@ class AISearchEnvironment:
         """
         This function returns function app data cleanup function name
         """
-        return os.environ.get("FunctionApp__PreEmbeddingCleaner__FunctionName")
+        return os.environ.get("FunctionApp__MarkUpCleaner__FunctionName")
 
     @property
     def function_app_semantic_text_chunker_route(self) -> str:
@@ -220,18 +220,25 @@ class AISearchEnvironment:
         return os.environ.get("FunctionApp__SemanticTextChunker__FunctionName")
 
     @property
-    def function_app_adi_route(self) -> str:
+    def function_app_layout_analysis_route(self) -> str:
         """
         This function returns function app adi name
         """
-        return os.environ.get("FunctionApp__ADI__FunctionName")
+        return os.environ.get("FunctionApp__LayoutAnalysis__FunctionName")
 
     @property
-    def function_app_key_phrase_extractor_route(self) -> str:
+    def function_app_figure_analysis_route(self) -> str:
         """
-        This function returns function app keyphrase extractor name
+        This function returns function app figure analysis name
         """
-        return os.environ.get("FunctionApp__KeyPhraseExtractor__FunctionName")
+        return os.environ.get("FunctionApp__FigureAnalysis__FunctionName")
+
+    @property
+    def function_app_layout_and_figure_merger_route(self) -> str:
+        """
+        This function returns function app layout and figure merger name
+        """
+        return os.environ.get("FunctionApp__LayoutAndFigureMerger__FunctionName")
 
     @property
     def open_ai_embedding_dimensions(self) -> str:
@@ -260,10 +267,12 @@ class AISearchEnvironment:
         """
         if skill_type == "mark_up_cleaner":
             route = self.function_app_mark_up_cleaner_route
-        elif skill_type == "adi":
-            route = self.function_app_adi_route
-        elif skill_type == "key_phrase_extraction":
-            route = self.function_app_key_phrase_extractor_route
+        elif skill_type == "layout_analysis":
+            route = self.function_app_layout_analysis_route
+        elif skill_type == "figure_analysis":
+            route = self.function_app_figure_analysis
+        elif skill_type == "layout_and_figure_merger":
+            route = self.function_app_layout_and_figure_merger
         elif skill_type == "semantic_text_chunker":
             route = self.function_app_semantic_text_chunker_route
         else:
