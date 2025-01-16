@@ -57,7 +57,7 @@ repos:
     rev: 0.5.8
     hooks:
       - id: uv-export
-        args: [--all-extras --directory, image_processing]
+        args: [--all-extras, --directory, image_processing]
 
   # - repo: local
   #   hooks:
