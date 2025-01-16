@@ -51,3 +51,12 @@ repos:
     hooks:
       # Update the uv lockfile
       - id: uv-lock
+
+  - repo: local
+    hooks:
+      - id: compile-image-processing-requirements
+        name: compile-image-processing-requirements
+        language: system
+        entry: bash -c 'cd image_processing && exec uv pip compile'
+        pass_filenames: false
+        files: ^image_processing/
