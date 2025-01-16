@@ -152,8 +152,14 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                         # Search for specific message types and add them to the final output object
                         if isinstance(parsed_message, dict):
                             # Check if the message contains pre-run results
-                            if ("contains_pre_run_results" in parsed_message) and (
-                                parsed_message["contains_pre_run_results"] is True
+                            if (
+                                "contains_cached_sql_queries_with_schemas_from_cache_database_results"
+                                in parsed_message
+                            ) and (
+                                parsed_message[
+                                    "contains_cached_sql_queries_with_schemas_from_cache_database_results"
+                                ]
+                                is True
                             ):
                                 logging.info("Contains pre-run results")
                                 for pre_run_sql_query, pre_run_result in parsed_message[

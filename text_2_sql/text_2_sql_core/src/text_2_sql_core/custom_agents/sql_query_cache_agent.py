@@ -13,26 +13,33 @@ class SqlQueryCacheAgentCustomAgent:
     ) -> dict:
         # Initialize results dictionary
         cached_results = {
-            "cached_questions_and_schemas": [],
-            "contains_pre_run_results": False,
+            "cached_sql_queries_with_schemas_from_cache": [],
+            "contains_cached_sql_queries_with_schemas_from_cache_database_results": False,
         }
 
         # Process each question sequentially
         for message in messages:
             # Fetch the queries from the cache based on the question
             logging.info(f"Fetching queries from cache for question: {message}")
-            cached_query = await self.sql_connector.fetch_queries_from_cache(
-                message, injected_parameters=injected_parameters
+            cached_query = (
+                await self.sql_connector.fetch_sql_queries_with_schemas_from_cache(
+                    message, injected_parameters=injected_parameters
+                )
             )
 
             # If any question has pre-run results, set the flag
-            if cached_query.get("contains_pre_run_results", False):
-                cached_results["contains_pre_run_results"] = True
+            if cached_query.get(
+                "contains_cached_sql_queries_with_schemas_from_cache_database_results",
+                False,
+            ):
+                cached_results[
+                    "contains_cached_sql_queries_with_schemas_from_cache_database_results"
+                ] = True
 
             # Add the cached results for this question
-            if cached_query.get("cached_questions_and_schemas"):
-                cached_results["cached_questions_and_schemas"].extend(
-                    cached_query["cached_questions_and_schemas"]
+            if cached_query.get("cached_sql_queries_with_schemas_from_cache"):
+                cached_results["cached_sql_queries_with_schemas_from_cache"].extend(
+                    cached_query["cached_sql_queries_with_schemas_from_cache"]
                 )
 
         logging.info(f"Final cached results: {cached_results}")
