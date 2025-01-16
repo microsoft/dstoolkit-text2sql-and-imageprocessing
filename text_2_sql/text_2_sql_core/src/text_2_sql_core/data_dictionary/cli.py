@@ -98,9 +98,10 @@ def create(
                 **kwargs,
             )
         else:
-            raise NotImplementedError(
-                f"Data Dictionary Creator for {engine.value} is not implemented."
-            )
+            rich_print("Text2SQL Data Dictionary Creator Failed ❌")
+            rich_print(f"Database Engine {engine.value} is not supported.")
+
+            raise typer.Exit(code=1)
     except ImportError:
         detailed_error = f"""Failed to import {
             engine.value} Data Dictionary Creator. Check you have installed the optional dependencies for this database engine."""
@@ -112,7 +113,6 @@ def create(
     try:
         asyncio.run(data_dictionary_creator.create_data_dictionary())
     except Exception as e:
-        raise e
         logging.error(e)
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 
