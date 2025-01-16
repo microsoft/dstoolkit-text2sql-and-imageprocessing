@@ -52,11 +52,18 @@ repos:
       # Update the uv lockfile
       - id: uv-lock
 
-  - repo: local
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.5.8
     hooks:
-      - id: compile-image-processing-requirements
-        name: compile-image-processing-requirements
-        language: system
-        entry: bash -c 'cd image_processing && exec uv pip compile --all-extras pyproject.toml'
-        pass_filenames: false
-        files: ^image_processing/
+      - id: uv-export
+        args: [--all-extras --directory, image_processing]
+
+  # - repo: local
+  #   hooks:
+  #     - id: compile-image-processing-requirements
+  #       name: compile-image-processing-requirements
+  #       language: system
+  #       entry: bash -c 'cd image_processing && exec uv pip compile --all-extras pyproject.toml'
+  #       pass_filenames: false
+  #       files: ^image_processing/
