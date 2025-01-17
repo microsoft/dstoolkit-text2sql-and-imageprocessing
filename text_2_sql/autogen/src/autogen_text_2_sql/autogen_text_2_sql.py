@@ -15,7 +15,6 @@ from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
 from autogen_agentchat.messages import TextMessage
 import json
 import os
-from datetime import datetime
 import re
 
 from text_2_sql_core.payloads.interaction_payloads import (
@@ -25,28 +24,33 @@ from text_2_sql_core.payloads.interaction_payloads import (
     ProcessingUpdatePayload,
     InteractionPayload,
     PayloadType,
+    DEFAULT_INJECTED_PARAMETERS,
 )
 from autogen_agentchat.base import TaskResult
 from typing import AsyncGenerator
 
 
 class AutoGenText2Sql:
-    def __init__(self, **kwargs: dict):
+    def __init__(self, **kwargs):
         self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
-        self.kwargs = kwargs
+
+        if "use_case" not in kwargs:
+            logging.warning(
+                "No use case provided. It is advised to provide a use case to help the LLM reason."
+            )
+
+        self.kwargs = {**DEFAULT_INJECTED_PARAMETERS, **kwargs}
 
     def get_all_agents(self):
         """Get all agents for the complete flow."""
-        # Get current datetime for the Query Rewrite Agent
-        current_datetime = datetime.now()
 
         self.user_message_rewrite_agent = LLMAgentCreator.create(
-            "user_message_rewrite_agent", current_datetime=current_datetime
+            "user_message_rewrite_agent", **self.kwargs
         )
 
         self.parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
 
-        self.answer_agent = LLMAgentCreator.create("answer_agent")
+        self.answer_agent = LLMAgentCreator.create("answer_agent", **self.kwargs)
 
         agents = [
             self.user_message_rewrite_agent,

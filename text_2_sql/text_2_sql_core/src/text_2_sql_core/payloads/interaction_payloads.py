@@ -7,6 +7,13 @@ from typing import Literal
 from datetime import datetime, timezone
 from uuid import uuid4
 
+DEFAULT_INJECTED_PARAMETERS = {
+    "date": datetime.now().strftime("%d/%m/%Y"),
+    "time": datetime.now().strftime("%H:%M:%S"),
+    "datetime": datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+    "unix_timestamp": int(datetime.now().timestamp()),
+}
+
 
 class PayloadSource(StrEnum):
     USER = "user"
@@ -123,12 +130,6 @@ class UserMessagePayload(InteractionPayloadBase):
 
         @model_validator(mode="before")
         def add_defaults(cls, values):
-            defaults = {
-                "date": datetime.now().strftime("%d/%m/%Y"),
-                "time": datetime.now().strftime("%H:%M:%S"),
-                "datetime": datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
-                "unix_timestamp": int(datetime.now().timestamp()),
-            }
             injected = values.get("injected_parameters", None)
 
             if injected is None:
@@ -137,7 +138,10 @@ class UserMessagePayload(InteractionPayloadBase):
                 injected_by_alias = injected
                 del values["injected_parameters"]
 
-            values["injectedParameters"] = {**defaults, **injected_by_alias}
+            values["injectedParameters"] = {
+                **DEFAULT_INJECTED_PARAMETERS,
+                **injected_by_alias,
+            }
             return values
 
     payload_type: Literal[PayloadType.USER_MESSAGE] = Field(

@@ -35,7 +35,7 @@ system_message: |
   <instructions>
       1. Question Filtering and Classification
         - Use the provided list of allowed_topics list to filter out malicious or unrelated queries, such as those in the disallowed_topics list.
-        - Ensure the question is relevant to the system's use case.
+        - Consider if the question is related to data analysis or possibility related {{ use_case }}. If you are not sure whether the question is related to the use case, do not filter it out as it may be.
         - If the question cannot be filtered, output an empty sub-message list in the JSON format. Followed by TERMINATE.
         - For non-database questions like greetings (e.g., "Hello", "What can you do?", "How are you?"), set "all_non_database_query" to true.
         - For questions about data (e.g., queries about records, counts, values, comparisons, or any questions that would require database access), set "all_non_database_query" to false.
