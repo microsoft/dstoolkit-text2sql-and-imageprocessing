@@ -4,7 +4,7 @@
 
 azure-functions
 grpcio==1.68.1
-semantic-kernel==1.9.0
+semantic-kernel==1.18.2
 text_2_sql_core @ file:../text_2_sql_core-0.1.0-py3-none-any.whl
 black==24.10.0
 ipykernel==6.29.5

@@ -1,25 +1,13 @@
+from services.semantic_service import SemanticService
 import azure.functions as func
-import logging
-
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
+semantic_service = SemanticService()
 
-@app.route(route="t2sql")
-def t2sql(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
 
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
-
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
+@app.route(route="api/t2sql")
+def semantic(req: func.HttpRequest) -> func.HttpResponse:
+    input_text = req.params.get('input')
+    if not input_text:
+        return func.HttpResponse("Please provide input text.", status_code=400)
+    result = semantic_service.process(input_text)
+    return func.HttpResponse(result, status_code=200)
