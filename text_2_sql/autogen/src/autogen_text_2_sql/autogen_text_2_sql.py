@@ -193,7 +193,7 @@ class AutoGenText2Sql:
                 return payload
 
             if "database_results" not in sql_query_results:
-                logging.error("No 'results' key in sql_query_results")
+                logging.warning("No 'database_results' key in sql_query_results")
                 return payload
 
             for message, sql_query_result_list in sql_query_results[
