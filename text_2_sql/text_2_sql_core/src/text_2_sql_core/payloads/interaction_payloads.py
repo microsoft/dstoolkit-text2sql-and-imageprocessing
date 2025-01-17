@@ -60,7 +60,9 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.body = self.Body(**kwargs)
+        body_kwargs = kwargs.get("body", kwargs)
+
+        self.body = self.Body(**body_kwargs)
 
 
 class AnswerWithSourcesPayload(InteractionPayloadBase):
@@ -86,7 +88,9 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.body = self.Body(**kwargs)
+        body_kwargs = kwargs.get("body", kwargs)
+
+        self.body = self.Body(**body_kwargs)
 
 
 class ProcessingUpdatePayload(InteractionPayloadBase):
@@ -105,7 +109,9 @@ class ProcessingUpdatePayload(InteractionPayloadBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.body = self.Body(**kwargs)
+        body_kwargs = kwargs.get("body", kwargs)
+
+        self.body = self.Body(**body_kwargs)
 
 
 class UserMessagePayload(InteractionPayloadBase):
@@ -123,8 +129,15 @@ class UserMessagePayload(InteractionPayloadBase):
                 "datetime": datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
                 "unix_timestamp": int(datetime.now().timestamp()),
             }
-            injected = values.get("injected_parameters", {})
-            values["injected_parameters"] = {**defaults, **injected}
+            injected = values.get("injected_parameters", None)
+
+            if injected is None:
+                injected_by_alias = values.get("injectedParameters", {})
+            else:
+                injected_by_alias = injected
+                del values["injected_parameters"]
+
+            values["injectedParameters"] = {**defaults, **injected_by_alias}
             return values
 
     payload_type: Literal[PayloadType.USER_MESSAGE] = Field(
@@ -138,7 +151,9 @@ class UserMessagePayload(InteractionPayloadBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.body = self.Body(**kwargs)
+        body_kwargs = kwargs.get("body", kwargs)
+
+        self.body = self.Body(**body_kwargs)
 
 
 class InteractionPayload(RootModel):

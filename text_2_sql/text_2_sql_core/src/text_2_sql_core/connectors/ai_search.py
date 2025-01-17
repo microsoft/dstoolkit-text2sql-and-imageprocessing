@@ -188,6 +188,7 @@ class AISearchConnector:
                 "AIService__AzureSearchOptions__Text2SqlSchemaStore__SemanticConfig"
             ],
             top=3,
+            minimum_score=1.5,
         )
 
         fqn_to_trim = ".".join(stringified_engine_specific_fields)
