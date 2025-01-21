@@ -6,7 +6,7 @@ The sample provided works with Azure SQL Server, although it has been easily ada
 
 > [!NOTE]
 >
-> - Previous versions of this approach have now been moved to `previous_iterations/semantic_kernel`. These will not be updated.
+> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
 
 ## Why Text2SQL instead of indexing the database contents?
 
@@ -31,6 +31,10 @@ To solve these issues, a Multi-Shot approach is developed. Below is the iteratio
 
 ![Comparison between a common Text2SQL approach and a Multi-Shot Text2SQL approach.](./images/Text2SQL%20Approaches.png "Multi Shot SQL Approaches")
 
+> [!NOTE]
+>
+> - Previous versions of this approach have now been moved to `previous_iterations/semantic_kernel`. These will not be updated or maintained.
+
 Our approach has evolved as the system has matured into an multi-agent approach that brings improved reasoning, speed and instruction following capabilities. With separation into agents, different agents can focus on one task only, and provide a better overall flow and response quality.
 
 Using Auto-Function calling capabilities, the LLM is able to retrieve from the plugin the full schema information for the views / tables that it considers useful for answering the question. Once retrieved, the full SQL query can then be generated. The schemas for multiple views / tables can be retrieved to allow the LLM to perform joins and other complex queries.
@@ -38,9 +42,6 @@ Using Auto-Function calling capabilities, the LLM is able to retrieve from the p
 To improve the scalability and accuracy in SQL Query generation, the entity relationships within the database are stored within the vector store. This allows the LLM to use **entity relationship graph** to navigate complex system joins. See the details in `./data_dictionary` for more details.
 
 For the query cache enabled approach, AI Search is used as a vector based cache, but any other cache that supports vector queries could be used, such as Redis.
-
-> [!NOTE]
-> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
 
 ### Full Logical Flow for Agentic Vector Based Approach
 

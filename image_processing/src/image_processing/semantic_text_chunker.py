@@ -15,17 +15,16 @@ class SemanticTextChunker:
         num_surrounding_sentences: int = 1,
         similarity_threshold: float = 0.8,
         max_chunk_tokens: int = 200,
-        min_chunk_tokens: int = 50,
-        distill_model=True,
+        min_chunk_tokens: int = 50
     ):
         self.num_surrounding_sentences = num_surrounding_sentences
         self.similarity_threshold = similarity_threshold
         self.max_chunk_tokens = max_chunk_tokens
         self.min_chunk_tokens = min_chunk_tokens
 
-        self.distill_model = distill_model
         model_name = "minishlab/M2V_base_output"
         self.distilled_model = StaticModel.from_pretrained(model_name)
+
         try:
             self._nlp_model = spacy.load("en_core_web_md")
         except IOError as e:
@@ -267,7 +266,7 @@ class SemanticTextChunker:
             next_sentence_is_table_or_figure,
         ) in enumerate(
             is_table_or_figure_map[
-                current_sentence_index : current_sentence_index
+                current_sentence_index: current_sentence_index
                 + surround_sentences_gap_to_test
             ]
         ):
@@ -301,7 +300,8 @@ class SemanticTextChunker:
             else:
                 return current_chunk[n]
 
-        current_chunk_tokens = self.num_tokens_from_string(" ".join(current_chunk))
+        current_chunk_tokens = self.num_tokens_from_string(
+            " ".join(current_chunk))
 
         if len(current_chunk) >= 2 and current_chunk_tokens >= self.min_chunk_tokens:
             logging.info("Comparing chunks")
@@ -403,13 +403,13 @@ class SemanticTextChunker:
                     new_is_table_or_figure_map.append(False)
                     if forwards_direction:
                         current_chunk = sentences[
-                            current_sentence_index : current_sentence_index
+                            current_sentence_index: current_sentence_index
                             + min_of_distance_to_next_figure_or_num_surrounding_sentences
                         ]
                     else:
                         current_chunk = sentences[
-                            current_sentence_index : current_sentence_index
-                            - min_of_distance_to_next_figure_or_num_surrounding_sentences : -1
+                            current_sentence_index: current_sentence_index
+                            - min_of_distance_to_next_figure_or_num_surrounding_sentences: -1
                         ]
                     index += min_of_distance_to_next_figure_or_num_surrounding_sentences
                     continue
@@ -446,12 +446,8 @@ class SemanticTextChunker:
         return chunks, new_is_table_or_figure_map
 
     def sentence_similarity(self, text_1, text_2):
-        if self.distill_model:
-            vec1 = self.distilled_model.encode(text_1)
-            vec2 = self.distilled_model.encode(text_2)
-        else:
-            vec1 = self._nlp_model(text_1).vector
-            vec2 = self._nlp_model(text_2).vector
+        vec1 = self.distilled_model.encode(text_1)
+        vec2 = self.distilled_model.encode(text_2)
 
         dot_product = np.dot(vec1, vec2)
         magnitude = np.linalg.norm(vec1) * np.linalg.norm(vec2)

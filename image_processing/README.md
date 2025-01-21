@@ -1,10 +1,12 @@
-# AI Search Indexing with Azure Document Intelligence
+# Image Processing for RAG - AI Search Indexing with Azure Document Intelligence
 
 This portion of the repo contains code for linking Azure Document Intelligence with AI Search to process complex documents with charts and figures, and uses multi-modal models (gpt-4o-mini) to interpret and understand these.
 
 The implementation in Python, although it can easily be adapted for C# or another language. The code is designed to run in an Azure Function App inside the tenant.
 
-**This approach makes use of Azure Document Intelligence v4.0 which is still in preview.**
+> [!NOTE]
+>
+> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
 
 ## High Level Workflow
 
@@ -37,6 +39,7 @@ Once the Markdown is obtained, several steps are carried out:
 3. **Cleaning of Markdown**. The final markdown content is cleaned of any characters or unsupported Markdown elements that we do not want in the chunk e.g. non-relevant figures.
 
 > [!NOTE]
+>
 > For scalability, the above steps are performed across 5 differnet function app endpoints that are orchestrated by AI search.
 
 ## Sample Output
@@ -51,9 +54,6 @@ Using the [Phi-3 Technical Report: A Highly Capable Language Model Locally on Yo
 ```
 
 The Figure 4 content has been interpreted and added into the extracted chunk to enhance the context for a RAG application. This is particularly powerful for applications where the documents are heavily imaged or chart based.
-
-> [!NOTE]
-> See `GETTING_STARTED.md` for a step by step guide of how to use the accelerator.
 
 ## Provided Notebooks \& Utilities
 
