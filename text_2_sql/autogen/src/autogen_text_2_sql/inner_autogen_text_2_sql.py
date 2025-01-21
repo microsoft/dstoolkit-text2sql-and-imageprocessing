@@ -46,7 +46,7 @@ class InnerAutoGenText2Sql:
 
         # Store original environment variables
         self.original_db_conn = os.environ.get("Text2Sql__Tsql__ConnectionString")
-        self.original_db_name = os.environ.get("Text2Sql__Database")
+        self.original_db_name = os.environ.get("Text2Sql__Tsql__Database")
 
     def _update_environment(self, injected_parameters: dict = None):
         """Update environment variables with injected parameters."""
@@ -56,14 +56,16 @@ class InnerAutoGenText2Sql:
                     "database_connection_string"
                 ]
             if "database_name" in injected_parameters:
-                os.environ["Text2Sql__Database"] = injected_parameters["database_name"]
+                os.environ["Text2Sql__Tsql__Database"] = injected_parameters[
+                    "database_name"
+                ]
 
     def _restore_environment(self):
         """Restore original environment variables."""
         if self.original_db_conn:
             os.environ["Text2Sql__Tsql__ConnectionString"] = self.original_db_conn
         if self.original_db_name:
-            os.environ["Text2Sql__Database"] = self.original_db_name
+            os.environ["Text2Sql__Tsql__Database"] = self.original_db_name
 
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
