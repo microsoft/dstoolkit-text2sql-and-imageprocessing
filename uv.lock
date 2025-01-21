@@ -882,7 +882,7 @@ wheels = [
 [[package]]
 name = "deploy-ai-search"
 version = "0.1.0"
-source = { virtual = "deploy_ai_search" }
+source = { virtual = "deploy_ai_search_indexes" }
 dependencies = [
     { name = "azure-identity" },
     { name = "azure-mgmt-web" },
