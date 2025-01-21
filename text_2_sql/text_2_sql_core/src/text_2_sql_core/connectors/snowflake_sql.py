@@ -100,7 +100,7 @@ class SnowflakeSqlConnector(SqlConnector):
             password=os.environ["Text2Sql__Snowflake__Password"],
             account=os.environ["Text2Sql__Snowflake__Account"],
             warehouse=os.environ["Text2Sql__Snowflake__Warehouse"],
-            database=os.environ["Text2Sql__DatabaseName"],
+            database=os.environ["Text2Sql__Database"],
         )
 
         try:

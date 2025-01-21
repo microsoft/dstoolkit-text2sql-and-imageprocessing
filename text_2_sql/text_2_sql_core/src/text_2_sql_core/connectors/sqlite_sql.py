@@ -63,7 +63,7 @@ class SQLiteSqlConnector(SqlConnector):
         Returns:
             List of dictionaries containing query results.
         """
-        db_file = os.environ["Text2Sql__DatabaseConnectionString"]
+        db_file = os.environ["Text2Sql__Tsql__ConnectionString"]
 
         if not os.path.exists(db_file):
             raise FileNotFoundError(f"Database file not found: {db_file}")
@@ -127,7 +127,9 @@ class SQLiteSqlConnector(SqlConnector):
             List of matching table indices
         """
         matches = []
-        logging.info(f"Looking for tables matching '{text}' in tables: {table_names}")
+        logging.info(
+            "Looking for tables matching '%s' in tables: %s", text, table_names
+        )
 
         # First try exact matches
         for idx, name in enumerate(table_names):
@@ -144,7 +146,9 @@ class SQLiteSqlConnector(SqlConnector):
         for idx, name in enumerate(table_names):
             table_terms = set(re.split(r"[_\s]+", name.lower()))
             if search_terms & table_terms:  # If there's any overlap in terms
-                logging.info(f"Found partial match: '{name}' with terms {table_terms}")
+                logging.info(
+                    "Found partial match: '%s' with terms %s", name, table_terms
+                )
                 matches.append(idx)
 
         return matches
@@ -181,7 +185,7 @@ class SQLiteSqlConnector(SqlConnector):
             spider_schemas = json.load(f)
 
         # Get current database name from path
-        db_path = os.environ["Text2Sql__DatabaseConnectionString"]
+        db_path = os.environ["Text2Sql__Tsql__ConnectionString"]
         db_name = os.path.splitext(os.path.basename(db_path))[0]
 
         logging.info(f"Looking for schemas in database: {db_name}")
@@ -196,7 +200,7 @@ class SQLiteSqlConnector(SqlConnector):
         if not db_schema:
             raise ValueError(f"Schema not found for database: {db_name}")
 
-        logging.info(f"Looking for tables matching '{text}' in database '{db_name}'")
+        logging.info("Looking for tables matching '%s' in database '%s'", text, db_name)
         logging.info(f"Available tables: {db_schema['table_names']}")
 
         # Find all matching tables using flexible matching
@@ -228,7 +232,9 @@ class SQLiteSqlConnector(SqlConnector):
             }
             schemas.append(schema)
             logging.info(
-                f"Added schema for table '{db_schema['table_names'][table_idx]}': {schema}"
+                "Added schema for table '%s': %s",
+                db_schema["table_names"][table_idx],
+                schema,
             )
 
         if as_json:

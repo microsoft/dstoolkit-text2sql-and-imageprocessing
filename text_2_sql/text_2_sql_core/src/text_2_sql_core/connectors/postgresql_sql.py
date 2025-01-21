@@ -66,7 +66,7 @@ class PostgresqlSqlConnector(SqlConnector):
         """
         logging.info(f"Running query: {sql_query}")
         results = []
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
+        connection_string = os.environ["Text2Sql__Postgresql__ConnectionString"]
 
         # Establish an asynchronous connection to the PostgreSQL database
         async with await psycopg.AsyncConnection.connect(connection_string) as conn:
