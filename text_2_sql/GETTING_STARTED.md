@@ -1,5 +1,7 @@
 # Getting Started with Agentic Text2SQL Component
 
+**Execute all these commands in the `text_2_sql` directory.**
+
 To get started, perform the following steps:
 
 1. Setup Azure OpenAI in your subscription with **gpt-4o-mini** & an embedding model, alongside a SQL Server sample database, AI Search and a storage account.
