@@ -5,6 +5,7 @@ from text_2_sql_core.utils.database import DatabaseEngine
 import logging
 import typer
 from rich import print as rich_print
+from tenacity import RetryError
 
 logging.basicConfig(level=logging.INFO)
 
@@ -112,8 +113,18 @@ def create(
 
     try:
         asyncio.run(data_dictionary_creator.create_data_dictionary())
+    except RetryError as e:
+        # Fetch the actual exception
+        e = e.last_attempt.exception()
+        logging.error(e)
+        rich_print("Text2SQL Data Dictionary Creator Failed ❌")
+
+        rich_print(f"Error Messages: {e}")
+
+        raise typer.Exit(code=1)
     except Exception as e:
         logging.error(e)
+
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 
         rich_print(f"Error Messages: {e}")

@@ -17,6 +17,11 @@ class PostgresqlSqlConnector(SqlConnector):
         self.database_engine = DatabaseEngine.POSTGRESQL
 
     @property
+    def engine_specific_rules(self) -> str:
+        """Get the engine specific rules."""
+        return ""
+
+    @property
     def engine_specific_fields(self) -> list[str]:
         """Get the engine specific fields."""
         return [DatabaseEngineSpecificFields.DATABASE]
@@ -64,7 +69,7 @@ class PostgresqlSqlConnector(SqlConnector):
         connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
 
         # Establish an asynchronous connection to the PostgreSQL database
-        async with psycopg.AsyncConnection.connect(connection_string) as conn:
+        async with await psycopg.AsyncConnection.connect(connection_string) as conn:
             # Create an asynchronous cursor
             async with conn.cursor() as cursor:
                 await cursor.execute(sql_query)

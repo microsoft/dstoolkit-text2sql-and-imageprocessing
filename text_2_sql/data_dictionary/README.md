@@ -224,7 +224,8 @@ If there is no pre-built script for your database engine, take one of the above 
 
 ## Running
 
-1. Create your `.env` file based on the provided sample `.env.example`. Place this file in the same place as the `.env.example`.
+**Execute all these commands in the `text_2_sql` directory.**
+1. Create your `.env` file based on the provided sample `text_2_sql/.env.example`. Place this file in the same place in `text_2_sql/.env`.
 2. Package and install the `text_2_sql_core` library. See [build](https://docs.astral.sh/uv/concepts/projects/build/) if you want to build as a wheel and install on an agent. Or you can run from within a `uv` environment and skip packaging.
     - Install the optional dependencies if you need a database connector other than TSQL. `uv sync --extra <DATABASE ENGINE>`
 3. Run `data_dictionary <DATABASE ENGINE>`
