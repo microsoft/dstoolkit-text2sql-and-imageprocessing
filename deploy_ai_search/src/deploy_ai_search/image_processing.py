@@ -29,7 +29,7 @@ from environment import (
 )
 
 
-class RagDocumentsAISearch(AISearch):
+class ImageProcessingAISearch(AISearch):
     """This class is used to deploy the rag document index."""
 
     def __init__(
@@ -38,13 +38,13 @@ class RagDocumentsAISearch(AISearch):
         rebuild: bool | None = False,
         enable_page_by_chunking=False,
     ):
-        """Initialize the RagDocumentsAISearch class. This class implements the deployment of the rag document index.
+        """Initialize the ImageProcessingAISearch class. This class implements the deployment of the rag document index.
 
         Args:
             suffix (str, optional): The suffix for the indexer. Defaults to None. If an suffix is provided, it is assumed to be a test indexer.
             rebuild (bool, optional): Whether to rebuild the index. Defaults to False.
         """
-        self.indexer_type = IndexerType.RAG_DOCUMENTS
+        self.indexer_type = IndexerType.IMAGE_PROCESSING
         super().__init__(suffix, rebuild)
 
         if enable_page_by_chunking is not None:
@@ -140,7 +140,7 @@ class RagDocumentsAISearch(AISearch):
         if self.enable_page_by_chunking:
             fields.extend(
                 [
-                    SearchableField(
+                    SimpleField(
                         name="PageNumber",
                         type=SearchFieldDataType.Int64,
                         sortable=True,
@@ -286,7 +286,7 @@ class RagDocumentsAISearch(AISearch):
         indexer_parameters = IndexingParameters(
             batch_size=batch_size,
             configuration=IndexingParametersConfiguration(
-                data_to_extract=BlobIndexerDataToExtract.STORAGE_METADATA,
+                data_to_extract=BlobIndexerDataToExtract.ALL_METADATA,
                 query_timeout=None,
                 execution_environment=execution_environment,
                 fail_on_unprocessable_document=False,

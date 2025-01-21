@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 import argparse
-from rag_documents import RagDocumentsAISearch
+from image_processing import ImageProcessingAISearch
 from text_2_sql_schema_store import Text2SqlSchemaStoreAISearch
 from text_2_sql_query_cache import Text2SqlQueryCacheAISearch
 from text_2_sql_column_value_store import Text2SqlColumnValueStoreAISearch
@@ -17,8 +17,8 @@ def deploy_config(arguments: argparse.Namespace):
         arguments (argparse.Namespace): The arguments passed to the script"""
 
     suffix = None if args.suffix == "None" else args.suffix
-    if arguments.index_type == "rag":
-        index_config = RagDocumentsAISearch(
+    if arguments.index_type == "image_processing":
+        index_config = ImageProcessingAISearch(
             suffix=suffix,
             rebuild=arguments.rebuild,
             enable_page_by_chunking=arguments.enable_page_chunking,

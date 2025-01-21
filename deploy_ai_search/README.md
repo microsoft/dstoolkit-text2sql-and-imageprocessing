@@ -2,14 +2,14 @@
 
 The associated scripts in this portion of the repository contains pre-built scripts to deploy the skillsets needed for both Text2SQL and Image Processing.
 
-## Steps for Rag Documents Index Deployment (For Image Processing)
+## Steps for Image Processing Index Deployment (For Image Processing)
 
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
-2. Adjust `rag_documents.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
+2. Adjust `image_processing.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
 3. Run `deploy.py` with the following args:
 
-    - `index_type rag`. This selects the `RagDocumentsAISearch` sub class.
-    - `enable_page_chunking True`. This determines whether page wise chunking is applied in ADI, or whether the inbuilt skill is used for TextSplit. **Page wise analysis in ADI is recommended to avoid splitting tables / figures across multiple chunks, when the chunking is performed.**
+    - `index_type image_processing`. This selects the `ImageProcessingAISearch` sub class.
+    - `enable_page_chunking True`. This determines whether page wise chunking is applied in ADI, or whether the inbuilt skill is used for TextSplit. This suits documents that are inheritely page-wise e.g. pptx files.
     - `rebuild`. Whether to delete and rebuild the index.
     - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
 
