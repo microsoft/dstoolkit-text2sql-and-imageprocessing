@@ -41,3 +41,6 @@ databricks = [
 postgresql = [
     "text_2_sql_core[postgresql]",
 ]
+sqlite = [
+    "text_2_sql_core[sqlite]",
+]
