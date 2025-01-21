@@ -74,20 +74,20 @@ class OpenAIConnector:
         else:
             return message.content
 
-    async def run_embedding_request(self, batch: list[str]):
-        token_provider, api_key = self.get_authentication_properties()
+    # async def run_embedding_request(self, batch: list[str]):
+    #     token_provider, api_key = self.get_authentication_properties()
 
-        model_deployment = os.environ["OpenAI__EmbeddingModel"]
-        async with AsyncAzureOpenAI(
-            azure_deployment=model_deployment,
-            api_version=os.environ["OpenAI__ApiVersion"],
-            azure_endpoint=os.environ["OpenAI__Endpoint"],
-            azure_ad_token_provider=token_provider,
-            api_key=api_key,
-        ) as open_ai_client:
-            embeddings = await open_ai_client.embeddings.create(
-                model=os.environ["OpenAI__EmbeddingModel"],
-                input=batch,
-            )
+    #     model_deployment = os.environ["OpenAI__EmbeddingModel"]
+    #     async with AsyncAzureOpenAI(
+    #         azure_deployment=model_deployment,
+    #         api_version=os.environ["OpenAI__ApiVersion"],
+    #         azure_endpoint=os.environ["OpenAI__Endpoint"],
+    #         azure_ad_token_provider=token_provider,
+    #         api_key=api_key,
+    #     ) as open_ai_client:
+    #         embeddings = await open_ai_client.embeddings.create(
+    #             model=os.environ["OpenAI__EmbeddingModel"],
+    #             input=batch,
+    #         )
 
-        return embeddings
+    #     return embeddings
