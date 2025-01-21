@@ -5,6 +5,7 @@ from text_2_sql_core.utils.database import DatabaseEngine
 import logging
 import typer
 from rich import print as rich_print
+from tenacity import RetryError
 
 logging.basicConfig(level=logging.INFO)
 
@@ -83,12 +84,25 @@ def create(
             )
         elif engine == DatabaseEngine.TSQL:
             from text_2_sql_core.data_dictionary.tsql_data_dictionary_creator import (
-                TSQLDataDictionaryCreator,
+                TsqlDataDictionaryCreator,
             )
 
-            data_dictionary_creator = TSQLDataDictionaryCreator(
+            data_dictionary_creator = TsqlDataDictionaryCreator(
                 **kwargs,
             )
+        elif engine == DatabaseEngine.POSTGRESQL:
+            from text_2_sql_core.data_dictionary.postgresql_data_dictionary_creator import (
+                PostgresqlDataDictionaryCreator,
+            )
+
+            data_dictionary_creator = PostgresqlDataDictionaryCreator(
+                **kwargs,
+            )
+        else:
+            rich_print("Text2SQL Data Dictionary Creator Failed ❌")
+            rich_print(f"Database Engine {engine.value} is not supported.")
+
+            raise typer.Exit(code=1)
     except ImportError:
         detailed_error = f"""Failed to import {
             engine.value} Data Dictionary Creator. Check you have installed the optional dependencies for this database engine."""
@@ -99,9 +113,18 @@ def create(
 
     try:
         asyncio.run(data_dictionary_creator.create_data_dictionary())
-    except Exception as e:
-        raise e
+    except RetryError as e:
+        # Fetch the actual exception
+        e = e.last_attempt.exception()
         logging.error(e)
+        rich_print("Text2SQL Data Dictionary Creator Failed ❌")
+
+        rich_print(f"Error Messages: {e}")
+
+        raise typer.Exit(code=1)
+    except Exception as e:
+        logging.error(e)
+
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 
         rich_print(f"Error Messages: {e}")

@@ -85,9 +85,10 @@ class Text2SqlColumnValueStoreAISearch(AISearch):
                 name="Warehouse",
                 type=SearchFieldDataType.String,
             ),
-            SimpleField(
+            SearchableField(
                 name="Column",
                 type=SearchFieldDataType.String,
+                hidden=False,
             ),
             SearchableField(
                 name="Value",

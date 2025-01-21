@@ -54,7 +54,20 @@ As the query cache is shared between users (no data is stored in the cache), a n
 
 ![Vector Based with Query Cache Logical Flow.](./images/Agentic%20Text2SQL%20Query%20Cache.png "Agentic Vector Based with Query Cache Logical Flow")
 
-#### Parallel execution
+## Agents
+
+This agentic system contains the following agents:
+
+- **Query Cache Agent:** Responsible for checking the cache for previously asked questions.
+- **Query Decomposition Agent:** Responsible for decomposing complex questions, into sub questions that can be answered with SQL.
+- **Schema Selection Agent:** Responsible for extracting key terms from the question and checking the index store for the queries.
+- **SQL Query Generation Agent:** Responsible for using the previously extracted schemas and generated SQL queries to answer the question. This agent can request more schemas if needed. This agent will run the query.
+- **SQL Query Verification Agent:** Responsible for verifying that the SQL query and results question will answer the question.
+- **Answer Generation Agent:** Responsible for taking the database results and generating the final answer for the user.
+
+The combination of this agent allows the system to answer complex questions, whilst staying under the token limits when including the database schemas. The query cache ensures that previously asked questions, can be answered quickly to avoid degrading user experience.
+
+### Parallel execution
 
 After the first agent has rewritten and decomposed the user input, we execute each of the individual questions in parallel for the quickest time to generate an answer.
 
@@ -189,22 +202,9 @@ Below is a sample entry for a view / table that we which to expose to the LLM. T
 }
 ```
 
-See `./data_dictionary` for more details on how the data dictionary is structured and ways to **automatically generate it**.
-
-## Agentic Vector Based Approach (Iteration 5)
-
-This approach builds on the the Vector Based SQL Plugin approach that was previously developed, but adds a agentic approach to the solution.
-
-This agentic system contains the following agents:
-
-- **Query Cache Agent:** Responsible for checking the cache for previously asked questions.
-- **Query Decomposition Agent:** Responsible for decomposing complex questions, into sub questions that can be answered with SQL.
-- **Schema Selection Agent:** Responsible for extracting key terms from the question and checking the index store for the queries.
-- **SQL Query Generation Agent:** Responsible for using the previously extracted schemas and generated SQL queries to answer the question. This agent can request more schemas if needed. This agent will run the query.
-- **SQL Query Verification Agent:** Responsible for verifying that the SQL query and results question will answer the question.
-- **Answer Generation Agent:** Responsible for taking the database results and generating the final answer for the user.
-
-The combination of this agent allows the system to answer complex questions, whilst staying under the token limits when including the database schemas. The query cache ensures that previously asked questions, can be answered quickly to avoid degrading user experience.
+> [!NOTE]
+>
+> - See `./data_dictionary` for more details on how the data dictionary is structured and ways to **automatically generate it**.
 
 ## Tips for good Text2SQL performance.
 

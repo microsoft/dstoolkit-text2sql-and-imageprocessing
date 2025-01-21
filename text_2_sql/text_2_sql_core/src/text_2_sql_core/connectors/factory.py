@@ -22,9 +22,9 @@ class ConnectorFactory:
 
                 return SnowflakeSqlConnector()
             elif os.environ["Text2Sql__DatabaseEngine"].upper() == "TSQL":
-                from text_2_sql_core.connectors.tsql_sql import TSQLSqlConnector
+                from text_2_sql_core.connectors.tsql_sql import TsqlSqlConnector
 
-                return TSQLSqlConnector()
+                return TsqlSqlConnector()
             elif os.environ["Text2Sql__DatabaseEngine"].upper() == "POSTGRESQL":
                 from text_2_sql_core.connectors.postgresql_sql import (
                     PostgresqlSqlConnector,

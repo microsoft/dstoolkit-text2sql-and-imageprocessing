@@ -16,7 +16,7 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
         excluded_schemas = ["information_schema", "pg_catalog"]
         super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
-        self.database = os.environ["Text2Sql__DatabaseName"]
+        self.database = os.environ["Text2Sql__Postgresql__Database"]
         self.database_engine = DatabaseEngine.POSTGRESQL
 
         self.sql_connector = PostgresqlSqlConnector()

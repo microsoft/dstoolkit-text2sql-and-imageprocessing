@@ -5,10 +5,10 @@ from typing import AsyncGenerator, List, Sequence
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
 from autogen_agentchat.messages import (
-    AgentMessage,
+    AgentEvent,
     ChatMessage,
     TextMessage,
-    ToolCallResultMessage,
+    ToolCallExecutionEvent,
 )
 from autogen_core import CancellationToken
 import json
@@ -86,7 +86,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
-    ) -> AsyncGenerator[AgentMessage | Response, None]:
+    ) -> AsyncGenerator[AgentEvent | Response, None]:
         last_response = messages[-1].content
         parameter_input = messages[0].content
         try:
@@ -118,7 +118,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 logging.info(f"Checking Inner Message: {inner_message}")
 
                 try:
-                    if isinstance(inner_message, ToolCallResultMessage):
+                    if isinstance(inner_message, ToolCallExecutionEvent):
                         for call_result in inner_message.content:
                             # Check for SQL query results
                             parsed_message = self.parse_inner_message(
@@ -152,8 +152,14 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                         # Search for specific message types and add them to the final output object
                         if isinstance(parsed_message, dict):
                             # Check if the message contains pre-run results
-                            if ("contains_pre_run_results" in parsed_message) and (
-                                parsed_message["contains_pre_run_results"] is True
+                            if (
+                                "contains_cached_sql_queries_with_schemas_from_cache_database_results"
+                                in parsed_message
+                            ) and (
+                                parsed_message[
+                                    "contains_cached_sql_queries_with_schemas_from_cache_database_results"
+                                ]
+                                is True
                             ):
                                 logging.info("Contains pre-run results")
                                 for pre_run_sql_query, pre_run_result in parsed_message[
@@ -213,12 +219,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
             # Add database connection info to injected parameters
             query_params = injected_parameters.copy() if injected_parameters else {}
-            if "Text2Sql__DatabaseConnectionString" in os.environ:
+            if "Text2Sql__Tsql__ConnectionString" in os.environ:
                 query_params["database_connection_string"] = os.environ[
-                    "Text2Sql__DatabaseConnectionString"
+                    "Text2Sql__Tsql__ConnectionString"
                 ]
-            if "Text2Sql__DatabaseName" in os.environ:
-                query_params["database_name"] = os.environ["Text2Sql__DatabaseName"]
+            if "Text2Sql__Tsql__Database" in os.environ:
+                query_params["database_name"] = os.environ["Text2Sql__Tsql__Database"]
 
             # Launch tasks for each sub-query
             inner_solving_generators.append(
