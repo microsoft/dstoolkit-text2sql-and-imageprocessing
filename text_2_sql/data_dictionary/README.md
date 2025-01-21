@@ -224,7 +224,7 @@ If there is no pre-built script for your database engine, take one of the above 
 
 ## Running
 
-**Execute all these commands in the `text_2_sql` directory.**
+**Execute the following commands in the `text_2_sql` directory.**
 
 To generate a data dictionary, perform the following steps:
 
