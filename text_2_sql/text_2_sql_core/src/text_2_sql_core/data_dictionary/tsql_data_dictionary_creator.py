@@ -21,7 +21,7 @@ class TsqlDataDictionaryCreator(DataDictionaryCreator):
         """
         excluded_schemas = ["dbo", "sys"]
         super().__init__(excluded_schemas=excluded_schemas, **kwargs)
-        self.database = os.environ["Text2Sql__DatabaseName"]
+        self.database = os.environ["Text2Sql__Tsql__Database"]
 
         self.database_engine = DatabaseEngine.TSQL
 

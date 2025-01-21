@@ -18,7 +18,7 @@ class SnowflakeDataDictionaryCreator(DataDictionaryCreator):
         excluded_schemas = ["INFORMATION_SCHEMA"]
         super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
-        self.database = os.environ["Text2Sql__DatabaseName"]
+        self.database = os.environ["Text2Sql__Snowflake__Database"]
         self.warehouse = os.environ["Text2Sql__Snowflake__Warehouse"]
         self.database_engine = DatabaseEngine.SNOWFLAKE
 

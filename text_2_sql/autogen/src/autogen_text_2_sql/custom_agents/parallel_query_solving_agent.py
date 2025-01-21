@@ -219,12 +219,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
             # Add database connection info to injected parameters
             query_params = injected_parameters.copy() if injected_parameters else {}
-            if "Text2Sql__DatabaseConnectionString" in os.environ:
+            if "Text2Sql__Tsql__ConnectionString" in os.environ:
                 query_params["database_connection_string"] = os.environ[
-                    "Text2Sql__DatabaseConnectionString"
+                    "Text2Sql__Tsql__ConnectionString"
                 ]
-            if "Text2Sql__DatabaseName" in os.environ:
-                query_params["database_name"] = os.environ["Text2Sql__DatabaseName"]
+            if "Text2Sql__Tsql__Database" in os.environ:
+                query_params["database_name"] = os.environ["Text2Sql__Tsql__Database"]
 
             # Launch tasks for each sub-query
             inner_solving_generators.append(

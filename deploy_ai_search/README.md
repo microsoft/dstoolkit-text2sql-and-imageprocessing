@@ -1,8 +1,8 @@
 # AI Search Indexing Pre-built Index Setup
 
-The associated scripts in this portion of the repository contains pre-built scripts to deploy the skillset with Azure Document Intelligence.
+The associated scripts in this portion of the repository contains pre-built scripts to deploy the skillsets needed for both Text2SQL and Image Processing.
 
-## Steps for Rag Documents Index Deployment (For Unstructured RAG)
+## Steps for Rag Documents Index Deployment (For Image Processing)
 
 1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
 2. Adjust `rag_documents.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
@@ -13,7 +13,7 @@ The associated scripts in this portion of the repository contains pre-built scri
     - `rebuild`. Whether to delete and rebuild the index.
     - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
 
-## Steps for Text2SQL Index Deployment (For Structured RAG)
+## Steps for Text2SQL Index Deployment (For Text2SQL)
 
 ### Schema Store Index
 

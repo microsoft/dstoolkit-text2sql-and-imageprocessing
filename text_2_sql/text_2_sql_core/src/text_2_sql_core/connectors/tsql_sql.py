@@ -86,7 +86,7 @@ class TsqlSqlConnector(SqlConnector):
         """
         logging.info(f"Running query: {sql_query}")
         results = []
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
+        connection_string = os.environ["Text2Sql__Tsql__ConnectionString"]
         async with await aioodbc.connect(dsn=connection_string) as sql_db_client:
             async with sql_db_client.cursor() as cursor:
                 await cursor.execute(sql_query)
