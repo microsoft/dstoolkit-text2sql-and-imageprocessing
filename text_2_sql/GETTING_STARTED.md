@@ -2,11 +2,11 @@
 
 To get started, perform the following steps:
 
-**Execute the following commands in the `deploy_ai_search` directory:**
+**Execute the following commands in the `deploy_ai_search_indexes` directory:**
 
 1. Setup Azure OpenAI in your subscription with **gpt-4o-mini** & an embedding model, alongside a SQL Server sample database, AI Search and a storage account.
-2. Create your `.env` file based on the provided sample `deploy_ai_search/.env.example`. Place this file in the same place in `deploy_ai_search/.env`.
-3. Clone this repository and deploy the AI Search text2sql indexes from `deploy_ai_search`. See the instructions in the **Steps for Text2SQL Index Deployment (For Structured RAG)** section of the `deploy_ai_search/README.md`.
+2. Create your `.env` file based on the provided sample `deploy_ai_search_indexes/.env.example`. Place this file in the same place in `deploy_ai_search_indexes/.env`.
+3. Clone this repository and deploy the AI Search text2sql indexes from `deploy_ai_search_indexes`. See the instructions in the **Steps for Text2SQL Index Deployment (For Structured RAG)** section of the `deploy_ai_search_indexes/README.md`.
 
 **Execute the following commands in the `text_2_sql_core` directory:**
 

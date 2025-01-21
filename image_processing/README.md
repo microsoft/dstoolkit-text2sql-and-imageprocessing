@@ -62,7 +62,7 @@ The Figure 4 content has been interpreted and added into the extracted chunk to 
 
 ## Deploying AI Search Setup
 
-To deploy the pre-built index and associated indexer / skillset setup, see instructions in `./deploy_ai_search/README.md`.
+To deploy the pre-built index and associated indexer / skillset setup, see instructions in `./deploy_ai_search_indexes/README.md`.
 
 ## Custom Skills
 

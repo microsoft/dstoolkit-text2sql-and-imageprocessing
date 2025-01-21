@@ -206,41 +206,6 @@ class AISearchEnvironment:
         return os.environ.get("FunctionApp__AppRegistrationResourceId")
 
     @property
-    def function_app_mark_up_cleaner_route(self) -> str:
-        """
-        This function returns function app data cleanup function name
-        """
-        return os.environ.get("FunctionApp__MarkUpCleaner__FunctionName")
-
-    @property
-    def function_app_semantic_text_chunker_route(self) -> str:
-        """
-        This function returns function app semantic text chunker name
-        """
-        return os.environ.get("FunctionApp__SemanticTextChunker__FunctionName")
-
-    @property
-    def function_app_layout_analysis_route(self) -> str:
-        """
-        This function returns function app adi name
-        """
-        return os.environ.get("FunctionApp__LayoutAnalysis__FunctionName")
-
-    @property
-    def function_app_figure_analysis_route(self) -> str:
-        """
-        This function returns function app figure analysis name
-        """
-        return os.environ.get("FunctionApp__FigureAnalysis__FunctionName")
-
-    @property
-    def function_app_layout_and_figure_merger_route(self) -> str:
-        """
-        This function returns function app layout and figure merger name
-        """
-        return os.environ.get("FunctionApp__LayoutAndFigureMerger__FunctionName")
-
-    @property
     def open_ai_embedding_dimensions(self) -> str:
         """
         This function returns dimensions for embedding model.
@@ -257,7 +222,8 @@ class AISearchEnvironment:
         This function returns true if private endpoint is used
         """
         return (
-            os.environ.get("AIService__AzureSearchOptions__UsePrivateEndpoint").lower()
+            os.environ.get(
+                "AIService__AzureSearchOptions__UsePrivateEndpoint").lower()
             == "true"
         )
 
@@ -265,21 +231,9 @@ class AISearchEnvironment:
         """
         Get the function app url that is hosting the custom skill
         """
-        if skill_type == "mark_up_cleaner":
-            route = self.function_app_mark_up_cleaner_route
-        elif skill_type == "layout_analysis":
-            route = self.function_app_layout_analysis_route
-        elif skill_type == "figure_analysis":
-            route = self.function_app_figure_analysis
-        elif skill_type == "layout_and_figure_merger":
-            route = self.function_app_layout_and_figure_merger
-        elif skill_type == "semantic_text_chunker":
-            route = self.function_app_semantic_text_chunker_route
-        else:
-            raise ValueError(f"Invalid skill type: {skill_type}")
 
         full_url = (
-            f"{self.function_app_end_point}/api/{route}?code={self.function_app_key}"
+            f"{self.function_app_end_point}/api/{skill_type}?code={self.function_app_key}"
         )
 
         return full_url
