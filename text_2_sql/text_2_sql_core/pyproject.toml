@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "aiohttp>=3.11.11",
     "aioodbc>=0.5.0",
     "azure-identity>=1.19.0",
     "azure-search>=1.0.0b2",

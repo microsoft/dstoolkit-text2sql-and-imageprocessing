@@ -5,10 +5,10 @@ from typing import AsyncGenerator, List, Sequence
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
 from autogen_agentchat.messages import (
-    AgentMessage,
+    AgentEvent,
     ChatMessage,
     TextMessage,
-    ToolCallResultMessage,
+    ToolCallExecutionEvent,
 )
 from autogen_core import CancellationToken
 import json
@@ -86,7 +86,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
-    ) -> AsyncGenerator[AgentMessage | Response, None]:
+    ) -> AsyncGenerator[AgentEvent | Response, None]:
         last_response = messages[-1].content
         parameter_input = messages[0].content
         try:
@@ -118,7 +118,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 logging.info(f"Checking Inner Message: {inner_message}")
 
                 try:
-                    if isinstance(inner_message, ToolCallResultMessage):
+                    if isinstance(inner_message, ToolCallExecutionEvent):
                         for call_result in inner_message.content:
                             # Check for SQL query results
                             parsed_message = self.parse_inner_message(

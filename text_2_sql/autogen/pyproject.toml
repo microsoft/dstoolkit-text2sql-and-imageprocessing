@@ -6,12 +6,12 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "aiostream>=0.6.4",
-    "autogen-agentchat==0.4.0.dev11",
-    "autogen-core==0.4.0.dev11",
-    "autogen-ext[azure,openai]==0.4.0.dev11",
+    "autogen-agentchat==0.4.2",
+    "autogen-core==0.4.2",
+    "autogen-ext[azure,openai]==0.4.2",
     "grpcio>=1.68.1",
     "pyyaml>=6.0.2",
-    "text_2_sql_core[snowflake,databricks]",
+    "text_2_sql_core",
     "sqlparse>=0.4.4",
     "nltk>=3.8.1",
 ]

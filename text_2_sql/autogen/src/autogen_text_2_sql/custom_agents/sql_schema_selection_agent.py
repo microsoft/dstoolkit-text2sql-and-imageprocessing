@@ -4,7 +4,7 @@ from typing import AsyncGenerator, List, Sequence
 
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
-from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
+from autogen_agentchat.messages import AgentEvent, ChatMessage, TextMessage
 from autogen_core import CancellationToken
 import json
 import logging
@@ -39,7 +39,7 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
 
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
-    ) -> AsyncGenerator[AgentMessage | Response, None]:
+    ) -> AsyncGenerator[AgentEvent | Response, None]:
         # Try to parse as JSON first
         try:
             request_details = json.loads(messages[0].content)
