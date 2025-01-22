@@ -15,7 +15,7 @@ class SemanticTextChunker:
         num_surrounding_sentences: int = 1,
         similarity_threshold: float = 0.8,
         max_chunk_tokens: int = 200,
-        min_chunk_tokens: int = 50
+        min_chunk_tokens: int = 50,
     ):
         self.num_surrounding_sentences = num_surrounding_sentences
         self.similarity_threshold = similarity_threshold
@@ -266,7 +266,7 @@ class SemanticTextChunker:
             next_sentence_is_table_or_figure,
         ) in enumerate(
             is_table_or_figure_map[
-                current_sentence_index: current_sentence_index
+                current_sentence_index : current_sentence_index
                 + surround_sentences_gap_to_test
             ]
         ):
@@ -300,8 +300,7 @@ class SemanticTextChunker:
             else:
                 return current_chunk[n]
 
-        current_chunk_tokens = self.num_tokens_from_string(
-            " ".join(current_chunk))
+        current_chunk_tokens = self.num_tokens_from_string(" ".join(current_chunk))
 
         if len(current_chunk) >= 2 and current_chunk_tokens >= self.min_chunk_tokens:
             logging.info("Comparing chunks")
@@ -403,13 +402,13 @@ class SemanticTextChunker:
                     new_is_table_or_figure_map.append(False)
                     if forwards_direction:
                         current_chunk = sentences[
-                            current_sentence_index: current_sentence_index
+                            current_sentence_index : current_sentence_index
                             + min_of_distance_to_next_figure_or_num_surrounding_sentences
                         ]
                     else:
                         current_chunk = sentences[
-                            current_sentence_index: current_sentence_index
-                            - min_of_distance_to_next_figure_or_num_surrounding_sentences: -1
+                            current_sentence_index : current_sentence_index
+                            - min_of_distance_to_next_figure_or_num_surrounding_sentences : -1
                         ]
                     index += min_of_distance_to_next_figure_or_num_surrounding_sentences
                     continue
@@ -490,7 +489,7 @@ async def process_semantic_text_chunker(record: dict, text_chunker) -> dict:
         logging.error("Chunking Error: %s", e)
         return {
             "recordId": record["recordId"],
-            "data": {},
+            "data": None,
             "errors": [
                 {
                     "message": "Failed to chunk data. Check function app logs for more details of exact failure."
