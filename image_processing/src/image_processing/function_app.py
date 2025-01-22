@@ -8,7 +8,7 @@ import asyncio
 from figure_analysis import FigureAnalysis
 from layout_and_figure_merger import LayoutAndFigureMerger
 from layout_analysis import process_layout_analysis
-from image_processing.mark_up_cleaner import MarkUpCleaner
+from mark_up_cleaner import MarkUpCleaner
 from semantic_text_chunker import process_semantic_text_chunker, SemanticTextChunker
 
 logging.basicConfig(level=logging.DEBUG)

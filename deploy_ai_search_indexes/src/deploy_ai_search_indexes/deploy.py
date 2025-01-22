@@ -16,7 +16,7 @@ def deploy_config(arguments: argparse.Namespace):
     Args:
         arguments (argparse.Namespace): The arguments passed to the script"""
 
-    suffix = None if args.suffix == "None" else args.suffix
+    suffix = None if arguments.suffix == "None" else arguments.suffix
     if arguments.index_type == "image_processing":
         index_config = ImageProcessingAISearch(
             suffix=suffix,
