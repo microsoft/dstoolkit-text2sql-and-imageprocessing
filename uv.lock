@@ -1027,12 +1027,6 @@ wheels = [
 name = "dstoolkit-text2sql-and-imageprocessing"
 version = "0.1.0"
 source = { virtual = "." }
-dependencies = [
-    { name = "autogen-text-2-sql" },
-    { name = "deploy-ai-search-indexes" },
-    { name = "image-processing" },
-    { name = "text-2-sql-core" },
-]
 
 [package.dev-dependencies]
 dev = [
@@ -1046,12 +1040,6 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "autogen-text-2-sql", virtual = "text_2_sql/autogen" },
-    { name = "deploy-ai-search-indexes", virtual = "deploy_ai_search_indexes" },
-    { name = "image-processing", virtual = "image_processing" },
-    { name = "text-2-sql-core", editable = "text_2_sql/text_2_sql_core" },
-]
 
 [package.metadata.requires-dev]
 dev = [
