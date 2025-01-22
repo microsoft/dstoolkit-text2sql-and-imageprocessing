@@ -52,7 +52,7 @@ repos:
       # Update the uv lockfile
       - id: uv-lock
       - id: uv-export
-        args: [--frozen, --no-hashes, --no-editable, --no-sources, --verbose, --no-group, dev, --directory, image_processing]
+        args: [--frozen, --no-hashes, --no-editable, --no-sources, --verbose, --no-group, dev, --directory, image_processing, -o, requirements.txt]
 
   # - repo: local
   #   hooks:
