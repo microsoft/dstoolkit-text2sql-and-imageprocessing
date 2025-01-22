@@ -3,6 +3,7 @@
   "azureFunctions.projectLanguage": "Python",
   "azureFunctions.projectLanguageModel": 2,
   "azureFunctions.projectRuntime": "~4",
+  "azureFunctions.pythonVenv": ".venv",
   "azureFunctions.scmDoBuildDuringDeployment": true,
   "debug.internalConsoleOptions": "neverOpen"
 }
