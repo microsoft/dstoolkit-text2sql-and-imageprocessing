@@ -1,8 +1,9 @@
 {
-  "azureFunctions.deploySubpath": "/image_processing/src/image_processing",
+  "azureFunctions.deploySubpath": "image_processing/src/image_processing",
   "azureFunctions.projectLanguage": "Python",
   "azureFunctions.projectLanguageModel": 2,
   "azureFunctions.projectRuntime": "~4",
+  "azureFunctions.projectSubpath": "image_processing/src/image_processing",
   "azureFunctions.pythonVenv": ".venv",
   "azureFunctions.scmDoBuildDuringDeployment": true,
   "debug.internalConsoleOptions": "neverOpen"
