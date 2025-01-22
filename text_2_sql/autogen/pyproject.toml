@@ -3,6 +3,9 @@ name = "autogen_text_2_sql"
 version = "0.1.0"
 description = "AutoGen Based Implementation"
 readme = "README.md"
+authors = [
+    { name = "Ben Constable", email = "benconstable@microsoft.com" }
+]
 requires-python = ">=3.12"
 dependencies = [
     "aiostream>=0.6.4",
@@ -18,7 +21,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "autogen-text-2-sql",
     "black>=24.10.0",
     "ipykernel>=6.29.5",
     "jupyter>=1.1.1",

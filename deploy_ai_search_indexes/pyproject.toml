@@ -3,6 +3,9 @@ name = "deploy_ai_search_indexes"
 version = "0.1.0"
 description = "Helper functions to deploy Azure AI Search"
 readme = "README.md"
+authors = [
+    { name = "Ben Constable", email = "benconstable@microsoft.com" }
+]
 requires-python = ">=3.12"
 dependencies = [
     "azure-identity>=1.19.0",
