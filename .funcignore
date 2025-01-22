@@ -13,3 +13,4 @@ deploy_ai_search_indexes/*
 text_2_sql/*
 documentation/*
 images/
+__pycache__
