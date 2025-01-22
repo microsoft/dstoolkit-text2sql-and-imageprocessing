@@ -4,12 +4,19 @@ The associated scripts in this portion of the repository contains pre-built scri
 
 ## Steps for Image Processing Index Deployment (For Image Processing)
 
-1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
-2. Adjust `image_processing.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
-3. Run `deploy.py` with the following args:
+**Execute the following commands in the `deploy_ai_search_indexes` directory:**
 
+1. Create your `.env` file based on the provided sample `deploy_ai_search_indexes/.env.example`. Place this file in the same place in `deploy_ai_search_indexes/.env`.
+2. Run `uv sync` within the `deploy_ai_search_indexes` directory to install dependencies.
+    - Install the optional dependencies if you need a database connector other than TSQL. `uv sync --extra <DATABASE ENGINE>`
+    - See the supported connectors in `text_2_sql_core/src/text_2_sql_core/connectors`.
+
+**Execute the following commands in the `deploy_ai_search_indexes/src/deploy_ai_search_indexes` directory:**
+
+3. Adjust `image_processing.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
+4. Run `deploy.py` with the following args:
     - `index_type image_processing`. This selects the `ImageProcessingAISearch` sub class.
-    - `enable_page_chunking True`. This determines whether page wise chunking is applied in ADI, or whether the inbuilt skill is used for TextSplit. This suits documents that are inheritely page-wise e.g. pptx files.
+    - `enable_page_wise_chunking True`. This determines whether page wise chunking is applied in ADI, or whether the inbuilt skill is used for TextSplit. This suits documents that are inheritely page-wise e.g. pptx files.
     - `rebuild`. Whether to delete and rebuild the index.
     - `suffix`. Optional parameter that will apply a suffix onto the deployed index and indexer. This is useful if you want deploy a test version, before overwriting the main version.
 
@@ -17,9 +24,17 @@ The associated scripts in this portion of the repository contains pre-built scri
 
 ### Schema Store Index
 
-1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
-2. Adjust `text_2_sql_schema_store.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
-3. Run `deploy.py` with the following args:
+**Execute the following commands in the `deploy_ai_search_indexes` directory:**
+
+1. Create your `.env` file based on the provided sample `deploy_ai_search_indexes/.env.example`. Place this file in the same place in `deploy_ai_search_indexes/.env`.
+2. Run `uv sync` within the `deploy_ai_search_indexes` directory to install dependencies.
+    - Install the optional dependencies if you need a database connector other than TSQL. `uv sync --extra <DATABASE ENGINE>`
+    - See the supported connectors in `text_2_sql_core/src/text_2_sql_core/connectors`.
+
+**Execute the following commands in the `deploy_ai_search_indexes/src/deploy_ai_search_indexes` directory:**
+
+3. Adjust `text_2_sql_schema_store.py` with any changes to the index / indexer. The `get_skills()` method implements the skills pipeline. Make any adjustments here in the skills needed to enrich the data source.
+4. Run `deploy.py` with the following args:
 
     - `index_type text_2_sql_schema_store`. This selects the `Text2SQLSchemaStoreAISearch` sub class.
     - `rebuild`. Whether to delete and rebuild the index.
@@ -28,9 +43,17 @@ The associated scripts in this portion of the repository contains pre-built scri
 
 ### Column Value Store Index
 
-1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
-2. Adjust `text_2_sql_column_value_store.py` with any changes to the index / indexer.
-3. Run `deploy.py` with the following args:
+**Execute the following commands in the `deploy_ai_search_indexes` directory:**
+
+1. Create your `.env` file based on the provided sample `deploy_ai_search_indexes/.env.example`. Place this file in the same place in `deploy_ai_search_indexes/.env`.
+2. Run `uv sync` within the `deploy_ai_search_indexes` directory to install dependencies.
+    - Install the optional dependencies if you need a database connector other than TSQL. `uv sync --extra <DATABASE ENGINE>`
+    - See the supported connectors in `text_2_sql_core/src/text_2_sql_core/connectors`.
+
+**Execute the following commands in the `deploy_ai_search_indexes/src/deploy_ai_search_indexes` directory:**
+
+3. Adjust `text_2_sql_column_value_store.py` with any changes to the index / indexer.
+4. Run `deploy.py` with the following args:
 
     - `index_type text_2_sql_column_value_store`. This selects the `Text2SQLColumnValueStoreAISearch` sub class.
     - `rebuild`. Whether to delete and rebuild the index.
@@ -38,9 +61,17 @@ The associated scripts in this portion of the repository contains pre-built scri
 
 ### Query Cache Index
 
-1. Update `.env` file with the associated values. Not all values are required dependent on whether you are using System / User Assigned Identities or a Key based authentication.
-2. Adjust `text_2_sql_query_cache.py` with any changes to the index. **There is an optional provided indexer or skillset for this cache. You may instead want the application code will write directly to it. See the details in the Text2SQL README for different cache strategies.**
-3. Run `deploy.py` with the following args:
+**Execute the following commands in the `deploy_ai_search_indexes` directory:**
+
+1. Create your `.env` file based on the provided sample `deploy_ai_search_indexes/.env.example`. Place this file in the same place in `deploy_ai_search_indexes/.env`.
+2. Run `uv sync` within the `deploy_ai_search_indexes` directory to install dependencies.
+    - Install the optional dependencies if you need a database connector other than TSQL. `uv sync --extra <DATABASE ENGINE>`
+    - See the supported connectors in `text_2_sql_core/src/text_2_sql_core/connectors`.
+
+**Execute the following commands in the `deploy_ai_search_indexes/src/deploy_ai_search_indexes` directory:**
+
+3. Adjust `text_2_sql_query_cache.py` with any changes to the index. **There is an optional provided indexer or skillset for this cache. You may instead want the application code will write directly to it. See the details in the Text2SQL README for different cache strategies.**
+4. Run `deploy.py` with the following args:
 
     - `index_type text_2_sql_query_cache`. This selects the `Text2SQLQueryCacheAISearch` sub class.
     - `rebuild`. Whether to delete and rebuild the index.

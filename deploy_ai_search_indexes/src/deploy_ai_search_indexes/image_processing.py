@@ -243,8 +243,8 @@ class ImageProcessingAISearch(AISearch):
                     source="/document/page_wise_layout/*/chunk_sections",
                 ),
                 InputFieldMappingEntry(
-                    name="Figures",
-                    source_context="/document/page_wise_layout/*/chunk_figures/*",
+                    name="ChunkFigures",
+                    source="/document/page_wise_layout/*/chunk_figures/*",
                 ),
                 InputFieldMappingEntry(
                     name="DateLastModified", source="/document/DateLastModified"
@@ -269,8 +269,8 @@ class ImageProcessingAISearch(AISearch):
                     name="Sections", source="/document/chunk_mark_ups/*/chunk_sections"
                 ),
                 InputFieldMappingEntry(
-                    name="Figures",
-                    source_context="/document/chunk_mark_ups/*/chunk_figures/*",
+                    name="ChunkFigures",
+                    source="/document/chunk_mark_ups/*/chunk_figures/*",
                 ),
                 InputFieldMappingEntry(
                     name="DateLastModified", source="/document/DateLastModified"

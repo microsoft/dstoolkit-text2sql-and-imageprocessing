@@ -21,7 +21,7 @@ def deploy_config(arguments: argparse.Namespace):
         index_config = ImageProcessingAISearch(
             suffix=suffix,
             rebuild=arguments.rebuild,
-            enable_page_by_chunking=arguments.enable_page_chunking,
+            enable_page_by_chunking=arguments.enable_page_wise_chunking,
         )
     elif arguments.index_type == "text_2_sql_schema_store":
         index_config = Text2SqlSchemaStoreAISearch(
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         help="Whether want to delete and rebuild the index",
     )
     parser.add_argument(
-        "--enable_page_chunking",
+        "--enable_page_wise_chunking",
         type=bool,
         required=False,
         help="Whether want to enable chunking by page in adi skill, if no value is passed considered False",
