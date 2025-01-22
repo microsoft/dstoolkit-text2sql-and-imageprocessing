@@ -902,6 +902,9 @@ postgresql = [
 snowflake = [
     { name = "text-2-sql-core", extra = ["snowflake"] },
 ]
+sqlite = [
+    { name = "text-2-sql-core", extra = ["sqlite"] },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -925,6 +928,7 @@ requires-dist = [
     { name = "text-2-sql-core", extras = ["databricks"], marker = "extra == 'databricks'", editable = "text_2_sql/text_2_sql_core" },
     { name = "text-2-sql-core", extras = ["postgresql"], marker = "extra == 'postgresql'", editable = "text_2_sql/text_2_sql_core" },
     { name = "text-2-sql-core", extras = ["snowflake"], marker = "extra == 'snowflake'", editable = "text_2_sql/text_2_sql_core" },
+    { name = "text-2-sql-core", extras = ["sqlite"], marker = "extra == 'sqlite'", editable = "text_2_sql/text_2_sql_core" },
 ]
 
 [package.metadata.requires-dev]
