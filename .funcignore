@@ -6,3 +6,10 @@ __queuestorage__
 local.settings.json
 test
 .venv
+.github/*
+.devcontainer/*
+.ruff_cache/*
+deploy_ai_search_indexes/*
+text_2_sql/*
+documentation/*
+images/
