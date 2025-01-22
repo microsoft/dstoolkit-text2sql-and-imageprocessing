@@ -222,8 +222,7 @@ class AISearchEnvironment:
         This function returns true if private endpoint is used
         """
         return (
-            os.environ.get(
-                "AIService__AzureSearchOptions__UsePrivateEndpoint").lower()
+            os.environ.get("AIService__AzureSearchOptions__UsePrivateEndpoint").lower()
             == "true"
         )
 
@@ -232,8 +231,6 @@ class AISearchEnvironment:
         Get the function app url that is hosting the custom skill
         """
 
-        full_url = (
-            f"{self.function_app_end_point}/api/{skill_type}?code={self.function_app_key}"
-        )
+        full_url = f"{self.function_app_end_point}/api/{skill_type}?code={self.function_app_key}"
 
         return full_url
