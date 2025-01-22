@@ -1,5 +1,5 @@
 [project]
-name = "deploy-ai-search"
+name = "deploy_ai_search_indexes"
 version = "0.1.0"
 description = "Helper functions to deploy Azure AI Search"
 readme = "README.md"

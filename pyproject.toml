@@ -1,11 +1,10 @@
 [project]
 name = "dstoolkit-text2sql-and-imageprocessing"
 version = "0.1.0"
-description = "Add your description here"
+description = "This repo accelerates development of RAG applications with rich data sources including SQL Warehouses and documents analysed with Azure Document Intelligence."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "text-2-sql-core[sqlite]",
 ]
 
 [dependency-groups]
@@ -20,7 +19,7 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["text_2_sql/text_2_sql_core", "text_2_sql/autogen", "deploy_ai_search_indexes", "image_processing", "text_2_sql/semantic_kernel"]
+members = ["text_2_sql/text_2_sql_core", "text_2_sql/autogen", "deploy_ai_search_indexes", "image_processing"]
 
 [tool.uv.sources]
-text-2-sql-core = { workspace = true }
+text_2_sql_core = { workspace = true }
