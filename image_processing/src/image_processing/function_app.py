@@ -54,7 +54,7 @@ async def layout_analysis(req: func.HttpRequest) -> func.HttpResponse:
 
 
 @app.route(route="figure_analysis", methods=[func.HttpMethod.POST])
-async def main(req: func.HttpRequest) -> func.HttpResponse:
+async def figure_analysis(req: func.HttpRequest) -> func.HttpResponse:
     try:
         req_body = req.get_json()
         values = req_body.get("values")
@@ -67,10 +67,12 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
 
         record_tasks = []
 
-        figure_analysis = FigureAnalysis()
+        figure_analysis_processor = FigureAnalysis()
 
         for value in values:
-            record_tasks.append(asyncio.create_task(figure_analysis.analyse(value)))
+            record_tasks.append(
+                asyncio.create_task(figure_analysis_processor.analyse(value))
+            )
 
         results = await asyncio.gather(*record_tasks)
         logging.info("Results: %s", results)
@@ -96,11 +98,11 @@ async def layout_and_figure_merger(req: func.HttpRequest) -> func.HttpResponse:
 
         record_tasks = []
 
-        layout_and_figure_merger = LayoutAndFigureMerger()
+        layout_and_figure_merger_processor = LayoutAndFigureMerger()
 
         for value in values:
             record_tasks.append(
-                asyncio.create_task(layout_and_figure_merger.merge(value))
+                asyncio.create_task(layout_and_figure_merger_processor.merge(value))
             )
 
         results = await asyncio.gather(*record_tasks)
@@ -136,10 +138,12 @@ async def mark_up_cleaner(req: func.HttpRequest) -> func.HttpResponse:
 
         record_tasks = []
 
-        mark_up_cleaner = MarkUpCleaner()
+        mark_up_cleaner_processor = MarkUpCleaner()
 
         for value in values:
-            record_tasks.append(asyncio.create_task(mark_up_cleaner.clean(value)))
+            record_tasks.append(
+                asyncio.create_task(mark_up_cleaner_processor.clean(value))
+            )
 
         results = await asyncio.gather(*record_tasks)
         logging.debug("Results: %s", results)
@@ -185,7 +189,7 @@ async def semantic_text_chunker(req: func.HttpRequest) -> func.HttpResponse:
 
         record_tasks = []
 
-        semantic_text_chunker = SemanticTextChunker(
+        semantic_text_chunker_processor = SemanticTextChunker(
             num_surrounding_sentences=num_surrounding_sentences,
             similarity_threshold=similarity_threshold,
             max_chunk_tokens=max_chunk_tokens,
@@ -195,7 +199,9 @@ async def semantic_text_chunker(req: func.HttpRequest) -> func.HttpResponse:
         for value in values:
             record_tasks.append(
                 asyncio.create_task(
-                    process_semantic_text_chunker(value, semantic_text_chunker)
+                    process_semantic_text_chunker(
+                        value, semantic_text_chunker_processor
+                    )
                 )
             )
 
@@ -204,5 +210,5 @@ async def semantic_text_chunker(req: func.HttpRequest) -> func.HttpResponse:
         cleaned_tasks = {"values": results}
 
         return func.HttpResponse(
-            json.dump(cleaned_tasks), status_code=200, mimetype="application/json"
+            json.dumps(cleaned_tasks), status_code=200, mimetype="application/json"
         )
