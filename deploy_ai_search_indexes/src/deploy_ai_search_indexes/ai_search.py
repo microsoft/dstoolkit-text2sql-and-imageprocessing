@@ -196,7 +196,7 @@ class AISearch(ABC):
 
         return data_source_connection
 
-    def get_mark_up_cleaner_skill(self, context, source) -> WebApiSkill:
+    def get_mark_up_cleaner_skill(self, chunk_by_page: False) -> WebApiSkill:
         """Get the custom skill for data cleanup.
 
         Args:
@@ -215,29 +215,47 @@ class AISearch(ABC):
             batch_size = 16
             degree_of_parallelism = 16
 
-        mark_up_cleaner_skill_inputs = [
-            InputFieldMappingEntry(name="chunk", source=source),
-            InputFieldMappingEntry(
-                name="figure_storage_prefix", source="/document/metadata_storage_path"
-            ),
-        ]
+        if chunk_by_page:
+            mark_up_cleaner_context = "/document/page_wise_layout/*"
+            inputs = [
+                InputFieldMappingEntry(
+                    name="chunk", source="/document/page_wise_layout/*/merged_content"
+                ),
+                InputFieldMappingEntry(
+                    name="figures",
+                    source="/document/page_wise_layout/*/figures/*/updated_figure",
+                ),
+            ]
+        else:
+            mark_up_cleaner_context = "/document/chunk_mark_ups/*"
+            inputs = [
+                InputFieldMappingEntry(
+                    name="chunk", source="/document/chunk_mark_ups/*"
+                ),
+                InputFieldMappingEntry(
+                    name="figures", source="/document/layout/figures/*/updated_figure"
+                ),
+            ]
 
         mark_up_cleaner_skill_outputs = [
-            OutputFieldMappingEntry(name="cleaned_chunk", target_name="cleaned_chunk"),
-            OutputFieldMappingEntry(name="chunk", target_name="chunk"),
-            OutputFieldMappingEntry(name="sections", target_name="sections"),
+            OutputFieldMappingEntry(name="chunk_cleaned", target_name="chunk_cleaned"),
+            OutputFieldMappingEntry(
+                name="chunk_sections", target_name="chunk_sections"
+            ),
+            OutputFieldMappingEntry(name="chunk_mark_up", target_name="chunk_mark_up"),
+            OutputFieldMappingEntry(name="chunk_figures", target_name="chunk_figures"),
         ]
 
         mark_up_cleaner_skill = WebApiSkill(
             name="Mark Up Cleaner Skill",
             description="Skill to clean the data before sending to embedding",
-            context=context,
+            context=mark_up_cleaner_context,
             uri=self.environment.get_custom_skill_function_url("mark_up_cleaner"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
-            inputs=mark_up_cleaner_skill_inputs,
+            inputs=inputs,
             outputs=mark_up_cleaner_skill_outputs,
         )
 
@@ -255,8 +273,6 @@ class AISearch(ABC):
 
     def get_semantic_chunker_skill(
         self,
-        context,
-        source,
         num_surrounding_sentences: int = 1,
         similarity_threshold: float = 0.8,
         max_chunk_tokens: int = 200,
@@ -284,17 +300,17 @@ class AISearch(ABC):
             degree_of_parallelism = 16
 
         semantic_text_chunker_skill_inputs = [
-            InputFieldMappingEntry(name="content", source=source)
+            InputFieldMappingEntry(name="content", source="/document/merged_content")
         ]
 
         semantic_text_chunker_skill_outputs = [
-            OutputFieldMappingEntry(name="chunks", target_name="chunks"),
+            OutputFieldMappingEntry(name="chunks", target_name="chunk_mark_ups"),
         ]
 
         semantic_text_chunker_skill = WebApiSkill(
             name="Semantic Chunker Skill",
             description="Skill to clean the data before sending to embedding",
-            context=context,
+            context="/document",
             uri=self.environment.get_custom_skill_function_url("semantic_text_chunker"),
             timeout="PT230S",
             batch_size=batch_size,
@@ -345,7 +361,9 @@ class AISearch(ABC):
 
         if chunk_by_page:
             output = [
-                OutputFieldMappingEntry(name="layout", target_name="page_wise_layout")
+                OutputFieldMappingEntry(
+                    name="page_wise_layout", target_name="page_wise_layout"
+                )
             ]
         else:
             output = [OutputFieldMappingEntry(name="layout", target_name="layout")]
@@ -383,7 +401,7 @@ class AISearch(ABC):
 
         return layout_analysis_skill
 
-    def get_figure_analysis_skill(self, figure_source) -> WebApiSkill:
+    def get_figure_analysis_skill(self, chunk_by_page=False) -> WebApiSkill:
         """Get the custom skill for figure analysis.
 
         Args:
@@ -406,16 +424,32 @@ class AISearch(ABC):
             OutputFieldMappingEntry(name="updated_figure", target_name="updated_figure")
         ]
 
+        if chunk_by_page:
+            figure_context = "/document/page_wise_layout/*"
+            inputs = [
+                InputFieldMappingEntry(
+                    name="figure", source="/document/page_wise_layout/*/figures/*"
+                )
+            ]
+        else:
+            figure_context = "/document/layout/figures/*"
+
+            inputs = [
+                InputFieldMappingEntry(
+                    name="figure", source="/document/layout/figures/*"
+                )
+            ]
+
         figure_analysis_skill = WebApiSkill(
             name="Figure Analysis Skill",
             description="Skill to generate figure analysis",
-            context=figure_source,
+            context=figure_context,
             uri=self.environment.get_custom_skill_function_url("figure_analysis"),
             timeout="PT230S",
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
-            inputs=[InputFieldMappingEntry(name="figure", source=figure_source)],
+            inputs=inputs,
             outputs=output,
         )
 
@@ -431,7 +465,7 @@ class AISearch(ABC):
 
         return figure_analysis_skill
 
-    def get_layout_and_figure_merger_skill(self, figure_source) -> WebApiSkill:
+    def get_layout_and_figure_merger_skill(self, chunk_by_page=False) -> WebApiSkill:
         """Get the custom skill for layout and figure merger.
 
         Args:
@@ -450,14 +484,32 @@ class AISearch(ABC):
             batch_size = 1
             degree_of_parallelism = 8
 
-        output = [
-            OutputFieldMappingEntry(name="updated_figure", target_name="updated_figure")
-        ]
+        output = [OutputFieldMappingEntry(name="content", target_name="merged_content")]
+        if chunk_by_page:
+            merger_context = "/document/page_wise_layout/*"
+            inputs = [
+                InputFieldMappingEntry(
+                    name="layout", source="/document/page_wise_layout/*"
+                ),
+                InputFieldMappingEntry(
+                    name="figures",
+                    source="/document/page_wise_layout/*/figures/*/updated_figure",
+                ),
+            ]
+        else:
+            merger_context = "/document/layout"
+
+            inputs = [
+                InputFieldMappingEntry(name="layout", source="/document/layout"),
+                InputFieldMappingEntry(
+                    name="figures", source="/document/layout/figures/*/updated_figure"
+                ),
+            ]
 
         figure_analysis_skill = WebApiSkill(
             name="Layout and Figure Merger Skill",
             description="Skill to merge layout and figure analysis",
-            context=figure_source,
+            context=merger_context,
             uri=self.environment.get_custom_skill_function_url(
                 "layout_and_figure_merger"
             ),
@@ -465,7 +517,7 @@ class AISearch(ABC):
             batch_size=batch_size,
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
-            inputs=[InputFieldMappingEntry(name="figure", source=figure_source)],
+            inputs=inputs,
             outputs=output,
         )
 

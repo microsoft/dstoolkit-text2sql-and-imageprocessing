@@ -181,21 +181,27 @@ class ImageProcessingAISearch(AISearch):
 
         layout_skill = self.get_layout_analysis_skill(self.enable_page_by_chunking)
 
-        figure_skill = self.get_figure_analysis_skill()
+        figure_skill = self.get_figure_analysis_skill(self.enable_page_by_chunking)
 
-        merger_skill = self.get_layout_and_figure_merger_skill()
-
-        text_split_skill = self.get_semantic_chunker_skill(
-            "/document", "/document/extracted_content/content"
+        merger_skill = self.get_layout_and_figure_merger_skill(
+            self.enable_page_by_chunking
         )
+
+        text_split_skill = self.get_semantic_chunker_skill(self.enable_page_by_chunking)
 
         mark_up_cleaner_skill = self.get_mark_up_cleaner_skill(
-            "/document/chunks/*", "/document/chunks/*/content"
+            self.enable_page_by_chunking
         )
 
-        embedding_skill = self.get_vector_skill(
-            "/document/chunks/*", "/document/chunks/*/cleaned_chunk"
-        )
+        if self.enable_page_by_chunking:
+            embedding_skill = self.get_vector_skill(
+                "/document/page_wise_layout/*",
+                "/document/page_wise_layout/*/chunk_cleaned",
+            )
+        else:
+            embedding_skill = self.get_vector_skill(
+                "/document/chunk_mark_ups/*", "/document/chunk_mark_ups/*/chunk_cleaned"
+            )
 
         if self.enable_page_by_chunking:
             skills = [
@@ -219,41 +225,64 @@ class ImageProcessingAISearch(AISearch):
 
     def get_index_projections(self) -> SearchIndexerIndexProjection:
         """This function returns the index projections for rag document."""
-        mappings = [
-            InputFieldMappingEntry(name="Chunk", source="/document/chunks/*/chunk"),
-            InputFieldMappingEntry(
-                name="ChunkEmbedding",
-                source="/document/chunks/*/vector",
-            ),
-            InputFieldMappingEntry(name="Title", source="/document/Title"),
-            InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
-            InputFieldMappingEntry(
-                name="Sections", source="/document/chunks/*/sections"
-            ),
-            InputFieldMappingEntry(
-                name="Figures",
-                source_context="/document/chunks/*/chunk_figures/*",
-            ),
-            InputFieldMappingEntry(
-                name="DateLastModified", source="/document/DateLastModified"
-            ),
-        ]
 
         if self.enable_page_by_chunking:
-            mappings.extend(
-                [
-                    InputFieldMappingEntry(
-                        name="PageNumber", source="/document/chunks/*/pageNumber"
-                    )
-                ]
-            )
+            source_context = "/document/page_wise_layout/*"
+            mappings = [
+                InputFieldMappingEntry(
+                    name="Chunk", source="/document/page_wise_layout/*/chunk_mark_up"
+                ),
+                InputFieldMappingEntry(
+                    name="ChunkEmbedding",
+                    source="/document/page_wise_layout/*/vector",
+                ),
+                InputFieldMappingEntry(name="Title", source="/document/Title"),
+                InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
+                InputFieldMappingEntry(
+                    name="Sections",
+                    source="/document/page_wise_layout/*/chunk_sections",
+                ),
+                InputFieldMappingEntry(
+                    name="Figures",
+                    source_context="/document/page_wise_layout/*/chunk_figures/*",
+                ),
+                InputFieldMappingEntry(
+                    name="DateLastModified", source="/document/DateLastModified"
+                ),
+                InputFieldMappingEntry(
+                    name="PageNumber", source="/document/page_wise_layout/*/#"
+                ),
+            ]
+        else:
+            source_context = "/document/chunks/*"
+            mappings = [
+                InputFieldMappingEntry(
+                    name="Chunk", source="/document/chunk_mark_ups/*/chunk_mark_up"
+                ),
+                InputFieldMappingEntry(
+                    name="ChunkEmbedding",
+                    source="/document/chunk_mark_ups/*/vector",
+                ),
+                InputFieldMappingEntry(name="Title", source="/document/Title"),
+                InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
+                InputFieldMappingEntry(
+                    name="Sections", source="/document/chunk_mark_ups/*/chunk_sections"
+                ),
+                InputFieldMappingEntry(
+                    name="Figures",
+                    source_context="/document/chunk_mark_ups/*/chunk_figures/*",
+                ),
+                InputFieldMappingEntry(
+                    name="DateLastModified", source="/document/DateLastModified"
+                ),
+            ]
 
         index_projections = SearchIndexerIndexProjection(
             selectors=[
                 SearchIndexerIndexProjectionSelector(
                     target_index_name=self.index_name,
                     parent_key_field_name="Id",
-                    source_context="/document/chunks/*",
+                    source_context=source_context,
                     mappings=mappings,
                 ),
             ],
