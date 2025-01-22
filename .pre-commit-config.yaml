@@ -52,12 +52,4 @@ repos:
       # Update the uv lockfile
       - id: uv-lock
       - id: uv-export
-        args: [--frozen, --no-hashes, --no-editable, --no-sources, --verbose, --no-group, dev, --directory, image_processing, -o, requirements.txt]
-
-  # - repo: local
-  #   hooks:
-  #     - id: compile-image-processing-requirements
-  #       name: compile-image-processing-requirements
-  #       language: system
-  #       entry: bash -c 'cd image_processing && exec uv export --frozen --no-hashes --no-editable --no-sources --verbose --no-group dev > src/image_processing/requirements.txt && cat src/image_processing/requirements.txt'
-  #       pass_filenames: false
+        args: [--frozen, --no-hashes, --no-editable, --no-sources, --verbose, --no-group, dev, --directory, image_processing, -o, src/image_processing/requirements.txt]
