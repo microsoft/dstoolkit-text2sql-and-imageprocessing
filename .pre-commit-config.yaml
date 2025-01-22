@@ -45,12 +45,12 @@ repos:
         args: [--fix, --ignore, UP007]
         exclude: samples
 
-  # - repo: https://github.com/astral-sh/uv-pre-commit
-  #   # uv version.
-  #   rev: 0.5.20
-  #   hooks:
-  #     # Update the uv lockfile
-  #     - id: uv-lock
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.5.20
+    hooks:
+      # Update the uv lockfile
+      - id: uv-lock
 
   - repo: local
     hooks:

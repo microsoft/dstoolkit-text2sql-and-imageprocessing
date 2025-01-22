@@ -5,6 +5,10 @@ description = "This repo accelerates development of RAG applications with rich d
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "deploy_ai_search_indexes",
+    "image_processing",
+    "text_2_sql_core",
+    "autogen_text_2_sql",
 ]
 
 [dependency-groups]
@@ -23,3 +27,6 @@ members = ["text_2_sql/text_2_sql_core", "text_2_sql/autogen", "deploy_ai_search
 
 [tool.uv.sources]
 text_2_sql_core = { workspace = true }
+autogen_text_2_sql = { workspace = true }
+deploy_ai_search_indexes = { workspace = true }
+image_processing = { workspace = true }
