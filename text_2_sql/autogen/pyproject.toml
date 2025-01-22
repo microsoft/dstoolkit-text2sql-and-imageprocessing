@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Ben Constable", email = "benconstable@microsoft.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "aiostream>=0.6.4",
     "autogen-agentchat==0.4.2",

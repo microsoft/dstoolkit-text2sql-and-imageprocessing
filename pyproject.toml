@@ -3,7 +3,7 @@ name = "dstoolkit-text2sql-and-imageprocessing"
 version = "0.1.0"
 description = "This repo accelerates development of RAG applications with rich data sources including SQL Warehouses and documents analysed with Azure Document Intelligence."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "deploy_ai_search_indexes",
     "image_processing",
