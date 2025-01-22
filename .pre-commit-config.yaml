@@ -57,5 +57,5 @@ repos:
       - id: compile-image-processing-requirements
         name: compile-image-processing-requirements
         language: system
-        entry: bash -c 'cd image_processing && exec uv export --frozen --no-hashes --no-editable --no-sources --verbose --no-group dev > src/image_processing/requirements.txt'
+        entry: bash -c 'cd image_processing && exec uv export --frozen --no-hashes --no-editable --no-sources --verbose --no-group dev > src/image_processing/requirements.txt && cat src/image_processing/requirements.txt'
         pass_filenames: false
