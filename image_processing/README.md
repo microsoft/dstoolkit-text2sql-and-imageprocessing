@@ -14,7 +14,7 @@ A common way to perform document indexing, is to either extract the text content
 
 To solve this issue and to ensure that good quality information is extracted from the document, an indexer using [Azure Document Intelligence (ADI)](https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/overview?view=doc-intel-4.0.0) is developed with [Custom Skills](https://learn.microsoft.com/en-us/azure/search/cognitive-search-custom-skill-web-api):
 
-![High level workflow for indexing with Azure Document Intelligence based skills](./figures/Indexing%20vs%20Indexing%20with%20ADI.png "Indexing with Azure Document Intelligence Approach")
+![High level workflow for indexing with Azure Document Intelligence based skills](./images/Indexing%20vs%20Indexing%20with%20ADI.png "Indexing with Azure Document Intelligence Approach")
 
 Instead of using OCR to extract the contents of the document, ADIv4 is used to analyse the layout of the document and convert it to a Markdown format. The Markdown format brings benefits such as:
 
