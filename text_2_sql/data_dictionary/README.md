@@ -203,7 +203,7 @@ This avoids having to index the fact tables, saving storage, and allows us to st
 
 ## Indexing
 
-`./deploy_ai_search/text_2_sql.py` & `./deploy_ai_search/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search/README.md`. There is **no automatic mechanism** to upload these .json files currently to a storage account, once generated, you must automatically upload them to the appropriate storage account that the indexer is connected to.
+`./deploy_ai_search_indexes/text_2_sql.py` & `./deploy_ai_search_indexes/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search_indexes/README.md`. There is **no automatic mechanism** to upload these .json files currently to a storage account, once generated, you must automatically upload them to the appropriate storage account that the indexer is connected to.
 
 ## Automatic Generation
 

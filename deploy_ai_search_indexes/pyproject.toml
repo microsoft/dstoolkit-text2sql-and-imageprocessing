@@ -1,22 +1,19 @@
 [project]
-name = "autogen_text_2_sql"
+name = "deploy_ai_search_indexes"
 version = "0.1.0"
-description = "AutoGen Based Implementation"
+description = "Helper functions to deploy Azure AI Search"
 readme = "README.md"
 authors = [
     { name = "Ben Constable", email = "benconstable@microsoft.com" }
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "aiostream>=0.6.4",
-    "autogen-agentchat==0.4.2",
-    "autogen-core==0.4.2",
-    "autogen-ext[azure,openai]==0.4.2",
-    "grpcio>=1.68.1",
-    "pyyaml>=6.0.2",
+    "azure-identity>=1.19.0",
+    "azure-mgmt-web>=7.3.1",
+    "azure-search-documents==11.6.0b8",
+    "azure-storage-blob>=12.24.0",
+    "python-dotenv>=1.0.1",
     "text_2_sql_core",
-    "sqlparse>=0.4.4",
-    "nltk>=3.8.1",
 ]
 
 [dependency-groups]
@@ -26,8 +23,8 @@ dev = [
     "jupyter>=1.1.1",
     "pre-commit>=4.0.1",
     "pygments>=2.18.0",
-    "python-dotenv>=1.0.1",
     "ruff>=0.8.1",
+    "python-dotenv>=1.0.1",
 ]
 
 [tool.uv.sources]

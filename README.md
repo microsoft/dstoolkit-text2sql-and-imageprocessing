@@ -11,18 +11,14 @@ It is intended that the plugins and skills provided in this repository, are adap
 ## Components
 
 - `./text_2_sql` contains an three Multi-Shot implementations for Text2SQL generation and querying which can be used to answer questions backed by a database as a knowledge base. A **prompt based** and **vector based** approach are shown, both of which exhibit great performance in answering sql queries. Additionally, a further iteration on the vector based approach is shown which uses a **query cache** to further speed up generation.  With these plugins, your RAG application can now access and pull data from any SQL table exposed to it to answer questions.
-- `./adi_function_app` contains code for linking **Azure Document Intelligence** with AI Search to process complex documents with charts and images, and uses **multi-modal models (gpt4o)** to interpret and understand these. With this custom skill, the RAG application can **draw insights from complex charts** and images during the vector search. This function app also contains a **Semantic Text Chunking** method that aims to intelligently group similar sentences, retaining figures and tables together, whilst separating out distinct sentences.
-- `./deploy_ai_search` provides an easy Python based utility for deploying an index, indexer and corresponding skillset for AI Search and for Text2SQL.
+- `./image_processing` contains code for linking **Azure Document Intelligence** with AI Search to process complex documents with charts and images, and uses **multi-modal models (gpt4o)** to interpret and understand these. With this custom skill, the RAG application can **draw insights from complex charts** and images during the vector search. This function app also contains a **Semantic Text Chunking** method that aims to intelligently group similar sentences, retaining figures and tables together, whilst separating out distinct sentences.
+- `./deploy_ai_search_indexes` provides an easy Python based utility for deploying an index, indexer and corresponding skillset for AI Search and for Text2SQL.
 
 The above components have been successfully used on production RAG projects to increase the quality of responses.
 
-_The code provided in this repo is a sample of the implementation and should be adjusted before being used in production._
-
-## High Level Implementation
-
-The following diagram shows a workflow for how the Text2SQL and AI Search plugin would be incorporated into a RAG application. Using the plugins available, alongside the Function Calling capabilities of LLMs, the LLM can do Chain of Thought reasoning to determine the steps needed to answer the question. This allows the LLM to recognise intent and therefore pick appropriate data sources based on the intent of the question, or a combination of both.
-
-![High level workflow for a plugin driven RAG application](./images/Plugin%20Based%20RAG%20Flow.png "High Level Workflow")
+> [!WARNING]
+>
+> - The code provided in this repo is a accelerator of the implementation and should be review / adjusted before being used in production.
 
 ## Contributing
 

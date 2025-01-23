@@ -1,0 +1,15 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AIService__DocumentIntelligence__Endpoint": "<documentIntelligenceEndpoint>",
+    "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "OpenAI__ApiKey": "<openAIKey if using non managed identity>",
+    "OpenAI__ApiVersion": "<openAIApiVersion>",
+    "OpenAI__CompletionDeployment": "<openAIEmbeddingDeploymentId>",
+    "OpenAI__Endpoint": "<openAIEndpoint>",
+    "SCM_DO_BUILD_DURING_DEPLOYMENT": "true",
+    "StorageAccount__Name": "<Name of storage account if using identity based connections>"
+  }
+}

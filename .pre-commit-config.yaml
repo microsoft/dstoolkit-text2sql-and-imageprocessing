@@ -45,9 +45,11 @@ repos:
         args: [--fix, --ignore, UP007]
         exclude: samples
 
-  # - repo: https://github.com/astral-sh/uv-pre-commit
-  #   # uv version.
-  #   rev: 0.5.5
-  #   hooks:
-  #     # Update the uv lockfile
-  #     - id: uv-lock
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.5.20
+    hooks:
+      # Update the uv lockfile
+      - id: uv-lock
+      - id: uv-export
+        args: [--frozen, --no-hashes, --no-editable, --no-sources, --verbose, --no-group, dev, --directory, image_processing, -o, src/image_processing/requirements.txt]
