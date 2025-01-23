@@ -300,7 +300,9 @@ class AISearch(ABC):
             degree_of_parallelism = 16
 
         semantic_text_chunker_skill_inputs = [
-            InputFieldMappingEntry(name="content", source="/document/merged_content")
+            InputFieldMappingEntry(
+                name="content", source="/document/layout/merged_content"
+            )
         ]
 
         semantic_text_chunker_skill_outputs = [
