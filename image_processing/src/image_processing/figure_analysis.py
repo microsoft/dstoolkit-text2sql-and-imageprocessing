@@ -197,10 +197,9 @@ class FigureAnalysis:
         - record (dict): The record containing the image, its caption, and the generated description.
         """
 
-        logging.info(f"Record: {record}")
-        figure = FigureHolder(**record["data"]["figure"])
-
         try:
+            logging.info(f"Record: {record}")
+            figure = FigureHolder(**record["data"]["figure"])
             updated_data = await self.understand_image_with_gptv(figure)
             logging.info(f"Updated Figure Data: {updated_data}")
         except RetryError as e:
@@ -230,6 +229,19 @@ class FigureAnalysis:
                     ],
                     "warnings": None,
                 }
+        except Exception as e:
+            logging.error(f"Failed to analyse image. Error: {e}")
+            logging.error(f"Failed input: {record}")
+            return {
+                "recordId": record["recordId"],
+                "data": None,
+                "errors": [
+                    {
+                        "message": "Failed to analyse image. Check the logs for more details.",
+                    }
+                ],
+                "warnings": None,
+            }
         else:
             return {
                 "recordId": record["recordId"],

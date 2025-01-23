@@ -94,18 +94,18 @@ class MarkUpCleaner:
                 logging.error("Input text is empty")
                 raise ValueError("Input text is empty")
 
-            return_record["marked_up_chunk"] = text
+            return_record["chunk_mark_up"] = text
 
             figure_ids = self.get_figure_ids(text)
 
-            return_record["sections"] = self.get_sections(text)
-            return_record["figures"] = [
+            return_record["chunk_sections"] = self.get_sections(text)
+            return_record["chunk_figures"] = [
                 figure.model_dump(by_alias=True)
                 for figure in figures
                 if figure.figure_id in figure_ids
             ]
 
-            logging.info(f"Sections: {return_record['sections']}")
+            logging.info(f"Sections: {return_record['chunk_sections']}")
 
             # Define specific patterns for each tag
             tag_patterns = {
@@ -128,7 +128,7 @@ class MarkUpCleaner:
                 logging.error("Cleaned text is empty")
                 raise ValueError("Cleaned text is empty")
             else:
-                return_record["cleaned_chunk"] = cleaned_text
+                return_record["chunk_cleaned"] = cleaned_text
         except Exception as e:
             logging.error(f"An error occurred in clean_text_and_extract_metadata: {e}")
             return ""

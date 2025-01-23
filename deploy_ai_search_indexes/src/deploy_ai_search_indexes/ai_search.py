@@ -425,7 +425,7 @@ class AISearch(ABC):
         ]
 
         if chunk_by_page:
-            figure_context = "/document/page_wise_layout/*"
+            figure_context = "/document/page_wise_layout/*/figures/*"
             inputs = [
                 InputFieldMappingEntry(
                     name="figure", source="/document/page_wise_layout/*/figures/*"

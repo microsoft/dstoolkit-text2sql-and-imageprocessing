@@ -250,11 +250,11 @@ class ImageProcessingAISearch(AISearch):
                     name="DateLastModified", source="/document/DateLastModified"
                 ),
                 InputFieldMappingEntry(
-                    name="PageNumber", source="/document/page_wise_layout/*/#"
+                    name="PageNumber", source="/document/page_wise_layout/*/page_number"
                 ),
             ]
         else:
-            source_context = "/document/chunks/*"
+            source_context = "/document/chunk_mark_ups/*"
             mappings = [
                 InputFieldMappingEntry(
                     name="Chunk", source="/document/chunk_mark_ups/*/chunk_mark_up"

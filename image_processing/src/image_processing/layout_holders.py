@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 
@@ -9,16 +9,18 @@ class FigureHolder(BaseModel):
 
     """A class to hold the figure extracted from the document."""
 
-    figure_id: str
-    container: str = Field(exclude=True)
-    blob: str = Field(exclude=True)
-    caption: Optional[str] = Field(default=None)
+    figure_id: str = Field(..., alias="FigureId")
+    container: Optional[str] = Field(exclude=True, default=None)
+    blob: Optional[str] = Field(exclude=True, default=None)
+    caption: Optional[str] = Field(default=None, alias="Caption")
     offset: int
     length: int
-    page_number: Optional[int] = Field(default=None)
-    uri: str
-    description: Optional[str] = Field(default="")
-    data: Optional[str] = Field(default=None)
+    page_number: Optional[int] = Field(default=None, alias="PageNumber")
+    uri: str = Field(..., alias="Uri")
+    description: Optional[str] = Field(default="", alias="Description")
+    data: Optional[str] = Field(default=None, alias="Data")
+
+    model_config = ConfigDict(populate_by_name=True)
 
     @property
     def markdown(self) -> str:

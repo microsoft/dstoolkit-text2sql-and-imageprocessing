@@ -22,7 +22,7 @@ async def layout_analysis(req: func.HttpRequest) -> func.HttpResponse:
         values = req_body.get("values")
         adi_config = req.headers
 
-        page_wise = adi_config.get("page_wise", "False").lower() == "true"
+        page_wise = adi_config.get("chunk_by_page", "False").lower() == "true"
         extract_figures = adi_config.get("extract_figures", "True").lower() == "true"
         logging.info(f"Chunk by Page: {page_wise}")
     except ValueError:
