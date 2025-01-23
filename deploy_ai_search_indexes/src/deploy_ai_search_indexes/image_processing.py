@@ -187,8 +187,6 @@ class ImageProcessingAISearch(AISearch):
             self.enable_page_by_chunking
         )
 
-        text_split_skill = self.get_semantic_chunker_skill(self.enable_page_by_chunking)
-
         mark_up_cleaner_skill = self.get_mark_up_cleaner_skill(
             self.enable_page_by_chunking
         )
@@ -212,11 +210,12 @@ class ImageProcessingAISearch(AISearch):
                 embedding_skill,
             ]
         else:
+            semantic_chunker_skill = self.get_semantic_chunker_skill()
             skills = [
                 layout_skill,
                 figure_skill,
                 merger_skill,
-                text_split_skill,
+                semantic_chunker_skill,
                 mark_up_cleaner_skill,
                 embedding_skill,
             ]

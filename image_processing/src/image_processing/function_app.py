@@ -171,14 +171,16 @@ async def semantic_text_chunker(req: func.HttpRequest) -> func.HttpResponse:
 
         semantic_text_chunker_config = req.headers
 
-        num_surrounding_sentences = semantic_text_chunker_config.get(
-            "num_surrounding_sentences", 1
+        num_surrounding_sentences = int(
+            semantic_text_chunker_config.get("num_surrounding_sentences", 1)
         )
-        similarity_threshold = semantic_text_chunker_config.get(
-            "similarity_threshold", 0.8
+        similarity_threshold = float(
+            semantic_text_chunker_config.get("similarity_threshold", 0.8)
         )
-        max_chunk_tokens = semantic_text_chunker_config.get("max_chunk_tokens", 500)
-        min_chunk_tokens = semantic_text_chunker_config.get("min_chunk_tokens", 50)
+        max_chunk_tokens = int(
+            semantic_text_chunker_config.get("max_chunk_tokens", 500)
+        )
+        min_chunk_tokens = int(semantic_text_chunker_config.get("min_chunk_tokens", 50))
 
     except ValueError:
         return func.HttpResponse(

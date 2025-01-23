@@ -25,6 +25,7 @@ Instead of using OCR to extract the contents of the document, ADIv4 is used to a
 Once the Markdown is obtained, several steps are carried out:
 
 1. **Extraction of figures / charts**. The figures identified are extracted from the original document and passed to a multi-modal model (gpt-4o-mini in this case) for analysis. We obtain a description and summary of the chart / image to infer the meaning of the figure. This allows us to index and perform RAG analysis the information that is visually obtainable from a chart, without it being explicitly mentioned in the text surrounding. The information is added back into the original chart.
+    - **The prompt aims to generate a description and summary of the chart so it can be retrieved later during search. It does not aim to summarise every part of the figure. At runtime, retrieve the figures for the given chunk from the index and pass them to the visual model for context.**
 
 2. **Chunking**. The obtained content is chunked accordingly depending on the chunking strategy. This function app supports two chunking methods, **page wise** and **semantic chunking**. The page wise chunking is performed natively by Azure Document Intelligence. For a Semantic Chunking, we include a customer chunker that splits the text with the following strategy:
 
@@ -38,9 +39,21 @@ Once the Markdown is obtained, several steps are carried out:
 
 3. **Cleaning of Markdown**. The final markdown content is cleaned of any characters or unsupported Markdown elements that we do not want in the chunk e.g. non-relevant figures.
 
+### AI Search Enrichment Steps
+
 > [!NOTE]
 >
-> For scalability, the above steps are performed across 5 differnet function app endpoints that are orchestrated by AI search.
+> For scalability, the above steps are performed across 5 different function app endpoints that are orchestrated by AI search.
+
+### Page Wise Chunking
+
+![AI Search Enrichment Steps & Flow for Page Wise Chunking](./images/Page%20Wise%20Chunking.png "Page Wise Chunking Enrichment Steps")
+
+### Semantic Chunking
+
+![AI Search Enrichment Steps & Flow for Semantic Chunking](./images/Semantic%20Chunking.png "Semantic Chunking Enrichment Steps")
+
+Here, the output from the layout is considered a single block of text and the customer semantic chunker is used before vectorisation and projections. The custom chunker aims to retain figures and tables within the same chunks, and chunks when the similarity between sentences is lower than the threshold.
 
 ## Sample Output
 
