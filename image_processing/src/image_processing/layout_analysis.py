@@ -168,7 +168,7 @@ class LayoutAnalysis:
 
         self.container = source_parts[3]
 
-        self.images_container = f"{self.container}-images"
+        self.images_container = f"{self.container}-figures"
 
         self.file_extension = self.blob.split(".")[-1]
 
