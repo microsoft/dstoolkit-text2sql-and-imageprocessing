@@ -175,3 +175,4 @@ system_message: |
        - Multiple queries get comparable data
        - Final step compares results
   </combination_patterns>
+structured_output: true
