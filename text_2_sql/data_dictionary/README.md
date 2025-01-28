@@ -231,7 +231,7 @@ To generate a data dictionary, perform the following steps:
 **Execute the following commands in the `text_2_sql_core` directory:**
 2. Package and install the `text_2_sql_core` library. See [build](https://docs.astral.sh/uv/concepts/projects/build/) if you want to build as a wheel and install on an agent. Or you can run from within a `uv` environment and skip packaging.
     - Install the optional dependencies if you need a database connector other than TSQL. `uv sync --extra <DATABASE ENGINE>`
-3. Run `data_dictionary <DATABASE ENGINE>`
+3. Run `uv run data_dictionary <DATABASE ENGINE>`
     - You can pass the following command line arguements:
         - `-- output_directory` or `-o`: Optional directory that the script will write the output files to.
         - `-- single_file` or `-s`: Optional flag that writes all schemas to a single file.
@@ -244,4 +244,4 @@ To generate a data dictionary, perform the following steps:
 
 > [!IMPORTANT]
 >
-> - The data dictioonary generation scripts will output column values for all possible filter clauses. This could lead to output of sensitive information. You should add exclusion criteria to exclude these for only columns that you may want to filter by.
+> - The data dictionary generation scripts will output column values for all possible filter clauses. This could lead to output of sensitive information. You should add exclusion criteria to exclude these for only columns that you may want to filter by.
