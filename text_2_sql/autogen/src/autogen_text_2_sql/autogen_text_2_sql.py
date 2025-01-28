@@ -41,6 +41,8 @@ class AutoGenText2Sql:
 
         self.kwargs = {**DEFAULT_INJECTED_PARAMETERS, **kwargs}
 
+        self._agentic_flow = None
+
     def get_all_agents(self):
         """Get all agents for the complete flow."""
 
@@ -97,6 +99,10 @@ class AutoGenText2Sql:
     @property
     def agentic_flow(self):
         """Create the unified flow for the complete process."""
+
+        if self._agentic_flow is not None:
+            return self._agentic_flow
+
         flow = SelectorGroupChat(
             self.get_all_agents(),
             allow_repeated_speaker=False,
@@ -104,7 +110,9 @@ class AutoGenText2Sql:
             termination_condition=self.termination_condition,
             selector_func=self.unified_selector,
         )
-        return flow
+
+        self._agentic_flow = flow
+        return self._agentic_flow
 
     def parse_message_content(self, content):
         """Parse different message content formats into a dictionary."""
@@ -250,7 +258,7 @@ class AutoGenText2Sql:
         Args:
         ----
             task (str): The user message to process.
-            chat_history (list[str], optional): The chat history. Defaults to None.
+            chat_history (list[str], optional): The chat history. Defaults to None. The last message is the most recent message.
             injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:
@@ -262,17 +270,23 @@ class AutoGenText2Sql:
 
         agent_input = {
             "message": message_payload.body.user_message,
-            "chat_history": {},
             "injected_parameters": message_payload.body.injected_parameters,
         }
 
+        latest_state = None
         if chat_history is not None:
             # Update input
-            for idx, chat in enumerate(chat_history):
-                if chat.root.payload_type == PayloadType.USER_MESSAGE:
-                    # For now only consider the user query
-                    chat_history_key = f"chat_{idx}"
-                    agent_input[chat_history_key] = chat.root.body.user_message
+            for chat in reversed(chat_history):
+                if chat.root.payload_type in [
+                    PayloadType.ANSWER_WITH_SOURCES,
+                    PayloadType.DISAMBIGUATION_REQUESTS,
+                ]:
+                    latest_state = chat.body.assistant_state
+                    break
+
+        # TODO: Trim the chat history to the last message from the user
+        if latest_state is not None:
+            await self.agentic_flow.load_state(latest_state)
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)
@@ -312,6 +326,22 @@ class AutoGenText2Sql:
                 logging.error("Unexpected TaskResult: %s", message)
                 raise ValueError("Unexpected TaskResult")
 
-            if payload is not None:
+            if (
+                payload is not None
+                and payload.payload_type is PayloadType.PROCESSING_UPDATE
+            ):
                 logging.debug("Payload: %s", payload)
                 yield payload
+
+        # Return the final payload
+        if (
+            payload is not None
+            and payload.payload_type is not PayloadType.PROCESSING_UPDATE
+        ):
+            # Get the state
+            assistant_state = await self.agentic_flow.save_state()
+            payload.body.assistant_state = assistant_state
+
+            logging.debug("Final Payload: %s", payload)
+
+            yield payload

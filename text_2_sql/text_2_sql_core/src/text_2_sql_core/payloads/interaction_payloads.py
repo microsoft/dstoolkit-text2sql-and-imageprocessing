@@ -17,7 +17,7 @@ DEFAULT_INJECTED_PARAMETERS = {
 
 class PayloadSource(StrEnum):
     USER = "user"
-    AGENT = "agent"
+    ASSISTANT = "assistant"
 
 
 class PayloadType(StrEnum):
@@ -42,11 +42,13 @@ class PayloadBase(InteractionPayloadBase):
     payload_type: PayloadType = Field(..., alias="payloadType")
     payload_source: PayloadSource = Field(..., alias="payloadSource")
 
+    body: InteractionPayloadBase | None = Field(default=None)
+
 
 class DismabiguationRequestsPayload(InteractionPayloadBase):
     class Body(InteractionPayloadBase):
         class DismabiguationRequest(InteractionPayloadBase):
-            agent_question: str | None = Field(..., alias="agentQuestion")
+            ASSISTANT_question: str | None = Field(..., alias="ASSISTANTQuestion")
             user_choices: list[str] | None = Field(default=None, alias="userChoices")
 
         disambiguation_requests: list[DismabiguationRequest] | None = Field(
@@ -55,12 +57,13 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
         decomposed_user_messages: list[list[str]] = Field(
             default_factory=list, alias="decomposedUserMessages"
         )
+        assistant_state: dict | None = Field(default=None, alias="assistantState")
 
     payload_type: Literal[PayloadType.DISAMBIGUATION_REQUESTS] = Field(
         PayloadType.DISAMBIGUATION_REQUESTS, alias="payloadType"
     )
-    payload_source: Literal[PayloadSource.AGENT] = Field(
-        default=PayloadSource.AGENT, alias="payloadSource"
+    payload_source: Literal[PayloadSource.ASSISTANT] = Field(
+        default=PayloadSource.ASSISTANT, alias="payloadSource"
     )
     body: Body | None = Field(default=None)
 
@@ -83,12 +86,13 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
             default_factory=list, alias="decomposedUserMessages"
         )
         sources: list[Source] = Field(default_factory=list)
+        assistant_state: dict | None = Field(default=None, alias="assistantState")
 
     payload_type: Literal[PayloadType.ANSWER_WITH_SOURCES] = Field(
         PayloadType.ANSWER_WITH_SOURCES, alias="payloadType"
     )
-    payload_source: Literal[PayloadSource.AGENT] = Field(
-        PayloadSource.AGENT, alias="payloadSource"
+    payload_source: Literal[PayloadSource.ASSISTANT] = Field(
+        PayloadSource.ASSISTANT, alias="payloadSource"
     )
     body: Body | None = Field(default=None)
 
@@ -108,8 +112,8 @@ class ProcessingUpdatePayload(InteractionPayloadBase):
     payload_type: Literal[PayloadType.PROCESSING_UPDATE] = Field(
         PayloadType.PROCESSING_UPDATE, alias="payloadType"
     )
-    payload_source: Literal[PayloadSource.AGENT] = Field(
-        PayloadSource.AGENT, alias="payloadSource"
+    payload_source: Literal[PayloadSource.ASSISTANT] = Field(
+        PayloadSource.ASSISTANT, alias="payloadSource"
     )
     body: Body | None = Field(default=None)
 
