@@ -6,6 +6,7 @@ import logging
 import typer
 from rich import print as rich_print
 from tenacity import RetryError
+import traceback
 
 logging.basicConfig(level=logging.INFO)
 
@@ -103,11 +104,13 @@ def create(
             rich_print(f"Database Engine {engine.value} is not supported.")
 
             raise typer.Exit(code=1)
-    except ImportError:
+    except Exception as e:
+        logging.error(e)
         detailed_error = f"""Failed to import {
-            engine.value} Data Dictionary Creator. Check you have installed the optional dependencies for this database engine."""
+            engine.value} Data Dictionary Creator. Check you have installed the optional dependencies for this database engine and have configured all the environmental variables."""
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
         rich_print(detailed_error)
+        rich_print(f"Error Messages: {traceback.format_exc()}")
 
         raise typer.Exit(code=1)
 
@@ -120,6 +123,7 @@ def create(
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 
         rich_print(f"Error Messages: {e}")
+        rich_print(traceback.format_exc())
 
         raise typer.Exit(code=1)
     except Exception as e:
@@ -127,7 +131,7 @@ def create(
 
         rich_print("Text2SQL Data Dictionary Creator Failed ❌")
 
-        rich_print(f"Error Messages: {e}")
+        rich_print(f"Error Messages: {traceback.format_exc()}")
 
         raise typer.Exit(code=1)
     else:
