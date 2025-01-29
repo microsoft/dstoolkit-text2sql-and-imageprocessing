@@ -25,7 +25,7 @@ class InMemoryStateStore(StateStore):
 
 
 class CosmosStateStore(StateStore):
-    def __init__(self, endpoint, database, container, credential, partition_key = None):
+    def __init__(self, endpoint, database, container, credential, partition_key=None):
         client = CosmosClient(
             url=endpoint,
             credential=credential
@@ -37,10 +37,10 @@ class CosmosStateStore(StateStore):
         # Set partition key field name
         props = self._db.read()
         pk_paths = props["partitionKey"]["paths"]
-        if (len(pk_paths) != 1):
+        if len(pk_paths) != 1:
             raise ValueError("Only single partition key is supported")
         self.partition_key_name = pk_paths[0].lstrip("/")
-        if ("/" in self.partition_key_name):
+        if "/" in self.partition_key_name:
             raise ValueError("Only top-level partition key is supported")
 
     def get_state(self, thread_id: str) -> dict:
