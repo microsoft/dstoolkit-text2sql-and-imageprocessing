@@ -32,7 +32,7 @@ from typing import AsyncGenerator
 
 
 class AutoGenText2Sql:
-    def __init__(self, state_store : StateStore, **kwargs):
+    def __init__(self, state_store: StateStore, **kwargs):
         self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
 
         if not state_store:
