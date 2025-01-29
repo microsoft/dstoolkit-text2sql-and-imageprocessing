@@ -12,7 +12,7 @@ import logging
 from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
     ParallelQuerySolvingAgent,
 )
-from state_store import StateStore
+from autogen_text_2_sql.state_store import StateStore
 from autogen_agentchat.messages import TextMessage
 import json
 import os
