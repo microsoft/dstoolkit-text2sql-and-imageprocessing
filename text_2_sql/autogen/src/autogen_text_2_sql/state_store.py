@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from cachetools import TTLCache
 from azure.cosmos import CosmosClient, exceptions
-from azure.identity import DefaultAzureCredential
+
 
 class StateStore(ABC):
     @abstractmethod
@@ -25,10 +25,10 @@ class InMemoryStateStore(StateStore):
 
 
 class CosmosStateStore(StateStore):
-    def __init__(self, endpoint, database, container, partition_key = None):
+    def __init__(self, endpoint, database, container, credential, partition_key = None):
         client = CosmosClient(
             url=endpoint,
-            credential=DefaultAzureCredential(),
+            credential=credential
         )
         database_client = client.get_database_client(database)
         self._db = database_client.get_container_client(container)
