@@ -26,10 +26,7 @@ class InMemoryStateStore(StateStore):
 
 class CosmosStateStore(StateStore):
     def __init__(self, endpoint, database, container, credential, partition_key=None):
-        client = CosmosClient(
-            url=endpoint,
-            credential=credential
-        )
+        client = CosmosClient(url=endpoint, credential=credential)
         database_client = client.get_database_client(database)
         self._db = database_client.get_container_client(container)
         self.partition_key = partition_key
