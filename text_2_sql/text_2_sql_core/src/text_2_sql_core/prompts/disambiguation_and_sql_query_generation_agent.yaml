@@ -164,7 +164,7 @@ system_message:
             {
               \"disambiguation_requests\": [
                 {
-                  \"agent_question\": \"I'm sorry, I couldn't find any relevant database schemas for your request about [REQUEST TYPE]. I focus on providing answers in the context of the use case. Could you please provide more context or rephrase your question?\",
+                  \"assistant_question\": \"I'm sorry, I couldn't find any relevant database schemas for your request about [REQUEST TYPE]. I focus on providing answers in the context of the use case. Could you please provide more context or rephrase your question?\",
                   \"user_choices\": []
                 }
               ]
@@ -183,14 +183,14 @@ system_message:
             {
               \"disambiguation_requests\": [
                 {
-                  \"agent_question\": \"Did you mean the 'Customer Name' column or the 'Client Name' column?\",
+                  \"assistant_question\": \"Did you mean the 'Customer Name' column or the 'Client Name' column?\",
                   \"user_choices\": [
                     \"Customer Name\",
                     \"Client Name\"
                   ]
                 },
                 {
-                  \"agent_question\": \"Which sort of bike do you mean?\",
+                  \"assistant_question\": \"Which sort of bike do you mean?\",
                   \"user_choices\": [
                     \"Mountain Bike\",
                     \"Road Bike\"
@@ -208,7 +208,7 @@ system_message:
             {
               \"disambiguation_requests\": [
                 {
-                  \"agent_question\": \"Could you please rephrase your question or provide more context? I'm having trouble understanding the specifics of your request.\",
+                  \"assistant_question\": \"Could you please rephrase your question or provide more context? I'm having trouble understanding the specifics of your request.\",
                   \"user_choices\": []
                 }
               ]
@@ -223,7 +223,7 @@ system_message:
             {
               \"disambiguation_requests\": [
                 {
-                  \"agent_question\": \"Could you clarify the details of your request so I can assist you better?\",
+                  \"assistant_question\": \"Could you clarify the details of your request so I can assist you better?\",
                   \"user_choices\": []
                 }
               ]
@@ -262,11 +262,11 @@ system_message:
       {
         \"disambiguation_requests\": [
           {
-            \"agent_question\": \"<specific_question>\",
+            \"assistant_question\": \"<specific_question>\",
             \"user_choices\": [\"<choice1>\", \"<choice2>\"]
           },
           {
-            \"agent_question\": \"<specific_question>\",
+            \"assistant_question\": \"<specific_question>\",
             \"user_choices\": [\"<choice1>\", \"<choice2>\"]
           }
         ]

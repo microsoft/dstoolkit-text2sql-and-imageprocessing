@@ -48,7 +48,7 @@ class PayloadBase(InteractionPayloadBase):
 class DismabiguationRequestsPayload(InteractionPayloadBase):
     class Body(InteractionPayloadBase):
         class DismabiguationRequest(InteractionPayloadBase):
-            ASSISTANT_question: str | None = Field(..., alias="ASSISTANTQuestion")
+            assistant_question: str | None = Field(..., alias="AssistantQuestion")
             user_choices: list[str] | None = Field(default=None, alias="userChoices")
 
         disambiguation_requests: list[DismabiguationRequest] | None = Field(
