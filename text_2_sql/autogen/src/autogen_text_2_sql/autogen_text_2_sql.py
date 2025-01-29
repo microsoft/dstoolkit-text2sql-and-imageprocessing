@@ -173,7 +173,7 @@ class AutoGenText2Sql:
                 )
 
                 request = DismabiguationRequestsPayload.Body.DismabiguationRequest(
-                    agent_question=disambiguation_request["agent_question"],
+                    assistant_question=disambiguation_request["assistant_question"],
                     user_choices=disambiguation_request["user_choices"],
                 )
                 request_payload.body.disambiguation_requests.append(request)
