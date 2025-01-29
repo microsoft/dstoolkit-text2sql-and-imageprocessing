@@ -18,6 +18,7 @@ dependencies = [
     "sqlparse>=0.4.4",
     "nltk>=3.8.1",
     "cachetools>=5.5.1",
+    "azure-cosmos>=4.9.0",
 ]
 
 [dependency-groups]
