@@ -121,6 +121,10 @@ Contains specialized agent implementations:
 - **sql_schema_selection_agent.py:** Handles schema selection and management
 - **answer_and_sources_agent.py:** Formats and standardizes final outputs
 
+## State Store
+
+To enable the [AutoGen State](https://microsoft.github.io/autogen/stable/reference/python/autogen_agentchat.state.html) to be tracked across invocations, a state store implementation must be provided. A basic `InMemoryStateStore` is provided, but this can be replaced with an implementation for a database or file system for when the Agentic System is running behind an API. This enables the AutoGen state to be saved behind the scenes and recalled later when the message is part of the same thread. A `thread_id` must be provided to the entrypoint.
+
 ## Configuration
 
 The system behavior can be controlled through environment variables:
