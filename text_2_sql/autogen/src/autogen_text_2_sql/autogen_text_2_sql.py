@@ -12,6 +12,7 @@ import logging
 from autogen_text_2_sql.custom_agents.parallel_query_solving_agent import (
     ParallelQuerySolvingAgent,
 )
+from autogen_text_2_sql.state_store import StateStore
 from autogen_agentchat.messages import TextMessage
 import json
 import os
@@ -31,8 +32,12 @@ from typing import AsyncGenerator
 
 
 class AutoGenText2Sql:
-    def __init__(self, **kwargs):
+    def __init__(self, state_store: StateStore, **kwargs):
         self.target_engine = os.environ["Text2Sql__DatabaseEngine"].upper()
+
+        if not state_store:
+            raise ValueError("State store must be provided")
+        self.state_store = state_store
 
         if "use_case" not in kwargs:
             logging.warning(
@@ -250,15 +255,15 @@ class AutoGenText2Sql:
 
     async def process_user_message(
         self,
+        thread_id: str,
         message_payload: UserMessagePayload,
-        chat_history: list[InteractionPayload] = None,
     ) -> AsyncGenerator[InteractionPayload, None]:
         """Process the complete message through the unified system.
 
         Args:
         ----
+            thread_id (str): The ID of the thread the message belongs to.
             task (str): The user message to process.
-            chat_history (list[str], optional): The chat history. Defaults to None. The last message is the most recent message.
             injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:
@@ -266,27 +271,15 @@ class AutoGenText2Sql:
             dict: The response from the system.
         """
         logging.info("Processing message: %s", message_payload.body.user_message)
-        logging.info("Chat history: %s", chat_history)
 
         agent_input = {
             "message": message_payload.body.user_message,
             "injected_parameters": message_payload.body.injected_parameters,
         }
 
-        latest_state = None
-        if chat_history is not None:
-            # Update input
-            for chat in reversed(chat_history):
-                if chat.root.payload_type in [
-                    PayloadType.ANSWER_WITH_SOURCES,
-                    PayloadType.DISAMBIGUATION_REQUESTS,
-                ]:
-                    latest_state = chat.body.assistant_state
-                    break
-
-        # TODO: Trim the chat history to the last message from the user
-        if latest_state is not None:
-            await self.agentic_flow.load_state(latest_state)
+        state = self.state_store.get_state(thread_id)
+        if state is not None:
+            await self.agentic_flow.load_state(state)
 
         async for message in self.agentic_flow.run_stream(task=json.dumps(agent_input)):
             logging.debug("Message: %s", message)
@@ -340,7 +333,7 @@ class AutoGenText2Sql:
         ):
             # Get the state
             assistant_state = await self.agentic_flow.save_state()
-            payload.body.assistant_state = assistant_state
+            self.state_store.save_state(thread_id, assistant_state)
 
             logging.debug("Final Payload: %s", payload)
 

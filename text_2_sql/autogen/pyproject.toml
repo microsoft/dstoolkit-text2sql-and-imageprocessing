@@ -17,6 +17,7 @@ dependencies = [
     "text_2_sql_core",
     "sqlparse>=0.4.4",
     "nltk>=3.8.1",
+    "cachetools>=5.5.1",
 ]
 
 [dependency-groups]

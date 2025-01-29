@@ -57,7 +57,6 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
         decomposed_user_messages: list[list[str]] = Field(
             default_factory=list, alias="decomposedUserMessages"
         )
-        assistant_state: dict | None = Field(default=None, alias="assistantState")
 
     payload_type: Literal[PayloadType.DISAMBIGUATION_REQUESTS] = Field(
         PayloadType.DISAMBIGUATION_REQUESTS, alias="payloadType"
@@ -86,7 +85,6 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
             default_factory=list, alias="decomposedUserMessages"
         )
         sources: list[Source] = Field(default_factory=list)
-        assistant_state: dict | None = Field(default=None, alias="assistantState")
 
     payload_type: Literal[PayloadType.ANSWER_WITH_SOURCES] = Field(
         PayloadType.ANSWER_WITH_SOURCES, alias="payloadType"
