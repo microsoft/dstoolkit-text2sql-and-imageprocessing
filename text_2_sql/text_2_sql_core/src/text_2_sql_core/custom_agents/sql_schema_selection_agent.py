@@ -43,8 +43,7 @@ class SqlSchemaSelectionAgentCustomAgent:
             if schemas and isinstance(schemas, dict) and "entities" in schemas:
                 # Update schema cache with case-sensitive information
                 self.schema_cache[db_path] = {
-                    entity["Entity"].lower(): entity
-                    for entity in schemas["entities"]
+                    entity["Entity"].lower(): entity for entity in schemas["entities"]
                 }
                 self.last_schema_update[db_path] = asyncio.get_event_loop().time()
                 logging.info(f"Updated schema cache for {db_path}")
@@ -75,9 +74,13 @@ class SqlSchemaSelectionAgentCustomAgent:
 
         # Handle database switch or initial connection
         if current_db_path != self.current_database:
-            logging.info(f"Switching database from {self.current_database} to {current_db_path}")
+            logging.info(
+                f"Switching database from {self.current_database} to {current_db_path}"
+            )
             if not await self.verify_database_connection(current_db_path):
-                return self._error_response(f"Failed to connect to database: {current_db_path}")
+                return self._error_response(
+                    f"Failed to connect to database: {current_db_path}"
+                )
             self.current_database = current_db_path
 
         # Process questions to identify entities and filters
@@ -122,7 +125,7 @@ class SqlSchemaSelectionAgentCustomAgent:
             "COLUMN_OPTIONS_AND_VALUES_FOR_FILTERS": [],
             "SCHEMA_OPTIONS": [],
             "SELECTED_DATABASE": None,
-            "ERROR": error_message
+            "ERROR": error_message,
         }
 
     async def _process_questions(
@@ -153,7 +156,10 @@ class SqlSchemaSelectionAgentCustomAgent:
         try:
             results = await asyncio.gather(*entity_tasks)
             # Convert the JSON results back to Pydantic models
-            return [SQLSchemaSelectionAgentOutput.model_validate(result) for result in results]
+            return [
+                SQLSchemaSelectionAgentOutput.model_validate(result)
+                for result in results
+            ]
         except Exception as e:
             logging.error(f"Error processing questions: {e}")
             return []
@@ -241,7 +247,9 @@ class SqlSchemaSelectionAgentCustomAgent:
                     elif isinstance(values, dict):
                         column_values.append(values)
                 except Exception as e:
-                    logging.error(f"Error getting column values for '{filter_condition}': {e}")
+                    logging.error(
+                        f"Error getting column values for '{filter_condition}': {e}"
+                    )
 
         return column_values
 
@@ -264,7 +272,7 @@ class SqlSchemaSelectionAgentCustomAgent:
         selected_db = max(
             schemas_by_db.items(),
             key=lambda x: len(x[1]),
-            default=(current_db_path, [])
+            default=(current_db_path, []),
         )[0]
 
         # Get schemas for selected database

@@ -1,7 +1,10 @@
 from text_2_sql_core.data_dictionary.sqlite_data_dictionary_creator import (
     SQLiteDataDictionaryCreator,
 )
-from text_2_sql_core.data_dictionary.data_dictionary_creator import EntityItem, ColumnItem
+from text_2_sql_core.data_dictionary.data_dictionary_creator import (
+    EntityItem,
+    ColumnItem,
+)
 from dotenv import load_dotenv
 import json
 import sqlite3
@@ -30,16 +33,25 @@ autogen_env_path = Path(__file__).parent.parent / "autogen" / ".env"
 load_dotenv(autogen_env_path)
 
 # Configure OpenAI settings
-os.environ["OpenAI__CompletionDeployment"] = "gpt-4o-mini"  # Use mini model for faster processing
-os.environ["OpenAI__MiniCompletionDeployment"] = "gpt-4o-mini"  # Use mini model for both
+os.environ[
+    "OpenAI__CompletionDeployment"
+] = "gpt-4o-mini"  # Use mini model for faster processing
+os.environ[
+    "OpenAI__MiniCompletionDeployment"
+] = "gpt-4o-mini"  # Use mini model for both
 os.environ["OPENAI_API_TYPE"] = "azure"
 os.environ["OPENAI_API_VERSION"] = os.getenv("OpenAI__ApiVersion")
 os.environ["OPENAI_API_BASE"] = os.getenv("OpenAI__Endpoint")
 os.environ["OPENAI_API_KEY"] = os.getenv("OpenAI__ApiKey")
 
 # SQLite system tables that should be skipped
-SQLITE_SYSTEM_TABLES = {'sqlite_sequence', 'sqlite_stat1',
-                        'sqlite_stat2', 'sqlite_stat3', 'sqlite_stat4'}
+SQLITE_SYSTEM_TABLES = {
+    "sqlite_sequence",
+    "sqlite_stat1",
+    "sqlite_stat2",
+    "sqlite_stat3",
+    "sqlite_stat4",
+}
 
 
 def get_processed_entities(schema_store_dir: Path) -> set:
@@ -48,7 +60,7 @@ def get_processed_entities(schema_store_dir: Path) -> set:
     if schema_store_dir.exists():
         for f in schema_store_dir.glob("*.json"):
             # Extract entity name from filename (e.g., spider_schema.db.main.PROFESSOR.json -> PROFESSOR)
-            parts = f.stem.split('.')
+            parts = f.stem.split(".")
             if len(parts) >= 4:  # Ensure we have enough parts (db.schema.table)
                 entity = parts[-1]  # Get the last part which is the table name
                 # Store in uppercase for consistent comparison
@@ -84,14 +96,15 @@ def merge_sqlite_databases(source_dir: Path, target_db: Path) -> None:
 
             try:
                 # Attach source database
-                target_cursor.execute(
-                    f'ATTACH DATABASE ? AS source', (str(db_file),))
+                target_cursor.execute(f"ATTACH DATABASE ? AS source", (str(db_file),))
 
                 # Get list of tables from source database
-                target_cursor.execute("""
+                target_cursor.execute(
+                    """
                     SELECT name FROM source.sqlite_master
                     WHERE type='table' AND name NOT LIKE 'sqlite_%'
-                """)
+                """
+                )
                 tables = target_cursor.fetchall()
 
                 # Copy each table
@@ -99,16 +112,21 @@ def merge_sqlite_databases(source_dir: Path, target_db: Path) -> None:
                     logger.info(f"Copying table: {table_name}")
 
                     # Create table in target database
-                    target_cursor.execute(f"""
+                    target_cursor.execute(
+                        f"""
                         CREATE TABLE IF NOT EXISTS "{table_name}" AS
                         SELECT * FROM source."{table_name}"
-                    """)
+                    """
+                    )
 
                     # Copy indexes
-                    target_cursor.execute(f"""
+                    target_cursor.execute(
+                        f"""
                         SELECT sql FROM source.sqlite_master
                         WHERE type='index' AND tbl_name=? AND sql IS NOT NULL
-                    """, (table_name,))
+                    """,
+                        (table_name,),
+                    )
                     indexes = target_cursor.fetchall()
                     for (index_sql,) in indexes:
                         try:
@@ -118,7 +136,7 @@ def merge_sqlite_databases(source_dir: Path, target_db: Path) -> None:
                             pass
 
                 # Detach source database
-                target_cursor.execute('DETACH DATABASE source')
+                target_cursor.execute("DETACH DATABASE source")
 
             except sqlite3.Error as e:
                 logger.error(f"Error processing {db_dir.name}: {e}")
@@ -147,7 +165,13 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
         LIMIT 1000;
         """
 
-    async def send_request_to_llm(self, system_prompt: str, input: str, max_retries: int = 3, retry_delay: int = 60):
+    async def send_request_to_llm(
+        self,
+        system_prompt: str,
+        input: str,
+        max_retries: int = 3,
+        retry_delay: int = 60,
+    ):
         """Override to handle rate limits better."""
         for attempt in range(max_retries):
             try:
@@ -169,8 +193,7 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
 
                 # Use mini model for faster processing
                 return await self.open_ai_connector.run_completion_request(
-                    messages,
-                    model="gpt-4o-mini"
+                    messages, model="gpt-4o-mini"
                 )
             except Exception as e:
                 if "429" in str(e) and attempt < max_retries - 1:
@@ -179,7 +202,9 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                     continue
                 raise e
 
-    async def extract_column_distinct_values(self, entity: EntityItem, column: ColumnItem):
+    async def extract_column_distinct_values(
+        self, entity: EntityItem, column: ColumnItem
+    ):
         """Override to extract and write column values with correct format."""
         try:
             logger.info(f"Extracting values for {entity.entity}.{column.name}")
@@ -208,7 +233,10 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                         column.sample_values.append(value[0])
 
             # For string columns, also get all distinct values for column value store
-            if any(data_type in column.data_type.lower() for data_type in ["string", "nchar", "text", "varchar"]):
+            if any(
+                data_type in column.data_type.lower()
+                for data_type in ["string", "nchar", "text", "varchar"]
+            ):
                 logger.info(f"Writing values for {entity.entity}.{column.name}")
 
                 # Get all distinct values
@@ -223,26 +251,33 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                 distinct_values = await self.query_entities(distinct_query)
 
                 # Create column value store directory
-                column_store_dir = os.path.join(self.output_directory, "column_value_store")
+                column_store_dir = os.path.join(
+                    self.output_directory, "column_value_store"
+                )
                 os.makedirs(column_store_dir, exist_ok=True)
 
                 # Write column values with correct format
-                column_file = os.path.join(column_store_dir, f"{entity.entity}.{column.name}.jsonl")
+                column_file = os.path.join(
+                    column_store_dir, f"{entity.entity}.{column.name}.jsonl"
+                )
                 logger.info(f"Writing to: {column_file}")
                 with open(column_file, "w", encoding="utf-8") as f:
                     for value in distinct_values:
                         if value[0] is not None:
                             # Clean the value
                             clean_value = re.sub(r"[\t\n\r\f\v]+", "", str(value[0]))
-                            json.dump({
-                                "Entity": entity.entity,
-                                "Schema": entity.entity_schema or "main",
-                                "Database": "spider_schema",
-                                "FQN": f"spider_schema.{entity.entity_schema or 'main'}.{entity.entity}.{column.name}",
-                                "Column": column.name,
-                                "Value": clean_value,
-                                "Synonyms": []
-                            }, f)
+                            json.dump(
+                                {
+                                    "Entity": entity.entity,
+                                    "Schema": entity.entity_schema or "main",
+                                    "Database": "spider_schema",
+                                    "FQN": f"spider_schema.{entity.entity_schema or 'main'}.{entity.entity}.{column.name}",
+                                    "Column": column.name,
+                                    "Value": clean_value,
+                                    "Synonyms": [],
+                                },
+                                f,
+                            )
                             f.write("\n")
 
         except Exception as e:
@@ -274,14 +309,18 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
             await asyncio.sleep(5)
 
             # Get definition with retries
-            definition = await self.send_request_to_llm(definition_system_prompt, definition_input)
+            definition = await self.send_request_to_llm(
+                definition_system_prompt, definition_input
+            )
             logger.info(f"Generated definition for {entity.entity}: {definition}")
             entity.definition = definition
 
             # Generate column definitions
             for column in entity.columns:
                 column_def_prompt = f"""Generate a brief description for the column '{column.name}' of type {column.data_type} in the {entity.entity} table."""
-                column.definition = await self.send_request_to_llm("Generate a brief column description.", column_def_prompt)
+                column.definition = await self.send_request_to_llm(
+                    "Generate a brief column description.", column_def_prompt
+                )
 
         except Exception as e:
             logger.error(f"Error generating definitions for {entity.entity}: {e}")
@@ -298,11 +337,15 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                     "DataType": col.data_type,
                     "Definition": col.definition,
                     "Name": col.name,
-                    "SampleValues": col.sample_values if hasattr(col, 'sample_values') else []
+                    "SampleValues": col.sample_values
+                    if hasattr(col, "sample_values")
+                    else [],
                 }
                 for col in entity.columns
             ],
-            "CompleteEntityRelationshipsGraph": entity.complete_entity_relationships_graph if hasattr(entity, 'complete_entity_relationships_graph') else [],
+            "CompleteEntityRelationshipsGraph": entity.complete_entity_relationships_graph
+            if hasattr(entity, "complete_entity_relationships_graph")
+            else [],
             "Database": "spider_schema",
             "Definition": entity.definition,
             "Entity": entity.entity,
@@ -315,17 +358,16 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                     "ForeignSchema": "main",
                     "ForeignFQN": f"spider_schema.main.{rel.foreign_entity}",
                     "ForeignKeys": [
-                        {
-                            "Column": fk.column,
-                            "ForeignColumn": fk.foreign_column
-                        }
+                        {"Column": fk.column, "ForeignColumn": fk.foreign_column}
                         for fk in rel.foreign_keys
-                    ]
+                    ],
                 }
                 for rel in entity.entity_relationships
-            ] if hasattr(entity, 'entity_relationships') and entity.entity_relationships else [],
+            ]
+            if hasattr(entity, "entity_relationships") and entity.entity_relationships
+            else [],
             "FQN": f"spider_schema.{entity.entity_schema or 'main'}.{entity.entity}",
-            "Schema": entity.entity_schema or "main"
+            "Schema": entity.entity_schema or "main",
         }
 
         return simplified_data
@@ -337,8 +379,7 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
         # Always get the columns first
         logger.info(f"Getting columns for entity: {entity.entity}")
         columns = await self.query_entities(
-            self.extract_columns_sql_query(entity),
-            cast_to=ColumnItem
+            self.extract_columns_sql_query(entity), cast_to=ColumnItem
         )
         entity.columns = columns
         logger.info(f"Found {len(columns)} columns")
@@ -353,7 +394,9 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
         if entity_upper in self.processed_entities:
             logger.info(f"Skipping schema generation for entity: {entity.entity}")
             schema_store_dir = os.path.join(self.output_directory, "schema_store")
-            schema_file = os.path.join(schema_store_dir, f"spider_schema.db.main.{entity.entity}.json")
+            schema_file = os.path.join(
+                schema_store_dir, f"spider_schema.db.main.{entity.entity}.json"
+            )
             if os.path.exists(schema_file):
                 with open(schema_file) as f:
                     schema_data = json.load(f)
@@ -386,26 +429,31 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                             relationship = {
                                 "foreign_entity": row[3],
                                 "foreign_entity_schema": "main",
-                                "foreign_keys": [{
-                                    "column": row[1],
-                                    "foreign_column": row[2]
-                                }]
+                                "foreign_keys": [
+                                    {"column": row[1], "foreign_column": row[2]}
+                                ],
                             }
                             relationships.append(relationship)
                             # Only store direct relationships in the graph
-                            direct_relationships.append(f"spider_schema.main.{entity.entity} -> {row[3]}")
+                            direct_relationships.append(
+                                f"spider_schema.main.{entity.entity} -> {row[3]}"
+                            )
 
                 entity.entity_relationships = relationships
                 entity.complete_entity_relationships_graph = direct_relationships
             except Exception as e:
-                logger.error(f"Error getting relationships for {entity.entity}: {str(e)}")
+                logger.error(
+                    f"Error getting relationships for {entity.entity}: {str(e)}"
+                )
                 entity.entity_relationships = []
                 entity.complete_entity_relationships_graph = []
 
             # Write schema file
             schema_store_dir = os.path.join(self.output_directory, "schema_store")
             os.makedirs(schema_store_dir, exist_ok=True)
-            schema_file = os.path.join(schema_store_dir, f"spider_schema.db.main.{entity.entity}.json")
+            schema_file = os.path.join(
+                schema_store_dir, f"spider_schema.db.main.{entity.entity}.json"
+            )
             logger.info(f"Writing schema to: {schema_file}")
             with open(schema_file, "w", encoding="utf-8") as f:
                 json.dump(
@@ -425,8 +473,7 @@ async def main():
     database_dir = spider_data_dir / "database"
 
     if not database_dir.exists():
-        raise FileNotFoundError(
-            f"Database directory not found at {database_dir}")
+        raise FileNotFoundError(f"Database directory not found at {database_dir}")
 
     # Create output directories with simplified structure
     output_dir = current_dir / "generated_samples"
@@ -451,7 +498,7 @@ async def main():
         output_directory=str(output_dir),
         generate_definitions=True,
         excluded_schemas=[],  # Empty list since SQLite doesn't use schemas like SQL Server
-        single_file=False  # Generate individual files for AI Search indexing
+        single_file=False,  # Generate individual files for AI Search indexing
     )
 
     try:
@@ -463,8 +510,10 @@ async def main():
         # Process in smaller batches
         batch_size = 3  # Process 3 entities at a time
         for i in range(0, total_entities, batch_size):
-            batch = entities[i:i + batch_size]
-            logger.info(f"\nProcessing batch {i//batch_size + 1} ({len(batch)} entities)")
+            batch = entities[i : i + batch_size]
+            logger.info(
+                f"\nProcessing batch {i//batch_size + 1} ({len(batch)} entities)"
+            )
 
             # Process each entity in the batch
             for entity in batch:
@@ -481,11 +530,17 @@ async def main():
                         try:
                             logger.info(f"Retrying entity: {entity.entity}")
                             await creator.build_entity_entry(entity)
-                            logger.info(f"Successfully processed {entity.entity} on retry")
+                            logger.info(
+                                f"Successfully processed {entity.entity} on retry"
+                            )
                         except Exception as retry_e:
-                            logger.error(f"Failed to process {entity.entity} on retry: {retry_e}")
+                            logger.error(
+                                f"Failed to process {entity.entity} on retry: {retry_e}"
+                            )
                             if "429" in str(retry_e):
-                                logger.info("Still hitting rate limit, saving progress...")
+                                logger.info(
+                                    "Still hitting rate limit, saving progress..."
+                                )
                                 break
                             else:
                                 raise retry_e
@@ -501,7 +556,8 @@ async def main():
         print("1. Wait for rate limits to reset if needed")
         print("2. Run the script again to continue processing remaining entities")
         print(
-            "3. Once all entities are processed, deploy to AI Search using deploy_ai_search")
+            "3. Once all entities are processed, deploy to AI Search using deploy_ai_search"
+        )
         print("4. Update the environment settings to use AI Search indices")
     except Exception as e:
         logger.error(f"Error: {e}", exc_info=True)

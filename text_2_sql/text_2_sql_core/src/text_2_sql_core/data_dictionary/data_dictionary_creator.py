@@ -272,7 +272,9 @@ class DataDictionaryCreator(ABC):
         self.database_semaphore = asyncio.Semaphore(20)
         self.llm_semaphone = asyncio.Semaphore(10)
 
-        self.output_directory = output_directory if output_directory is not None else "."
+        self.output_directory = (
+            output_directory if output_directory is not None else "."
+        )
 
         self.open_ai_connector = OpenAIConnector()
 
@@ -485,7 +487,9 @@ class DataDictionaryCreator(ABC):
         # Create a simpler key that doesn't include the full path
         key = f"{entity.entity}.{column.name}"
         # Ensure the intermediate directories exist
-        column_value_store_dir = os.path.join(self.output_directory, "column_value_store")
+        column_value_store_dir = os.path.join(
+            self.output_directory, "column_value_store"
+        )
         os.makedirs(column_value_store_dir, exist_ok=True)
 
         output_file = os.path.join(column_value_store_dir, f"{key}.jsonl")

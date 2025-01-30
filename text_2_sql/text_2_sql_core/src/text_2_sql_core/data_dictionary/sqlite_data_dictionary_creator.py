@@ -10,6 +10,7 @@ from text_2_sql_core.connectors.sqlite_sql import SQLiteSqlConnector
 import logging
 import re
 
+
 class SQLiteDataDictionaryCreator(DataDictionaryCreator):
     def __init__(self, database_path: str, output_directory: str = None, **kwargs):
         """Initialize the SQLite Data Dictionary Creator.
@@ -22,7 +23,9 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
         super().__init__(**kwargs)
         self.database = database_path
         self.database_engine = DatabaseEngine.SQLITE
-        self.output_directory = output_directory if output_directory is not None else "."
+        self.output_directory = (
+            output_directory if output_directory is not None else "."
+        )
 
         self.sql_connector = SQLiteSqlConnector()
         self.sql_connector.set_database(database_path)
@@ -122,7 +125,9 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
             Entity, ForeignEntity;
         """
 
-    def extract_distinct_values_sql_query(self, entity: EntityItem, column: ColumnItem) -> str:
+    def extract_distinct_values_sql_query(
+        self, entity: EntityItem, column: ColumnItem
+    ) -> str:
         """Extract distinct values for a column.
 
         Args:
@@ -141,7 +146,9 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
         LIMIT 1000;
         """
 
-    async def extract_column_distinct_values(self, entity: EntityItem, column: ColumnItem):
+    async def extract_column_distinct_values(
+        self, entity: EntityItem, column: ColumnItem
+    ):
         """Override to use SQLite-specific query and handling.
 
         Args:
@@ -176,7 +183,9 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
             # Write column values to file for string-based columns
             for data_type in ["string", "nchar", "text", "varchar"]:
                 if data_type in column.data_type.lower():
-                    print(f"Writing {len(column.distinct_values)} values for {entity.entity}.{column.name}")
+                    print(
+                        f"Writing {len(column.distinct_values)} values for {entity.entity}.{column.name}"
+                    )
                     await self.write_columns_to_file(entity, column)
                     break
 
@@ -184,6 +193,7 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
             logging.error(f"Error extracting values for {entity.entity}.{column.name}")
             logging.error(e)
             raise  # Re-raise to see the actual error
+
 
 if __name__ == "__main__":
     import asyncio

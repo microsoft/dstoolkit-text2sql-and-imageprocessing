@@ -37,7 +37,11 @@ class OpenAIConnector:
     ) -> str:
         # Use the environment variable for the model, defaulting to 4o
         model = model or os.environ.get("OpenAI__GroupChatModel", "4o")
-        model_deployment = os.environ.get("OpenAI__CompletionDeployment") if model == "4o" else os.environ.get("OpenAI__MiniCompletionDeployment")
+        model_deployment = (
+            os.environ.get("OpenAI__CompletionDeployment")
+            if model == "4o"
+            else os.environ.get("OpenAI__MiniCompletionDeployment")
+        )
 
         # For structured outputs, add a system message requesting JSON format
         if response_format is not None:
@@ -72,7 +76,9 @@ class OpenAIConnector:
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                response_format={"type": "json_object"} if response_format is not None else None,
+                response_format={"type": "json_object"}
+                if response_format is not None
+                else None,
             )
 
         message = response.choices[0].message
@@ -81,6 +87,7 @@ class OpenAIConnector:
         # If response_format was provided, parse the JSON response
         if response_format is not None:
             import json
+
             try:
                 json_data = json.loads(content)
                 # If response_format is a Pydantic model, validate and return an instance

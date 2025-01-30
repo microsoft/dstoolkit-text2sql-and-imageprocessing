@@ -12,7 +12,7 @@ from pathlib import Path
 from .sql import SqlConnector
 from text_2_sql_core.utils.database import DatabaseEngine, DatabaseEngineSpecificFields
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class SQLiteSqlConnector(SqlConnector):
@@ -24,11 +24,11 @@ class SQLiteSqlConnector(SqlConnector):
         self.database_engine = DatabaseEngine.SQLITE
 
         # Initialize database_path from environment variable
-        self.database_path = os.environ.get(
-            "Text2Sql__DatabaseConnectionString")
+        self.database_path = os.environ.get("Text2Sql__DatabaseConnectionString")
         if not self.database_path:
             logging.warning(
-                "Text2Sql__DatabaseConnectionString environment variable not set")
+                "Text2Sql__DatabaseConnectionString environment variable not set"
+            )
 
         # Store table schemas for validation with case-sensitive names
         self.table_schemas = {}
@@ -68,7 +68,7 @@ class SQLiteSqlConnector(SqlConnector):
         return [
             DatabaseEngineSpecificFields.SQLITE_SCHEMA,
             DatabaseEngineSpecificFields.SQLITE_DEFINITION,
-            DatabaseEngineSpecificFields.SQLITE_SAMPLE_VALUES
+            DatabaseEngineSpecificFields.SQLITE_SAMPLE_VALUES,
         ]
 
     async def verify_connection(self) -> bool:
@@ -79,18 +79,20 @@ class SQLiteSqlConnector(SqlConnector):
         try:
             with sqlite3.connect(self.database_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT name FROM sqlite_schema
                     WHERE type='table'
                     AND name NOT LIKE 'sqlite_%'
-                """)
+                """
+                )
                 tables = cursor.fetchall()
 
                 # Update table names
                 self.table_names.update({t[0].lower(): t[0] for t in tables})
 
                 # Load schema information
-                for table_name, in tables:
+                for (table_name,) in tables:
                     cursor.execute(f"PRAGMA table_info({table_name})")
                     columns = cursor.fetchall()
                     column_list = []
@@ -103,7 +105,7 @@ class SQLiteSqlConnector(SqlConnector):
                         "Entity": table_name,
                         "EntityName": table_name,
                         "Schema": "main",
-                        "Columns": column_list
+                        "Columns": column_list,
                     }
                     self.table_schemas[table_name.lower()] = schema
 
@@ -131,8 +133,7 @@ class SQLiteSqlConnector(SqlConnector):
             for table in table_names:
                 proper_name = self.get_proper_table_name(table)
                 if not proper_name:
-                    logging.error(
-                        f"Table '{table}' does not exist in database")
+                    logging.error(f"Table '{table}' does not exist in database")
                     return False
             return True
         except Exception as e:
@@ -171,25 +172,34 @@ class SQLiteSqlConnector(SqlConnector):
         """Clean and validate a SQL query."""
         # Basic cleaning
         sql_query = sql_query.strip()
-        if sql_query.endswith(';'):
+        if sql_query.endswith(";"):
             sql_query = sql_query[:-1]
 
         # Fix common issues
-        sql_query = re.sub(r"'French'", "'France'",
-                           sql_query, flags=re.IGNORECASE)
+        sql_query = re.sub(r"'French'", "'France'", sql_query, flags=re.IGNORECASE)
 
         # Fix youngest singer query
-        if 'SELECT' in sql_query.upper() and 'MIN(Age)' in sql_query and 'singer' in sql_query.lower():
-            return 'SELECT song_name, song_release_year FROM singer ORDER BY age ASC LIMIT 1'
+        if (
+            "SELECT" in sql_query.upper()
+            and "MIN(Age)" in sql_query
+            and "singer" in sql_query.lower()
+        ):
+            return "SELECT song_name, song_release_year FROM singer ORDER BY age ASC LIMIT 1"
 
         # Extract and validate table names
         table_names = []
         words = sql_query.split()
         for i, word in enumerate(words):
-            if word.upper() in ('FROM', 'JOIN'):
+            if word.upper() in ("FROM", "JOIN"):
                 if i + 1 < len(words):
-                    table = words[i + 1].strip('();')
-                    if table.upper() not in ('SELECT', 'WHERE', 'GROUP', 'ORDER', 'HAVING'):
+                    table = words[i + 1].strip("();")
+                    if table.upper() not in (
+                        "SELECT",
+                        "WHERE",
+                        "GROUP",
+                        "ORDER",
+                        "HAVING",
+                    ):
                         proper_name = self.get_proper_table_name(table)
                         if proper_name:
                             words[i + 1] = proper_name
@@ -200,51 +210,59 @@ class SQLiteSqlConnector(SqlConnector):
             raise ValueError(f"Invalid table names in query: {', '.join(table_names)}")
 
         # Fix SELECT clause
-        if words[0].upper() == 'SELECT':
-            select_end = next((i for i, w in enumerate(words) if w.upper() in (
-                'FROM', 'WHERE', 'GROUP', 'ORDER')), len(words))
+        if words[0].upper() == "SELECT":
+            select_end = next(
+                (
+                    i
+                    for i, w in enumerate(words)
+                    if w.upper() in ("FROM", "WHERE", "GROUP", "ORDER")
+                ),
+                len(words),
+            )
             select_items = []
             current_item = []
 
             for word in words[1:select_end]:
-                if word == ',':
+                if word == ",":
                     if current_item:
-                        select_items.append(' '.join(current_item))
+                        select_items.append(" ".join(current_item))
                         current_item = []
                 else:
                     current_item.append(word)
 
             if current_item:
-                select_items.append(' '.join(current_item))
+                select_items.append(" ".join(current_item))
 
             # Handle special cases
-            if len(select_items) == 1 and select_items[0] == '*':
-                if any(t.lower() == 'singer' for t in table_names):
-                    select_items = ['name', 'country', 'age']
+            if len(select_items) == 1 and select_items[0] == "*":
+                if any(t.lower() == "singer" for t in table_names):
+                    select_items = ["name", "country", "age"]
 
             # Add commas between items
-            words[1:select_end] = [', '.join(item.strip() for item in select_items)]
+            words[1:select_end] = [", ".join(item.strip() for item in select_items)]
 
         # Reconstruct query
-        sql_query = ' '.join(words)
+        sql_query = " ".join(words)
 
         # Add LIMIT clause
-        if limit is not None and 'LIMIT' not in sql_query.upper():
+        if limit is not None and "LIMIT" not in sql_query.upper():
             sql_query = f"{sql_query} LIMIT {limit}"
 
         return sql_query
 
-    async def _execute_query(
-        self, sql_query: str, cast_to: Any = None
-    ) -> List[Any]:
+    async def _execute_query(self, sql_query: str, cast_to: Any = None) -> List[Any]:
         """Execute a validated SQL query."""
+
         def run_query():
             try:
                 with sqlite3.connect(self.database_path) as conn:
                     cursor = conn.cursor()
                     cursor.execute(sql_query)
-                    columns = [description[0]
-                               for description in cursor.description] if cursor.description else []
+                    columns = (
+                        [description[0] for description in cursor.description]
+                        if cursor.description
+                        else []
+                    )
                     rows = cursor.fetchall()
                     return columns, rows
             except sqlite3.Error as e:
@@ -279,8 +297,7 @@ class SQLiteSqlConnector(SqlConnector):
 
             for name, schema in self.table_schemas.items():
                 if name.lower() not in excluded:
-                    matches = any(term in name.lower()
-                                  for term in search_terms)
+                    matches = any(term in name.lower() for term in search_terms)
                     if matches or not text.strip():
                         filtered_schemas.append(schema)
 

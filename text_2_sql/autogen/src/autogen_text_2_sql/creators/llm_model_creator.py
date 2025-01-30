@@ -24,10 +24,16 @@ class LLMModelCreator:
             AzureOpenAIChatCompletionClient: The model client."""
         logging.info(f"Getting model for name: {model_name}")
         if model_name == "4o-mini":
-            logging.info("Using GPT-4 Mini model with deployment: %s", os.environ["OpenAI__MiniCompletionDeployment"])
+            logging.info(
+                "Using GPT-4 Mini model with deployment: %s",
+                os.environ["OpenAI__MiniCompletionDeployment"],
+            )
             return cls.gpt_4o_mini_model()
         elif model_name == "4o":
-            logging.info("Using full GPT-4 model with deployment: %s", os.environ["OpenAI__CompletionDeployment"])
+            logging.info(
+                "Using full GPT-4 model with deployment: %s",
+                os.environ["OpenAI__CompletionDeployment"],
+            )
             return cls.gpt_4o_model()
         else:
             raise ValueError(f"Model {model_name} not found")
