@@ -5,10 +5,10 @@ from typing import AsyncGenerator, List, Sequence
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
 from autogen_agentchat.messages import (
-    AgentMessage,
+    AgentEvent,
     ChatMessage,
     TextMessage,
-    ToolCallResultMessage,
+    ToolCallExecutionEvent,
 )
 from autogen_core import CancellationToken
 import json
@@ -18,6 +18,21 @@ from aiostream import stream
 from json import JSONDecodeError
 import re
 import os
+<<<<<<< HEAD
+=======
+from pydantic import BaseModel, Field
+
+
+class FilteredParallelMessagesCollection(BaseModel):
+    database_results: dict[str, list] = Field(default_factory=dict)
+    disambiguation_requests: dict[str, list] = Field(default_factory=dict)
+
+    def add_identifier(self, identifier):
+        if identifier not in self.database_results:
+            self.database_results[identifier] = []
+        if identifier not in self.disambiguation_requests:
+            self.disambiguation_requests[identifier] = []
+>>>>>>> upstream/main
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
@@ -74,7 +89,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
-    ) -> AsyncGenerator[AgentMessage | Response, None]:
+    ) -> AsyncGenerator[AgentEvent | Response, None]:
         last_response = messages[-1].content
         parameter_input = messages[0].content
         try:
@@ -84,12 +99,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             injected_parameters = {}
 
         # Load the json of the last message to populate the final output object
-        question_rewrites = json.loads(last_response)
+        message_rewrites = json.loads(last_response)
 
-        logging.info(f"Query Rewrites: {question_rewrites}")
+        logging.info(f"Query Rewrites: {message_rewrites}")
 
         async def consume_inner_messages_from_agentic_flow(
-            agentic_flow, identifier, database_results
+            agentic_flow, identifier, filtered_parallel_messages
         ):
             """
             Consume the inner messages and append them to the specified list.
@@ -101,13 +116,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             """
             async for inner_message in agentic_flow:
                 # Add message to results dictionary, tagged by the function name
-                if identifier not in database_results:
-                    database_results[identifier] = []
+                filtered_parallel_messages.add_identifier(identifier)
 
                 logging.info(f"Checking Inner Message: {inner_message}")
 
                 try:
-                    if isinstance(inner_message, ToolCallResultMessage):
+                    if isinstance(inner_message, ToolCallExecutionEvent):
                         for call_result in inner_message.content:
                             # Check for SQL query results
                             parsed_message = self.parse_inner_message(
@@ -116,6 +130,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                             logging.info(f"Inner Loaded: {parsed_message}")
 
                             if isinstance(parsed_message, dict):
+<<<<<<< HEAD
                                 if "type" in parsed_message:
                                     if parsed_message["type"] == "query_execution_with_limit":
                                         logging.info("Contains query results")
@@ -139,6 +154,24 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             "sql_query": parsed_message["sql_query"].replace("\n", " "),
                                             "error": parsed_message.get("errors", "Unknown error"),
                                         })
+=======
+                                if (
+                                    "type" in parsed_message
+                                    and parsed_message["type"]
+                                    == "query_execution_with_limit"
+                                ):
+                                    logging.info("Contains query results")
+                                    filtered_parallel_messages.database_results[
+                                        identifier
+                                    ].append(
+                                        {
+                                            "sql_query": parsed_message[
+                                                "sql_query"
+                                            ].replace("\n", " "),
+                                            "sql_rows": parsed_message["sql_rows"],
+                                        }
+                                    )
+>>>>>>> upstream/main
 
                     elif isinstance(inner_message, TextMessage):
                         parsed_message = self.parse_inner_message(inner_message.content)
@@ -147,13 +180,21 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
                         # Search for specific message types and add them to the final output object
                         if isinstance(parsed_message, dict):
-                            if ("contains_pre_run_results" in parsed_message) and (
-                                parsed_message["contains_pre_run_results"] is True
+                            # Check if the message contains pre-run results
+                            if (
+                                "contains_cached_sql_queries_with_schemas_from_cache_database_results"
+                                in parsed_message
+                            ) and (
+                                parsed_message[
+                                    "contains_cached_sql_queries_with_schemas_from_cache_database_results"
+                                ]
+                                is True
                             ):
                                 logging.info("Contains pre-run results")
                                 for pre_run_sql_query, pre_run_result in parsed_message[
-                                    "cached_questions_and_schemas"
+                                    "cached_messages_and_schemas"
                                 ].items():
+<<<<<<< HEAD
                                     # Convert array results to dictionary format for pre-run results too
                                     formatted_rows = []
                                     for row in pre_run_result["sql_rows"]:
@@ -164,6 +205,11 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             formatted_rows.append(row)
                                             
                                     database_results[identifier].append(
+=======
+                                    filtered_parallel_messages.database_results[
+                                        identifier
+                                    ].append(
+>>>>>>> upstream/main
                                         {
                                             "sql_query": pre_run_sql_query.replace(
                                                 "\n", " "
@@ -171,6 +217,17 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             "sql_rows": formatted_rows,
                                         }
                                     )
+                            # Check if disambiguation is required
+                            elif ("disambiguation_requests" in parsed_message) and (
+                                parsed_message["disambiguation_requests"]
+                            ):
+                                logging.info("Contains disambiguation requests")
+                                for disambiguation_request in parsed_message[
+                                    "disambiguation_requests"
+                                ]:
+                                    filtered_parallel_messages.disambiguation_requests[
+                                        identifier
+                                    ].append(disambiguation_request)
 
                 except Exception as e:
                     logging.error(f"Error processing message: {e}", exc_info=True)
@@ -183,11 +240,15 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 yield inner_message
 
         inner_solving_generators = []
-        database_results = {}
+        filtered_parallel_messages = FilteredParallelMessagesCollection()
 
         # Convert all_non_database_query to lowercase string and compare
         all_non_database_query = str(
+<<<<<<< HEAD
             question_rewrites.get("all_non_database_query", "false")
+=======
+            message_rewrites.get("all_non_database_query", "false")
+>>>>>>> upstream/main
         ).lower()
 
         if all_non_database_query == "true":
@@ -200,12 +261,21 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             return
 
         # Start processing sub-queries
-        for question_rewrite in question_rewrites["sub_questions"]:
-            logging.info(f"Processing sub-query: {question_rewrite}")
+        for message_rewrite in message_rewrites["decomposed_user_messages"]:
+            logging.info(f"Processing sub-query: {message_rewrite}")
             # Create an instance of the InnerAutoGenText2Sql class
             inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
 
-            identifier = ", ".join(question_rewrite)
+            identifier = ", ".join(message_rewrite)
+
+            # Add database connection info to injected parameters
+            query_params = injected_parameters.copy() if injected_parameters else {}
+            if "Text2Sql__Tsql__ConnectionString" in os.environ:
+                query_params["database_connection_string"] = os.environ[
+                    "Text2Sql__Tsql__ConnectionString"
+                ]
+            if "Text2Sql__Tsql__Database" in os.environ:
+                query_params["database_name"] = os.environ["Text2Sql__Tsql__Database"]
 
             # Add database connection info to injected parameters
             query_params = injected_parameters.copy() if injected_parameters else {}
@@ -219,12 +289,17 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             # Launch tasks for each sub-query
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
+<<<<<<< HEAD
                     inner_autogen_text_2_sql.process_question(
                         question=question_rewrite,
+=======
+                    inner_autogen_text_2_sql.process_user_message(
+                        user_message=message_rewrite,
+>>>>>>> upstream/main
                         injected_parameters=query_params,
                     ),
                     identifier,
-                    database_results,
+                    filtered_parallel_messages,
                 )
             )
 
@@ -241,17 +316,43 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                     yield inner_message
 
         # Log final results for debugging or auditing
-        logging.info(f"Database Results: {database_results}")
-
-        # Final response
-        yield Response(
-            chat_message=TextMessage(
-                content=json.dumps(
-                    {"contains_results": True, "results": database_results}
-                ),
-                source=self.name,
-            ),
+        logging.info(
+            "Database Results: %s", filtered_parallel_messages.database_results
         )
+        logging.info(
+            "Disambiguation Requests: %s",
+            filtered_parallel_messages.disambiguation_requests,
+        )
+
+        if (
+            max(map(len, filtered_parallel_messages.disambiguation_requests.values()))
+            > 0
+        ):
+            # Final response
+            yield Response(
+                chat_message=TextMessage(
+                    content=json.dumps(
+                        {
+                            "contains_disambiguation_requests": True,
+                            "disambiguation_requests": filtered_parallel_messages.disambiguation_requests,
+                        }
+                    ),
+                    source=self.name,
+                ),
+            )
+        else:
+            # Final response
+            yield Response(
+                chat_message=TextMessage(
+                    content=json.dumps(
+                        {
+                            "contains_database_results": True,
+                            "database_results": filtered_parallel_messages.database_results,
+                        }
+                    ),
+                    source=self.name,
+                ),
+            )
 
     async def on_reset(self, cancellation_token: CancellationToken) -> None:
         pass

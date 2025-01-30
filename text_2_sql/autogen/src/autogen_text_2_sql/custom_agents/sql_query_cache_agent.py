@@ -4,7 +4,7 @@ from typing import AsyncGenerator, List, Sequence
 
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
-from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
+from autogen_agentchat.messages import AgentEvent, ChatMessage, TextMessage
 from autogen_core import CancellationToken
 from text_2_sql_core.custom_agents.sql_query_cache_agent import (
     SqlQueryCacheAgentCustomAgent,
@@ -17,7 +17,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
     def __init__(self):
         super().__init__(
             "sql_query_cache_agent",
-            "An agent that fetches the queries from the cache based on the user question.",
+            "An agent that fetches the queries from the cache based on the user message.",
         )
 
         self.agent = SqlQueryCacheAgentCustomAgent()
@@ -39,20 +39,20 @@ class SqlQueryCacheAgent(BaseChatAgent):
 
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
-    ) -> AsyncGenerator[AgentMessage | Response, None]:
-        # Get the decomposed questions from the question_rewrite_agent
+    ) -> AsyncGenerator[AgentEvent | Response, None]:
+        # Get the decomposed messages from the user_message_rewrite_agent
         try:
             request_details = json.loads(messages[0].content)
             injected_parameters = request_details["injected_parameters"]
-            user_questions = request_details["question"]
-            logging.info(f"Processing questions: {user_questions}")
+            user_messages = request_details["user_message"]
+            logging.info(f"Processing messages: {user_messages}")
             logging.info(f"Input Parameters: {injected_parameters}")
         except json.JSONDecodeError:
-            # If not JSON array, process as single question
+            # If not JSON array, process as single message
             raise ValueError("Could not load message")
 
         cached_results = await self.agent.process_message(
-            user_questions, injected_parameters
+            user_messages, injected_parameters
         )
         yield Response(
             chat_message=TextMessage(

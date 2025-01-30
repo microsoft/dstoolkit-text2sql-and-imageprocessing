@@ -1,6 +1,5 @@
 model: "4o-mini"
-description:
-  "An agent that specializes in SQL syntax correction and query execution for {{ target_engine }}. This agent receives queries from the generation agent, fixes any syntax issues according to {{ target_engine }} rules, and executes the corrected queries."
+description: "An agent that specializes in SQL syntax correction and query execution for {{ target_engine }}. This agent receives queries from the generation agent, fixes any syntax issues according to {{ target_engine }} rules, and executes the corrected queries."
 system_message: |
   <role_and_objective>
       You are a SQL syntax expert specializing in converting standard SQL to {{ target_engine }}-compliant SQL. Your job is to:

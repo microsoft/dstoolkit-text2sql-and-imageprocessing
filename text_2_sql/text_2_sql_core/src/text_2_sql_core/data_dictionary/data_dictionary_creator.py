@@ -21,7 +21,7 @@ class ForeignKeyRelationship(BaseModel):
     column: str = Field(..., alias="Column")
     foreign_column: str = Field(..., alias="ForeignColumn")
 
-    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class EntityRelationship(BaseModel):
@@ -39,7 +39,7 @@ class EntityRelationship(BaseModel):
     foreign_database: Optional[str] = Field(default=None, alias="ForeignDatabase")
     foreign_catalog: Optional[str] = Field(default=None, alias="ForeignCatalog")
 
-    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    model_config = ConfigDict(populate_by_name=True)
 
     def pivot(self):
         """A method to pivot the entity relationship."""
@@ -128,12 +128,10 @@ class ColumnItem(BaseModel):
     name: str = Field(..., alias="Name")
     data_type: str = Field(..., alias="DataType")
     definition: Optional[str] = Field(..., alias="Definition")
-    distinct_values: Optional[list[any]] = Field(
-        None, alias="DistinctValues", exclude=True
-    )
-    sample_values: Optional[list[any]] = Field(None, alias="SampleValues")
+    distinct_values: Optional[list] = Field(None, alias="DistinctValues", exclude=True)
+    sample_values: Optional[list] = Field(None, alias="SampleValues")
 
-    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    model_config = ConfigDict(populate_by_name=True)
 
     def value_store_entry(
         self, entity, distinct_value, excluded_fields_for_database_engine

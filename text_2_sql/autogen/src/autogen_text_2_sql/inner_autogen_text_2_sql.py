@@ -45,27 +45,46 @@ class InnerAutoGenText2Sql:
         self.set_mode()
 
         # Store original environment variables
+<<<<<<< HEAD
         self.original_db_conn = os.environ.get("Text2Sql__DatabaseConnectionString")
         self.original_db_name = os.environ.get("Text2Sql__DatabaseName")
+=======
+        self.original_db_conn = os.environ.get("Text2Sql__Tsql__ConnectionString")
+        self.original_db_name = os.environ.get("Text2Sql__Tsql__Database")
+>>>>>>> upstream/main
 
     def _update_environment(self, injected_parameters: dict = None):
         """Update environment variables with injected parameters."""
         if injected_parameters:
             if "database_connection_string" in injected_parameters:
+<<<<<<< HEAD
                 os.environ["Text2Sql__DatabaseConnectionString"] = injected_parameters[
                     "database_connection_string"
                 ]
             if "database_name" in injected_parameters:
                 os.environ["Text2Sql__DatabaseName"] = injected_parameters[
+=======
+                os.environ["Text2Sql__Tsql__ConnectionString"] = injected_parameters[
+                    "database_connection_string"
+                ]
+            if "database_name" in injected_parameters:
+                os.environ["Text2Sql__Tsql__Database"] = injected_parameters[
+>>>>>>> upstream/main
                     "database_name"
                 ]
 
     def _restore_environment(self):
         """Restore original environment variables."""
         if self.original_db_conn:
+<<<<<<< HEAD
             os.environ["Text2Sql__DatabaseConnectionString"] = self.original_db_conn
         if self.original_db_name:
             os.environ["Text2Sql__DatabaseName"] = self.original_db_name
+=======
+            os.environ["Text2Sql__Tsql__ConnectionString"] = self.original_db_conn
+        if self.original_db_name:
+            os.environ["Text2Sql__Tsql__Database"] = self.original_db_name
+>>>>>>> upstream/main
 
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
@@ -124,7 +143,11 @@ class InnerAutoGenText2Sql:
     @property
     def termination_condition(self):
         """Define the termination condition for the chat."""
-        termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
+        termination = (
+            TextMentionTermination("TERMINATE")
+            | MaxMessageTermination(10)
+            | TextMentionTermination("disambiguation_request")
+        )
         return termination
 
     def unified_selector(self, messages):
@@ -176,31 +199,35 @@ class InnerAutoGenText2Sql:
         )
         return flow
 
-    def process_question(
+    def process_user_message(
         self,
-        question: str,
+        user_message: str,
         injected_parameters: dict = None,
     ):
         """Process the complete question through the unified system.
 
         Args:
         ----
-            task (str): The user question to process.
+            task (str): The user input to process.
             injected_parameters (dict, optional): Parameters to pass to agents. Defaults to None.
 
         Returns:
         -------
             dict: The response from the system.
         """
-        logging.info("Processing question: %s", question)
+        logging.info("Processing question: %s", user_message)
 
         # Update environment with injected parameters
         self._update_environment(injected_parameters)
 
         try:
             agent_input = {
+<<<<<<< HEAD
                 "question": question,
                 "chat_history": {},
+=======
+                "user_message": user_message,
+>>>>>>> upstream/main
                 "injected_parameters": injected_parameters,
             }
 

@@ -6,7 +6,7 @@ from typing import Annotated
 import os
 import logging
 import json
-
+from urllib.parse import urlparse
 from text_2_sql_core.utils.database import DatabaseEngine, DatabaseEngineSpecificFields
 
 
@@ -15,6 +15,11 @@ class PostgresqlSqlConnector(SqlConnector):
         super().__init__()
 
         self.database_engine = DatabaseEngine.POSTGRESQL
+
+    @property
+    def engine_specific_rules(self) -> str:
+        """Get the engine specific rules."""
+        return ""
 
     @property
     def engine_specific_fields(self) -> list[str]:
@@ -61,10 +66,35 @@ class PostgresqlSqlConnector(SqlConnector):
         """
         logging.info(f"Running query: {sql_query}")
         results = []
-        connection_string = os.environ["Text2Sql__DatabaseConnectionString"]
+
+        if "Text2Sql__Postgresql__ConnectionString" in os.environ:
+            logging.info("Postgresql Connection string found in environment variables.")
+
+            p = urlparse(os.environ["Text2Sql__Postgresql__ConnectionString"])
+
+            postgres_connections = {
+                "dbname": p.path[1:],
+                "user": p.username,
+                "password": p.password,
+                "port": p.port,
+                "host": p.hostname,
+            }
+        else:
+            logging.warning(
+                "Postgresql Connection string not found in environment variables. Using individual variables."
+            )
+            postgres_connections = {
+                "dbname": os.environ["Text2Sql__Postgresql__Database"],
+                "user": os.environ["Text2Sql__Postgresql__User"],
+                "password": os.environ["Text2Sql__Postgresql__Password"],
+                "port": os.environ["Text2Sql__Postgresql__Port"],
+                "host": os.environ["Text2Sql__Postgresql__ServerHostname"],
+            }
 
         # Establish an asynchronous connection to the PostgreSQL database
-        async with psycopg.AsyncConnection.connect(connection_string) as conn:
+        async with await psycopg.AsyncConnection.connect(
+            **postgres_connections
+        ) as conn:
             # Create an asynchronous cursor
             async with conn.cursor() as cursor:
                 await cursor.execute(sql_query)

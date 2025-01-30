@@ -18,7 +18,7 @@ def get_identity_type() -> IdentityType:
     Returns:
         IdentityType: The identity type
     """
-    identity = os.environ.get("IdentityType")
+    identity = os.environ["IdentityType"]
 
     if identity == "user_assigned":
         return IdentityType.USER_ASSIGNED

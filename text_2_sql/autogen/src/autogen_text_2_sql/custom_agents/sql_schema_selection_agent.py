@@ -4,7 +4,7 @@ from typing import AsyncGenerator, List, Sequence
 
 from autogen_agentchat.agents import BaseChatAgent
 from autogen_agentchat.base import Response
-from autogen_agentchat.messages import AgentMessage, ChatMessage, TextMessage
+from autogen_agentchat.messages import AgentEvent, ChatMessage, TextMessage
 from autogen_core import CancellationToken
 import json
 import logging
@@ -17,7 +17,7 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
     def __init__(self, **kwargs):
         super().__init__(
             "sql_schema_selection_agent",
-            "An agent that fetches the schemas from the cache based on the user question.",
+            "An agent that fetches the schemas from the cache based on the user input.",
         )
 
         self.agent = SqlSchemaSelectionAgentCustomAgent(**kwargs)
@@ -39,6 +39,7 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
 
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
+<<<<<<< HEAD
     ) -> AsyncGenerator[AgentMessage | Response, None]:
         # Try to parse as JSON first
         try:
@@ -54,8 +55,25 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
             user_questions = [str(user_questions)]
 
         logging.info(f"Processing questions: {user_questions}")
+=======
+    ) -> AsyncGenerator[AgentEvent | Response, None]:
+        # Try to parse as JSON first
+        try:
+            request_details = json.loads(messages[0].content)
+            messages = request_details["question"]
+        except (json.JSONDecodeError, KeyError):
+            # If not JSON or missing question key, use content directly
+            messages = messages[0].content
+>>>>>>> upstream/main
 
-        final_results = await self.agent.process_message(user_questions)
+        if isinstance(messages, str):
+            messages = [messages]
+        elif not isinstance(messages, list):
+            messages = [str(messages)]
+
+        logging.info(f"Processing questions: {messages}")
+
+        final_results = await self.agent.process_message(messages)
 
         yield Response(
             chat_message=TextMessage(

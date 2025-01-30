@@ -121,6 +121,10 @@ Contains specialized agent implementations:
 - **sql_schema_selection_agent.py:** Handles schema selection and management
 - **answer_and_sources_agent.py:** Formats and standardizes final outputs
 
+## State Store
+
+To enable the [AutoGen State](https://microsoft.github.io/autogen/stable/reference/python/autogen_agentchat.state.html) to be tracked across invocations, a state store implementation must be provided. A basic `InMemoryStateStore` is provided, but this can be replaced with an implementation for a database or file system for when the Agentic System is running behind an API. This enables the AutoGen state to be saved behind the scenes and recalled later when the message is part of the same thread. A `thread_id` must be provided to the entrypoint.
+
 ## Configuration
 
 The system behavior can be controlled through environment variables:
@@ -134,7 +138,7 @@ Each agent can be configured with specific parameters and prompts to optimize it
 
 ## Query Cache Implementation Details
 
-The vector based with query cache uses the `fetch_queries_from_cache()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
+The vector based with query cache uses the `fetch_sql_queries_with_schemas_from_cache()` method to fetch the most relevant previous query and injects it into the prompt before the initial LLM call. The use of Auto-Function Calling here is avoided to reduce the response time as the cache index will always be used first.
 
 If the score of the top result is higher than the defined threshold, the query will be executed against the target data source and the results included in the prompt. This allows us to prompt the LLM to evaluated whether it can use these results to answer the question, **without further SQL Query generation** to speed up the process.
 
@@ -163,8 +167,7 @@ The system produces standardized JSON output through the Answer and Sources Agen
   "sources": [
     {
       "sql_query": "The SQL query used",
-      "sql_rows": ["Array of result rows"],
-      "markdown_table": "Formatted markdown table of results"
+      "sql_rows": ["Array of result rows"]
     }
   ]
 }

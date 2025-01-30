@@ -10,7 +10,7 @@ on:
       - "*" # Run on all branches
 
 env:
-  MIN_PYTHON_VERSION: 3.11
+  MIN_PYTHON_VERSION: 3.12
 
 jobs:
   job-pre-commit-check:

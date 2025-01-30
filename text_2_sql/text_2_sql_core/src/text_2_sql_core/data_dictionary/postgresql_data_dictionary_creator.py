@@ -4,6 +4,7 @@ from text_2_sql_core.data_dictionary.data_dictionary_creator import (
     DataDictionaryCreator,
     EntityItem,
 )
+import asyncio
 import os
 
 from text_2_sql_core.utils.database import DatabaseEngine
@@ -16,7 +17,7 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
         excluded_schemas = ["information_schema", "pg_catalog"]
         super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
-        self.database = os.environ["Text2Sql__DatabaseName"]
+        self.database = os.environ["Text2Sql__Postgresql__Database"]
         self.database_engine = DatabaseEngine.POSTGRESQL
 
         self.sql_connector = PostgresqlSqlConnector()
@@ -112,3 +113,8 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
             pg_attribute pk_col ON fk.confrelid = pk_col.attrelid AND fk.confkey[1] = pk_col.attnum
         ORDER BY
             "EntitySchema", "Entity", "ForeignEntitySchema", "ForeignEntity";"""
+
+
+if __name__ == "__main__":
+    data_dictionary_creator = PostgresqlDataDictionaryCreator()
+    asyncio.run(data_dictionary_creator.create_data_dictionary())

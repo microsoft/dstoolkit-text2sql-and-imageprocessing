@@ -193,7 +193,9 @@ class SqlConnector(ABC):
                     "type": "query_execution_with_limit",
                     "sql_query": sql_query,
                     "sql_rows": result,
-                })
+                },
+                default=str,
+            )
             except Exception as e:
                 logging.error(f"Query execution error: {e}")
                 # Return error result
@@ -201,14 +203,18 @@ class SqlConnector(ABC):
                     "type": "errored_query_execution_with_limit",
                     "sql_query": sql_query,
                     "errors": str(e),
-                })
+                },
+                default=str,
+            )
         else:
             # Return validation error
             return json.dumps({
                 "type": "errored_query_execution_with_limit",
                 "sql_query": sql_query,
                 "errors": validation_result,
-            })
+            },
+            default=str,
+        )
 
     async def query_validation(
         self,
@@ -270,7 +276,7 @@ class SqlConnector(ABC):
             logging.info("SQL Query is valid.")
             return True
 
-    async def fetch_queries_from_cache(
+    async def fetch_sql_queries_with_schemas_from_cache(
         self, question: str, injected_parameters: dict = None
     ) -> str:
         """Fetch the queries from the cache based on the question.
@@ -286,14 +292,14 @@ class SqlConnector(ABC):
         # Return empty results if AI Search is disabled
         if not self.use_ai_search:
             return {
-                "contains_pre_run_results": False,
-                "cached_questions_and_schemas": None,
+                "contains_cached_sql_queries_with_schemas_from_cache_database_results": False,
+                "cached_sql_queries_with_schemas_from_cache": None,
             }
 
         if injected_parameters is None:
             injected_parameters = {}
 
-        cached_schemas = await self.ai_search_connector.run_ai_search_query(
+        sql_queries_with_schemas = await self.ai_search_connector.run_ai_search_query(
             question,
             ["QuestionEmbedding"],
             ["Question", "SqlQueryDecomposition"],
@@ -304,32 +310,30 @@ class SqlConnector(ABC):
             minimum_score=1.5,
         )
 
-        if len(cached_schemas) == 0:
+        if len(sql_queries_with_schemas) == 0:
             return {
-                "contains_pre_run_results": False,
-                "cached_questions_and_schemas": None,
+                "contains_cached_sql_queries_with_schemas_from_cache_database_results": False,
+                "cached_sql_queries_with_schemas_from_cache": None,
             }
 
         # loop through all sql queries and populate the template in place
-        for schema in cached_schemas:
-            sql_queries = schema["SqlQueryDecomposition"]
-            for sql_query in sql_queries:
+        for queries_with_schemas in sql_queries_with_schemas:
+            for sql_query in queries_with_schemas["SqlQueryDecomposition"]:
                 sql_query["SqlQuery"] = Template(sql_query["SqlQuery"]).render(
                     **injected_parameters
                 )
 
-        logging.info("Cached schemas: %s", cached_schemas)
-        if self.pre_run_query_cache and len(cached_schemas) > 0:
+        logging.info("Cached SQL Queries with Schemas: %s", sql_queries_with_schemas)
+        if self.pre_run_query_cache and len(sql_queries_with_schemas) > 0:
             # check the score
-            if cached_schemas[0]["@search.reranker_score"] > 2.75:
+            if sql_queries_with_schemas[0]["@search.reranker_score"] > 2.75:
                 logging.info("Score is greater than 3")
 
-                sql_queries = cached_schemas[0]["SqlQueryDecomposition"]
                 query_result_store = {}
 
                 query_tasks = []
 
-                for sql_query in sql_queries:
+                for sql_query in sql_queries_with_schemas[0]["SqlQueryDecomposition"]:
                     logging.info("SQL Query: %s", sql_query)
 
                     # Run the SQL query
@@ -337,18 +341,20 @@ class SqlConnector(ABC):
 
                 sql_results = await asyncio.gather(*query_tasks)
 
-                for sql_query, sql_result in zip(sql_queries, sql_results):
+                for sql_query, sql_result in zip(
+                    sql_queries_with_schemas[0]["SqlQueryDecomposition"], sql_results
+                ):
                     query_result_store[sql_query["SqlQuery"]] = {
                         "sql_rows": sql_result,
                         "schemas": sql_query["Schemas"],
                     }
 
                 return {
-                    "contains_pre_run_results": True,
-                    "cached_questions_and_schemas": query_result_store,
+                    "contains_cached_sql_queries_with_schemas_from_cache_database_results": True,
+                    "cached_sql_queries_with_schemas_from_cache": query_result_store,
                 }
 
         return {
-            "contains_pre_run_results": False,
-            "cached_questions_and_schemas": cached_schemas,
+            "contains_cached_sql_queries_with_schemas_from_cache_database_results": False,
+            "cached_sql_queries_with_schemas_from_cache": sql_queries_with_schemas,
         }

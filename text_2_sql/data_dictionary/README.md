@@ -203,13 +203,9 @@ This avoids having to index the fact tables, saving storage, and allows us to st
 
 ## Indexing
 
-`./deploy_ai_search/text_2_sql.py` & `./deploy_ai_search/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search/README.md`. There is **no automatic mechanism** to upload these .json files currently to a storage account, once generated, you must automatically upload them to the appropriate storage account that the indexer is connected to.
+`./deploy_ai_search_indexes/text_2_sql.py` & `./deploy_ai_search_indexes/text_2_sql_query_cache.py` contains the scripts to deploy and index the data dictionary for use within the plugin. See instructions in `./deploy_ai_search_indexes/README.md`. There is **no automatic mechanism** to upload these .json files currently to a storage account, once generated, you must automatically upload them to the appropriate storage account that the indexer is connected to.
 
 ## Automatic Generation
-
-> [!IMPORTANT]
->
-> - The data dictionary generation scripts have been moved to `text_2_sql_core`. Documentation will be updated shortly.
 
 Manually creating the `entities.json` is a time consuming exercise. To speed up generation, a mixture of SQL Queries and an LLM can be used to generate a initial version. Existing comments and descriptions in the database, can be combined with sample values to generate the necessary descriptions. Manual input can then be used to tweak it for the use case and any improvements.
 
@@ -222,29 +218,30 @@ The following Databases have pre-built scripts for them:
 - **Databricks:** `./text_2_sql_core/data_dictionary/databricks_data_dictionary_creator.py`
 - **Snowflake:** `./text_2_sql_core/data_dictionary/snowflake_data_dictionary_creator.py`
 - **TSQL:** `./text_2_sql_core/data_dictionary/tsql_data_dictionary_creator.py`
+- **PostgreSQL:** `./text_2_sql_core/data_dictionary/postgresql_data_dictionary_creator.py`
 
 If there is no pre-built script for your database engine, take one of the above as a starting point and adjust it.
 
 ## Running
 
-Fill out the `.env` template with connection details to your chosen database.
+To generate a data dictionary, perform the following steps:
 
-Package and install the `text_2_sql_core` library. See [build](https://docs.astral.sh/uv/concepts/projects/build/) if you want to build as a wheel and install on an agent. Or you can run from within a `uv` environment.
+1. Create your `.env` file based on the provided sample `text_2_sql/.env.example`. Place this file in the same place in `text_2_sql/.env`.
 
-`data_dictionary <DATABASE ENGINE>`
-
-You can pass the following command line arguements:
-
-- `-- output_directory` or `-o`: Optional directory that the script will write the output files to.
-- `-- single_file` or `-s`: Optional flag that writes all schemas to a single file.
-- `-- generate_definitions` or `-gen`: Optional flag that uses OpenAI to generate descriptions.
-
-If you need control over the following, run the file directly:
-
-- `entities`: A list of entities to extract. Defaults to None.
-- `excluded_entities`: A list of entities to exclude.
-- `excluded_schemas`: A list of schemas to exclude.
+**Execute the following commands in the `text_2_sql_core` directory:**
+2. Package and install the `text_2_sql_core` library. See [build](https://docs.astral.sh/uv/concepts/projects/build/) if you want to build as a wheel and install on an agent. Or you can run from within a `uv` environment and skip packaging.
+    - Install the optional dependencies if you need a database connector other than TSQL. `uv sync --extra <DATABASE ENGINE>`
+3. Run `uv run data_dictionary <DATABASE ENGINE>`
+    - You can pass the following command line arguements:
+        - `-- output_directory` or `-o`: Optional directory that the script will write the output files to.
+        - `-- single_file` or `-s`: Optional flag that writes all schemas to a single file.
+        - `-- generate_definitions` or `-gen`: Optional flag that uses OpenAI to generate descriptions.
+    - If you need control over the following, run the file directly:
+        - `entities`: A list of entities to extract. Defaults to None.
+        - `excluded_entities`: A list of entities to exclude.
+        - `excluded_schemas`: A list of schemas to exclude.
+4. Upload these generated data dictionaries files to the relevant containers in your storage account. Wait for them to be automatically indexed with the included skillsets.
 
 > [!IMPORTANT]
 >
-> - The data dictioonary generation scripts will output column values for all possible filter clauses. This could lead to output of sensitive information. You should add exclusion criteria to exclude these for only columns that you may want to filter by.
+> - The data dictionary generation scripts will output column values for all possible filter clauses. This could lead to output of sensitive information. You should add exclusion criteria to exclude these for only columns that you may want to filter by.
