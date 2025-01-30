@@ -45,46 +45,27 @@ class InnerAutoGenText2Sql:
         self.set_mode()
 
         # Store original environment variables
-<<<<<<< HEAD
-        self.original_db_conn = os.environ.get("Text2Sql__DatabaseConnectionString")
-        self.original_db_name = os.environ.get("Text2Sql__DatabaseName")
-=======
         self.original_db_conn = os.environ.get("Text2Sql__Tsql__ConnectionString")
         self.original_db_name = os.environ.get("Text2Sql__Tsql__Database")
->>>>>>> upstream/main
 
     def _update_environment(self, injected_parameters: dict = None):
         """Update environment variables with injected parameters."""
         if injected_parameters:
             if "database_connection_string" in injected_parameters:
-<<<<<<< HEAD
-                os.environ["Text2Sql__DatabaseConnectionString"] = injected_parameters[
-                    "database_connection_string"
-                ]
-            if "database_name" in injected_parameters:
-                os.environ["Text2Sql__DatabaseName"] = injected_parameters[
-=======
                 os.environ["Text2Sql__Tsql__ConnectionString"] = injected_parameters[
                     "database_connection_string"
                 ]
             if "database_name" in injected_parameters:
                 os.environ["Text2Sql__Tsql__Database"] = injected_parameters[
->>>>>>> upstream/main
                     "database_name"
                 ]
 
     def _restore_environment(self):
         """Restore original environment variables."""
         if self.original_db_conn:
-<<<<<<< HEAD
-            os.environ["Text2Sql__DatabaseConnectionString"] = self.original_db_conn
-        if self.original_db_name:
-            os.environ["Text2Sql__DatabaseName"] = self.original_db_name
-=======
             os.environ["Text2Sql__Tsql__ConnectionString"] = self.original_db_conn
         if self.original_db_name:
             os.environ["Text2Sql__Tsql__Database"] = self.original_db_name
->>>>>>> upstream/main
 
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
@@ -186,9 +167,15 @@ class InnerAutoGenText2Sql:
         model_name = os.environ.get("OpenAI__GroupChatModel", "4o")
         logging.info(f"Creating inner group chat with model: {model_name}")
         logging.info(f"Environment variables:")
-        logging.info(f"  OpenAI__GroupChatModel: {os.environ.get('OpenAI__GroupChatModel')}")
-        logging.info(f"  OpenAI__CompletionDeployment: {os.environ.get('OpenAI__CompletionDeployment')}")
-        logging.info(f"  OpenAI__MiniCompletionDeployment: {os.environ.get('OpenAI__MiniCompletionDeployment')}")
+        logging.info(
+            f"  OpenAI__GroupChatModel: {os.environ.get('OpenAI__GroupChatModel')}"
+        )
+        logging.info(
+            f"  OpenAI__CompletionDeployment: {os.environ.get('OpenAI__CompletionDeployment')}"
+        )
+        logging.info(
+            f"  OpenAI__MiniCompletionDeployment: {os.environ.get('OpenAI__MiniCompletionDeployment')}"
+        )
 
         flow = SelectorGroupChat(
             self.get_all_agents(),
@@ -222,12 +209,7 @@ class InnerAutoGenText2Sql:
 
         try:
             agent_input = {
-<<<<<<< HEAD
-                "question": question,
-                "chat_history": {},
-=======
                 "user_message": user_message,
->>>>>>> upstream/main
                 "injected_parameters": injected_parameters,
             }
 

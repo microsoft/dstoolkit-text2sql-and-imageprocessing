@@ -1,4 +1,5 @@
-<<<<<<< HEAD
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 import re
 import logging
 from typing import Optional, List, Dict, Any, Tuple
@@ -19,7 +20,7 @@ def normalize_query(query: str) -> str:
         return query
 
     # Clean whitespace
-    query = ' '.join(query.split())
+    query = " ".join(query.split())
 
     # Find all quoted strings and table/column identifiers to preserve their case
     preserved = {}
@@ -33,11 +34,31 @@ def normalize_query(query: str) -> str:
         counter += 1
 
     # Save table and column names (assuming they're between spaces, dots, or parentheses)
-    for match in re.finditer(r'(?<=[\s.(])[A-Za-z_][A-Za-z0-9_]*(?=[\s.)])', query):
+    for match in re.finditer(r"(?<=[\s.(])[A-Za-z_][A-Za-z0-9_]*(?=[\s.)])", query):
         if match.group(0).upper() not in {
-            'SELECT', 'FROM', 'WHERE', 'JOIN', 'ON', 'GROUP', 'BY', 'HAVING',
-            'ORDER', 'LIMIT', 'OFFSET', 'AND', 'OR', 'NOT', 'IN', 'EXISTS',
-            'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'AS', 'DISTINCT'
+            "SELECT",
+            "FROM",
+            "WHERE",
+            "JOIN",
+            "ON",
+            "GROUP",
+            "BY",
+            "HAVING",
+            "ORDER",
+            "LIMIT",
+            "OFFSET",
+            "AND",
+            "OR",
+            "NOT",
+            "IN",
+            "EXISTS",
+            "COUNT",
+            "SUM",
+            "AVG",
+            "MIN",
+            "MAX",
+            "AS",
+            "DISTINCT",
         }:
             placeholder = f"__IDENT_{counter}__"
             preserved[placeholder] = match.group(0)
@@ -46,10 +67,10 @@ def normalize_query(query: str) -> str:
 
     # Uppercase SQL keywords
     query = re.sub(
-        r'\b(SELECT|FROM|WHERE|JOIN|ON|GROUP|BY|HAVING|ORDER|LIMIT|OFFSET|AND|OR|NOT|IN|EXISTS|COUNT|SUM|AVG|MIN|MAX|AS|DISTINCT)\b',
+        r"\b(SELECT|FROM|WHERE|JOIN|ON|GROUP|BY|HAVING|ORDER|LIMIT|OFFSET|AND|OR|NOT|IN|EXISTS|COUNT|SUM|AVG|MIN|MAX|AS|DISTINCT)\b",
         lambda m: m.group(0).upper(),
         query,
-        flags=re.IGNORECASE
+        flags=re.IGNORECASE,
     )
 
     # Restore preserved strings and identifiers
@@ -62,67 +83,35 @@ def normalize_query(query: str) -> str:
 def extract_sql_queries_from_results(results: Dict[str, Any]) -> List[Tuple[str, str]]:
     """
     Extract SQL queries and their database IDs from the results dictionary.
-=======
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
-import re
-from typing import Optional, List, Dict, Any
-
-
-def extract_sql_queries_from_results(results: Dict[str, Any]) -> List[str]:
-    """
-    Extract SQL queries from the results dictionary returned by the query processing.
->>>>>>> upstream/main
 
     Args:
         results: Dictionary containing query results
 
     Returns:
-<<<<<<< HEAD
         List of tuples (query, database_id)
     """
     queries = []
 
-    if results.get("contains_results") and results.get("results"):
-        for question_results in results["results"].values():
+    if results.get("contains_database_results") and results.get("database_results"):
+        for question_results in results["database_results"].values():
             for result in question_results:
                 if isinstance(result, dict):
                     query = result.get("sql_query", "").strip()
                     db_id = result.get("database_id", "")
                     if query and query != "SELECT NULL -- No query found":
                         queries.append((normalize_query(query), db_id))
-=======
-        List of SQL queries found in the results
-    """
-    queries = []
-
-    if results.get("contains_database_results") and results.get("results"):
-        for question_results in results["results"].values():
-            for result in question_results:
-                if isinstance(result, dict) and "sql_query" in result:
-                    sql_query = result["sql_query"].strip()
-                    if sql_query and sql_query != "SELECT NULL -- No query found":
-                        queries.append(sql_query)
->>>>>>> upstream/main
 
     return queries
 
 
-<<<<<<< HEAD
 def extract_sql_queries_from_logs(log_text: str) -> List[Tuple[str, str]]:
     """
     Extract SQL queries and their database IDs from the autogen logs.
-=======
-def extract_sql_queries_from_logs(log_text: str) -> List[str]:
-    """
-    Extract SQL queries from the autogen logs.
->>>>>>> upstream/main
 
     Args:
         log_text: The log text containing SQL queries
 
     Returns:
-<<<<<<< HEAD
         List of tuples (query, database_id)
     """
     queries = []
@@ -132,11 +121,6 @@ def extract_sql_queries_from_logs(log_text: str) -> List[str]:
     db_matches = re.finditer(r"Processing query \d+/\d+ for database (\w+)", log_text)
     for match in db_matches:
         current_db = match.group(1)
-=======
-        List of SQL queries found in the logs
-    """
-    queries = []
->>>>>>> upstream/main
 
     # Pattern 1: Look for queries after "Running query against"
     running_pattern = r"Running query against.*?: (SELECT.*?)(?=\n|$)"
@@ -144,11 +128,7 @@ def extract_sql_queries_from_logs(log_text: str) -> List[str]:
     for match in running_matches:
         query = match.group(1).strip()
         if query and query != "SELECT NULL -- No query found":
-<<<<<<< HEAD
             queries.append((normalize_query(query), current_db))
-=======
-            queries.append(query)
->>>>>>> upstream/main
 
     # Pattern 2: Look for queries in JSON results
     json_pattern = r'"sql_query":\s*"(SELECT[^"]+)"'
@@ -156,39 +136,24 @@ def extract_sql_queries_from_logs(log_text: str) -> List[str]:
     for match in json_matches:
         query = match.group(1).strip()
         if query and query != "SELECT NULL -- No query found":
-<<<<<<< HEAD
             queries.append((normalize_query(query), current_db))
-=======
-            queries.append(query)
->>>>>>> upstream/main
 
     # Remove duplicates while preserving order
     seen = set()
     unique_queries = []
-<<<<<<< HEAD
     for query, db_id in queries:
         if query not in seen:
             seen.add(query)
             unique_queries.append((query, db_id))
-=======
-    for query in queries:
-        if query not in seen:
-            seen.add(query)
-            unique_queries.append(query)
->>>>>>> upstream/main
 
     return unique_queries
 
 
-<<<<<<< HEAD
-def get_final_sql_query(results: Dict[str, Any], log_text: str) -> Optional[Tuple[str, str]]:
+def get_final_sql_query(
+    results: Dict[str, Any], log_text: str
+) -> Optional[Tuple[str, str]]:
     """
     Get the final SQL query and database ID from both results and logs.
-=======
-def get_final_sql_query(results: Dict[str, Any], log_text: str) -> Optional[str]:
-    """
-    Get the final SQL query from both results and logs.
->>>>>>> upstream/main
     Returns None if no valid queries found.
 
     Args:
@@ -196,11 +161,7 @@ def get_final_sql_query(results: Dict[str, Any], log_text: str) -> Optional[str]
         log_text: The log text containing SQL queries
 
     Returns:
-<<<<<<< HEAD
         Tuple of (query, database_id) or None if no valid queries found
-=======
-        The final SQL query or None if no valid queries found
->>>>>>> upstream/main
     """
     # First try to get query from results
     result_queries = extract_sql_queries_from_results(results)
@@ -213,7 +174,6 @@ def get_final_sql_query(results: Dict[str, Any], log_text: str) -> Optional[str]
         return log_queries[-1]
 
     return None
-<<<<<<< HEAD
 
 
 def validate_query(query: str, db_id: str) -> bool:
@@ -232,12 +192,14 @@ def validate_query(query: str, db_id: str) -> bool:
 
     try:
         # Basic validation of SQL structure
-        if not re.match(r'^\s*SELECT\s+', query, re.IGNORECASE):
+        if not re.match(r"^\s*SELECT\s+", query, re.IGNORECASE):
             logging.error(f"Query does not start with SELECT: {query}")
             return False
 
         # Check for common SQL injection patterns
-        if re.search(r';\s*DROP|;\s*DELETE|;\s*UPDATE|;\s*INSERT', query, re.IGNORECASE):
+        if re.search(
+            r";\s*DROP|;\s*DELETE|;\s*UPDATE|;\s*INSERT", query, re.IGNORECASE
+        ):
             logging.error(f"Query contains potential SQL injection: {query}")
             return False
 
@@ -247,7 +209,7 @@ def validate_query(query: str, db_id: str) -> bool:
             return False
 
         # Check for unmatched parentheses
-        if query.count('(') != query.count(')'):
+        if query.count("(") != query.count(")"):
             logging.error(f"Query contains unmatched parentheses: {query}")
             return False
 
@@ -256,5 +218,3 @@ def validate_query(query: str, db_id: str) -> bool:
     except Exception as e:
         logging.error(f"Error validating query: {e}")
         return False
-=======
->>>>>>> upstream/main

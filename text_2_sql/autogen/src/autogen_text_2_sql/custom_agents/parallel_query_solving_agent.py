@@ -18,8 +18,6 @@ from aiostream import stream
 from json import JSONDecodeError
 import re
 import os
-<<<<<<< HEAD
-=======
 from pydantic import BaseModel, Field
 
 
@@ -32,7 +30,6 @@ class FilteredParallelMessagesCollection(BaseModel):
             self.database_results[identifier] = []
         if identifier not in self.disambiguation_requests:
             self.disambiguation_requests[identifier] = []
->>>>>>> upstream/main
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
@@ -130,37 +127,25 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                             logging.info(f"Inner Loaded: {parsed_message}")
 
                             if isinstance(parsed_message, dict):
-<<<<<<< HEAD
-                                if "type" in parsed_message:
-                                    if parsed_message["type"] == "query_execution_with_limit":
-                                        logging.info("Contains query results")
-                                        # Convert array results to dictionary format
-                                        formatted_rows = []
-                                        for row in parsed_message["sql_rows"]:
-                                            if isinstance(row, list):
-                                                # Convert list to dict with column index as key
-                                                formatted_row = {f"col_{i}": val for i, val in enumerate(row)}
-                                                formatted_rows.append(formatted_row)
-                                            else:
-                                                formatted_rows.append(row)
-
-                                        database_results[identifier].append({
-                                            "sql_query": parsed_message["sql_query"].replace("\n", " "),
-                                            "sql_rows": formatted_rows,
-                                        })
-                                    elif parsed_message["type"] == "errored_query_execution_with_limit":
-                                        logging.error(f"Query execution error: {parsed_message.get('errors', 'Unknown error')}")
-                                        database_results[identifier].append({
-                                            "sql_query": parsed_message["sql_query"].replace("\n", " "),
-                                            "error": parsed_message.get("errors", "Unknown error"),
-                                        })
-=======
                                 if (
                                     "type" in parsed_message
                                     and parsed_message["type"]
                                     == "query_execution_with_limit"
                                 ):
                                     logging.info("Contains query results")
+                                    # Convert array results to dictionary format
+                                    formatted_rows = []
+                                    for row in parsed_message["sql_rows"]:
+                                        if isinstance(row, list):
+                                            # Convert list to dict with column index as key
+                                            formatted_row = {
+                                                f"col_{i}": val
+                                                for i, val in enumerate(row)
+                                            }
+                                            formatted_rows.append(formatted_row)
+                                        else:
+                                            formatted_rows.append(row)
+
                                     filtered_parallel_messages.database_results[
                                         identifier
                                     ].append(
@@ -168,10 +153,28 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             "sql_query": parsed_message[
                                                 "sql_query"
                                             ].replace("\n", " "),
-                                            "sql_rows": parsed_message["sql_rows"],
+                                            "sql_rows": formatted_rows,
                                         }
                                     )
->>>>>>> upstream/main
+                                elif (
+                                    parsed_message["type"]
+                                    == "errored_query_execution_with_limit"
+                                ):
+                                    logging.error(
+                                        f"Query execution error: {parsed_message.get('errors', 'Unknown error')}"
+                                    )
+                                    filtered_parallel_messages.database_results[
+                                        identifier
+                                    ].append(
+                                        {
+                                            "sql_query": parsed_message[
+                                                "sql_query"
+                                            ].replace("\n", " "),
+                                            "error": parsed_message.get(
+                                                "errors", "Unknown error"
+                                            ),
+                                        }
+                                    )
 
                     elif isinstance(inner_message, TextMessage):
                         parsed_message = self.parse_inner_message(inner_message.content)
@@ -194,22 +197,21 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                 for pre_run_sql_query, pre_run_result in parsed_message[
                                     "cached_messages_and_schemas"
                                 ].items():
-<<<<<<< HEAD
                                     # Convert array results to dictionary format for pre-run results too
                                     formatted_rows = []
                                     for row in pre_run_result["sql_rows"]:
                                         if isinstance(row, list):
-                                            formatted_row = {f"col_{i}": val for i, val in enumerate(row)}
+                                            formatted_row = {
+                                                f"col_{i}": val
+                                                for i, val in enumerate(row)
+                                            }
                                             formatted_rows.append(formatted_row)
                                         else:
                                             formatted_rows.append(row)
 
-                                    database_results[identifier].append(
-=======
                                     filtered_parallel_messages.database_results[
                                         identifier
                                     ].append(
->>>>>>> upstream/main
                                         {
                                             "sql_query": pre_run_sql_query.replace(
                                                 "\n", " "
@@ -231,11 +233,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
                 except Exception as e:
                     logging.error(f"Error processing message: {e}", exc_info=True)
-                    if identifier not in database_results:
-                        database_results[identifier] = []
-                    database_results[identifier].append({
-                        "error": str(e)
-                    })
+                    filtered_parallel_messages.database_results[identifier].append(
+                        {"error": str(e)}
+                    )
 
                 yield inner_message
 
@@ -244,11 +244,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
         # Convert all_non_database_query to lowercase string and compare
         all_non_database_query = str(
-<<<<<<< HEAD
-            question_rewrites.get("all_non_database_query", "false")
-=======
             message_rewrites.get("all_non_database_query", "false")
->>>>>>> upstream/main
         ).lower()
 
         if all_non_database_query == "true":
@@ -277,25 +273,11 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             if "Text2Sql__Tsql__Database" in os.environ:
                 query_params["database_name"] = os.environ["Text2Sql__Tsql__Database"]
 
-            # Add database connection info to injected parameters
-            query_params = injected_parameters.copy() if injected_parameters else {}
-            if "Text2Sql__DatabaseConnectionString" in os.environ:
-                query_params["database_connection_string"] = os.environ[
-                    "Text2Sql__DatabaseConnectionString"
-                ]
-            if "Text2Sql__DatabaseName" in os.environ:
-                query_params["database_name"] = os.environ["Text2Sql__DatabaseName"]
-
             # Launch tasks for each sub-query
             inner_solving_generators.append(
                 consume_inner_messages_from_agentic_flow(
-<<<<<<< HEAD
-                    inner_autogen_text_2_sql.process_question(
-                        question=question_rewrite,
-=======
                     inner_autogen_text_2_sql.process_user_message(
                         user_message=message_rewrite,
->>>>>>> upstream/main
                         injected_parameters=query_params,
                     ),
                     identifier,
