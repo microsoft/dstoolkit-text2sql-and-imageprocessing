@@ -166,7 +166,7 @@ class InnerAutoGenText2Sql:
         """Create the unified flow for the complete process."""
         model_name = os.environ.get("OpenAI__GroupChatModel", "4o")
         logging.info(f"Creating inner group chat with model: {model_name}")
-        logging.info(f"Environment variables:")
+        logging.info("Environment variables:")
         logging.info(
             f"  OpenAI__GroupChatModel: {os.environ.get('OpenAI__GroupChatModel')}"
         )

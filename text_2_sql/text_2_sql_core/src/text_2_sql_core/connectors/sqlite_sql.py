@@ -6,7 +6,7 @@ import json
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, Annotated
+from typing import Any, List, Optional, TypeVar, Annotated
 from pathlib import Path
 
 from .sql import SqlConnector

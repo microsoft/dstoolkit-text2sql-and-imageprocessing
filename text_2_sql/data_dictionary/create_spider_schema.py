@@ -13,9 +13,7 @@ from pathlib import Path
 import asyncio
 import os
 import sys
-import shutil
 import logging
-import random
 import re
 
 # Configure logging
@@ -96,7 +94,7 @@ def merge_sqlite_databases(source_dir: Path, target_db: Path) -> None:
 
             try:
                 # Attach source database
-                target_cursor.execute(f"ATTACH DATABASE ? AS source", (str(db_file),))
+                target_cursor.execute("ATTACH DATABASE ? AS source", (str(db_file),))
 
                 # Get list of tables from source database
                 target_cursor.execute(
@@ -121,7 +119,7 @@ def merge_sqlite_databases(source_dir: Path, target_db: Path) -> None:
 
                     # Copy indexes
                     target_cursor.execute(
-                        f"""
+                        """
                         SELECT sql FROM source.sqlite_master
                         WHERE type='index' AND tbl_name=? AND sql IS NOT NULL
                     """,
