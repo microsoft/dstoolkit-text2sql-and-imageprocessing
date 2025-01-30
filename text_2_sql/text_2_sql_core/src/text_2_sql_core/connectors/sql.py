@@ -164,7 +164,7 @@ class SqlConnector(ABC):
             str,
             "The SQL query to run against the database.",
         ],
-    ) -> list[dict]:
+    ) -> str:
         """Run the SQL query against the database with a limit of 10 rows.
 
         Args:
@@ -173,30 +173,42 @@ class SqlConnector(ABC):
 
         Returns:
         -------
-            list[dict]: The results of the SQL query.
+            str: JSON string containing the query results or error information.
         """
-
+        # Clean the query
+        sql_query = sql_query.strip()
+        if sql_query.endswith(';'):
+            sql_query = sql_query[:-1]
+        
         # Validate the SQL query
         validation_result = await self.query_validation(sql_query)
 
         if isinstance(validation_result, bool) and validation_result:
-            result = await self.query_execution(sql_query, cast_to=None, limit=25)
-
-            return json.dumps(
-                {
+            try:
+                # Execute the query
+                result = await self.query_execution(sql_query, cast_to=None, limit=25)
+                
+                # Return successful result
+                return json.dumps({
                     "type": "query_execution_with_limit",
                     "sql_query": sql_query,
                     "sql_rows": result,
-                }
-            )
-        else:
-            return json.dumps(
-                {
+                })
+            except Exception as e:
+                logging.error(f"Query execution error: {e}")
+                # Return error result
+                return json.dumps({
                     "type": "errored_query_execution_with_limit",
                     "sql_query": sql_query,
-                    "errors": validation_result,
-                }
-            )
+                    "errors": str(e),
+                })
+        else:
+            # Return validation error
+            return json.dumps({
+                "type": "errored_query_execution_with_limit",
+                "sql_query": sql_query,
+                "errors": validation_result,
+            })
 
     async def query_validation(
         self,

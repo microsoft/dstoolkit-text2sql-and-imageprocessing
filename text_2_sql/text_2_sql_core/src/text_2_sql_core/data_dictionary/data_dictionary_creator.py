@@ -274,8 +274,7 @@ class DataDictionaryCreator(ABC):
         self.database_semaphore = asyncio.Semaphore(20)
         self.llm_semaphone = asyncio.Semaphore(10)
 
-        if output_directory is None:
-            self.output_directory = "."
+        self.output_directory = output_directory if output_directory is not None else "."
 
         self.open_ai_connector = OpenAIConnector()
 
@@ -485,14 +484,14 @@ class DataDictionaryCreator(ABC):
     async def write_columns_to_file(self, entity: EntityItem, column: ColumnItem):
         logging.info(f"Saving column values for {column.name}")
 
-        key = f"{entity.fqn}.{column.name}"
+        # Create a simpler key that doesn't include the full path
+        key = f"{entity.entity}.{column.name}"
         # Ensure the intermediate directories exist
-        os.makedirs(f"{self.output_directory}/column_value_store", exist_ok=True)
-        with open(
-            f"{self.output_directory}/column_value_store/{key}.jsonl",
-            "w",
-            encoding="utf-8",
-        ) as f:
+        column_value_store_dir = os.path.join(self.output_directory, "column_value_store")
+        os.makedirs(column_value_store_dir, exist_ok=True)
+        
+        output_file = os.path.join(column_value_store_dir, f"{key}.jsonl")
+        with open(output_file, "w", encoding="utf-8") as f:
             if column.distinct_values is not None:
                 for distinct_value in column.distinct_values:
                     json_string = json.dumps(

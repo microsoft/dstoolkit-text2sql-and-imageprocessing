@@ -167,3 +167,6 @@ cython_debug/
 # Spider data: https://drive.google.com/file/d/1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J/view
 /text_2_sql/test-suite-sql-eval/
 /text_2_sql/spider_data/
+
+# Generated samples data
+/text_2_sql/data_dictionary/generated_samples/

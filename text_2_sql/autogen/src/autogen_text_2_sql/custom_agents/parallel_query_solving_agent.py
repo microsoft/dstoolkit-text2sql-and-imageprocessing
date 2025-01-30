@@ -116,20 +116,29 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                             logging.info(f"Inner Loaded: {parsed_message}")
 
                             if isinstance(parsed_message, dict):
-                                if (
-                                    "type" in parsed_message
-                                    and parsed_message["type"]
-                                    == "query_execution_with_limit"
-                                ):
-                                    logging.info("Contains query results")
-                                    database_results[identifier].append(
-                                        {
-                                            "sql_query": parsed_message[
-                                                "sql_query"
-                                            ].replace("\n", " "),
-                                            "sql_rows": parsed_message["sql_rows"],
-                                        }
-                                    )
+                                if "type" in parsed_message:
+                                    if parsed_message["type"] == "query_execution_with_limit":
+                                        logging.info("Contains query results")
+                                        # Convert array results to dictionary format
+                                        formatted_rows = []
+                                        for row in parsed_message["sql_rows"]:
+                                            if isinstance(row, list):
+                                                # Convert list to dict with column index as key
+                                                formatted_row = {f"col_{i}": val for i, val in enumerate(row)}
+                                                formatted_rows.append(formatted_row)
+                                            else:
+                                                formatted_rows.append(row)
+                                        
+                                        database_results[identifier].append({
+                                            "sql_query": parsed_message["sql_query"].replace("\n", " "),
+                                            "sql_rows": formatted_rows,
+                                        })
+                                    elif parsed_message["type"] == "errored_query_execution_with_limit":
+                                        logging.error(f"Query execution error: {parsed_message.get('errors', 'Unknown error')}")
+                                        database_results[identifier].append({
+                                            "sql_query": parsed_message["sql_query"].replace("\n", " "),
+                                            "error": parsed_message.get("errors", "Unknown error"),
+                                        })
 
                     elif isinstance(inner_message, TextMessage):
                         parsed_message = self.parse_inner_message(inner_message.content)
@@ -145,17 +154,31 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                 for pre_run_sql_query, pre_run_result in parsed_message[
                                     "cached_questions_and_schemas"
                                 ].items():
+                                    # Convert array results to dictionary format for pre-run results too
+                                    formatted_rows = []
+                                    for row in pre_run_result["sql_rows"]:
+                                        if isinstance(row, list):
+                                            formatted_row = {f"col_{i}": val for i, val in enumerate(row)}
+                                            formatted_rows.append(formatted_row)
+                                        else:
+                                            formatted_rows.append(row)
+                                            
                                     database_results[identifier].append(
                                         {
                                             "sql_query": pre_run_sql_query.replace(
                                                 "\n", " "
                                             ),
-                                            "sql_rows": pre_run_result["sql_rows"],
+                                            "sql_rows": formatted_rows,
                                         }
                                     )
 
                 except Exception as e:
-                    logging.warning(f"Error processing message: {e}")
+                    logging.error(f"Error processing message: {e}", exc_info=True)
+                    if identifier not in database_results:
+                        database_results[identifier] = []
+                    database_results[identifier].append({
+                        "error": str(e)
+                    })
 
                 yield inner_message
 

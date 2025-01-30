@@ -44,7 +44,8 @@ class AutoGenText2Sql:
             "question_rewrite_agent", current_datetime=current_datetime
         )
 
-        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
+        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(
+            **self.kwargs)
 
         self.answer_agent = LLMAgentCreator.create("answer_agent")
 
@@ -93,10 +94,20 @@ class AutoGenText2Sql:
     @property
     def agentic_flow(self):
         """Create the unified flow for the complete process."""
+        model_name = os.environ.get("OpenAI__GroupChatModel", "4o")
+        logging.info(f"Creating group chat with model: {model_name}")
+        logging.info(f"Environment variables:")
+        logging.info(f"  OpenAI__GroupChatModel: {
+                     os.environ.get('OpenAI__GroupChatModel')}")
+        logging.info(f"  OpenAI__CompletionDeployment: {
+                     os.environ.get('OpenAI__CompletionDeployment')}")
+        logging.info(f"  OpenAI__MiniCompletionDeployment: {
+                     os.environ.get('OpenAI__MiniCompletionDeployment')}")
+
         flow = SelectorGroupChat(
             self.get_all_agents(),
             allow_repeated_speaker=False,
-            model_client=LLMModelCreator.get_model("4o-mini"),
+            model_client=LLMModelCreator.get_model(model_name),
             termination_condition=self.termination_condition,
             selector_func=self.unified_selector,
         )
@@ -143,12 +154,14 @@ class AutoGenText2Sql:
             if isinstance(sql_query_results, str):
                 sql_query_results = json.loads(sql_query_results)
         except json.JSONDecodeError:
-            logging.warning("Unable to read SQL query results: %s", sql_query_results)
+            logging.warning(
+                "Unable to read SQL query results: %s", sql_query_results)
             sql_query_results = {}
             sub_question_results = {}
         else:
             # Only load sub-question results if we have a database result
-            sub_question_results = self.parse_message_content(messages[1].content)
+            sub_question_results = self.parse_message_content(
+                messages[1].content)
             logging.info("Sub-Question Results: %s", sub_question_results)
 
         try:
@@ -171,6 +184,8 @@ class AutoGenText2Sql:
                 logging.error("No 'results' key in sql_query_results")
                 return payload
 
+            # Extract queries and check if we need to combine them
+            sql_queries = []
             for question, sql_query_result_list in sql_query_results["results"].items():
                 if not sql_query_result_list:  # Check if list is empty
                     logging.warning(f"No results for question: {question}")
@@ -179,7 +194,8 @@ class AutoGenText2Sql:
                 for sql_query_result in sql_query_result_list:
                     if not isinstance(sql_query_result, dict):
                         logging.error(
-                            f"Expected dict for sql_query_result, got {type(sql_query_result)}"
+                            f"Expected dict for sql_query_result, got {
+                                type(sql_query_result)}"
                         )
                         continue
 
@@ -187,14 +203,59 @@ class AutoGenText2Sql:
                         "sql_query" not in sql_query_result
                         or "sql_rows" not in sql_query_result
                     ):
-                        logging.error("Missing required keys in sql_query_result")
+                        logging.error(
+                            "Missing required keys in sql_query_result")
                         continue
 
+                    sql_queries.append(sql_query_result["sql_query"])
+
+            # If we have multiple queries and combination_logic, combine them
+            if len(sql_queries) > 1 and "combination_logic" in sub_question_results:
+                combination_logic = sub_question_results["combination_logic"]
+                # If the logic mentions filtering or conditions from first query
+                if any(word in combination_logic.lower() for word in ["first", "then", "filter", "where"]):
+                    # Extract WHERE clause from first query if it exists
+                    where_clause = ""
+                    first_query = sql_queries[0]
+                    where_match = re.search(
+                        r"WHERE\s+(.*?)(?:;|$)", first_query, re.IGNORECASE)
+                    if where_match:
+                        where_clause = f" WHERE {where_match.group(1)}"
+
+                    # Add WHERE clause to second query
+                    second_query = sql_queries[1]
+                    if "WHERE" in second_query.upper():
+                        # Replace existing WHERE clause
+                        combined_query = re.sub(
+                            r"WHERE\s+.*?(?:;|$)", where_clause + ";", second_query, flags=re.IGNORECASE)
+                    else:
+                        # Add WHERE clause before any semicolon
+                        combined_query = second_query.replace(
+                            ";", "") + where_clause + ";"
+
+                    # Create source with combined query
                     source = AnswerWithSourcesPayload.Body.Source(
-                        sql_query=sql_query_result["sql_query"],
+                        sql_query=combined_query,
                         sql_rows=sql_query_result["sql_rows"],
                     )
                     payload.body.sources.append(source)
+                else:
+                    # If no clear combination logic, add queries separately
+                    for sql_query_result in sql_query_result_list:
+                        source = AnswerWithSourcesPayload.Body.Source(
+                            sql_query=sql_query_result["sql_query"],
+                            sql_rows=sql_query_result["sql_rows"],
+                        )
+                        payload.body.sources.append(source)
+            else:
+                # Single query or no combination logic, add as-is
+                for question, sql_query_result_list in sql_query_results["results"].items():
+                    for sql_query_result in sql_query_result_list:
+                        source = AnswerWithSourcesPayload.Body.Source(
+                            sql_query=sql_query_result["sql_query"],
+                            sql_rows=sql_query_result["sql_rows"],
+                        )
+                        payload.body.sources.append(source)
 
             if not payload.body.sources:
                 logging.error("No valid sources extracted")
@@ -270,7 +331,8 @@ class AutoGenText2Sql:
                     payload = self.extract_answer_payload(message.messages)
                 elif message.messages[-1].source == "parallel_query_solving_agent":
                     # Load into disambiguation request
-                    payload = self.extract_disambiguation_request(message.messages)
+                    payload = self.extract_disambiguation_request(
+                        message.messages)
                 elif message.messages[-1].source == "question_rewrite_agent":
                     # Load into empty response
                     payload = AnswerWithSourcesPayload(
