@@ -46,7 +46,7 @@ class OpenAIConnector:
                 schema = response_format.model_json_schema()
             else:
                 schema = str(response_format)
-            
+
             messages = [
                 {
                     "role": "system",
@@ -91,7 +91,7 @@ class OpenAIConnector:
                 return {"error": "Failed to parse JSON response"}
             except Exception as e:
                 return {"error": f"Failed to validate response: {str(e)}"}
-        
+
         return content
 
     # async def run_embedding_request(self, batch: list[str]):

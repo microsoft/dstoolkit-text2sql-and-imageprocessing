@@ -143,7 +143,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                                 formatted_rows.append(formatted_row)
                                             else:
                                                 formatted_rows.append(row)
-                                        
+
                                         database_results[identifier].append({
                                             "sql_query": parsed_message["sql_query"].replace("\n", " "),
                                             "sql_rows": formatted_rows,
@@ -203,7 +203,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             formatted_rows.append(formatted_row)
                                         else:
                                             formatted_rows.append(row)
-                                            
+
                                     database_results[identifier].append(
 =======
                                     filtered_parallel_messages.database_results[

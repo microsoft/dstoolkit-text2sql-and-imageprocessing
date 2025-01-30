@@ -27,29 +27,29 @@ class SqlSchemaSelectionAgentCustomAgent:
 
     async def verify_database_connection(self, db_path: str) -> bool:
         """Verify database connection and update schema cache.
-        
+
         Args:
             db_path: Path to the database
-            
+
         Returns:
             True if connection successful, False otherwise
         """
         try:
             # Set database path in connector
             self.sql_connector.current_db_path = db_path
-            
+
             # Try to get schema information
             schemas = await self.sql_connector.get_entity_schemas("", as_json=False)
             if schemas and isinstance(schemas, dict) and "entities" in schemas:
                 # Update schema cache with case-sensitive information
                 self.schema_cache[db_path] = {
-                    entity["Entity"].lower(): entity 
+                    entity["Entity"].lower(): entity
                     for entity in schemas["entities"]
                 }
                 self.last_schema_update[db_path] = asyncio.get_event_loop().time()
                 logging.info(f"Updated schema cache for {db_path}")
                 return True
-                
+
             logging.warning(f"No schemas found for database: {db_path}")
             return False
         except Exception as e:
@@ -58,10 +58,10 @@ class SqlSchemaSelectionAgentCustomAgent:
 
     async def process_message(self, user_questions: list[str]) -> dict:
         """Process user questions and return relevant schema information.
-        
+
         Args:
             user_questions: List of user questions to process
-            
+
         Returns:
             Dictionary containing schema options and column values
         """
@@ -110,10 +110,10 @@ class SqlSchemaSelectionAgentCustomAgent:
 
     def _error_response(self, error_message: str) -> dict:
         """Create an error response dictionary.
-        
+
         Args:
             error_message: Error message to include
-            
+
         Returns:
             Error response dictionary
         """
@@ -129,10 +129,10 @@ class SqlSchemaSelectionAgentCustomAgent:
         self, user_questions: list[str]
     ) -> List[SQLSchemaSelectionAgentOutput]:
         """Process user questions to identify entities and filters.
-        
+
         Args:
             user_questions: List of questions to process
-            
+
         Returns:
             List of processed results
         """
@@ -162,20 +162,20 @@ class SqlSchemaSelectionAgentCustomAgent:
         self, entity_results: List[SQLSchemaSelectionAgentOutput]
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Get schemas for identified entities.
-        
+
         Args:
             entity_results: List of entity processing results
-            
+
         Returns:
             Dictionary mapping database paths to schema lists
         """
         schemas_by_db = {}
-        
+
         for result in entity_results:
             for entity_group in result.entities:
                 search_text = " ".join(entity_group)
                 schemas = await self._get_schemas_for_search(search_text)
-                
+
                 if schemas:
                     for schema in schemas:
                         db_path = schema.get("DatabasePath", self.current_database)
@@ -188,10 +188,10 @@ class SqlSchemaSelectionAgentCustomAgent:
 
     async def _get_schemas_for_search(self, search_text: str) -> List[Dict[str, Any]]:
         """Get schemas matching search text.
-        
+
         Args:
             search_text: Text to search for
-            
+
         Returns:
             List of matching schemas
         """
@@ -214,22 +214,22 @@ class SqlSchemaSelectionAgentCustomAgent:
                 return schemas["entities"]
         except Exception as e:
             logging.error(f"Error getting schemas for '{search_text}': {e}")
-        
+
         return []
 
     async def _get_column_values(
         self, entity_results: List[SQLSchemaSelectionAgentOutput]
     ) -> List[Any]:
         """Get column values for filter conditions.
-        
+
         Args:
             entity_results: List of entity processing results
-            
+
         Returns:
             List of column values
         """
         column_values = []
-        
+
         for result in entity_results:
             for filter_condition in result.filter_conditions:
                 try:
@@ -249,11 +249,11 @@ class SqlSchemaSelectionAgentCustomAgent:
         self, schemas_by_db: Dict[str, List[Dict[str, Any]]], current_db_path: str
     ) -> Tuple[str, List[Dict[str, Any]]]:
         """Select most relevant database and its schemas.
-        
+
         Args:
             schemas_by_db: Dictionary mapping database paths to schema lists
             current_db_path: Current database path
-            
+
         Returns:
             Tuple of (selected database path, final schemas list)
         """
@@ -269,7 +269,7 @@ class SqlSchemaSelectionAgentCustomAgent:
 
         # Get schemas for selected database
         final_schemas = schemas_by_db.get(selected_db, [])
-        
+
         # If no schemas found, try cache
         if not final_schemas and selected_db in self.schema_cache:
             final_schemas = list(self.schema_cache[selected_db].values())

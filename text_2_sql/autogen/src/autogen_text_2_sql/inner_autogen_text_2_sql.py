@@ -189,7 +189,7 @@ class InnerAutoGenText2Sql:
         logging.info(f"  OpenAI__GroupChatModel: {os.environ.get('OpenAI__GroupChatModel')}")
         logging.info(f"  OpenAI__CompletionDeployment: {os.environ.get('OpenAI__CompletionDeployment')}")
         logging.info(f"  OpenAI__MiniCompletionDeployment: {os.environ.get('OpenAI__MiniCompletionDeployment')}")
-        
+
         flow = SelectorGroupChat(
             self.get_all_agents(),
             allow_repeated_speaker=False,

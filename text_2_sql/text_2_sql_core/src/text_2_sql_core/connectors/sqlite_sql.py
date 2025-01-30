@@ -80,8 +80,8 @@ class SQLiteSqlConnector(SqlConnector):
             with sqlite3.connect(self.database_path) as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
-                    SELECT name FROM sqlite_schema 
-                    WHERE type='table' 
+                    SELECT name FROM sqlite_schema
+                    WHERE type='table'
                     AND name NOT LIKE 'sqlite_%'
                 """)
                 tables = cursor.fetchall()

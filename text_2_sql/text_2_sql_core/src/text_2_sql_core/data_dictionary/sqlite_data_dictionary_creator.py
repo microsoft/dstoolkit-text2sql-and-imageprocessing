@@ -13,7 +13,7 @@ import re
 class SQLiteDataDictionaryCreator(DataDictionaryCreator):
     def __init__(self, database_path: str, output_directory: str = None, **kwargs):
         """Initialize the SQLite Data Dictionary Creator.
-        
+
         Args:
             database_path: Path to the SQLite database file
             output_directory: Directory to write output files to
@@ -23,7 +23,7 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
         self.database = database_path
         self.database_engine = DatabaseEngine.SQLITE
         self.output_directory = output_directory if output_directory is not None else "."
-        
+
         self.sql_connector = SQLiteSqlConnector()
         self.sql_connector.set_database(database_path)
 
@@ -31,16 +31,16 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
     def extract_table_entities_sql_query(self) -> str:
         """Extract table entities from SQLite schema."""
         return """
-        SELECT 
+        SELECT
             name as Entity,
             'main' as EntitySchema,
             sql as Definition
-        FROM 
+        FROM
             sqlite_master
-        WHERE 
-            type='table' AND 
+        WHERE
+            type='table' AND
             name NOT LIKE 'sqlite_%'
-        ORDER BY 
+        ORDER BY
             name;
         """
 
@@ -48,47 +48,47 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
     def extract_view_entities_sql_query(self) -> str:
         """Extract view entities from SQLite schema."""
         return """
-        SELECT 
+        SELECT
             name as Entity,
             'main' as EntitySchema,
             sql as Definition
-        FROM 
+        FROM
             sqlite_master
-        WHERE 
-            type='view' AND 
+        WHERE
+            type='view' AND
             name NOT LIKE 'sqlite_%'
-        ORDER BY 
+        ORDER BY
             name;
         """
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
         """Extract column information for a given entity.
-        
+
         Args:
             entity: The entity to extract columns for
-            
+
         Returns:
             SQL query to extract column information
         """
         return f"""
-        SELECT 
+        SELECT
             p.name as Name,
             p.type as DataType,
-            p.type || CASE 
+            p.type || CASE
                 WHEN p."notnull" = 1 THEN ' NOT NULL'
                 ELSE ''
             END || CASE
                 WHEN p.pk = 1 THEN ' PRIMARY KEY'
                 ELSE ''
             END as Definition
-        FROM 
+        FROM
             sqlite_master m
-        JOIN 
+        JOIN
             pragma_table_info(m.name) p
-        WHERE 
+        WHERE
             m.type IN ('table', 'view') AND
             m.name = '{entity.entity}'
-        ORDER BY 
+        ORDER BY
             p.cid;
         """
 
@@ -98,15 +98,15 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
         return """
         WITH RECURSIVE
         fk_info AS (
-            SELECT 
+            SELECT
                 m.name as table_name,
                 p."table" as referenced_table,
                 p."from" as column_name,
                 p."to" as referenced_column
-            FROM 
+            FROM
                 sqlite_master m,
                 pragma_foreign_key_list(m.name) p
-            WHERE 
+            WHERE
                 m.type = 'table'
         )
         SELECT DISTINCT
@@ -116,7 +116,7 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
             fk.referenced_table as ForeignEntity,
             fk.column_name as "Column",
             fk.referenced_column as ForeignColumn
-        FROM 
+        FROM
             fk_info fk
         ORDER BY
             Entity, ForeignEntity;
@@ -124,11 +124,11 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
 
     def extract_distinct_values_sql_query(self, entity: EntityItem, column: ColumnItem) -> str:
         """Extract distinct values for a column.
-        
+
         Args:
             entity: The entity containing the column
             column: The column to extract values from
-            
+
         Returns:
             SQL query to extract distinct values
         """
@@ -136,14 +136,14 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
         return f"""
         SELECT DISTINCT "{column.name}"
         FROM "{entity.entity}"
-        WHERE "{column.name}" IS NOT NULL 
+        WHERE "{column.name}" IS NOT NULL
         ORDER BY "{column.name}" DESC
         LIMIT 1000;
         """
 
     async def extract_column_distinct_values(self, entity: EntityItem, column: ColumnItem):
         """Override to use SQLite-specific query and handling.
-        
+
         Args:
             entity: The entity to extract distinct values from
             column: The column to extract distinct values from
@@ -188,10 +188,10 @@ class SQLiteDataDictionaryCreator(DataDictionaryCreator):
 if __name__ == "__main__":
     import asyncio
     import sys
-    
+
     if len(sys.argv) != 2:
         print("Usage: python sqlite_data_dictionary_creator.py <database_path>")
         sys.exit(1)
-        
+
     creator = SQLiteDataDictionaryCreator(sys.argv[1])
     asyncio.run(creator.create_data_dictionary())

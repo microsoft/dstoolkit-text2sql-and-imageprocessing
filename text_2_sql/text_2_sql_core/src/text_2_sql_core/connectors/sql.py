@@ -179,7 +179,7 @@ class SqlConnector(ABC):
         sql_query = sql_query.strip()
         if sql_query.endswith(';'):
             sql_query = sql_query[:-1]
-        
+
         # Validate the SQL query
         validation_result = await self.query_validation(sql_query)
 
@@ -187,7 +187,7 @@ class SqlConnector(ABC):
             try:
                 # Execute the query
                 result = await self.query_execution(sql_query, cast_to=None, limit=25)
-                
+
                 # Return successful result
                 return json.dumps({
                     "type": "query_execution_with_limit",

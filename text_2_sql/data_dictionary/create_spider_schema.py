@@ -89,7 +89,7 @@ def merge_sqlite_databases(source_dir: Path, target_db: Path) -> None:
 
                 # Get list of tables from source database
                 target_cursor.execute("""
-                    SELECT name FROM source.sqlite_master 
+                    SELECT name FROM source.sqlite_master
                     WHERE type='table' AND name NOT LIKE 'sqlite_%'
                 """)
                 tables = target_cursor.fetchall()
@@ -142,7 +142,7 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
         return f"""
         SELECT DISTINCT "{column.name}"
         FROM "{entity.entity}"
-        WHERE "{column.name}" IS NOT NULL 
+        WHERE "{column.name}" IS NOT NULL
         ORDER BY "{column.name}" DESC
         LIMIT 1000;
         """
@@ -183,7 +183,7 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
         """Override to extract and write column values with correct format."""
         try:
             logger.info(f"Extracting values for {entity.entity}.{column.name}")
-            
+
             # Query to get sample values first
             sample_query = f"""
             SELECT DISTINCT "{column.name}"
@@ -192,9 +192,9 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
             ORDER BY RANDOM()
             LIMIT 5;
             """
-            
+
             sample_values = await self.query_entities(sample_query)
-            
+
             # Convert sample values to proper format
             column.sample_values = []
             for value in sample_values:
@@ -210,7 +210,7 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
             # For string columns, also get all distinct values for column value store
             if any(data_type in column.data_type.lower() for data_type in ["string", "nchar", "text", "varchar"]):
                 logger.info(f"Writing values for {entity.entity}.{column.name}")
-                
+
                 # Get all distinct values
                 distinct_query = f"""
                 SELECT DISTINCT "{column.name}"
@@ -219,13 +219,13 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                 ORDER BY "{column.name}" DESC
                 LIMIT 1000;
                 """
-                
+
                 distinct_values = await self.query_entities(distinct_query)
-                
+
                 # Create column value store directory
                 column_store_dir = os.path.join(self.output_directory, "column_value_store")
                 os.makedirs(column_store_dir, exist_ok=True)
-                
+
                 # Write column values with correct format
                 column_file = os.path.join(column_store_dir, f"{entity.entity}.{column.name}.jsonl")
                 logger.info(f"Writing to: {column_file}")
@@ -290,7 +290,7 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
     def apply_exclusions_to_entity(self, entity: EntityItem) -> dict:
         """Override to produce schema output matching the example format exactly."""
         logger.info(f"Applying exclusions for entity: {entity.entity}")
-        
+
         # Format matching the schema store example order exactly
         simplified_data = {
             "Columns": [
@@ -376,7 +376,7 @@ class ProgressTrackingDataDictionaryCreator(SQLiteDataDictionaryCreator):
                 JOIN pragma_foreign_key_list(m.name) p
                 WHERE m.name = ?
                 """
-                
+
                 relationships = []
                 direct_relationships = []
 
@@ -465,7 +465,7 @@ async def main():
         for i in range(0, total_entities, batch_size):
             batch = entities[i:i + batch_size]
             logger.info(f"\nProcessing batch {i//batch_size + 1} ({len(batch)} entities)")
-            
+
             # Process each entity in the batch
             for entity in batch:
                 try:

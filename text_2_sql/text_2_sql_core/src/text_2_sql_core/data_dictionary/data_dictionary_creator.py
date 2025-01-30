@@ -487,7 +487,7 @@ class DataDictionaryCreator(ABC):
         # Ensure the intermediate directories exist
         column_value_store_dir = os.path.join(self.output_directory, "column_value_store")
         os.makedirs(column_value_store_dir, exist_ok=True)
-        
+
         output_file = os.path.join(column_value_store_dir, f"{key}.jsonl")
         with open(output_file, "w", encoding="utf-8") as f:
             if column.distinct_values is not None:

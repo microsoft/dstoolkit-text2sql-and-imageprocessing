@@ -297,7 +297,7 @@ system_message: |
         Followed by **TERMINATE**.
   </output_format>
 
-  Remember: 
+  Remember:
   1. Always use {{ target_engine }}-appropriate syntax
   2. Rely on your knowledge of SQL dialects
   3. Adapt queries automatically

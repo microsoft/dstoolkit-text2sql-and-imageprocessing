@@ -20,18 +20,18 @@ def normalize_query(query: str) -> str:
 
     # Clean whitespace
     query = ' '.join(query.split())
-    
+
     # Find all quoted strings and table/column identifiers to preserve their case
     preserved = {}
     counter = 0
-    
+
     # Save quoted strings
     for match in re.finditer(r"'[^']*'|\"[^\"]*\"", query):
         placeholder = f"__QUOTED_{counter}__"
         preserved[placeholder] = match.group(0)
         query = query.replace(match.group(0), placeholder)
         counter += 1
-    
+
     # Save table and column names (assuming they're between spaces, dots, or parentheses)
     for match in re.finditer(r'(?<=[\s.(])[A-Za-z_][A-Za-z0-9_]*(?=[\s.)])', query):
         if match.group(0).upper() not in {
@@ -43,7 +43,7 @@ def normalize_query(query: str) -> str:
             preserved[placeholder] = match.group(0)
             query = query.replace(match.group(0), placeholder)
             counter += 1
-    
+
     # Uppercase SQL keywords
     query = re.sub(
         r'\b(SELECT|FROM|WHERE|JOIN|ON|GROUP|BY|HAVING|ORDER|LIMIT|OFFSET|AND|OR|NOT|IN|EXISTS|COUNT|SUM|AVG|MIN|MAX|AS|DISTINCT)\b',
@@ -51,11 +51,11 @@ def normalize_query(query: str) -> str:
         query,
         flags=re.IGNORECASE
     )
-    
+
     # Restore preserved strings and identifiers
     for placeholder, original in preserved.items():
         query = query.replace(placeholder, original)
-    
+
     return query
 
 
