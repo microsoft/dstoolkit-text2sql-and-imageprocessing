@@ -1089,7 +1089,7 @@ source = { url = "https://github.com/explosion/spacy-models/releases/download/en
 dependencies = [
     { name = "spacy" },
 ]
-sdist = { hash = "sha256:3273a1335fcb688be09949c5cdb73e85eb584ec3dfc50d4338c17daf6ccd4628" }
+sdist = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1.tar.gz", hash = "sha256:3273a1335fcb688be09949c5cdb73e85eb584ec3dfc50d4338c17daf6ccd4628" }
 
 [package.metadata]
 requires-dist = [{ name = "spacy", specifier = ">=3.7.2,<3.8.0" }]

@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 import os
+import json
 from typing import Any, Dict, List, Tuple
 import logging
 import asyncio
@@ -66,8 +67,59 @@ class SqlSchemaSelectionAgentCustomAgent:
         """
         logging.info(f"Processing questions: {user_questions}")
 
-        # Get current database path
-        current_db_path = os.environ.get("Text2Sql__DatabaseConnectionString", "")
+        # Get current database path from environment or injected parameters
+        current_db_path = ""
+
+        # Extract actual questions and database path from the message
+        processed_questions = []
+
+        # Handle case where user_questions is not a list or is empty
+        if not isinstance(user_questions, list):
+            if user_questions:
+                processed_questions = [str(user_questions)]
+        elif len(user_questions) > 0:
+            message = user_questions[0]
+            # If message is already a dict, use it directly
+            if isinstance(message, dict):
+                message_data = message
+            # Otherwise try to parse as JSON
+            else:
+                try:
+                    message_data = json.loads(message)
+                except (json.JSONDecodeError, AttributeError):
+                    # If not valid JSON, treat the message itself as a question
+                    processed_questions.append(str(message))
+                    message_data = {}
+
+            if isinstance(message_data, dict):
+                # Get database path from injected parameters
+                if "injected_parameters" in message_data:
+                    current_db_path = message_data["injected_parameters"].get(
+                        "database_connection_string", ""
+                    )
+
+                # Get actual question from user_message or message field
+                if "user_message" in message_data:
+                    user_message = message_data["user_message"]
+                    if isinstance(user_message, list):
+                        processed_questions.extend(user_message)
+                    else:
+                        processed_questions.append(user_message)
+                elif "message" in message_data:
+                    message = message_data["message"]
+                    if isinstance(message, list):
+                        processed_questions.extend(message)
+                    else:
+                        processed_questions.append(message)
+
+                # If no questions found in message_data, use original user_questions
+                if not processed_questions:
+                    processed_questions = user_questions
+
+        # If not found in injected parameters, try environment variable
+        if not current_db_path:
+            current_db_path = os.environ.get("Text2Sql__DatabaseConnectionString", "")
+
         if not current_db_path:
             logging.error("Database connection string not set")
             return self._error_response("Database connection string not set")
@@ -84,7 +136,10 @@ class SqlSchemaSelectionAgentCustomAgent:
             self.current_database = current_db_path
 
         # Process questions to identify entities and filters
-        entity_results = await self._process_questions(user_questions)
+        if not processed_questions:
+            return self._error_response("No questions to process")
+
+        entity_results = await self._process_questions(processed_questions)
         if not entity_results:
             return self._error_response("Failed to process questions")
 

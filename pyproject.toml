@@ -23,7 +23,7 @@ dev = [
 members = ["text_2_sql/text_2_sql_core", "text_2_sql/autogen", "deploy_ai_search_indexes", "image_processing"]
 
 [tool.uv.sources]
-text_2_sql_core = { workspace = true }
 autogen_text_2_sql = { workspace = true }
 deploy_ai_search_indexes = { workspace = true }
 image_processing = { workspace = true }
+text-2-sql-core = { workspace = true }
