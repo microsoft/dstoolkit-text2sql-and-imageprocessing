@@ -5,6 +5,7 @@ import json
 from typing import Any, Dict, List, Tuple
 import logging
 import asyncio
+from datetime import datetime, timezone
 
 from jinja2 import Template
 
@@ -23,11 +24,9 @@ class SqlSchemaSelectionAgentCustomAgent:
         system_prompt = load("sql_schema_selection_agent")["system_message"]
         self.system_prompt = Template(system_prompt).render(kwargs)
         self.current_database = None
-        self.schema_cache = {}
-        self.last_schema_update = {}  # Track when schemas were last updated
 
     async def verify_database_connection(self, db_path: str) -> bool:
-        """Verify database connection and update schema cache.
+        """Verify database connection.
 
         Args:
             db_path: Path to the database
@@ -38,16 +37,13 @@ class SqlSchemaSelectionAgentCustomAgent:
         try:
             # Set database path in connector
             self.sql_connector.current_db_path = db_path
-
+            
             # Try to get schema information
             schemas = await self.sql_connector.get_entity_schemas("", as_json=False)
             if schemas and isinstance(schemas, dict) and "entities" in schemas:
-                # Update schema cache with case-sensitive information
-                self.schema_cache[db_path] = {
-                    entity["Entity"].lower(): entity for entity in schemas["entities"]
-                }
-                self.last_schema_update[db_path] = asyncio.get_event_loop().time()
-                logging.info(f"Updated schema cache for {db_path}")
+                # Store schemas in AI Search cache
+                for entity in schemas["entities"]:
+                    await self._update_schema_cache(db_path, entity)
                 return True
 
             logging.warning(f"No schemas found for database: {db_path}")
@@ -55,6 +51,32 @@ class SqlSchemaSelectionAgentCustomAgent:
         except Exception as e:
             logging.error(f"Failed to verify database connection: {e}")
             return False
+
+    async def _update_schema_cache(self, db_path: str, schema_data: dict) -> None:
+        """Update schema cache in AI Search.
+        
+        Args:
+            db_path: Database path
+            schema_data: Schema data to cache
+        """
+        try:
+            document = {
+                "Id": f"{db_path}_{schema_data['Entity'].lower()}",
+                "DatabasePath": db_path,
+                "Entity": schema_data["Entity"],
+                "Schema": schema_data.get("Schema", ""),
+                "SchemaData": json.dumps(schema_data),
+                "LastUpdated": datetime.now(timezone.utc).isoformat()
+            }
+            
+            await self.ai_search_connector.add_entry_to_index(
+                document=document,
+                vector_fields={},
+                index_name=os.environ["AIService__AzureSearchOptions__Text2SqlSchemaCache__Index"]
+            )
+            logging.info(f"Updated schema cache for {db_path}/{schema_data['Entity']}")
+        except Exception as e:
+            logging.error(f"Failed to update schema cache: {e}")
 
     async def process_message(self, user_questions: list[str]) -> dict:
         """Process user questions and return relevant schema information.
@@ -256,22 +278,39 @@ class SqlSchemaSelectionAgentCustomAgent:
         Returns:
             List of matching schemas
         """
-        # First check cache
-        if self.current_database in self.schema_cache:
-            cached_schemas = []
-            search_terms = search_text.lower().split()
-            for schema in self.schema_cache[self.current_database].values():
-                if any(term in schema["Entity"].lower() for term in search_terms):
-                    cached_schemas.append(schema)
-            if cached_schemas:
-                return cached_schemas
-
-        # Get fresh schemas from connector
         try:
+            # Search in AI Search cache first
+            cached_results = await self.ai_search_connector.run_ai_search_query(
+                query=search_text,
+                vector_fields=[],
+                retrieval_fields=["DatabasePath", "Entity", "Schema", "SchemaData"],
+                index_name=os.environ["AIService__AzureSearchOptions__Text2SqlSchemaCache__Index"],
+                semantic_config=None,
+                top=10,
+                minimum_score=1.0
+            )
+            
+            if cached_results:
+                # Convert cached results back to schema format
+                schemas = []
+                for result in cached_results:
+                    if result["DatabasePath"] == self.current_database:
+                        try:
+                            schema_data = json.loads(result["SchemaData"])
+                            schemas.append(schema_data)
+                        except json.JSONDecodeError:
+                            logging.error(f"Failed to parse cached schema data for {result['Entity']}")
+                if schemas:
+                    return schemas
+
+            # If not in cache, get fresh schemas from connector
             schemas = await self.sql_connector.get_entity_schemas(
                 search_text, as_json=False
             )
             if schemas and schemas.get("entities"):
+                # Cache the new schemas
+                for entity in schemas["entities"]:
+                    await self._update_schema_cache(self.current_database, entity)
                 return schemas["entities"]
         except Exception as e:
             logging.error(f"Error getting schemas for '{search_text}': {e}")
@@ -332,9 +371,5 @@ class SqlSchemaSelectionAgentCustomAgent:
 
         # Get schemas for selected database
         final_schemas = schemas_by_db.get(selected_db, [])
-
-        # If no schemas found, try cache
-        if not final_schemas and selected_db in self.schema_cache:
-            final_schemas = list(self.schema_cache[selected_db].values())
 
         return selected_db, final_schemas
