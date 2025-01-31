@@ -164,10 +164,23 @@ class InnerAutoGenText2Sql:
     @property
     def agentic_flow(self):
         """Create the unified flow for the complete process."""
+        model_name = os.environ.get("OpenAI__GroupChatModel", "4o")
+        logging.info(f"Creating inner group chat with model: {model_name}")
+        logging.info("Environment variables:")
+        logging.info(
+            f"  OpenAI__GroupChatModel: {os.environ.get('OpenAI__GroupChatModel')}"
+        )
+        logging.info(
+            f"  OpenAI__CompletionDeployment: {os.environ.get('OpenAI__CompletionDeployment')}"
+        )
+        logging.info(
+            f"  OpenAI__MiniCompletionDeployment: {os.environ.get('OpenAI__MiniCompletionDeployment')}"
+        )
+
         flow = SelectorGroupChat(
             self.get_all_agents(),
             allow_repeated_speaker=False,
-            model_client=LLMModelCreator.get_model("4o-mini"),
+            model_client=LLMModelCreator.get_model(model_name),
             termination_condition=self.termination_condition,
             selector_func=self.unified_selector,
         )

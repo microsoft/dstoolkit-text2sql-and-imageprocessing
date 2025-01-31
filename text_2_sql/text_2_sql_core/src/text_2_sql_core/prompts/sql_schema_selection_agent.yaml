@@ -1,4 +1,4 @@
-model: 4o-mini
+model: "4o-mini"
 description: "An agent that can take a user's question and extract the schema of a view or table in the SQL Database by selecting the most relevant entity based on the search term."
 system_message: |
   <role_and_objective>

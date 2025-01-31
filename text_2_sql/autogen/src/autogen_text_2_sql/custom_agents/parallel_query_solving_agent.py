@@ -133,6 +133,19 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                     == "query_execution_with_limit"
                                 ):
                                     logging.info("Contains query results")
+                                    # Convert array results to dictionary format
+                                    formatted_rows = []
+                                    for row in parsed_message["sql_rows"]:
+                                        if isinstance(row, list):
+                                            # Convert list to dict with column index as key
+                                            formatted_row = {
+                                                f"col_{i}": val
+                                                for i, val in enumerate(row)
+                                            }
+                                            formatted_rows.append(formatted_row)
+                                        else:
+                                            formatted_rows.append(row)
+
                                     filtered_parallel_messages.database_results[
                                         identifier
                                     ].append(
@@ -140,7 +153,26 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             "sql_query": parsed_message[
                                                 "sql_query"
                                             ].replace("\n", " "),
-                                            "sql_rows": parsed_message["sql_rows"],
+                                            "sql_rows": formatted_rows,
+                                        }
+                                    )
+                                elif (
+                                    parsed_message["type"]
+                                    == "errored_query_execution_with_limit"
+                                ):
+                                    logging.error(
+                                        f"Query execution error: {parsed_message.get('errors', 'Unknown error')}"
+                                    )
+                                    filtered_parallel_messages.database_results[
+                                        identifier
+                                    ].append(
+                                        {
+                                            "sql_query": parsed_message[
+                                                "sql_query"
+                                            ].replace("\n", " "),
+                                            "error": parsed_message.get(
+                                                "errors", "Unknown error"
+                                            ),
                                         }
                                     )
 
@@ -165,6 +197,18 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                 for pre_run_sql_query, pre_run_result in parsed_message[
                                     "cached_messages_and_schemas"
                                 ].items():
+                                    # Convert array results to dictionary format for pre-run results too
+                                    formatted_rows = []
+                                    for row in pre_run_result["sql_rows"]:
+                                        if isinstance(row, list):
+                                            formatted_row = {
+                                                f"col_{i}": val
+                                                for i, val in enumerate(row)
+                                            }
+                                            formatted_rows.append(formatted_row)
+                                        else:
+                                            formatted_rows.append(row)
+
                                     filtered_parallel_messages.database_results[
                                         identifier
                                     ].append(
@@ -172,7 +216,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                             "sql_query": pre_run_sql_query.replace(
                                                 "\n", " "
                                             ),
-                                            "sql_rows": pre_run_result["sql_rows"],
+                                            "sql_rows": formatted_rows,
                                         }
                                     )
                             # Check if disambiguation is required
@@ -188,7 +232,10 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                     ].append(disambiguation_request)
 
                 except Exception as e:
-                    logging.warning(f"Error processing message: {e}")
+                    logging.error(f"Error processing message: {e}", exc_info=True)
+                    filtered_parallel_messages.database_results[identifier].append(
+                        {"error": str(e)}
+                    )
 
                 yield inner_message
 

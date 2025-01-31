@@ -1,4 +1,0 @@
-{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Title", "Column": "Title", "Value": "Sra.", "Synonyms": []}
-{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Title", "Column": "Title", "Value": "Sr.", "Synonyms": []}
-{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Title", "Column": "Title", "Value": "Ms.", "Synonyms": []}
-{"Entity": "Customer", "Schema": "SalesLT", "Database": "text2sql-adventure-works", "FQN": "text2sql-adventure-works.SalesLT.Customer.Title", "Column": "Title", "Value": "Mr.", "Synonyms": []}
