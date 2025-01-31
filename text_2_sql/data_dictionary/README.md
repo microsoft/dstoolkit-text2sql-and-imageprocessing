@@ -218,7 +218,7 @@ The following Databases have pre-built scripts for them:
 - **Databricks:** `./text_2_sql_core/data_dictionary/databricks_data_dictionary_creator.py`
 - **Snowflake:** `./text_2_sql_core/data_dictionary/snowflake_data_dictionary_creator.py`
 - **TSQL:** `./text_2_sql_core/data_dictionary/tsql_data_dictionary_creator.py`
-- **PostgreSQL:** `./text_2_sql_core/data_dictionary/postgres_data_dictionary_creator.py`
+- **Postgres:** `./text_2_sql_core/data_dictionary/postgres_data_dictionary_creator.py`
 
 If there is no pre-built script for your database engine, take one of the above as a starting point and adjust it.
 

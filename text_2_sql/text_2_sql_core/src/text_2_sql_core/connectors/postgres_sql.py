@@ -54,7 +54,7 @@ class PostgresSqlConnector(SqlConnector):
         cast_to: any = None,
         limit=None,
     ) -> list[dict]:
-        """Run the SQL query against the PostgreSQL database asynchronously.
+        """Run the SQL query against the Postgres database asynchronously.
 
         Args:
         ----
@@ -91,7 +91,7 @@ class PostgresSqlConnector(SqlConnector):
                 "host": os.environ["Text2Sql__Postgres__ServerHostname"],
             }
 
-        # Establish an asynchronous connection to the PostgreSQL database
+        # Establish an asynchronous connection to the Postgres database
         async with await psycopg.AsyncConnection.connect(
             **postgres_connections
         ) as conn:
