@@ -25,12 +25,12 @@ class ConnectorFactory:
                 from text_2_sql_core.connectors.tsql_sql import TsqlSqlConnector
 
                 return TsqlSqlConnector()
-            elif os.environ["Text2Sql__DatabaseEngine"].upper() == "POSTGRESQL":
-                from text_2_sql_core.connectors.postgresql_sql import (
-                    PostgresqlSqlConnector,
+            elif os.environ["Text2Sql__DatabaseEngine"].upper() == "POSTGRES":
+                from text_2_sql_core.connectors.postgres_sql import (
+                    PostgresSqlConnector,
                 )
 
-                return PostgresqlSqlConnector()
+                return PostgresSqlConnector()
             elif os.environ["Text2Sql__DatabaseEngine"].upper() == "SQLITE":
                 from text_2_sql_core.connectors.sqlite_sql import SQLiteSqlConnector
 

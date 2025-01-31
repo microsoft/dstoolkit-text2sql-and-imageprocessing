@@ -20,7 +20,7 @@ beautifulsoup4==4.12.3
 blis==0.7.11
 bs4==0.0.2
 catalogue==2.0.10
-certifi==2024.12.14
+certifi==2025.1.31
 cffi==1.17.1 ; platform_python_implementation != 'PyPy'
 charset-normalizer==3.4.1
 click==8.1.8
@@ -38,7 +38,7 @@ fsspec==2024.12.0
 h11==0.14.0
 httpcore==1.0.7
 httpx==0.28.1
-huggingface-hub==0.28.0
+huggingface-hub==0.28.1
 idna==3.10
 isodate==0.7.2
 jinja2==3.1.5
@@ -74,7 +74,7 @@ pyjwt==2.10.1
 pymupdf==1.25.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
-pytz==2024.2
+pytz==2025.1
 pywin32==308 ; sys_platform == 'win32'
 pyyaml==6.0.2
 regex==2024.11.6
