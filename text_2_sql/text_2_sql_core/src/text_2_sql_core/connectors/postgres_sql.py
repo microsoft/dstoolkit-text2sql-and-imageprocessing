@@ -10,11 +10,11 @@ from urllib.parse import urlparse
 from text_2_sql_core.utils.database import DatabaseEngine, DatabaseEngineSpecificFields
 
 
-class PostgresqlSqlConnector(SqlConnector):
+class PostgresSqlConnector(SqlConnector):
     def __init__(self):
         super().__init__()
 
-        self.database_engine = DatabaseEngine.POSTGRESQL
+        self.database_engine = DatabaseEngine.POSTGRES
 
     @property
     def engine_specific_rules(self) -> str:
@@ -67,10 +67,10 @@ class PostgresqlSqlConnector(SqlConnector):
         logging.info(f"Running query: {sql_query}")
         results = []
 
-        if "Text2Sql__Postgresql__ConnectionString" in os.environ:
-            logging.info("Postgresql Connection string found in environment variables.")
+        if "Text2Sql__Postgres__ConnectionString" in os.environ:
+            logging.info("Postgres Connection string found in environment variables.")
 
-            p = urlparse(os.environ["Text2Sql__Postgresql__ConnectionString"])
+            p = urlparse(os.environ["Text2Sql__Postgres__ConnectionString"])
 
             postgres_connections = {
                 "dbname": p.path[1:],
@@ -81,14 +81,14 @@ class PostgresqlSqlConnector(SqlConnector):
             }
         else:
             logging.warning(
-                "Postgresql Connection string not found in environment variables. Using individual variables."
+                "Postgres Connection string not found in environment variables. Using individual variables."
             )
             postgres_connections = {
-                "dbname": os.environ["Text2Sql__Postgresql__Database"],
-                "user": os.environ["Text2Sql__Postgresql__User"],
-                "password": os.environ["Text2Sql__Postgresql__Password"],
-                "port": os.environ["Text2Sql__Postgresql__Port"],
-                "host": os.environ["Text2Sql__Postgresql__ServerHostname"],
+                "dbname": os.environ["Text2Sql__Postgres__Database"],
+                "user": os.environ["Text2Sql__Postgres__User"],
+                "password": os.environ["Text2Sql__Postgres__Password"],
+                "port": os.environ["Text2Sql__Postgres__Port"],
+                "host": os.environ["Text2Sql__Postgres__ServerHostname"],
             }
 
         # Establish an asynchronous connection to the PostgreSQL database

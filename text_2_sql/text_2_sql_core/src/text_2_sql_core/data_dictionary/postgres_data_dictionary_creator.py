@@ -8,19 +8,19 @@ import asyncio
 import os
 
 from text_2_sql_core.utils.database import DatabaseEngine
-from text_2_sql_core.connectors.postgresql_sql import PostgresqlSqlConnector
+from text_2_sql_core.connectors.postgres_sql import PostgresSqlConnector
 
 
-class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
+class PostgresDataDictionaryCreator(DataDictionaryCreator):
     def __init__(self, **kwargs):
         """A method to initialize the DataDictionaryCreator class."""
         excluded_schemas = ["information_schema", "pg_catalog"]
         super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
-        self.database = os.environ["Text2Sql__Postgresql__Database"]
-        self.database_engine = DatabaseEngine.POSTGRESQL
+        self.database = os.environ["Text2Sql__Postgres__Database"]
+        self.database_engine = DatabaseEngine.POSTGRES
 
-        self.sql_connector = PostgresqlSqlConnector()
+        self.sql_connector = PostgresSqlConnector()
 
     @property
     def extract_table_entities_sql_query(self) -> str:
@@ -116,5 +116,5 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
 
 
 if __name__ == "__main__":
-    data_dictionary_creator = PostgresqlDataDictionaryCreator()
+    data_dictionary_creator = PostgresDataDictionaryCreator()
     asyncio.run(data_dictionary_creator.create_data_dictionary())

@@ -91,12 +91,12 @@ def create(
             data_dictionary_creator = TsqlDataDictionaryCreator(
                 **kwargs,
             )
-        elif engine == DatabaseEngine.POSTGRESQL:
-            from text_2_sql_core.data_dictionary.postgresql_data_dictionary_creator import (
-                PostgresqlDataDictionaryCreator,
+        elif engine == DatabaseEngine.POSTGRES:
+            from text_2_sql_core.data_dictionary.postgres_data_dictionary_creator import (
+                PostgresDataDictionaryCreator,
             )
 
-            data_dictionary_creator = PostgresqlDataDictionaryCreator(
+            data_dictionary_creator = PostgresDataDictionaryCreator(
                 **kwargs,
             )
         else:
