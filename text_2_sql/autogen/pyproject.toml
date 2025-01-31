@@ -42,8 +42,8 @@ snowflake = [
 databricks = [
     "text_2_sql_core[databricks]",
 ]
-postgresql = [
-    "text_2_sql_core[postgresql]",
+postgres = [
+    "text_2_sql_core[postgres]",
 ]
 sqlite = [
     "text_2_sql_core[sqlite]",

@@ -8,23 +8,23 @@ import asyncio
 import os
 
 from text_2_sql_core.utils.database import DatabaseEngine
-from text_2_sql_core.connectors.postgresql_sql import PostgresqlSqlConnector
+from text_2_sql_core.connectors.postgres_sql import PostgresSqlConnector
 
 
-class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
+class PostgresDataDictionaryCreator(DataDictionaryCreator):
     def __init__(self, **kwargs):
         """A method to initialize the DataDictionaryCreator class."""
         excluded_schemas = ["information_schema", "pg_catalog"]
         super().__init__(excluded_schemas=excluded_schemas, **kwargs)
 
-        self.database = os.environ["Text2Sql__Postgresql__Database"]
-        self.database_engine = DatabaseEngine.POSTGRESQL
+        self.database = os.environ["Text2Sql__Postgres__Database"]
+        self.database_engine = DatabaseEngine.POSTGRES
 
-        self.sql_connector = PostgresqlSqlConnector()
+        self.sql_connector = PostgresSqlConnector()
 
     @property
     def extract_table_entities_sql_query(self) -> str:
-        """A property to extract table entities from a PostgreSQL database."""
+        """A property to extract table entities from a Postgres database."""
         return """SELECT
             t.table_name AS "Entity",
             t.table_schema AS "EntitySchema",
@@ -46,7 +46,7 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
 
     @property
     def extract_view_entities_sql_query(self) -> str:
-        """A property to extract view entities from a PostgreSQL database."""
+        """A property to extract view entities from a Postgres database."""
         return """SELECT
             v.table_name AS "Entity",
             v.table_schema AS "EntitySchema",
@@ -65,7 +65,7 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
             "EntitySchema", "Entity";"""
 
     def extract_columns_sql_query(self, entity: EntityItem) -> str:
-        """A property to extract column information from a PostgreSQL database."""
+        """A property to extract column information from a Postgres database."""
         return f"""SELECT
             c.attname AS "Name",
             t.typname AS "DataType",
@@ -89,7 +89,7 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
 
     @property
     def extract_entity_relationships_sql_query(self) -> str:
-        """A property to extract entity relationships from a PostgreSQL database."""
+        """A property to extract entity relationships from a Postgres database."""
         return """SELECT
             fk_schema.nspname AS "EntitySchema",
             fk_tab.relname AS "Entity",
@@ -116,5 +116,5 @@ class PostgresqlDataDictionaryCreator(DataDictionaryCreator):
 
 
 if __name__ == "__main__":
-    data_dictionary_creator = PostgresqlDataDictionaryCreator()
+    data_dictionary_creator = PostgresDataDictionaryCreator()
     asyncio.run(data_dictionary_creator.create_data_dictionary())
