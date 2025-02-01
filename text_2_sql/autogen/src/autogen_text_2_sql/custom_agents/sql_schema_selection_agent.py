@@ -48,7 +48,7 @@ class SqlSchemaSelectionAgent(BaseChatAgent):
             # If not JSON or missing question key, use content directly
             message = messages[0].content
 
-        logging.info(f"Processing message: {message}")
+        logging.info("Processing message: %s", message)
 
         final_results = await self.agent.process_message(message)
 
