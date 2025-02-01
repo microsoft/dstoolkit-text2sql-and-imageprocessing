@@ -96,9 +96,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             injected_parameters = {}
 
         # Load the json of the last message to populate the final output object
-        message_rewrites = json.loads(last_response)
+        sequential_rounds = json.loads(last_response)
 
-        logging.info(f"Query Rewrites: {message_rewrites}")
+        logging.info(f"Query Rewrites: {sequential_rounds}")
 
         async def consume_inner_messages_from_agentic_flow(
             agentic_flow, identifier, filtered_parallel_messages
@@ -197,7 +197,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
 
         # Convert all_non_database_query to lowercase string and compare
         all_non_database_query = str(
-            message_rewrites.get("all_non_database_query", "false")
+            sequential_rounds.get("all_non_database_query", "false")
         ).lower()
 
         if all_non_database_query == "true":
@@ -210,84 +210,93 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             return
 
         # Start processing sub-queries
-        for message_rewrite in message_rewrites["decomposed_user_messages"]:
-            logging.info(f"Processing sub-query: {message_rewrite}")
-            # Create an instance of the InnerAutoGenText2Sql class
-            inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
+        for sequential_round in sequential_rounds["decomposed_user_messages"]:
+            logging.info(f"Processing round: {sequential_round}")
 
-            identifier = ", ".join(message_rewrite)
+            for parallel_message in sequential_round:
+                logging.info(f"Parallel Message: {parallel_message}")
 
-            # Add database connection info to injected parameters
-            query_params = injected_parameters.copy() if injected_parameters else {}
-            if "Text2Sql__Tsql__ConnectionString" in os.environ:
-                query_params["database_connection_string"] = os.environ[
-                    "Text2Sql__Tsql__ConnectionString"
-                ]
-            if "Text2Sql__Tsql__Database" in os.environ:
-                query_params["database_name"] = os.environ["Text2Sql__Tsql__Database"]
+                # Create an instance of the InnerAutoGenText2Sql class
+                inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
 
-            # Launch tasks for each sub-query
-            inner_solving_generators.append(
-                consume_inner_messages_from_agentic_flow(
-                    inner_autogen_text_2_sql.process_user_message(
-                        user_message=message_rewrite,
-                        injected_parameters=query_params,
-                    ),
-                    identifier,
-                    filtered_parallel_messages,
+                identifier = ", ".join(parallel_message)
+
+                # Add database connection info to injected parameters
+                query_params = injected_parameters.copy() if injected_parameters else {}
+                if "Text2Sql__Tsql__ConnectionString" in os.environ:
+                    query_params["database_connection_string"] = os.environ[
+                        "Text2Sql__Tsql__ConnectionString"
+                    ]
+                if "Text2Sql__Tsql__Database" in os.environ:
+                    query_params["database_name"] = os.environ["Text2Sql__Tsql__Database"]
+
+                # Launch tasks for each sub-query
+                inner_solving_generators.append(
+                    consume_inner_messages_from_agentic_flow(
+                        inner_autogen_text_2_sql.process_user_message(
+                            user_message=parallel_message,
+                            injected_parameters=query_params,
+                            database_results=filtered_parallel_messages.database_results
+                        ),
+                        identifier,
+                        filtered_parallel_messages,
+                    )
                 )
+
+            logging.info(
+                "Created %i Inner Solving Generators", len(inner_solving_generators)
+            )
+            logging.info("Starting Inner Solving Generators")
+            combined_message_streams = stream.merge(*inner_solving_generators)
+
+            async with combined_message_streams.stream() as streamer:
+                async for inner_message in streamer:
+                    if isinstance(inner_message, TextMessage):
+                        logging.debug(f"Inner Solving Message: {inner_message}")
+                        yield inner_message
+
+            # Log final results for debugging or auditing
+            logging.info(
+                "Database Results: %s", filtered_parallel_messages.database_results
+            )
+            logging.info(
+                "Disambiguation Requests: %s",
+                filtered_parallel_messages.disambiguation_requests,
             )
 
-        logging.info(
-            "Created %i Inner Solving Generators", len(inner_solving_generators)
-        )
-        logging.info("Starting Inner Solving Generators")
-        combined_message_streams = stream.merge(*inner_solving_generators)
+            # Check for disambiguation requests before processing the next round
 
-        async with combined_message_streams.stream() as streamer:
-            async for inner_message in streamer:
-                if isinstance(inner_message, TextMessage):
-                    logging.debug(f"Inner Solving Message: {inner_message}")
-                    yield inner_message
-
-        # Log final results for debugging or auditing
-        logging.info(
-            "Database Results: %s", filtered_parallel_messages.database_results
-        )
-        logging.info(
-            "Disambiguation Requests: %s",
-            filtered_parallel_messages.disambiguation_requests,
-        )
-
-        if (
-            max(map(len, filtered_parallel_messages.disambiguation_requests.values()))
-            > 0
-        ):
-            # Final response
-            yield Response(
-                chat_message=TextMessage(
-                    content=json.dumps(
-                        {
-                            "contains_disambiguation_requests": True,
-                            "disambiguation_requests": filtered_parallel_messages.disambiguation_requests,
-                        }
+            if (
+                max(map(len, filtered_parallel_messages.disambiguation_requests.values()))
+                > 0
+            ):
+                # Final response
+                yield Response(
+                    chat_message=TextMessage(
+                        content=json.dumps(
+                            {
+                                "contains_disambiguation_requests": True,
+                                "disambiguation_requests": filtered_parallel_messages.disambiguation_requests,
+                            }
+                        ),
+                        source=self.name,
                     ),
-                    source=self.name,
+                )
+
+                break
+
+        # Final response
+        yield Response(
+            chat_message=TextMessage(
+                content=json.dumps(
+                    {
+                        "contains_database_results": True,
+                        "database_results": filtered_parallel_messages.database_results,
+                    }
                 ),
-            )
-        else:
-            # Final response
-            yield Response(
-                chat_message=TextMessage(
-                    content=json.dumps(
-                        {
-                            "contains_database_results": True,
-                            "database_results": filtered_parallel_messages.database_results,
-                        }
-                    ),
-                    source=self.name,
-                ),
-            )
+                source=self.name,
+            ),
+        )
 
     async def on_reset(self, cancellation_token: CancellationToken) -> None:
         pass

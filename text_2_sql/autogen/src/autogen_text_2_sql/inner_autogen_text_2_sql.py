@@ -177,6 +177,7 @@ class InnerAutoGenText2Sql:
         self,
         user_message: str,
         injected_parameters: dict = None,
+        database_results: dict = None,
     ):
         """Process the complete question through the unified system.
 
@@ -199,6 +200,9 @@ class InnerAutoGenText2Sql:
                 "user_message": user_message,
                 "injected_parameters": injected_parameters,
             }
+
+            if database_results:
+                agent_input["database_results"] = database_results
 
             return self.agentic_flow.run_stream(task=json.dumps(agent_input))
         finally:
