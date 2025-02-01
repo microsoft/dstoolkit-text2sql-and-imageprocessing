@@ -9,9 +9,9 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "aiostream>=0.6.4",
-    "autogen-agentchat==0.4.2",
-    "autogen-core==0.4.2",
-    "autogen-ext[azure,openai]==0.4.2",
+    "autogen-agentchat==0.4.5",
+    "autogen-core==0.4.5",
+    "autogen-ext[azure,openai]==0.4.5",
     "grpcio>=1.68.1",
     "pyyaml>=6.0.2",
     "text_2_sql_core",
