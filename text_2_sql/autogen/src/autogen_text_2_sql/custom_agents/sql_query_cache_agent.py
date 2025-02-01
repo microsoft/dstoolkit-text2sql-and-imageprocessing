@@ -44,15 +44,15 @@ class SqlQueryCacheAgent(BaseChatAgent):
         try:
             request_details = json.loads(messages[0].content)
             injected_parameters = request_details["injected_parameters"]
-            user_messages = request_details["user_message"]
-            logging.info(f"Processing messages: {user_messages}")
+            user_message = request_details["user_message"]
+            logging.info(f"Processing messages: {user_message}")
             logging.info(f"Input Parameters: {injected_parameters}")
         except json.JSONDecodeError:
             # If not JSON array, process as single message
             raise ValueError("Could not load message")
 
         cached_results = await self.agent.process_message(
-            user_messages, injected_parameters
+            user_message, injected_parameters
         )
         yield Response(
             chat_message=TextMessage(

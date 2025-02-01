@@ -22,47 +22,35 @@ class SqlSchemaSelectionAgentCustomAgent:
 
         self.system_prompt = Template(system_prompt).render(kwargs)
 
-    async def process_message(self, messages: list[str]) -> dict:
-        logging.info(f"user inputs: {messages}")
+    async def process_message(self, message: str) -> dict:
+        logging.info(f"Processing message: {message}")
 
-        entity_tasks = []
-
-        for message in messages:
-            messages = [
-                {"role": "system", "content": self.system_prompt},
-                {"role": "user", "content": message},
-            ]
-            entity_tasks.append(
-                self.open_ai_connector.run_completion_request(
-                    messages, response_format=SQLSchemaSelectionAgentOutput
-                )
-            )
-
-        entity_results = await asyncio.gather(*entity_tasks)
+        messages = [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "user", "content": message},
+        ]
+        entity_result = await self.open_ai_connector.run_completion_request(
+            messages, response_format=SQLSchemaSelectionAgentOutput
+        )
 
         entity_search_tasks = []
         column_search_tasks = []
 
-        for entity_result in entity_results:
-            logging.info(f"Entity result: {entity_result}")
+        logging.info(f"Entity result: {entity_result}")
 
-            for entity_group in entity_result.entities:
-                logging.info("Searching for schemas for entity group: %s", entity_group)
-                entity_search_tasks.append(
-                    self.sql_connector.get_entity_schemas(
-                        " ".join(entity_group), as_json=False
-                    )
+        for entity_group in entity_result.entities:
+            logging.info("Searching for schemas for entity group: %s", entity_group)
+            entity_search_tasks.append(
+                self.sql_connector.get_entity_schemas(
+                    " ".join(entity_group), as_json=False
                 )
+            )
 
-            for filter_condition in entity_result.filter_conditions:
-                logging.info(
-                    "Searching for column values for filter: %s", filter_condition
-                )
-                column_search_tasks.append(
-                    self.sql_connector.get_column_values(
-                        filter_condition, as_json=False
-                    )
-                )
+        for filter_condition in entity_result.filter_conditions:
+            logging.info("Searching for column values for filter: %s", filter_condition)
+            column_search_tasks.append(
+                self.sql_connector.get_column_values(filter_condition, as_json=False)
+            )
 
         schemas_results = await asyncio.gather(*entity_search_tasks)
         column_value_results = await asyncio.gather(*column_search_tasks)

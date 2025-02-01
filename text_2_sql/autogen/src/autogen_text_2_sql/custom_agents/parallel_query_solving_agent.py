@@ -219,8 +219,6 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 # Create an instance of the InnerAutoGenText2Sql class
                 inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
 
-                identifier = ", ".join(parallel_message)
-
                 # Add database connection info to injected parameters
                 query_params = injected_parameters.copy() if injected_parameters else {}
                 if "Text2Sql__Tsql__ConnectionString" in os.environ:
@@ -228,7 +226,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                         "Text2Sql__Tsql__ConnectionString"
                     ]
                 if "Text2Sql__Tsql__Database" in os.environ:
-                    query_params["database_name"] = os.environ["Text2Sql__Tsql__Database"]
+                    query_params["database_name"] = os.environ[
+                        "Text2Sql__Tsql__Database"
+                    ]
 
                 # Launch tasks for each sub-query
                 inner_solving_generators.append(
@@ -236,9 +236,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                         inner_autogen_text_2_sql.process_user_message(
                             user_message=parallel_message,
                             injected_parameters=query_params,
-                            database_results=filtered_parallel_messages.database_results
+                            database_results=filtered_parallel_messages.database_results,
                         ),
-                        identifier,
+                        parallel_message,
                         filtered_parallel_messages,
                     )
                 )
@@ -267,7 +267,11 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             # Check for disambiguation requests before processing the next round
 
             if (
-                max(map(len, filtered_parallel_messages.disambiguation_requests.values()))
+                max(
+                    map(
+                        len, filtered_parallel_messages.disambiguation_requests.values()
+                    )
+                )
                 > 0
             ):
                 # Final response

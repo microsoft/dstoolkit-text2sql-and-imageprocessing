@@ -274,3 +274,5 @@ system_message:
       TERMINATE
     </output_format>
   "
+tools:
+  - sql_get_entity_schemas_tool
