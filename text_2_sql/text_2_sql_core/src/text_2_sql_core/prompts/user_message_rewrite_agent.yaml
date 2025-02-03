@@ -42,7 +42,6 @@ system_message: |
           - Consider whether the question relates to **data analysis** or is **possibly related** to `{{ use_case }}`.
           - If unsure whether a question is relevant to the use case, **do not filter it out**.
           - If the question **is disallowed**, return an **empty list of steps** in the JSON output.
-          - `"TERMINATE"` is an **internal rule**—it is **not** included in the JSON output.
           - **Set `"requires_sql_queries": true`** if the question requires database access to answer.
             **Set `"requires_sql_queries": false`** if it does not (e.g., "What can you help me with?").
 

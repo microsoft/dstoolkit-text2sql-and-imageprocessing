@@ -51,18 +51,18 @@ class AutoGenText2Sql:
     def get_all_agents(self):
         """Get all agents for the complete flow."""
 
-        self.user_message_rewrite_agent = LLMAgentCreator.create(
+        user_message_rewrite_agent = LLMAgentCreator.create(
             "user_message_rewrite_agent", **self.kwargs
         )
 
-        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
+        parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
 
-        self.answer_agent = LLMAgentCreator.create("answer_agent", **self.kwargs)
+        answer_agent = LLMAgentCreator.create("answer_agent", **self.kwargs)
 
         agents = [
-            self.user_message_rewrite_agent,
-            self.parallel_query_solving_agent,
-            self.answer_agent,
+            user_message_rewrite_agent,
+            parallel_query_solving_agent,
+            answer_agent,
         ]
 
         return agents
@@ -71,8 +71,11 @@ class AutoGenText2Sql:
     def termination_condition(self):
         """Define the termination condition for the chat."""
         termination = (
-            TextMentionTermination("TERMINATE")
-            | SourceMatchTermination("answer_agent")
+            SourceMatchTermination("answer_agent")
+            # | TextMentionTermination(
+            #     "[]",
+            #     sources=["user_message_rewrite_agent"],
+            # )
             | TextMentionTermination(
                 "contains_disambiguation_requests",
                 sources=["parallel_query_solving_agent"],
