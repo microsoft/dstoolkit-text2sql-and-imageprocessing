@@ -96,9 +96,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             injected_parameters = {}
 
         # Load the json of the last message to populate the final output object
-        sequential_rounds = json.loads(last_response)
+        sequential_steps = json.loads(last_response)
 
-        logging.info(f"Query Rewrites: {sequential_rounds}")
+        logging.info(f"Query Rewrites: {sequential_steps}")
 
         async def consume_inner_messages_from_agentic_flow(
             agentic_flow, identifier, filtered_parallel_messages
@@ -195,12 +195,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         inner_solving_generators = []
         filtered_parallel_messages = FilteredParallelMessagesCollection()
 
-        # Convert all_non_database_query to lowercase string and compare
-        all_non_database_query = str(
-            sequential_rounds.get("all_non_database_query", "false")
+        # Convert requires_sql_queries to lowercase string and compare
+        requires_sql_queries = str(
+            sequential_steps.get("requires_sql_queries", "false")
         ).lower()
 
-        if all_non_database_query == "true":
+        if requires_sql_queries == "false":
             yield Response(
                 chat_message=TextMessage(
                     content="All queries are non-database queries. Nothing to process.",
@@ -210,7 +210,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             return
 
         # Start processing sub-queries
-        for sequential_round in sequential_rounds["decomposed_user_messages"]:
+        for sequential_round in sequential_steps["steps"]:
             logging.info(f"Processing round: {sequential_round}")
 
             for parallel_message in sequential_round:

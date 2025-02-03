@@ -73,7 +73,10 @@ class AutoGenText2Sql:
         termination = (
             TextMentionTermination("TERMINATE")
             | SourceMatchTermination("answer_agent")
-            | TextMentionTermination("contains_disambiguation_requests")
+            | TextMentionTermination(
+                "contains_disambiguation_requests",
+                sources=["parallel_query_solving_agent"],
+            )
             | MaxMessageTermination(5)
         )
         return termination
@@ -142,21 +145,17 @@ class AutoGenText2Sql:
         # If all parsing attempts fail, return the content as-is
         return content
 
-    def extract_decomposed_user_messages(self, messages: list) -> list[list[str]]:
-        """Extract the decomposed messages from the answer."""
+    def extract_steps(self, messages: list) -> list[list[str]]:
+        """Extract the steps messages from the answer."""
         # Only load sub-message results if we have a database result
         sub_message_results = self.parse_message_content(messages[1].content)
-        logging.info("Decomposed Results: %s", sub_message_results)
+        logging.info("Steps Results: %s", sub_message_results)
 
-        decomposed_user_messages = sub_message_results.get(
-            "decomposed_user_messages", []
-        )
+        steps = sub_message_results.get("steps", [])
 
-        logging.debug(
-            "Returning decomposed_user_messages: %s", decomposed_user_messages
-        )
+        logging.debug("Returning steps: %s", steps)
 
-        return decomposed_user_messages
+        return steps
 
     def extract_disambiguation_request(
         self, messages: list
@@ -164,10 +163,8 @@ class AutoGenText2Sql:
         """Extract the disambiguation request from the answer."""
         all_disambiguation_requests = self.parse_message_content(messages[-1].content)
 
-        decomposed_user_messages = self.extract_decomposed_user_messages(messages)
-        request_payload = DismabiguationRequestsPayload(
-            decomposed_user_messages=decomposed_user_messages
-        )
+        steps = self.extract_steps(messages)
+        request_payload = DismabiguationRequestsPayload(steps=steps)
 
         for per_question_disambiguation_request in all_disambiguation_requests[
             "disambiguation_requests"
@@ -198,12 +195,10 @@ class AutoGenText2Sql:
             sql_query_results = {}
 
         try:
-            decomposed_user_messages = self.extract_decomposed_user_messages(messages)
+            steps = self.extract_steps(messages)
 
             logging.info("SQL Query Results: %s", sql_query_results)
-            payload = AnswerWithSourcesPayload(
-                answer=answer, decomposed_user_messages=decomposed_user_messages
-            )
+            payload = AnswerWithSourcesPayload(answer=answer, steps=steps)
 
             if not isinstance(sql_query_results, dict):
                 logging.error(f"Expected dict, got {type(sql_query_results)}")
