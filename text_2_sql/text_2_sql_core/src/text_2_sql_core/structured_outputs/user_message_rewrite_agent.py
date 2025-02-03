@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class UserMessageRewriteAgentOutput(BaseModel):
-    decomposed_user_messages: list[list[str]]
-    combination_logic: str
-    query_type: str
-    all_non_database_query: bool
+    """The output of the user message rewrite agent."""
+
+    steps: list[list[str]]
+    requires_sql_queries: bool
