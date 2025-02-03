@@ -27,3 +27,4 @@ system_message: |
     Make sure your response directly addresses every part of the user's question.
 
   </instructions>
+context_size: 8

@@ -11,6 +11,7 @@ from text_2_sql_core.structured_outputs import (
     AnswerAgentWithFollowUpQuestionsAgentOutput,
     UserMessageRewriteAgentOutput,
 )
+from autogen_core.model_context import BufferedChatCompletionContext
 
 
 class LLMAgentCreator:
@@ -131,5 +132,10 @@ class LLMAgentCreator:
                 agent_file, "system_message", kwargs
             ),
         )
+
+        if "context_size" in agent_file:
+            agent.model_context = BufferedChatCompletionContext(
+                buffer_size=agent_file["context_size"]
+            )
 
         return agent

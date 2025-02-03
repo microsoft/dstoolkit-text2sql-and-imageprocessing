@@ -166,3 +166,4 @@ system_message: |
       ```
   </examples>
 structured_output: true
+context_size: 5
