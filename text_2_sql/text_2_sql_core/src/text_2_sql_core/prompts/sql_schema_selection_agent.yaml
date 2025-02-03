@@ -96,3 +96,4 @@ system_message: |
   <key_relationships>
     {{ relationship_paths }}
   </key_relationships>
+structured_output: true
