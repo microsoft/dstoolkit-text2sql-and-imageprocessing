@@ -54,9 +54,7 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
         disambiguation_requests: list[DismabiguationRequest] | None = Field(
             default_factory=list, alias="disambiguationRequests"
         )
-        decomposed_user_messages: list[list[str]] = Field(
-            default_factory=list, alias="decomposedUserMessages"
-        )
+        steps: list[list[str]] = Field(default_factory=list, alias="Steps")
 
     payload_type: Literal[PayloadType.DISAMBIGUATION_REQUESTS] = Field(
         PayloadType.DISAMBIGUATION_REQUESTS, alias="payloadType"
@@ -81,10 +79,11 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
             sql_rows: list[dict] = Field(default_factory=list, alias="sqlRows")
 
         answer: str
-        decomposed_user_messages: list[list[str]] = Field(
-            default_factory=list, alias="decomposedUserMessages"
-        )
+        steps: list[list[str]] = Field(default_factory=list, alias="Steps")
         sources: list[Source] = Field(default_factory=list)
+        follow_up_questions: list[str] | None = Field(
+            default=None, alias="followUpQuestions"
+        )
 
     payload_type: Literal[PayloadType.ANSWER_WITH_SOURCES] = Field(
         PayloadType.ANSWER_WITH_SOURCES, alias="payloadType"

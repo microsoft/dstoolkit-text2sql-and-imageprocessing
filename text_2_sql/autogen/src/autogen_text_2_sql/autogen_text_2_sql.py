@@ -48,21 +48,31 @@ class AutoGenText2Sql:
 
         self._agentic_flow = None
 
+        self._generate_follow_up_questions = (
+            os.environ.get("Text2Sql__GenerateFollowUpQuestions", "True").lower()
+            == "true"
+        )
+
     def get_all_agents(self):
         """Get all agents for the complete flow."""
 
-        self.user_message_rewrite_agent = LLMAgentCreator.create(
+        user_message_rewrite_agent = LLMAgentCreator.create(
             "user_message_rewrite_agent", **self.kwargs
         )
 
-        self.parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
+        parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
 
-        self.answer_agent = LLMAgentCreator.create("answer_agent", **self.kwargs)
+        if self._generate_follow_up_questions:
+            answer_agent = LLMAgentCreator.create(
+                "answer_with_follow_up_questions_agent", **self.kwargs
+            )
+        else:
+            answer_agent = LLMAgentCreator.create("answer_agent", **self.kwargs)
 
         agents = [
-            self.user_message_rewrite_agent,
-            self.parallel_query_solving_agent,
-            self.answer_agent,
+            user_message_rewrite_agent,
+            parallel_query_solving_agent,
+            answer_agent,
         ]
 
         return agents
@@ -71,9 +81,16 @@ class AutoGenText2Sql:
     def termination_condition(self):
         """Define the termination condition for the chat."""
         termination = (
-            TextMentionTermination("TERMINATE")
-            | SourceMatchTermination("answer_agent")
-            | TextMentionTermination("contains_disambiguation_requests")
+            SourceMatchTermination("answer_agent")
+            | SourceMatchTermination("answer_with_follow_up_questions_agent")
+            # | TextMentionTermination(
+            #     "[]",
+            #     sources=["user_message_rewrite_agent"],
+            # )
+            | TextMentionTermination(
+                "contains_disambiguation_requests",
+                sources=["parallel_query_solving_agent"],
+            )
             | MaxMessageTermination(5)
         )
         return termination
@@ -91,6 +108,11 @@ class AutoGenText2Sql:
         elif current_agent == "user_message_rewrite_agent":
             decision = "parallel_query_solving_agent"
         # Handle transition after parallel query solving
+        elif (
+            current_agent == "parallel_query_solving_agent"
+            and self._generate_follow_up_questions
+        ):
+            decision = "answer_with_follow_up_questions_agent"
         elif current_agent == "parallel_query_solving_agent":
             decision = "answer_agent"
 
@@ -142,21 +164,26 @@ class AutoGenText2Sql:
         # If all parsing attempts fail, return the content as-is
         return content
 
-    def extract_decomposed_user_messages(self, messages: list) -> list[list[str]]:
-        """Extract the decomposed messages from the answer."""
+    def last_message_by_agent(self, messages: list, agent_name: str) -> TextMessage:
+        """Get the last message by a specific agent."""
+        for message in reversed(messages):
+            if message.source == agent_name:
+                return message.content
+        return None
+
+    def extract_steps(self, messages: list) -> list[list[str]]:
+        """Extract the steps messages from the answer."""
         # Only load sub-message results if we have a database result
-        sub_message_results = self.parse_message_content(messages[1].content)
-        logging.info("Decomposed Results: %s", sub_message_results)
-
-        decomposed_user_messages = sub_message_results.get(
-            "decomposed_user_messages", []
+        sub_message_results = json.loads(
+            self.last_message_by_agent(messages, "user_message_rewrite_agent")
         )
+        logging.info("Steps Results: %s", sub_message_results)
 
-        logging.debug(
-            "Returning decomposed_user_messages: %s", decomposed_user_messages
-        )
+        steps = sub_message_results.get("steps", [])
 
-        return decomposed_user_messages
+        logging.debug("Returning steps: %s", steps)
+
+        return steps
 
     def extract_disambiguation_request(
         self, messages: list
@@ -164,10 +191,8 @@ class AutoGenText2Sql:
         """Extract the disambiguation request from the answer."""
         all_disambiguation_requests = self.parse_message_content(messages[-1].content)
 
-        decomposed_user_messages = self.extract_decomposed_user_messages(messages)
-        request_payload = DismabiguationRequestsPayload(
-            decomposed_user_messages=decomposed_user_messages
-        )
+        steps = self.extract_steps(messages)
+        request_payload = DismabiguationRequestsPayload(steps=steps)
 
         for per_question_disambiguation_request in all_disambiguation_requests[
             "disambiguation_requests"
@@ -187,23 +212,27 @@ class AutoGenText2Sql:
 
     def extract_answer_payload(self, messages: list) -> AnswerWithSourcesPayload:
         """Extract the sources from the answer."""
-        answer = messages[-1].content
-        sql_query_results = self.parse_message_content(messages[-2].content)
+        answer_payload = json.loads(messages[-1].content)
+
+        logging.info("Answer Payload: %s", answer_payload)
+        sql_query_results = self.last_message_by_agent(
+            messages, "parallel_query_solving_agent"
+        )
 
         try:
             if isinstance(sql_query_results, str):
                 sql_query_results = json.loads(sql_query_results)
+            elif sql_query_results is None:
+                sql_query_results = {}
         except json.JSONDecodeError:
             logging.warning("Unable to read SQL query results: %s", sql_query_results)
             sql_query_results = {}
 
         try:
-            decomposed_user_messages = self.extract_decomposed_user_messages(messages)
+            steps = self.extract_steps(messages)
 
             logging.info("SQL Query Results: %s", sql_query_results)
-            payload = AnswerWithSourcesPayload(
-                answer=answer, decomposed_user_messages=decomposed_user_messages
-            )
+            payload = AnswerWithSourcesPayload(**answer_payload, steps=steps)
 
             if not isinstance(sql_query_results, dict):
                 logging.error(f"Expected dict, got {type(sql_query_results)}")
@@ -248,10 +277,9 @@ class AutoGenText2Sql:
 
         except Exception as e:
             logging.error("Error processing results: %s", str(e))
+
             # Return payload with error context instead of empty
-            return AnswerWithSourcesPayload(
-                answer=f"{answer}\nError processing results: {str(e)}"
-            )
+            return AnswerWithSourcesPayload(**answer_payload)
 
     async def process_user_message(
         self,
@@ -295,7 +323,10 @@ class AutoGenText2Sql:
                     payload = ProcessingUpdatePayload(
                         message="Solving the query...",
                     )
-                elif message.source == "answer_agent":
+                elif (
+                    message.source == "answer_agent"
+                    or message.source == "answer_with_follow_up_questions_agent"
+                ):
                     payload = ProcessingUpdatePayload(
                         message="Generating the answer...",
                     )
@@ -304,7 +335,11 @@ class AutoGenText2Sql:
                 # Now we need to return the final answer or the disambiguation request
                 logging.info("TaskResult: %s", message)
 
-                if message.messages[-1].source == "answer_agent":
+                if (
+                    message.messages[-1].source == "answer_agent"
+                    or message.messages[-1].source
+                    == "answer_with_follow_up_questions_agent"
+                ):
                     # If the message is from the answer_agent, we need to return the final answer
                     payload = self.extract_answer_payload(message.messages)
                 elif message.messages[-1].source == "parallel_query_solving_agent":

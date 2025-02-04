@@ -22,10 +22,17 @@ from pydantic import BaseModel, Field
 
 
 class FilteredParallelMessagesCollection(BaseModel):
+    """A collection of filtered parallel messages."""
+
     database_results: dict[str, list] = Field(default_factory=dict)
     disambiguation_requests: dict[str, list] = Field(default_factory=dict)
 
-    def add_identifier(self, identifier):
+    def add_identifier(self, identifier: str):
+        """Add an identifier to the collection.
+
+        Args:
+        ----
+            identifier (str): The identifier to add."""
         if identifier not in self.database_results:
             self.database_results[identifier] = []
         if identifier not in self.disambiguation_requests:
@@ -33,6 +40,8 @@ class FilteredParallelMessagesCollection(BaseModel):
 
 
 class ParallelQuerySolvingAgent(BaseChatAgent):
+    """An agent that solves each query in parallel."""
+
     def __init__(self, **kwargs: dict):
         super().__init__(
             "parallel_query_solving_agent",
@@ -88,7 +97,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentEvent | Response, None]:
         last_response = messages[-1].content
-        parameter_input = messages[0].content
+        parameter_input = messages[-2].content
         try:
             injected_parameters = json.loads(parameter_input)["injected_parameters"]
         except json.JSONDecodeError:
@@ -96,9 +105,9 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             injected_parameters = {}
 
         # Load the json of the last message to populate the final output object
-        sequential_rounds = json.loads(last_response)
+        sequential_steps = json.loads(last_response)
 
-        logging.info(f"Query Rewrites: {sequential_rounds}")
+        logging.info("Sequential Steps: %s", sequential_steps)
 
         async def consume_inner_messages_from_agentic_flow(
             agentic_flow, identifier, filtered_parallel_messages
@@ -115,7 +124,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 # Add message to results dictionary, tagged by the function name
                 filtered_parallel_messages.add_identifier(identifier)
 
-                logging.info(f"Checking Inner Message: {inner_message}")
+                logging.info("Checking Inner Message: %s", inner_message)
 
                 try:
                     if isinstance(inner_message, ToolCallExecutionEvent):
@@ -124,7 +133,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                             parsed_message = self.parse_inner_message(
                                 call_result.content
                             )
-                            logging.info(f"Inner Loaded: {parsed_message}")
+                            logging.info("Inner Loaded: %s", parsed_message)
 
                             if isinstance(parsed_message, dict):
                                 if (
@@ -137,9 +146,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                         identifier
                                     ].append(
                                         {
-                                            "sql_query": parsed_message[
-                                                "sql_query"
-                                            ].replace("\n", " "),
+                                            "sql_query": parsed_message["sql_query"],
                                             "sql_rows": parsed_message["sql_rows"],
                                         }
                                     )
@@ -147,7 +154,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                     elif isinstance(inner_message, TextMessage):
                         parsed_message = self.parse_inner_message(inner_message.content)
 
-                        logging.info(f"Inner Loaded: {parsed_message}")
+                        logging.info("Inner Loaded: %s", parsed_message)
 
                         # Search for specific message types and add them to the final output object
                         if isinstance(parsed_message, dict):
@@ -188,19 +195,19 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                     ].append(disambiguation_request)
 
                 except Exception as e:
-                    logging.warning(f"Error processing message: {e}")
+                    logging.warning("Error processing message: %s", e)
 
                 yield inner_message
 
         inner_solving_generators = []
         filtered_parallel_messages = FilteredParallelMessagesCollection()
 
-        # Convert all_non_database_query to lowercase string and compare
-        all_non_database_query = str(
-            sequential_rounds.get("all_non_database_query", "false")
+        # Convert requires_sql_queries to lowercase string and compare
+        requires_sql_queries = str(
+            sequential_steps.get("requires_sql_queries", "false")
         ).lower()
 
-        if all_non_database_query == "true":
+        if requires_sql_queries == "false":
             yield Response(
                 chat_message=TextMessage(
                     content="All queries are non-database queries. Nothing to process.",
@@ -210,11 +217,11 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             return
 
         # Start processing sub-queries
-        for sequential_round in sequential_rounds["decomposed_user_messages"]:
-            logging.info(f"Processing round: {sequential_round}")
+        for sequential_round in sequential_steps["steps"]:
+            logging.info("Processing round: %s", sequential_round)
 
             for parallel_message in sequential_round:
-                logging.info(f"Parallel Message: {parallel_message}")
+                logging.info("Parallel Message: %s", parallel_message)
 
                 # Create an instance of the InnerAutoGenText2Sql class
                 inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
@@ -252,7 +259,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
             async with combined_message_streams.stream() as streamer:
                 async for inner_message in streamer:
                     if isinstance(inner_message, TextMessage):
-                        logging.debug(f"Inner Solving Message: {inner_message}")
+                        logging.debug("Inner Solving Message: %s", inner_message)
                         yield inner_message
 
             # Log final results for debugging or auditing

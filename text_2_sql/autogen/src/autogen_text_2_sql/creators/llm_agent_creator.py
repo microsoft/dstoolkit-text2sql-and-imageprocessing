@@ -7,6 +7,12 @@ from text_2_sql_core.prompts.load import load
 from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
 import logging
+from text_2_sql_core.structured_outputs import (
+    AnswerAgentOutput,
+    AnswerWithFollowUpQuestionsAgentOutput,
+    UserMessageRewriteAgentOutput,
+)
+from autogen_core.model_context import BufferedChatCompletionContext
 
 
 class LLMAgentCreator:
@@ -106,10 +112,22 @@ class LLMAgentCreator:
             for tool in agent_file["tools"]:
                 tools.append(cls.get_tool(sql_helper, tool))
 
+        structured_output = None
+        if agent_file.get("structured_output", False):
+            # Import the structured output agent
+            if name == "answer_agent":
+                structured_output = AnswerAgentOutput
+            elif name == "answer_with_follow_up_questions_agent":
+                structured_output = AnswerWithFollowUpQuestionsAgentOutput
+            elif name == "user_message_rewrite_agent":
+                structured_output = UserMessageRewriteAgentOutput
+
         agent = AssistantAgent(
             name=name,
             tools=tools,
-            model_client=LLMModelCreator.get_model(agent_file["model"]),
+            model_client=LLMModelCreator.get_model(
+                agent_file["model"], structured_output=structured_output
+            ),
             description=cls.get_property_and_render_parameters(
                 agent_file, "description", kwargs
             ),
@@ -117,5 +135,10 @@ class LLMAgentCreator:
                 agent_file, "system_message", kwargs
             ),
         )
+
+        if "context_size" in agent_file:
+            agent.model_context = BufferedChatCompletionContext(
+                buffer_size=agent_file["context_size"]
+            )
 
         return agent

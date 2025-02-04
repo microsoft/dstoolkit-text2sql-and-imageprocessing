@@ -12,7 +12,9 @@ dotenv.load_dotenv()
 
 class LLMModelCreator:
     @classmethod
-    def get_model(cls, model_name: str) -> AzureOpenAIChatCompletionClient:
+    def get_model(
+        cls, model_name: str, structured_output=None
+    ) -> AzureOpenAIChatCompletionClient:
         """Retrieves the model based on the model name.
 
         Args:
@@ -22,9 +24,9 @@ class LLMModelCreator:
         Returns:
             AzureOpenAIChatCompletionClient: The model client."""
         if model_name == "4o-mini":
-            return cls.gpt_4o_mini_model()
+            return cls.gpt_4o_mini_model(structured_output=structured_output)
         elif model_name == "4o":
-            return cls.gpt_4o_model()
+            return cls.gpt_4o_model(structured_output=structured_output)
         else:
             raise ValueError(f"Model {model_name} not found")
 
@@ -46,7 +48,9 @@ class LLMModelCreator:
         return token_provider, api_key
 
     @classmethod
-    def gpt_4o_mini_model(cls) -> AzureOpenAIChatCompletionClient:
+    def gpt_4o_mini_model(
+        cls, structured_output=None
+    ) -> AzureOpenAIChatCompletionClient:
         token_provider, api_key = cls.get_authentication_properties()
         return AzureOpenAIChatCompletionClient(
             azure_deployment=os.environ["OpenAI__MiniCompletionDeployment"],
@@ -61,10 +65,11 @@ class LLMModelCreator:
                 "json_output": True,
             },
             temperature=0,
+            response_format=structured_output,
         )
 
     @classmethod
-    def gpt_4o_model(cls) -> AzureOpenAIChatCompletionClient:
+    def gpt_4o_model(cls, structured_output=None) -> AzureOpenAIChatCompletionClient:
         token_provider, api_key = cls.get_authentication_properties()
         return AzureOpenAIChatCompletionClient(
             azure_deployment=os.environ["OpenAI__CompletionDeployment"],
@@ -79,4 +84,5 @@ class LLMModelCreator:
                 "json_output": True,
             },
             temperature=0,
+            response_format=structured_output,
         )

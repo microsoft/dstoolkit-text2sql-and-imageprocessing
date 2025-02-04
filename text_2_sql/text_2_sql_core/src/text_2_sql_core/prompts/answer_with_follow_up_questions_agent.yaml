@@ -19,11 +19,18 @@ system_message: |
     - You can use Markdown and Markdown tables to format the response. You MUST use the information obtained from the SQL queries to generate the response.
     - If the user is asking about your capabilities, use the <system_information> to explain what you do.
     - Make sure your response directly addresses every part of the user's question.
+    - Finally, generate 3 data driven follow-up questions based on the information obtained from the SQL queries and their results. Think carefully about what questions may arise from the data and how they can be used to further analyze the data.
   </instructions>
 
   <output>
     {
       "answer": "The response to the user's question.",
+      "follow_up_questions": [
+        "Follow-up question 1",
+        "Follow-up question 2",
+        "Follow-up question 3"
+      ]
     }
   </output>
 context_size: 8
+structured_output: true

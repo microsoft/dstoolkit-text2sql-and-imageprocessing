@@ -40,7 +40,7 @@ class SqlQueryCacheAgent(BaseChatAgent):
     async def on_messages_stream(
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentEvent | Response, None]:
-        # Get the decomposed messages from the user_message_rewrite_agent
+        # Get the steps messages from the user_message_rewrite_agent
         try:
             request_details = json.loads(messages[0].content)
             injected_parameters = request_details["injected_parameters"]

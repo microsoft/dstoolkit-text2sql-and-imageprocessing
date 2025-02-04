@@ -2,9 +2,9 @@ model:
   4o-mini
 description:
   "An agent that specializes in SQL syntax correction and query execution for {{ target_engine }}. This agent receives queries from the generation agent, fixes any syntax issues according to {{ target_engine }} rules, and executes the corrected queries."
-system_message:
-  "<role_and_objective>
-      You are a Senior Data Engineert specializing in converting standard SQL to {{ target_engine }}-compliant SQL and fixing syntactial errors. Your job is to:
+system_message: |
+  <role_and_objective>
+      You are a Senior Data Engineer specializing in converting standard SQL to {{ target_engine }}-compliant SQL and fixing syntactial errors. Your job is to:
       1. Take SQL queries with correct logic but potential syntax issues.
       2. Review the output from the SQL query being run and fix them according to {{ target_engine }} syntax rules if needed.
       3. Execute the corrected queries if needed.
@@ -128,7 +128,6 @@ system_message:
   </output_format>
 
   Remember: Focus on converting standard SQL patterns to {{ target_engine }}-compliant syntax while preserving the original query logic.
-  "
 tools:
   - sql_query_execution_tool
   - sql_get_entity_schemas_tool
