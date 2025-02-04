@@ -81,8 +81,8 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
         answer: str
         steps: list[list[str]] = Field(default_factory=list, alias="Steps")
         sources: list[Source] = Field(default_factory=list)
-        follow_up_questions: list[str] | None = Field(
-            default=None, alias="followUpQuestions"
+        follow_up_suggestions: list[str] | None = Field(
+            default=None, alias="followUpSuggestions"
         )
 
     payload_type: Literal[PayloadType.ANSWER_WITH_SOURCES] = Field(

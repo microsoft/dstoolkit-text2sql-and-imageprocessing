@@ -9,7 +9,7 @@ from jinja2 import Template
 import logging
 from text_2_sql_core.structured_outputs import (
     AnswerAgentOutput,
-    AnswerWithFollowUpQuestionsAgentOutput,
+    AnswerWithFollowUpSuggestionsAgentOutput,
     UserMessageRewriteAgentOutput,
 )
 from autogen_core.model_context import BufferedChatCompletionContext
@@ -117,8 +117,8 @@ class LLMAgentCreator:
             # Import the structured output agent
             if name == "answer_agent":
                 structured_output = AnswerAgentOutput
-            elif name == "answer_with_follow_up_questions_agent":
-                structured_output = AnswerWithFollowUpQuestionsAgentOutput
+            elif name == "answer_with_follow_up_suggestions_agent":
+                structured_output = AnswerWithFollowUpSuggestionsAgentOutput
             elif name == "user_message_rewrite_agent":
                 structured_output = UserMessageRewriteAgentOutput
 
