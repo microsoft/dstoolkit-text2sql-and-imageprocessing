@@ -88,7 +88,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
         self, messages: Sequence[ChatMessage], cancellation_token: CancellationToken
     ) -> AsyncGenerator[AgentEvent | Response, None]:
         last_response = messages[-1].content
-        parameter_input = messages[0].content
+        parameter_input = messages[-2].content
         try:
             injected_parameters = json.loads(parameter_input)["injected_parameters"]
         except json.JSONDecodeError:
@@ -137,9 +137,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                                         identifier
                                     ].append(
                                         {
-                                            "sql_query": parsed_message[
-                                                "sql_query"
-                                            ].replace("\n", " "),
+                                            "sql_query": parsed_message["sql_query"],
                                             "sql_rows": parsed_message["sql_rows"],
                                         }
                                     )
