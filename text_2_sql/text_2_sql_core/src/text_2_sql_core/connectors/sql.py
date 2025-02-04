@@ -227,9 +227,19 @@ class SqlConnector(ABC):
             str: The cleaned SQL query.
         """
         single_line_query = sql_query.strip().replace("\n", " ")
+
+        def sanitize_identifier_wrapper(identifier):
+            """Wrap the identifier in double quotes if it contains special characters."""
+            if re.match(
+                r"^[a-zA-Z_][a-zA-Z0-9_]*$", identifier
+            ):  # Valid SQL identifier
+                return identifier
+
+            return self.sanitize_identifier(identifier)
+
         cleaned_query = re.sub(
-            r'(?<!["\[\w])\b([a-zA-Z_][a-zA-Z0-9_-]*)\b(?!["\]])',
-            lambda m: self.sanitize_identifier(m.group(1)),
+            r'(?<![\["`])\b([a-zA-Z_][a-zA-Z0-9_-]*)\b(?![\]"`])',
+            lambda m: sanitize_identifier_wrapper(m.group(1)),
             single_line_query,
         )
 
@@ -244,6 +254,7 @@ class SqlConnector(ABC):
     ) -> Union[bool | list[dict]]:
         """Validate the SQL query."""
         try:
+            logging.info("Input SQL Query: %s", sql_query)
             cleaned_query = self.clean_query(sql_query)
             logging.info("Validating SQL Query: %s", cleaned_query)
             parsed_queries = sqlglot.parse(

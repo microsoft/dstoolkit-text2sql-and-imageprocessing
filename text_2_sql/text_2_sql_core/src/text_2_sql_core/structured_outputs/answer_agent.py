@@ -3,8 +3,7 @@
 from pydantic import BaseModel
 
 
-class AnswerAgentWithFollowUpQuestionsAgentOutput(BaseModel):
+class AnswerAgentOutput(BaseModel):
     """The output of the answer agent with follow up questions."""
 
     answer: str
-    follow_up_questions: list[str]

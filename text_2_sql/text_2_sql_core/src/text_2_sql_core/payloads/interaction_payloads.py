@@ -84,7 +84,6 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
         follow_up_questions: list[str] | None = Field(
             default=None, alias="followUpQuestions"
         )
-        assistant_state: dict | None = Field(default=None, alias="assistantState")
 
     payload_type: Literal[PayloadType.ANSWER_WITH_SOURCES] = Field(
         PayloadType.ANSWER_WITH_SOURCES, alias="payloadType"

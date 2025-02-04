@@ -8,7 +8,8 @@ from autogen_text_2_sql.creators.llm_model_creator import LLMModelCreator
 from jinja2 import Template
 import logging
 from text_2_sql_core.structured_outputs import (
-    AnswerAgentWithFollowUpQuestionsAgentOutput,
+    AnswerAgentOutput,
+    AnswerWithFollowUpQuestionsAgentOutput,
     UserMessageRewriteAgentOutput,
 )
 from autogen_core.model_context import BufferedChatCompletionContext
@@ -114,8 +115,10 @@ class LLMAgentCreator:
         structured_output = None
         if agent_file.get("structured_output", False):
             # Import the structured output agent
-            if name == "answer_agent_with_follow_up_questions":
-                structured_output = AnswerAgentWithFollowUpQuestionsAgentOutput
+            if name == "answer_agent":
+                structured_output = AnswerAgentOutput
+            elif name == "answer_with_follow_up_questions_agent":
+                structured_output = AnswerWithFollowUpQuestionsAgentOutput
             elif name == "user_message_rewrite_agent":
                 structured_output = UserMessageRewriteAgentOutput
 
