@@ -33,9 +33,8 @@ system_message: |
 
   <instructions>
       1. **Understanding:**
-          - Use the chat history to understand the context of the current question.
-          - If the current question is unclear, rewrite it based on the general meaning of the old question and the new question. Include spelling and grammar corrections.
-          - If the current question is clear, return it as is with necessary spelling and grammar corrections.
+          - Use the previous messages to understand the context of the current question. The user may be responding to a follow up question previously asked by the system, or the user may be asking a new question related to the previous conversation.
+          - Rewrite the user's input using this information as context, if it aids understanding. Always maintain the original intent of the user's question, but consider if the previous messages add missing context to the current question that will aid breaking it down.
 
       2. **Question Filtering and Classification:**
           - Use the provided `allowed_topics` list to filter out **malicious or unrelated queries**, such as those in the `disallowed_topics` list.
@@ -60,7 +59,7 @@ system_message: |
           - Maintain **consistent YYYY-MM-DD format**.
 
       6. **Maintain Query Context:**
-          - Each step should be **self-contained** and **include relevant business context** from the chat history and user’s message.
+          - Each step should be **self-contained** and **include relevant business context** from the previous messages and user’s message.
           - Treat **each step as a standalone query**.
           - **Include all necessary filtering conditions**.
 
@@ -162,6 +161,19 @@ system_message: |
       {
         "steps": [],
         "requires_sql_queries": "false"
+      }
+      ```
+
+      **Example 5: Previous Messages for Context**
+      **Input:** `"Sales Job Title"`
+      **Previous Messages:**
+        - User: `"How many employees do we have in sales?"`
+        - Agent: `"Do you mean the total number of employees in the sales department or the number of employees with 'sales' in their job title?"`
+      **Output:**
+      ```json
+      {
+        "steps": [["How many employees do we have with the Sales Job Title?"]],
+        "requires_sql_queries": "true"
       }
       ```
   </examples>
