@@ -103,6 +103,7 @@ system_message: |
     <sql_query_generation_rules>
       <engine_specific_rules>
           {{ engine_specific_rules }}
+          Rows returned will be automatically limited to {{ row_limit }}.
       </engine_specific_rules>
 
       Your primary focus is on:

@@ -16,22 +16,30 @@ DEFAULT_INJECTED_PARAMETERS = {
 
 
 class PayloadSource(StrEnum):
+    """Payload source enum."""
+
     USER = "user"
     ASSISTANT = "assistant"
 
 
 class PayloadType(StrEnum):
+    """Payload type enum."""
+
     ANSWER_WITH_SOURCES = "answer_with_sources"
     DISAMBIGUATION_REQUESTS = "disambiguation_requests"
     PROCESSING_UPDATE = "processing_update"
     USER_MESSAGE = "user_message"
 
 
-class InteractionPayloadBase(BaseModel):
+class PayloadAndBodyBase(BaseModel):
+    """Base class for payloads and bodies."""
+
     model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
 
-class PayloadBase(InteractionPayloadBase):
+class PayloadBase(PayloadAndBodyBase):
+    """Base class for payloads."""
+
     message_id: str = Field(
         ..., default_factory=lambda: str(uuid4()), alias="messageId"
     )
@@ -42,12 +50,14 @@ class PayloadBase(InteractionPayloadBase):
     payload_type: PayloadType = Field(..., alias="payloadType")
     payload_source: PayloadSource = Field(..., alias="payloadSource")
 
-    body: InteractionPayloadBase | None = Field(default=None)
+    body: PayloadAndBodyBase | None = Field(default=None)
 
 
-class DismabiguationRequestsPayload(InteractionPayloadBase):
-    class Body(InteractionPayloadBase):
-        class DismabiguationRequest(InteractionPayloadBase):
+class DismabiguationRequestsPayload(PayloadAndBodyBase):
+    """Disambiguation requests payload. Handles requests for the end user to response to"""
+
+    class Body(PayloadAndBodyBase):
+        class DismabiguationRequest(PayloadAndBodyBase):
             assistant_question: str | None = Field(..., alias="assistantQuestion")
             user_choices: list[str] | None = Field(default=None, alias="userChoices")
 
@@ -65,6 +75,7 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
     body: Body | None = Field(default=None)
 
     def __init__(self, **kwargs):
+        """Custom init method to pass kwargs to the body."""
         super().__init__(**kwargs)
 
         body_kwargs = kwargs.get("body", kwargs)
@@ -72,9 +83,11 @@ class DismabiguationRequestsPayload(InteractionPayloadBase):
         self.body = self.Body(**body_kwargs)
 
 
-class AnswerWithSourcesPayload(InteractionPayloadBase):
-    class Body(InteractionPayloadBase):
-        class Source(InteractionPayloadBase):
+class AnswerWithSourcesPayload(PayloadAndBodyBase):
+    """Answer with sources payload. Handles the answer and sources for the answer. The follow up suggestion property is optional and may be used to provide the user with a follow up suggestion."""
+
+    class Body(PayloadAndBodyBase):
+        class Source(PayloadAndBodyBase):
             sql_query: str = Field(alias="sqlQuery")
             sql_rows: list[dict] = Field(default_factory=list, alias="sqlRows")
 
@@ -94,6 +107,7 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
     body: Body | None = Field(default=None)
 
     def __init__(self, **kwargs):
+        """Custom init method to pass kwargs to the body."""
         super().__init__(**kwargs)
 
         body_kwargs = kwargs.get("body", kwargs)
@@ -101,8 +115,10 @@ class AnswerWithSourcesPayload(InteractionPayloadBase):
         self.body = self.Body(**body_kwargs)
 
 
-class ProcessingUpdatePayload(InteractionPayloadBase):
-    class Body(InteractionPayloadBase):
+class ProcessingUpdatePayload(PayloadAndBodyBase):
+    """Processing update payload. Handles updates to the user on the processing status."""
+
+    class Body(PayloadAndBodyBase):
         title: str | None = "Processing..."
         message: str | None = "Processing..."
 
@@ -115,6 +131,7 @@ class ProcessingUpdatePayload(InteractionPayloadBase):
     body: Body | None = Field(default=None)
 
     def __init__(self, **kwargs):
+        """Custom init method to pass kwargs to the body."""
         super().__init__(**kwargs)
 
         body_kwargs = kwargs.get("body", kwargs)
@@ -122,8 +139,10 @@ class ProcessingUpdatePayload(InteractionPayloadBase):
         self.body = self.Body(**body_kwargs)
 
 
-class UserMessagePayload(InteractionPayloadBase):
-    class Body(InteractionPayloadBase):
+class UserMessagePayload(PayloadAndBodyBase):
+    """User message payload. Handles the user message and injected parameters."""
+
+    class Body(PayloadAndBodyBase):
         user_message: str = Field(..., alias="userMessage")
         injected_parameters: dict = Field(
             default_factory=dict, alias="injectedParameters"
@@ -154,6 +173,7 @@ class UserMessagePayload(InteractionPayloadBase):
     body: Body | None = Field(default=None)
 
     def __init__(self, **kwargs):
+        """Custom init method to pass kwargs to the body."""
         super().__init__(**kwargs)
 
         body_kwargs = kwargs.get("body", kwargs)
@@ -162,6 +182,8 @@ class UserMessagePayload(InteractionPayloadBase):
 
 
 class InteractionPayload(RootModel):
+    """Interaction payload. Handles the root payload for the interaction"""
+
     root: UserMessagePayload | ProcessingUpdatePayload | DismabiguationRequestsPayload | AnswerWithSourcesPayload = Field(
         ..., discriminator="payload_type"
     )
