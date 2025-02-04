@@ -177,15 +177,19 @@ class SqlConnector(ABC):
         """
 
         # Validate the SQL query
-        validation_result = await self.query_validation(sql_query)
+        (
+            validation_result,
+            cleaned_query,
+            validation_errors,
+        ) = await self.query_validation(sql_query)
 
-        if isinstance(validation_result, bool) and validation_result:
-            result = await self.query_execution(sql_query, cast_to=None, limit=25)
+        if validation_result and validation_errors is None:
+            result = await self.query_execution(cleaned_query, cast_to=None, limit=25)
 
             return json.dumps(
                 {
                     "type": "query_execution_with_limit",
-                    "sql_query": sql_query,
+                    "sql_query": cleaned_query,
                     "sql_rows": result,
                 },
                 default=str,
@@ -194,8 +198,8 @@ class SqlConnector(ABC):
             return json.dumps(
                 {
                     "type": "errored_query_execution_with_limit",
-                    "sql_query": sql_query,
-                    "errors": validation_result,
+                    "sql_query": cleaned_query,
+                    "errors": validation_errors,
                 },
                 default=str,
             )
@@ -209,9 +213,10 @@ class SqlConnector(ABC):
     ) -> Union[bool | list[dict]]:
         """Validate the SQL query."""
         try:
-            logging.info("Validating SQL Query: %s", sql_query)
+            cleaned_query = sql_query.strip().replace("\n", " ")
+            logging.info("Validating SQL Query: %s", cleaned_query)
             parsed_queries = sqlglot.parse(
-                sql_query,
+                cleaned_query,
                 read=self.database_engine.value.lower(),
             )
 
@@ -255,10 +260,10 @@ class SqlConnector(ABC):
 
         except sqlglot.errors.ParseError as e:
             logging.error("SQL Query is invalid: %s", e.errors)
-            return e.errors
+            return False, None, e.errors
         else:
             logging.info("SQL Query is valid.")
-            return True
+            return True, cleaned_query, None
 
     async def fetch_sql_queries_with_schemas_from_cache(
         self, question: str, injected_parameters: dict = None
