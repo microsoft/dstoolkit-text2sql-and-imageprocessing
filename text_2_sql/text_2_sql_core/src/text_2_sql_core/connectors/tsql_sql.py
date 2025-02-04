@@ -65,6 +65,19 @@ class TsqlSqlConnector(SqlConnector):
             "VERSION",
         ]
 
+    def sanitize_identifier(self, identifier: str) -> str:
+        """Sanitize the identifier to ensure it is valid.
+
+        Args:
+        ----
+            identifier (str): The identifier to sanitize.
+
+        Returns:
+        -------
+            str: The sanitized identifier.
+        """
+        return f"[{identifier}]"
+
     async def query_execution(
         self,
         sql_query: Annotated[

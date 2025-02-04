@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 from jinja2 import Template
 import json
 from text_2_sql_core.utils.database import DatabaseEngineSpecificFields
+import re
 
 
 class SqlConnector(ABC):
@@ -40,19 +41,16 @@ class SqlConnector(ABC):
     @abstractmethod
     def engine_specific_rules(self) -> str:
         """Get the engine specific rules."""
-        pass
 
     @property
     @abstractmethod
     def invalid_identifiers(self) -> list[str]:
         """Get the invalid identifiers upon which a sql query is rejected."""
-        pass
 
     @property
     @abstractmethod
     def engine_specific_fields(self) -> list[str]:
         """Get the engine specific fields."""
-        pass
 
     @property
     def excluded_engine_specific_fields(self):
@@ -83,6 +81,19 @@ class SqlConnector(ABC):
         Returns:
         -------
             list[dict]: The results of the SQL query.
+        """
+
+    @abstractmethod
+    def sanitize_identifier(self, identifier: str) -> str:
+        """Sanitize the identifier to ensure it is valid.
+
+        Args:
+        ----
+            identifier (str): The identifier to sanitize.
+
+        Returns:
+        -------
+            str: The sanitized identifier.
         """
 
     async def get_column_values(
@@ -204,6 +215,26 @@ class SqlConnector(ABC):
                 default=str,
             )
 
+    def clean_query(self, sql_query: str) -> str:
+        """Clean the SQL query to ensure it is valid.
+
+        Args:
+        ----
+            sql_query (str): The SQL query to clean.
+
+        Returns:
+        -------
+            str: The cleaned SQL query.
+        """
+        single_line_query = sql_query.strip().replace("\n", " ")
+        cleaned_query = re.sub(
+            r'(?<!["\[\w])\b([a-zA-Z_][a-zA-Z0-9_-]*)\b(?!["\]])',
+            lambda m: self.sanitize_identifier(m.group(1)),
+            single_line_query,
+        )
+
+        return cleaned_query
+
     async def query_validation(
         self,
         sql_query: Annotated[
@@ -213,7 +244,7 @@ class SqlConnector(ABC):
     ) -> Union[bool | list[dict]]:
         """Validate the SQL query."""
         try:
-            cleaned_query = sql_query.strip().replace("\n", " ")
+            cleaned_query = self.clean_query(sql_query)
             logging.info("Validating SQL Query: %s", cleaned_query)
             parsed_queries = sqlglot.parse(
                 cleaned_query,
@@ -249,14 +280,12 @@ class SqlConnector(ABC):
                     detected_invalid_identifiers.append(identifier)
 
             if len(detected_invalid_identifiers) > 0:
-                logging.error(
-                    "SQL Query contains invalid identifiers: %s",
-                    detected_invalid_identifiers,
-                )
-                return (
+                error_message = (
                     "SQL Query contains invalid identifiers: %s"
                     % detected_invalid_identifiers
                 )
+                logging.error(error_message)
+                return False, None, error_message
 
         except sqlglot.errors.ParseError as e:
             logging.error("SQL Query is invalid: %s", e.errors)

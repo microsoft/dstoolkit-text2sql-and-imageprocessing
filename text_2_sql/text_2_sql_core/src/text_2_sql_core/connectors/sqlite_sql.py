@@ -44,6 +44,19 @@ class SQLiteSqlConnector(SqlConnector):
         """Get the engine specific fields."""
         return []  # SQLite doesn't use warehouses, catalogs, or separate databases
 
+    def sanitize_identifier(self, identifier: str) -> str:
+        """Sanitize the identifier to ensure it is valid.
+
+        Args:
+        ----
+            identifier (str): The identifier to sanitize.
+
+        Returns:
+        -------
+            str: The sanitized identifier.
+        """
+        return f'"{identifier}"'
+
     async def query_execution(
         self,
         sql_query: Annotated[
