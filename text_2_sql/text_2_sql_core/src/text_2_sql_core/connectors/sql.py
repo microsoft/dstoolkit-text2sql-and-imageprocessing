@@ -6,7 +6,7 @@ from typing import Annotated, Union
 from text_2_sql_core.connectors.factory import ConnectorFactory
 import asyncio
 import sqlglot
-from sqlglot.expressions import Parameter, Select, Identifier
+from sqlglot.expressions import Parameter, Select, Identifier, Literal, Limit
 from abc import ABC, abstractmethod
 from jinja2 import Template
 import json
@@ -29,6 +29,9 @@ class SqlConnector(ABC):
         self.use_ai_search = (
             os.environ.get("Text2Sql__UseAISearch", "True").lower() == "true"
         )
+
+        # Set the row limit
+        self.row_limit = int(os.environ.get("Text2Sql__RowLimit", 100))
 
         # Only initialize AI Search connector if enabled
         self.ai_search_connector = (
@@ -195,7 +198,9 @@ class SqlConnector(ABC):
         ) = await self.query_validation(sql_query)
 
         if validation_result and validation_errors is None:
-            result = await self.query_execution(cleaned_query, cast_to=None, limit=25)
+            result = await self.query_execution(
+                cleaned_query, cast_to=None, limit=self.row_limit
+            )
 
             return json.dumps(
                 {
@@ -275,11 +280,13 @@ class SqlConnector(ABC):
                     identifiers.append(node.this)
 
             detected_invalid_identifiers = []
+            updated_parsed_queries = []
 
             for parsed_query in parsed_queries:
                 for node in parsed_query.walk():
                     handle_node(node)
 
+            # check for invalid identifiers
             for token in expressions + identifiers:
                 if isinstance(token, Parameter):
                     identifier = str(token.this.this).upper()
@@ -298,12 +305,32 @@ class SqlConnector(ABC):
                 logging.error(error_message)
                 return False, None, error_message
 
+            # Add a limit clause to the query if it doesn't already have one
+            for parsed_query in parsed_queries:
+                # Add a limit clause to the query if it doesn't already have one
+                current_limit = parsed_query.args.get("limit")
+                logging.debug("Current Limit: %s", current_limit)
+
+                if current_limit is None or current_limit.value > self.row_limit:
+                    # Create a new LIMIT expression
+                    limit_expr = Limit(expression=Literal.number(self.row_limit))
+
+                    # Attach it to the query by setting it on the SELECT expression
+                    parsed_query.set("limit", limit_expr)
+                    updated_parsed_queries.append(
+                        parsed_query.sql(dialect=self.database_engine.value.lower())
+                    )
+                else:
+                    updated_parsed_queries.append(
+                        parsed_query.sql(dialect=self.database_engine.value.lower())
+                    )
+
         except sqlglot.errors.ParseError as e:
             logging.error("SQL Query is invalid: %s", e.errors)
             return False, None, e.errors
         else:
             logging.info("SQL Query is valid.")
-            return True, cleaned_query, None
+            return True, ";".join(updated_parsed_queries), None
 
     async def fetch_sql_queries_with_schemas_from_cache(
         self, question: str, injected_parameters: dict = None

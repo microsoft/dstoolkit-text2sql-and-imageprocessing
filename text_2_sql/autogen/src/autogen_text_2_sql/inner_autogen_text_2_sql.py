@@ -79,6 +79,9 @@ class InnerAutoGenText2Sql:
             os.environ.get("Text2Sql__UseQueryCache", "True").lower() == "true"
         )
 
+        # Set the row limit
+        self.kwargs["row_limit"] = int(os.environ.get("Text2Sql__RowLimit", 100))
+
     def get_all_agents(self):
         """Get all agents for the complete flow."""
         # If relationship_paths not provided, use a generic template
@@ -93,31 +96,31 @@ class InnerAutoGenText2Sql:
                 - Entity → Attributes (for entity-specific analysis)
             """
 
-        self.sql_schema_selection_agent = SqlSchemaSelectionAgent(
+        sql_schema_selection_agent = SqlSchemaSelectionAgent(
             target_engine=self.target_engine,
             **self.kwargs,
         )
 
-        self.sql_query_correction_agent = LLMAgentCreator.create(
+        sql_query_correction_agent = LLMAgentCreator.create(
             "sql_query_correction_agent",
             target_engine=self.target_engine,
             **self.kwargs,
         )
 
-        self.disambiguation_and_sql_query_generation_agent = LLMAgentCreator.create(
+        disambiguation_and_sql_query_generation_agent = LLMAgentCreator.create(
             "disambiguation_and_sql_query_generation_agent",
             target_engine=self.target_engine,
             **self.kwargs,
         )
         agents = [
-            self.sql_schema_selection_agent,
-            self.sql_query_correction_agent,
-            self.disambiguation_and_sql_query_generation_agent,
+            sql_schema_selection_agent,
+            sql_query_correction_agent,
+            disambiguation_and_sql_query_generation_agent,
         ]
 
         if self.use_query_cache:
-            self.query_cache_agent = SqlQueryCacheAgent()
-            agents.append(self.query_cache_agent)
+            query_cache_agent = SqlQueryCacheAgent()
+            agents.append(query_cache_agent)
 
         return agents
 
