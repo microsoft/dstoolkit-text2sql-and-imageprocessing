@@ -25,7 +25,7 @@ system_message: |
   <output>
     {
       "answer": "The response to the user's question.",
-      "follow_up_questions": [
+      "follow_up_suggestions": [
         "Follow-up question 1",
         "Follow-up question 2",
         "Follow-up question 3"

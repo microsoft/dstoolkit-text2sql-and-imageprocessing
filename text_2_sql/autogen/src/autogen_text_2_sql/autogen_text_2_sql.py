@@ -48,8 +48,8 @@ class AutoGenText2Sql:
 
         self._agentic_flow = None
 
-        self._generate_follow_up_questions = (
-            os.environ.get("Text2Sql__GenerateFollowUpQuestions", "True").lower()
+        self._generate_follow_up_suggestions = (
+            os.environ.get("Text2Sql__GenerateFollowUpSuggestions", "True").lower()
             == "true"
         )
 
@@ -62,9 +62,9 @@ class AutoGenText2Sql:
 
         parallel_query_solving_agent = ParallelQuerySolvingAgent(**self.kwargs)
 
-        if self._generate_follow_up_questions:
+        if self._generate_follow_up_suggestions:
             answer_agent = LLMAgentCreator.create(
-                "answer_with_follow_up_questions_agent", **self.kwargs
+                "answer_with_follow_up_suggestions_agent", **self.kwargs
             )
         else:
             answer_agent = LLMAgentCreator.create("answer_agent", **self.kwargs)
@@ -82,7 +82,7 @@ class AutoGenText2Sql:
         """Define the termination condition for the chat."""
         termination = (
             SourceMatchTermination("answer_agent")
-            | SourceMatchTermination("answer_with_follow_up_questions_agent")
+            | SourceMatchTermination("answer_with_follow_up_suggestions_agent")
             # | TextMentionTermination(
             #     "[]",
             #     sources=["user_message_rewrite_agent"],
@@ -110,9 +110,9 @@ class AutoGenText2Sql:
         # Handle transition after parallel query solving
         elif (
             current_agent == "parallel_query_solving_agent"
-            and self._generate_follow_up_questions
+            and self._generate_follow_up_suggestions
         ):
-            decision = "answer_with_follow_up_questions_agent"
+            decision = "answer_with_follow_up_suggestions_agent"
         elif current_agent == "parallel_query_solving_agent":
             decision = "answer_agent"
 
@@ -325,7 +325,7 @@ class AutoGenText2Sql:
                     )
                 elif (
                     message.source == "answer_agent"
-                    or message.source == "answer_with_follow_up_questions_agent"
+                    or message.source == "answer_with_follow_up_suggestions_agent"
                 ):
                     payload = ProcessingUpdatePayload(
                         message="Generating the answer...",
@@ -338,7 +338,7 @@ class AutoGenText2Sql:
                 if (
                     message.messages[-1].source == "answer_agent"
                     or message.messages[-1].source
-                    == "answer_with_follow_up_questions_agent"
+                    == "answer_with_follow_up_suggestions_agent"
                 ):
                     # If the message is from the answer_agent, we need to return the final answer
                     payload = self.extract_answer_payload(message.messages)
