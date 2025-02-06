@@ -301,7 +301,7 @@ class AISearch(ABC):
 
         semantic_text_chunker_skill_inputs = [
             InputFieldMappingEntry(
-                name="content", source="/document/layout/merged_content"
+                name="content", source="/document/layout_merged_content"
             )
         ]
 
@@ -486,7 +486,6 @@ class AISearch(ABC):
             batch_size = 1
             degree_of_parallelism = 8
 
-        output = [OutputFieldMappingEntry(name="content", target_name="merged_content")]
         if chunk_by_page:
             merger_context = "/document/page_wise_layout/*"
             inputs = [
@@ -498,14 +497,22 @@ class AISearch(ABC):
                     source="/document/page_wise_layout/*/figures/*/updated_figure",
                 ),
             ]
+            output = [
+                OutputFieldMappingEntry(name="content", target_name="merged_content")
+            ]
         else:
-            merger_context = "/document/layout"
+            merger_context = "/document"
 
             inputs = [
                 InputFieldMappingEntry(name="layout", source="/document/layout"),
                 InputFieldMappingEntry(
                     name="figures", source="/document/layout/figures/*/updated_figure"
                 ),
+            ]
+            output = [
+                OutputFieldMappingEntry(
+                    name="content", target_name="layout_merged_content"
+                )
             ]
 
         figure_analysis_skill = WebApiSkill(

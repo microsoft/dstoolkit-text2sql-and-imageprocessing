@@ -4,6 +4,7 @@
 import logging
 import re
 from layout_holders import FigureHolder, LayoutHolder
+from typing import List
 
 
 class LayoutAndFigureMerger:
@@ -18,18 +19,26 @@ class LayoutAndFigureMerger:
             figure_holder (FigureHolder): The figure to be updated.
 
         Returns:
-            str: The updated Markdown content with the new figure description.
+            int: The change in length of the Markdown content after updating the figure description.
         """
-
         # Calculate the end index of the content to be replaced
         end_index = figure_holder.offset + figure_holder.length
 
-        # Ensure that the end_index does not exceed the length of the Markdown content
+        # Ensure the offset is valid
+        if figure_holder.offset < 0 or figure_holder.offset > len(
+            layout_holder.content
+        ):
+            logging.error("Figure offset is out of bounds.")
+            raise ValueError("Figure offset is out of bounds.")
+
+        # Ensure the end index does not exceed the length of the Markdown content
         if end_index > len(layout_holder.content):
             logging.info(
-                "End index exceeds the length of the content. Adjusting the end index to the length of the content."
+                "End index exceeds the length of the content. Adjusting to the length of the content."
             )
             end_index = len(layout_holder.content)
+
+        logging.info(f"Figure Markdown Content: {figure_holder.markdown}")
 
         # Replace the old string with the new string
         layout_holder.content = (
@@ -38,17 +47,20 @@ class LayoutAndFigureMerger:
             + layout_holder.content[end_index:]
         )
 
-        return len(figure_holder.markdown) - figure_holder.length
+        inserted_length = len(figure_holder.markdown) - figure_holder.length
+        logging.info(f"Inserted Length: {inserted_length}")
+
+        return layout_holder, inserted_length
 
     async def merge_figures_into_layout(
-        self, layout: LayoutHolder, figures: list[FigureHolder]
+        self, layout_holder: LayoutHolder, figures: List[FigureHolder]
     ) -> LayoutHolder:
         """
         Merges the figures into the layout.
 
         Args:
-            layout (LayoutHolder): The layout text.
-            figures (list): The list of figures.
+            layout_holder (LayoutHolder): The layout text.
+            figures (List[FigureHolder]): The list of figures.
 
         Returns:
             LayoutHolder: The updated layout text with the figures.
@@ -59,30 +71,51 @@ class LayoutAndFigureMerger:
         # Iterate over the figures
         for figure in figures:
             logging.info(f"Inserting Figure: {figure.figure_id}")
+            logging.info(f"Figure Description: {figure.description}")
             # Update the figure description in the layout
             figure.offset += running_offset
-            length = self.insert_figure_description(layout, figure)
+            layout_holder, inserted_length = self.insert_figure_description(
+                layout_holder, figure
+            )
 
             # Update the offset
-            running_offset += length
+            running_offset += inserted_length
+
+        logging.info("Merged figures into layout.")
+        logging.info("Updated Layout with Figures: %s", layout_holder.content)
+        # Precompile regex patterns
+        irrelevant_figure_pattern = re.compile(
+            r"<figure[^>]*>\s*(Irrelevant Image|\'Irrelevant Image\')\s*</figure>",
+            re.DOTALL,
+        )
+        empty_or_whitespace_figure_pattern = re.compile(
+            r"<figure[^>]*>\s*</figure>", re.DOTALL
+        )
+        html_comments_pattern = re.compile(r"<!--.*?-->", re.DOTALL)
 
         # Remove irrelevant figures
-        irrelevant_figure_pattern = r"<figure[^>]*>.*?Irrelevant Image.*?</figure>"
-        layout.content = re.sub(
-            irrelevant_figure_pattern, "", layout.content, flags=re.DOTALL
+        layout_holder.content = irrelevant_figure_pattern.sub("", layout_holder.content)
+        logging.info("Removed irrelevant figures from layout.")
+        logging.info(
+            "Updated Layout without Irrelevant Figures: %s", layout_holder.content
         )
 
-        empty_or_whitespace_figure_pattern = r"<figure[^>]*>\s*</figure>"
-        layout.content = re.sub(
-            empty_or_whitespace_figure_pattern, "", layout.content, flags=re.DOTALL
+        # Remove empty or whitespace figures
+        layout_holder.content = empty_or_whitespace_figure_pattern.sub(
+            "", layout_holder.content
+        )
+        logging.info("Removed empty or whitespace figures from layout.")
+        logging.info(
+            "Updated Layout without Empty or Whitespace Figures: %s",
+            layout_holder.content,
         )
 
-        html_comments_pattern = r"<!--.*?-->"
-        layout.content = re.sub(
-            html_comments_pattern, "", layout.content, flags=re.DOTALL
-        )
+        # Remove HTML comments
+        layout_holder.content = html_comments_pattern.sub("", layout_holder.content)
+        logging.info("Removed HTML comments from layout.")
+        logging.info("Updated Layout without HTML Comments: %s", layout_holder.content)
 
-        return layout
+        return layout_holder
 
     async def merge(self, record: dict) -> dict:
         """
@@ -94,19 +127,21 @@ class LayoutAndFigureMerger:
         Returns:
         - record (dict): The record containing the image, its caption, and the generated description.
         """
-        layout = LayoutHolder(**record["data"]["layout"])
+        layout_holder = LayoutHolder(**record["data"]["layout"])
 
         figures = [FigureHolder(**figure) for figure in record["data"]["figures"]]
 
         try:
-            logging.info(f"Input Data: {layout}")
-            updated_layout = await self.merge_figures_into_layout(layout, figures)
-            logging.info(f"Updated Data: {updated_layout}")
+            logging.info(f"Input Data: {layout_holder}")
+            updated_layout = await self.merge_figures_into_layout(
+                layout_holder, figures
+            )
+            logging.info(f"Updated Layout Data: {updated_layout}")
         except Exception as e:
             logging.error(f"Failed to merge figures into layout. Error: {e}")
             return {
                 "recordId": record["recordId"],
-                "data": {},
+                "data": None,
                 "errors": [
                     {
                         "message": "Failed to merge figures into layout.",
