@@ -59,6 +59,22 @@ class SemanticTextChunker:
 
         return len(encoding.encode(string))
 
+    def clean_chunks_and_map(self, chunks, is_table_or_figure_map):
+        cleaned_chunks = []
+        cleaned_is_table_or_figure_map = []
+
+        for current_chunk, is_table_or_figure in zip(chunks, is_table_or_figure_map):
+            cleaned_chunk = current_chunk.strip()
+            if len(cleaned_chunk) > 0:
+                # Add a newline if the chunk ends with a newline (it was a title)
+                if self.is_markdown_heading(current_chunk):
+                    cleaned_chunk = "\n\n" + cleaned_chunk + "\n\n"
+
+                cleaned_chunks.append(cleaned_chunk)
+                cleaned_is_table_or_figure_map.append(is_table_or_figure)
+
+        return cleaned_chunks, cleaned_is_table_or_figure_map
+
     async def chunk(self, text: str) -> list[dict]:
         """Attempts to chunk the text by:
             Splitting into sentences
@@ -84,6 +100,10 @@ class SemanticTextChunker:
 
         forward_pass_chunks, new_is_table_or_figure_map = self.merge_chunks(
             grouped_sentences, is_table_or_figure_map
+        )
+
+        forward_pass_chunks, new_is_table_or_figure_map = self.clean_chunks_and_map(
+            forward_pass_chunks, new_is_table_or_figure_map
         )
 
         logging.info(
@@ -129,7 +149,7 @@ class SemanticTextChunker:
 
     def clean_new_lines(self, text):
         # Remove single newlines surrounded by < and >
-        cleaned_text = re.sub(r"(?<=>)(\n)(?=<)", "", text)
+        cleaned_text = re.sub(r"(?<=>)(\n)(?=<)", "", text.strip())
 
         # Replace all other single newlines with space
         cleaned_text = re.sub(r"(?<!\n)\n(?!\n)", " ", cleaned_text)
@@ -190,7 +210,7 @@ class SemanticTextChunker:
                         self.is_markdown_heading(part)
                         and part.endswith("\n\n") is False
                     ):
-                        part = part + "\n\n"
+                        part = "\n\n" + part + "\n\n"
 
                     heading_split_sentences.append(part)
 
@@ -300,23 +320,36 @@ class SemanticTextChunker:
             else:
                 return current_chunk[n]
 
-        current_chunk_tokens = self.num_tokens_from_string(" ".join(current_chunk))
+        def get_current_chunk_tokens(chunk_segments):
+            return self.num_tokens_from_string(" ".join(chunk_segments))
+
+        current_chunk_tokens = get_current_chunk_tokens(current_chunk)
 
         if len(current_chunk) >= 2 and current_chunk_tokens >= self.min_chunk_tokens:
-            logging.info("Comparing chunks")
-            cosine_sim = self.sentence_similarity(
-                retrieve_current_chunks_from_n(-2), current_sentence
-            )
+            # Calculate the tokens if we were to split
+            if len(current_chunk) > 2:
+                would_be_new_chunk = retrieve_current_chunk_up_to_n(1)
+                would_be_current_chunk = [retrive_current_chunk_at_n(-1)]
+            else:
+                would_be_new_chunk = retrive_current_chunk_at_n(0)
+                would_be_current_chunk = [retrive_current_chunk_at_n(1)]
+
             if (
-                cosine_sim < self.similarity_threshold
-                or current_chunk_tokens >= self.max_chunk_tokens
+                get_current_chunk_tokens(would_be_new_chunk) >= self.min_chunk_tokens
+                and get_current_chunk_tokens(would_be_current_chunk)
+                >= self.min_chunk_tokens
             ):
-                if len(current_chunk) > 2:
-                    new_chunk = retrieve_current_chunk_up_to_n(1)
-                    current_chunk = [retrive_current_chunk_at_n(-1)]
-                else:
-                    new_chunk = retrive_current_chunk_at_n(0)
-                    current_chunk = [retrive_current_chunk_at_n(1)]
+                logging.info("Comparing chunks")
+                if (
+                    current_chunk_tokens >= self.max_chunk_tokens
+                    or self.sentence_similarity(
+                        retrieve_current_chunks_from_n(-2), current_sentence
+                    )
+                    < self.similarity_threshold
+                ):
+                    return would_be_new_chunk, would_be_current_chunk
+            else:
+                logging.info("Chunk too small to compare")
         else:
             logging.info("Chunk too small to compare")
 
