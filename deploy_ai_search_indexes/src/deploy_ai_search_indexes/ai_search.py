@@ -212,7 +212,7 @@ class AISearch(ABC):
             batch_size = 2
             degree_of_parallelism = 2
         else:
-            batch_size = 16
+            batch_size = 4
             degree_of_parallelism = 16
 
         if chunk_by_page:
