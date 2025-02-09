@@ -212,7 +212,7 @@ class AISearch(ABC):
             batch_size = 2
             degree_of_parallelism = 2
         else:
-            batch_size = 16
+            batch_size = 4
             degree_of_parallelism = 16
 
         if chunk_by_page:
@@ -273,10 +273,10 @@ class AISearch(ABC):
 
     def get_semantic_chunker_skill(
         self,
-        num_surrounding_sentences: int = 1,
+        num_surrounding_sentences: int = 2,
         similarity_threshold: float = 0.8,
-        max_chunk_tokens: int = 200,
-        min_chunk_tokens: int = 50,
+        max_chunk_tokens: int = 500,
+        min_chunk_tokens: int = 150,
     ) -> SplitSkill:
         """Get the skill for text split.
 
@@ -296,7 +296,7 @@ class AISearch(ABC):
             batch_size = 2
             degree_of_parallelism = 2
         else:
-            batch_size = 16
+            batch_size = 8
             degree_of_parallelism = 16
 
         semantic_text_chunker_skill_inputs = [

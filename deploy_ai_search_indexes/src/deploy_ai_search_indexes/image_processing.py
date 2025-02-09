@@ -301,10 +301,10 @@ class ImageProcessingAISearch(AISearch):
         # Only place on schedule if it is not a test deployment
         if self.test:
             schedule = None
-            batch_size = 4
+            batch_size = 1
         else:
             schedule = {"interval": "PT15M"}
-            batch_size = 16
+            batch_size = 2
 
         if self.environment.use_private_endpoint:
             execution_environment = IndexerExecutionEnvironment.PRIVATE
