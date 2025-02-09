@@ -12,10 +12,10 @@ from model2vec import StaticModel
 class SemanticTextChunker:
     def __init__(
         self,
-        num_surrounding_sentences: int = 1,
+        num_surrounding_sentences: int = 2,
         similarity_threshold: float = 0.8,
-        max_chunk_tokens: int = 200,
-        min_chunk_tokens: int = 50,
+        max_chunk_tokens: int = 500,
+        min_chunk_tokens: int = 150,
     ):
         self.num_surrounding_sentences = num_surrounding_sentences
         self.similarity_threshold = similarity_threshold
