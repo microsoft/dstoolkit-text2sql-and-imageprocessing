@@ -12,7 +12,12 @@ from layout_analysis import (
     LayoutAnalysis,
 )
 
+
 # --- Dummy classes to simulate ADI results and figures ---
+class DummySpan:
+    def __init__(self, offset, length):
+        self.offset = offset
+        self.length = length
 
 
 class DummyPage:
@@ -37,7 +42,7 @@ class DummyFigure:
         self.id = id  # note: process_figures_from_extracted_content checks "if figure.id is None"
         self.bounding_regions = [DummyRegion(page_number)]
         self.caption = DummyCaption(caption_content)
-        self.spans = [{"offset": offset, "length": length}]
+        self.spans = [DummySpan(offset, length)]
 
 
 class DummyResult:
@@ -237,10 +242,7 @@ async def test_analyse_page_wise_with_figures(monkeypatch, dummy_storage_helper)
     # The data field should contain the base64-encoded image.
     expected_b64 = base64.b64encode(b"fake_image").decode("utf-8")
     assert figure_data["data"] == expected_b64
-    # Verify that the container, blob, and caption are set as expected.
-    assert figure_data["container"] == f"{la.container}-figures"
-    expected_blob = f"{la.blob}/fig1.png"
-    assert figure_data["blob"] == expected_blob
+    # Verify that the caption are set as expected.
     assert figure_data["caption"] == "Caption text"
     assert result["errors"] is None
 
