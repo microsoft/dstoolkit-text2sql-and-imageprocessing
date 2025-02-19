@@ -22,6 +22,7 @@ from layout_holders import (
     LayoutHolder,
     PageWiseContentHolder,
     NonPageWiseContentHolder,
+    PerPageStartingSentenceHolder,
 )
 
 
@@ -340,6 +341,40 @@ class LayoutAnalysis:
 
         return page_wise_contents
 
+    def create_per_page_starting_sentence(self) -> list[PerPageStartingSentenceHolder]:
+        """Create a list of the starting sentence of each page so we can assign the starting sentence to the page number.
+
+        Returns:
+        --------
+            list: A list of the starting sentence of each page."""
+
+        per_page_starting_sentences = []
+
+        for page in self.result.pages:
+            page_content = self.result.content[
+                page.spans[0]["offset"] : page.spans[0]["offset"]
+                + page.spans[0]["length"]
+            ]
+
+            # Remove any leading whitespace/newlines.
+            cleaned_content = page_content.lstrip()
+            # If a newline appears before a period, split on newline; otherwise, on period.
+            if "\n" in cleaned_content:
+                first_line = cleaned_content.split("\n", 1)[0]
+            elif "." in cleaned_content:
+                first_line = cleaned_content.split(".", 1)[0]
+            else:
+                first_line = cleaned_content
+
+            per_page_starting_sentences.append(
+                PerPageStartingSentenceHolder(
+                    page_number=page.page_number,
+                    starting_sentence=first_line.strip(),
+                )
+            )
+
+        return per_page_starting_sentences
+
     async def get_document_intelligence_client(self) -> DocumentIntelligenceClient:
         """Get the Azure Document Intelligence client.
 
@@ -487,7 +522,12 @@ class LayoutAnalysis:
                 if self.extract_figures:
                     await self.process_figures_from_extracted_content(text_content)
 
-                output_record = NonPageWiseContentHolder(layout=text_content)
+                per_page_starting_sentences = self.create_per_page_starting_sentence()
+
+                output_record = NonPageWiseContentHolder(
+                    layout=text_content,
+                    per_page_starting_sentences=per_page_starting_sentences,
+                )
 
         except Exception as e:
             logging.error(e)

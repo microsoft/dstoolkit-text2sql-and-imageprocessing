@@ -3,7 +3,7 @@
 import logging
 import json
 import regex as re
-from layout_holders import FigureHolder
+from layout_holders import FigureHolder, ChunkHolder
 
 
 class MarkUpCleaner:
@@ -18,8 +18,8 @@ class MarkUpCleaner:
             list: The sections related to text
         """
         # Updated regex pattern to capture markdown headers like ### Header
-        combined_pattern = r"(?<=\n|^)[#]+\s*(.*?)(?=\n)"
-        doc_metadata = re.findall(combined_pattern, text, re.DOTALL)
+        combined_pattern = r"^\s*[#]+\s*(.*?)(?=\n|$)"
+        doc_metadata = re.findall(combined_pattern, text, re.MULTILINE)
         return self.clean_sections(doc_metadata)
 
     def get_figure_ids(self, text: str) -> list:
@@ -61,12 +61,14 @@ class MarkUpCleaner:
             for tag, pattern in tag_patterns.items():
                 try:
                     # Replace the tags using the specific pattern, keeping the content inside the tags
-                    if tag == "header":
+                    if tag in ["header", "figure"]:
                         text = re.sub(
                             pattern, r"\2", text, flags=re.DOTALL | re.MULTILINE
                         )
                     else:
-                        text = re.sub(pattern, r"\1", text, flags=re.DOTALL)
+                        text = re.sub(
+                            pattern, r"\1", text, flags=re.DOTALL | re.MULTILINE
+                        )
                 except re.error as e:
                     logging.error(f"Regex error for tag '{tag}': {e}")
         except Exception as e:
@@ -74,7 +76,7 @@ class MarkUpCleaner:
         return text
 
     def clean_text_and_extract_metadata(
-        self, text: str, figures: list[FigureHolder]
+        self, chunk: ChunkHolder, figures: list[FigureHolder]
     ) -> tuple[str, str]:
         """This function performs following cleanup activities on the text, remove all unicode characters
         remove line spacing,remove stop words, normalize characters
@@ -86,36 +88,39 @@ class MarkUpCleaner:
         Returns:
             str: The clean text."""
 
-        return_record = {}
-
         try:
-            logging.info(f"Input text: {text}")
-            if len(text) == 0:
+            logging.info(f"Input text: {chunk.mark_up}")
+            if len(chunk.mark_up) == 0:
                 logging.error("Input text is empty")
                 raise ValueError("Input text is empty")
 
-            return_record["chunk_mark_up"] = text
+            figure_ids = self.get_figure_ids(chunk.mark_up)
 
-            figure_ids = self.get_figure_ids(text)
-
-            return_record["chunk_sections"] = self.get_sections(text)
-            return_record["chunk_figures"] = [
-                figure.model_dump(by_alias=True)
-                for figure in figures
-                if figure.figure_id in figure_ids
+            chunk.sections = self.get_sections(chunk.mark_up)
+            chunk.figures = [
+                figure for figure in figures if figure.figure_id in figure_ids
             ]
 
-            logging.info(f"Sections: {return_record['chunk_sections']}")
+            logging.info(f"Sections: {chunk.sections}")
+
+            # Check if the chunk contains only figure tags (plus whitespace).
+            figure_tag_pattern = (
+                r"<figure(?:\s+FigureId=(\"[^\"]*\"|'[^']*'))?>(.*?)</figure>"
+            )
+            text_without_figures = re.sub(figure_tag_pattern, "", chunk.mark_up).strip()
+            if not text_without_figures and chunk.figures:
+                # When no text outside of figure tags is present, set page_number from the first figure.
+                chunk.page_number = chunk.figures[0].page_number
 
             # Define specific patterns for each tag
             tag_patterns = {
                 "figurecontent": r"<!-- FigureContent=(.*?)-->",
-                "figure": r"<figure(?:\s+FigureId=\"[^\"]*\")?>(.*?)</figure>",
+                "figure": r"<figure(?:\s+FigureId=(\"[^\"]*\"|'[^']*'))?>(.*?)</figure>",
                 "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
                 "figcaption": r"<figcaption>(.*?)</figcaption>",
                 "header": r"^\s*(#{1,6})\s*(.*?)\s*$",
             }
-            cleaned_text = self.remove_markdown_tags(text, tag_patterns)
+            cleaned_text = self.remove_markdown_tags(chunk.mark_up, tag_patterns)
 
             logging.info(f"Removed markdown tags: {cleaned_text}")
 
@@ -128,11 +133,11 @@ class MarkUpCleaner:
                 logging.error("Cleaned text is empty")
                 raise ValueError("Cleaned text is empty")
             else:
-                return_record["chunk_cleaned"] = cleaned_text
+                chunk.cleaned_text = cleaned_text
         except Exception as e:
             logging.error(f"An error occurred in clean_text_and_extract_metadata: {e}")
-            return ""
-        return return_record
+            raise e
+        return chunk.model_dump(by_alias=True)
 
     async def clean(self, record: dict) -> dict:
         """Cleanup the data using standard python libraries.
@@ -157,12 +162,17 @@ class MarkUpCleaner:
 
             figures = [FigureHolder(**figure) for figure in record["data"]["figures"]]
 
+            chunk_holder = ChunkHolder(mark_up=record["data"]["mark_up"])
+
+            if "page_number" in record["data"]:
+                chunk_holder.page_number = record["data"]["page_number"]
+
             cleaned_record["data"] = self.clean_text_and_extract_metadata(
-                record["data"]["chunk"], figures
+                chunk_holder, figures
             )
 
         except Exception as e:
-            logging.error("string cleanup Error: %s", e)
+            logging.error("Cleanup Error: %s", e)
             return {
                 "recordId": record["recordId"],
                 "data": None,

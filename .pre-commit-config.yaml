@@ -18,6 +18,7 @@ repos:
 
       # Python checks
       - id: name-tests-test
+        args: [--pytest-test-first]
 
       # JSON files
       - id: pretty-format-json

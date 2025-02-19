@@ -219,7 +219,11 @@ class AISearch(ABC):
             mark_up_cleaner_context = "/document/page_wise_layout/*"
             inputs = [
                 InputFieldMappingEntry(
-                    name="chunk", source="/document/page_wise_layout/*/merged_content"
+                    name="mark_up", source="/document/page_wise_layout/*/merged_content"
+                ),
+                InputFieldMappingEntry(
+                    name="page_number",
+                    source="/document/page_wise_layout/*/page_number",
                 ),
                 InputFieldMappingEntry(
                     name="figures",
@@ -230,7 +234,10 @@ class AISearch(ABC):
             mark_up_cleaner_context = "/document/chunk_mark_ups/*"
             inputs = [
                 InputFieldMappingEntry(
-                    name="chunk", source="/document/chunk_mark_ups/*"
+                    name="mark_up", source="/document/chunk_mark_ups/*/mark_up"
+                ),
+                InputFieldMappingEntry(
+                    name="page_number", source="/document/chunk_mark_ups/*/page_number"
                 ),
                 InputFieldMappingEntry(
                     name="figures", source="/document/layout/figures/*/updated_figure"
@@ -238,12 +245,15 @@ class AISearch(ABC):
             ]
 
         mark_up_cleaner_skill_outputs = [
-            OutputFieldMappingEntry(name="chunk_cleaned", target_name="chunk_cleaned"),
             OutputFieldMappingEntry(
-                name="chunk_sections", target_name="chunk_sections"
+                name="cleaned_text", target_name="final_cleaned_text"
             ),
-            OutputFieldMappingEntry(name="chunk_mark_up", target_name="chunk_mark_up"),
-            OutputFieldMappingEntry(name="chunk_figures", target_name="chunk_figures"),
+            OutputFieldMappingEntry(name="sections", target_name="final_sections"),
+            OutputFieldMappingEntry(name="mark_up", target_name="final_mark_up"),
+            OutputFieldMappingEntry(name="figures", target_name="final_chunk_figures"),
+            OutputFieldMappingEntry(
+                name="page_number", target_name="final_page_number"
+            ),
         ]
 
         mark_up_cleaner_skill = WebApiSkill(
@@ -302,7 +312,11 @@ class AISearch(ABC):
         semantic_text_chunker_skill_inputs = [
             InputFieldMappingEntry(
                 name="content", source="/document/layout_merged_content"
-            )
+            ),
+            InputFieldMappingEntry(
+                name="per_page_starting_sentences",
+                source="/document/per_page_starting_sentences",
+            ),
         ]
 
         semantic_text_chunker_skill_outputs = [
@@ -368,7 +382,13 @@ class AISearch(ABC):
                 )
             ]
         else:
-            output = [OutputFieldMappingEntry(name="layout", target_name="layout")]
+            output = [
+                OutputFieldMappingEntry(name="layout", target_name="layout"),
+                OutputFieldMappingEntry(
+                    name="per_page_starting_sentences",
+                    target_name="per_page_starting_sentences",
+                ),
+            ]
 
         layout_analysis_skill = WebApiSkill(
             name="Layout Analysis Skill",

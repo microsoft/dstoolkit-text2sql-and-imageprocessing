@@ -81,6 +81,13 @@ class ImageProcessingAISearch(AISearch):
                 type=SearchFieldDataType.String,
                 collection=True,
             ),
+            SimpleField(
+                name="PageNumber",
+                type=SearchFieldDataType.Int64,
+                sortable=True,
+                filterable=True,
+                facetable=True,
+            ),
             SearchField(
                 name="ChunkEmbedding",
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
@@ -137,19 +144,6 @@ class ImageProcessingAISearch(AISearch):
             ),
         ]
 
-        if self.enable_page_by_chunking:
-            fields.extend(
-                [
-                    SimpleField(
-                        name="PageNumber",
-                        type=SearchFieldDataType.Int64,
-                        sortable=True,
-                        filterable=True,
-                        facetable=True,
-                    )
-                ]
-            )
-
         return fields
 
     def get_semantic_search(self) -> SemanticSearch:
@@ -194,11 +188,12 @@ class ImageProcessingAISearch(AISearch):
         if self.enable_page_by_chunking:
             embedding_skill = self.get_vector_skill(
                 "/document/page_wise_layout/*",
-                "/document/page_wise_layout/*/chunk_cleaned",
+                "/document/page_wise_layout/*/final_cleaned_text",
             )
         else:
             embedding_skill = self.get_vector_skill(
-                "/document/chunk_mark_ups/*", "/document/chunk_mark_ups/*/chunk_cleaned"
+                "/document/chunk_mark_ups/*",
+                "/document/chunk_mark_ups/*/final_cleaned_text",
             )
 
         if self.enable_page_by_chunking:
@@ -229,7 +224,7 @@ class ImageProcessingAISearch(AISearch):
             source_context = "/document/page_wise_layout/*"
             mappings = [
                 InputFieldMappingEntry(
-                    name="Chunk", source="/document/page_wise_layout/*/chunk_mark_up"
+                    name="Chunk", source="/document/page_wise_layout/*/final_mark_up"
                 ),
                 InputFieldMappingEntry(
                     name="ChunkEmbedding",
@@ -239,24 +234,25 @@ class ImageProcessingAISearch(AISearch):
                 InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
                 InputFieldMappingEntry(
                     name="Sections",
-                    source="/document/page_wise_layout/*/chunk_sections",
+                    source="/document/page_wise_layout/*/final_sections",
                 ),
                 InputFieldMappingEntry(
                     name="ChunkFigures",
-                    source="/document/page_wise_layout/*/chunk_figures/*",
+                    source="/document/page_wise_layout/*/final_chunk_figures/*",
                 ),
                 InputFieldMappingEntry(
                     name="DateLastModified", source="/document/DateLastModified"
                 ),
                 InputFieldMappingEntry(
-                    name="PageNumber", source="/document/page_wise_layout/*/page_number"
+                    name="PageNumber",
+                    source="/document/page_wise_layout/*/final_page_number",
                 ),
             ]
         else:
             source_context = "/document/chunk_mark_ups/*"
             mappings = [
                 InputFieldMappingEntry(
-                    name="Chunk", source="/document/chunk_mark_ups/*/chunk_mark_up"
+                    name="Chunk", source="/document/chunk_mark_ups/*/final_mark_up"
                 ),
                 InputFieldMappingEntry(
                     name="ChunkEmbedding",
@@ -265,14 +261,18 @@ class ImageProcessingAISearch(AISearch):
                 InputFieldMappingEntry(name="Title", source="/document/Title"),
                 InputFieldMappingEntry(name="SourceUri", source="/document/SourceUri"),
                 InputFieldMappingEntry(
-                    name="Sections", source="/document/chunk_mark_ups/*/chunk_sections"
+                    name="Sections", source="/document/chunk_mark_ups/*/final_sections"
                 ),
                 InputFieldMappingEntry(
                     name="ChunkFigures",
-                    source="/document/chunk_mark_ups/*/chunk_figures/*",
+                    source="/document/chunk_mark_ups/*/final_chunk_figures/*",
                 ),
                 InputFieldMappingEntry(
                     name="DateLastModified", source="/document/DateLastModified"
+                ),
+                InputFieldMappingEntry(
+                    name="PageNumber",
+                    source="/document/chunk_mark_ups/*/final_page_number",
                 ),
             ]
 
