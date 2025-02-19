@@ -18,8 +18,8 @@ class MarkUpCleaner:
             list: The sections related to text
         """
         # Updated regex pattern to capture markdown headers like ### Header
-        combined_pattern = r"(?<=\n|^)[#]+\s*(.*?)(?=\n)"
-        doc_metadata = re.findall(combined_pattern, text, re.DOTALL)
+        combined_pattern = r"^[#]+\s*(.*?)(?=\n|$)"
+        doc_metadata = re.findall(combined_pattern, text, re.MULTILINE)
         return self.clean_sections(doc_metadata)
 
     def get_figure_ids(self, text: str) -> list:
