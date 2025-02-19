@@ -245,11 +245,15 @@ class AISearch(ABC):
             ]
 
         mark_up_cleaner_skill_outputs = [
-            OutputFieldMappingEntry(name="cleaned_text", target_name="cleaned_text"),
-            OutputFieldMappingEntry(name="sections", target_name="sections"),
-            OutputFieldMappingEntry(name="mark_up", target_name="mark_up"),
-            OutputFieldMappingEntry(name="figures", target_name="chunk_figures"),
-            OutputFieldMappingEntry(name="page_number", target_name="page_number"),
+            OutputFieldMappingEntry(
+                name="cleaned_text", target_name="final_cleaned_text"
+            ),
+            OutputFieldMappingEntry(name="sections", target_name="final_sections"),
+            OutputFieldMappingEntry(name="mark_up", target_name="final_mark_up"),
+            OutputFieldMappingEntry(name="figures", target_name="final_chunk_figures"),
+            OutputFieldMappingEntry(
+                name="page_number", target_name="final_page_number"
+            ),
         ]
 
         mark_up_cleaner_skill = WebApiSkill(
