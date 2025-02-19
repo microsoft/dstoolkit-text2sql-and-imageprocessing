@@ -127,3 +127,61 @@ async def test_clean(cleaner, sample_text, figures):
     assert "chunk_figures" in result["data"]
     assert len(result["data"]["chunk_figures"]) == 1
     assert result["data"]["chunk_figures"][0]["FigureId"] == "12345"
+
+
+def test_get_sections_empty_text(cleaner):
+    # When no text is provided, no sections should be found.
+    sections = cleaner.get_sections("")
+    assert sections == []
+
+
+def test_get_figure_ids_no_figures(cleaner):
+    # When the text contains no figure tags, an empty list should be returned.
+    text = "This text does not include any figures."
+    assert cleaner.get_figure_ids(text) == []
+
+
+def test_remove_markdown_tags_unknown_tag(cleaner):
+    # When a tag in tag_patterns does not match anything, text remains unchanged.
+    text = "This is a basic text without markdown."
+    tag_patterns = {"nonexistent": r"(pattern)"}
+    result = cleaner.remove_markdown_tags(text, tag_patterns)
+    assert result == text
+
+
+def test_clean_text_and_extract_metadata_empty_text(cleaner, figures):
+    # Passing an empty text should result in error handling and an empty string being returned.
+    result = cleaner.clean_text_and_extract_metadata("", figures)
+    assert result == ""
+
+
+@pytest.mark.asyncio
+async def test_clean_missing_chunk(cleaner):
+    # When record['data'] is missing the "chunk" key, an exception is raised and the error branch returns a proper error dict.
+    record = {
+        "recordId": "3",
+        "data": {"figures": []},
+    }
+    result = await cleaner.clean(record)
+    assert result["recordId"] == "3"
+    assert result["data"] is None
+    assert result["errors"] is not None
+    assert "Failed to cleanup data" in result["errors"][0]["message"]
+
+
+@pytest.mark.asyncio
+async def test_clean_with_invalid_figures_structure(cleaner):
+    # When figure dicts don't have the expected structure for FigureHolder,
+    # the construction in clean() will raise an exception and trigger error branch.
+    record = {
+        "recordId": "4",
+        "data": {
+            "chunk": "Some text with # Header",
+            # Figures are missing required keys.
+            "figures": [{"invalid_key": "no_fig_id"}],
+        },
+    }
+    result = await cleaner.clean(record)
+    assert result["recordId"] == "4"
+    assert result["data"] is None
+    assert result["errors"] is not None

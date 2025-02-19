@@ -37,6 +37,29 @@ class DummyCaption:
         self.content = content
 
 
+class DummyPoller:
+    def __init__(self, result, operation_id):
+        self._result = result
+        self.details = {"operation_id": operation_id}
+
+    async def result(self):
+        return self._result
+
+
+class DummyDocIntelligenceClient:
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
+
+    async def begin_analyze_document(self, **kwargs):
+        # Create a dummy page spanning the first 5 characters.
+        dummy_page = DummyPage(0, 5, 1)
+        dummy_result = DummyResult("HelloWorld", pages=[dummy_page], figures=[])
+        return DummyPoller(dummy_result, "dummy_op")
+
+
 class DummyFigure:
     def __init__(self, id, offset, length, page_number, caption_content):
         self.id = id  # note: process_figures_from_extracted_content checks "if figure.id is None"
@@ -361,3 +384,54 @@ async def test_process_layout_analysis_missing_source():
     assert result["data"] is None
     assert result["errors"] is not None
     assert "Pass a valid source" in result["errors"][0]["message"]
+
+
+@pytest.mark.asyncio
+async def test_analyse_document_success(monkeypatch, tmp_path):
+    # Create a temporary file with dummy content.
+    tmp_file = tmp_path / "dummy.txt"
+    tmp_file.write_bytes(b"dummy content")
+
+    la = LayoutAnalysis(
+        record_id=999,
+        source="https://dummyaccount.blob.core.windows.net/container/path/to/dummy.txt",
+    )
+
+    # Use an async function to return our dummy Document Intelligence client.
+    async def dummy_get_doc_intelligence_client():
+        return DummyDocIntelligenceClient()
+
+    monkeypatch.setattr(
+        la, "get_document_intelligence_client", dummy_get_doc_intelligence_client
+    )
+
+    await la.analyse_document(str(tmp_file))
+
+    assert la.result is not None
+    assert la.operation_id == "dummy_op"
+    # Check that the dummy result contains the expected content.
+    assert la.result.content == "HelloWorld"
+
+
+def test_create_page_wise_content():
+    # Test create_page_wise_content using a dummy result with one page.
+    la = LayoutAnalysis(record_id=100, source="dummy")
+
+    # Create a dummy result with content "HelloWorld"
+    # and a page with a span from index 0 with length 5.
+    class DummyResultContent:
+        pass
+
+    dummy_result = DummyResultContent()
+    dummy_result.content = "HelloWorld"
+    dummy_result.pages = [DummyPage(0, 5, 1)]
+    la.result = dummy_result
+
+    layouts = la.create_page_wise_content()
+    assert isinstance(layouts, list)
+    assert len(layouts) == 1
+    layout = layouts[0]
+    # The page content should be the substring "Hello"
+    assert layout.content == "Hello"
+    assert layout.page_number == 1
+    assert layout.page_offsets == 0
