@@ -314,7 +314,7 @@ openai = [
 
 [[package]]
 name = "autogen-text-2-sql"
-version = "0.1.0"
+version = "0.2.0"
 source = { virtual = "text_2_sql/autogen" }
 dependencies = [
     { name = "aiostream" },
@@ -1035,7 +1035,7 @@ wheels = [
 
 [[package]]
 name = "deploy-ai-search-indexes"
-version = "0.1.0"
+version = "0.2.0"
 source = { virtual = "deploy_ai_search_indexes" }
 dependencies = [
     { name = "azure-identity" },
@@ -1128,7 +1128,7 @@ wheels = [
 
 [[package]]
 name = "dstoolkit-text2sql-and-imageprocessing"
-version = "0.1.0"
+version = "0.2.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -1395,7 +1395,7 @@ wheels = [
 
 [[package]]
 name = "image-processing"
-version = "0.1.0"
+version = "0.2.0"
 source = { virtual = "image_processing" }
 dependencies = [
     { name = "aiohttp" },
@@ -3757,7 +3757,7 @@ wheels = [
 
 [[package]]
 name = "text-2-sql-core"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "text_2_sql/text_2_sql_core" }
 dependencies = [
     { name = "aiohttp" },
