@@ -356,12 +356,20 @@ class LayoutAnalysis:
                 + page.spans[0]["length"]
             ]
 
-            starting_sentence = page_content.split(".")[0]
+            # Remove any leading whitespace/newlines.
+            cleaned_content = page_content.lstrip()
+            # If a newline appears before a period, split on newline; otherwise, on period.
+            if "\n" in cleaned_content:
+                first_line = cleaned_content.split("\n", 1)[0]
+            elif "." in cleaned_content:
+                first_line = cleaned_content.split(".", 1)[0]
+            else:
+                first_line = cleaned_content
 
             per_page_starting_sentences.append(
                 PerPageStartingSentenceHolder(
                     page_number=page.page_number,
-                    starting_sentence=starting_sentence,
+                    starting_sentence=first_line.strip(),
                 )
             )
 

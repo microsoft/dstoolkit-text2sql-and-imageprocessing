@@ -507,11 +507,16 @@ class SemanticTextChunker:
             list[ChunkHolder]: The list of chunks with page numbers assigned."""
         page_number = 1
         for chunk in chunks:
-            if per_page_starting_sentences:
-                for per_page_starting_sentence in per_page_starting_sentences:
-                    if per_page_starting_sentence.starting_sentence in chunk:
-                        page_number = per_page_starting_sentence.page_number
-                        break
+            for per_page_starting_sentence in per_page_starting_sentences[
+                page_number - 1 :
+            ]:
+                if per_page_starting_sentence.starting_sentence in chunk:
+                    logging.info(
+                        "Assigning page number %i to chunk",
+                        per_page_starting_sentence.page_number,
+                    )
+                    page_number = per_page_starting_sentence.page_number
+                    break
             chunk.page_number = page_number
         return chunks
 
@@ -545,6 +550,8 @@ async def process_semantic_text_chunker(record: dict, text_chunker) -> dict:
                 PerPageStartingSentenceHolder(**sentence)
                 for sentence in record["data"]["per_page_starting_sentences"]
             ]
+
+            logging.info(f"Per page starting sentences: {per_page_starting_sentences}")
 
             chunks = text_chunker.assign_page_number_to_chunks(
                 chunks, per_page_starting_sentences
