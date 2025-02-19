@@ -60,5 +60,5 @@ jobs:
         working-directory: image_processing
 
       - name: Run PyTest
-        run: uv run run pytest --cov=image_processing
+        run: uv run pytest --cov=image_processing
         working-directory: image_processing

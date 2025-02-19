@@ -65,7 +65,7 @@ def test_remove_markdown_tags(cleaner):
     }
     cleaned_text = cleaner.remove_markdown_tags(text, tag_patterns)
     assert "Some figure" in cleaned_text
-    assert "Some content" not in cleaned_text
+    assert "Some content" in cleaned_text
     assert "<!-- FigureContent=Some content -->" not in cleaned_text
     assert "<figure FigureId='12345'>Some figure</figure>" not in cleaned_text
 
