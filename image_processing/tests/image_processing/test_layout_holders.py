@@ -7,6 +7,8 @@ from layout_holders import (
     LayoutHolder,
     PageWiseContentHolder,
     NonPageWiseContentHolder,
+    ChunkHolder,
+    PerPageStartingSentenceHolder,
 )
 
 
@@ -65,3 +67,41 @@ def test_non_page_wise_content_holder():
     layout = LayoutHolder(content="Full document")
     non_page_holder = NonPageWiseContentHolder(layout=layout)
     assert non_page_holder.layout.content == "Full document"
+
+
+def test_chunk_holder_creation():
+    chunk = ChunkHolder(
+        mark_up="Sample markup",
+        sections=["Section1", "Section2"],
+        figures=[],
+        starting_sentence="First sentence",
+        cleaned_text="Cleaned text content",
+        page_number=1,
+    )
+    assert chunk.mark_up == "Sample markup"
+    assert chunk.sections == ["Section1", "Section2"]
+    assert chunk.starting_sentence == "First sentence"
+    assert chunk.cleaned_text == "Cleaned text content"
+    assert chunk.page_number == 1
+
+
+def test_per_page_starting_sentence_holder_creation():
+    sentence = PerPageStartingSentenceHolder(
+        page_number=1, starting_sentence="This is the starting sentence."
+    )
+    assert sentence.page_number == 1
+    assert sentence.starting_sentence == "This is the starting sentence."
+
+
+def test_non_page_wise_content_holder_with_sentences():
+    layout = LayoutHolder(content="Full document")
+    sentences = [
+        PerPageStartingSentenceHolder(page_number=1, starting_sentence="Start 1"),
+        PerPageStartingSentenceHolder(page_number=2, starting_sentence="Start 2"),
+    ]
+    non_page_holder = NonPageWiseContentHolder(
+        layout=layout, per_page_starting_sentences=sentences
+    )
+    assert non_page_holder.layout.content == "Full document"
+    assert len(non_page_holder.per_page_starting_sentences) == 2
+    assert non_page_holder.per_page_starting_sentences[0].starting_sentence == "Start 1"

@@ -22,6 +22,7 @@ from layout_holders import (
     LayoutHolder,
     PageWiseContentHolder,
     NonPageWiseContentHolder,
+    PerPageStartingSentenceHolder,
 )
 
 
@@ -340,6 +341,32 @@ class LayoutAnalysis:
 
         return page_wise_contents
 
+    def create_per_page_starting_sentence(self) -> list[PerPageStartingSentenceHolder]:
+        """Create a list of the starting sentence of each page so we can assign the starting sentence to the page number.
+
+        Returns:
+        --------
+            list: A list of the starting sentence of each page."""
+
+        per_page_starting_sentences = []
+
+        for page in self.result.pages:
+            page_content = self.result.content[
+                page.spans[0]["offset"] : page.spans[0]["offset"]
+                + page.spans[0]["length"]
+            ]
+
+            starting_sentence = page_content.split(".")[0]
+
+            per_page_starting_sentences.append(
+                PerPageStartingSentenceHolder(
+                    page_number=page.page_number,
+                    starting_sentence=starting_sentence,
+                )
+            )
+
+        return per_page_starting_sentences
+
     async def get_document_intelligence_client(self) -> DocumentIntelligenceClient:
         """Get the Azure Document Intelligence client.
 
@@ -487,7 +514,12 @@ class LayoutAnalysis:
                 if self.extract_figures:
                     await self.process_figures_from_extracted_content(text_content)
 
-                output_record = NonPageWiseContentHolder(layout=text_content)
+                per_page_starting_sentences = self.create_per_page_starting_sentence()
+
+                output_record = NonPageWiseContentHolder(
+                    layout=text_content,
+                    per_page_starting_sentences=per_page_starting_sentences,
+                )
 
         except Exception as e:
             logging.error(e)

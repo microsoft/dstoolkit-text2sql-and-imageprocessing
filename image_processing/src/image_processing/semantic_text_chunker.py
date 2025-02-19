@@ -7,6 +7,7 @@ import tiktoken
 import spacy
 import numpy as np
 from model2vec import StaticModel
+from layout_holders import PerPageStartingSentenceHolder, ChunkHolder
 
 
 class SemanticTextChunker:
@@ -75,7 +76,7 @@ class SemanticTextChunker:
 
         return cleaned_chunks, cleaned_is_table_or_figure_map
 
-    async def chunk(self, text: str) -> list[dict]:
+    async def chunk(self, text: str) -> list[ChunkHolder]:
         """Attempts to chunk the text by:
             Splitting into sentences
             Grouping sentences that contain figures and tables
@@ -128,7 +129,7 @@ class SemanticTextChunker:
         for chunk in reversed_backwards_pass_chunks:
             stripped_chunk = chunk.strip()
             if len(stripped_chunk) > 0:
-                cleaned_final_chunks.append(stripped_chunk)
+                cleaned_final_chunks.append(ChunkHolder(mark_up=stripped_chunk))
 
         logging.info(f"Number of final chunks: {len(cleaned_final_chunks)}")
         logging.info(f"Chunks: {cleaned_final_chunks}")
@@ -491,6 +492,29 @@ class SemanticTextChunker:
         )
         return similarity
 
+    def assign_page_number_to_chunks(
+        self,
+        chunks: list[ChunkHolder],
+        per_page_starting_sentences: list[PerPageStartingSentenceHolder],
+    ) -> list[ChunkHolder]:
+        """Assigns page numbers to the chunks based on the starting sentences of each page.
+
+        Args:
+            chunks (list[ChunkHolder]): The list of chunks.
+            per_page_starting_sentences (list[PerPageStartingSentenceHolder]): The list of starting sentences of each page.
+
+        Returns:
+            list[ChunkHolder]: The list of chunks with page numbers assigned."""
+        page_number = 1
+        for chunk in chunks:
+            if per_page_starting_sentences:
+                for per_page_starting_sentence in per_page_starting_sentences:
+                    if per_page_starting_sentence.starting_sentence in chunk:
+                        page_number = per_page_starting_sentence.page_number
+                        break
+            chunk.page_number = page_number
+        return chunks
+
 
 async def process_semantic_text_chunker(record: dict, text_chunker) -> dict:
     """Chunk the data.
@@ -514,9 +538,21 @@ async def process_semantic_text_chunker(record: dict, text_chunker) -> dict:
         }
 
         # scenarios when page by chunking is enabled
-        cleaned_record["data"]["chunks"] = await text_chunker.chunk(
-            record["data"]["content"]
-        )
+        chunks = await text_chunker.chunk(record["data"]["content"])
+
+        if "per_page_starting_sentences" in record["data"]:
+            per_page_starting_sentences = [
+                PerPageStartingSentenceHolder(**sentence)
+                for sentence in record["data"]["per_page_starting_sentences"]
+            ]
+
+            chunks = text_chunker.assign_page_number_to_chunks(
+                chunks, per_page_starting_sentences
+            )
+
+        cleaned_record["data"]["chunks"] = [
+            chunk.model_dump(by_alias=True) for chunk in chunks
+        ]
 
     except Exception as e:
         logging.error("Chunking Error: %s", e)

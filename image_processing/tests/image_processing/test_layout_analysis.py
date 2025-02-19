@@ -6,7 +6,6 @@ import tempfile
 import base64
 from unittest.mock import AsyncMock
 
-# Import the functions/classes under test.
 from layout_analysis import (
     process_layout_analysis,
     LayoutAnalysis,
@@ -147,7 +146,7 @@ async def test_analyse_non_page_wise_no_figures(monkeypatch, dummy_storage_helpe
     )
     # Patch analyse_document to simulate a successful ADI analysis.
     dummy_result = DummyResult(
-        content="Full document content", pages=[DummyPage(0, 21, None)], figures=[]
+        content="Full document content", pages=[DummyPage(0, 21, 1)], figures=[]
     )
 
     async def dummy_analyse_document(file_path):
@@ -435,3 +434,60 @@ def test_create_page_wise_content():
     assert layout.content == "Hello"
     assert layout.page_number == 1
     assert layout.page_offsets == 0
+
+
+def test_create_per_page_starting_sentence():
+    # Create a LayoutAnalysis instance.
+    la = LayoutAnalysis(record_id=200, source="dummy")
+
+    # Create a dummy result with content and pages.
+    # For this test, the first page's content slice will be "HelloWorld" (from index 0 with length 10),
+    # so the starting sentence extracted should be "HelloWorld".
+    class DummyResultContent:
+        pass
+
+    dummy_result = DummyResultContent()
+    dummy_result.content = "HelloWorld. This is a test sentence."
+    # DummyPage creates a page with spans as a list of dictionaries.
+    dummy_result.pages = [DummyPage(0, 10, 1)]
+    la.result = dummy_result
+
+    sentences = la.create_per_page_starting_sentence()
+    assert len(sentences) == 1
+    sentence = sentences[0]
+    assert sentence.page_number == 1
+    assert sentence.starting_sentence == "HelloWorld"
+
+
+def test_create_per_page_starting_sentence_multiple_pages():
+    # Create a LayoutAnalysis instance.
+    la = LayoutAnalysis(record_id=300, source="dummy")
+
+    # Create a dummy result with content spanning two pages.
+    # Use DummyPage to simulate pages; DummyPage expects "spans" as a list of dicts.
+    class DummyResultContent:
+        pass
+
+    dummy_result = DummyResultContent()
+    # Define content as two parts:
+    # Page 1: Offset 0, length 10 gives "Page one." (starting sentence "Page one")
+    # Page 2: Offset 10, length 15 gives " Page two text" (starting sentence " Page two text")
+    dummy_result.content = "Page one.Page two text and more content. This is more random content that is on page 2."
+    dummy_result.pages = [
+        DummyPage(0, 9, 1),  # "Page one." (9 characters: indices 0-8)
+        DummyPage(9, 78, 2),  # "Page two text and" (16 characters: indices 9-24)
+    ]
+    la.result = dummy_result
+
+    # Call create_per_page_starting_sentence and check results.
+    sentences = la.create_per_page_starting_sentence()
+    assert len(sentences) == 2
+
+    # For page 1, the substring is "Page one." -> split on "." gives "Page one"
+    assert sentences[0].page_number == 1
+    assert sentences[0].starting_sentence == "Page one"
+
+    # For page 2, the substring is "Page two text and" -> split on "." gives the entire string
+    assert sentences[1].page_number == 2
+    # We strip potential leading/trailing spaces for validation.
+    assert sentences[1].starting_sentence.strip() == "Page two text and more content"

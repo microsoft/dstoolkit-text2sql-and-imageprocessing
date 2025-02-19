@@ -47,7 +47,28 @@ class PageWiseContentHolder(BaseModel):
     page_wise_layout: list[LayoutHolder]
 
 
+class PerPageStartingSentenceHolder(BaseModel):
+    """A class to hold the starting sentence of each page."""
+
+    page_number: int
+    starting_sentence: str
+
+
 class NonPageWiseContentHolder(BaseModel):
     """A class to hold the non-page-wise content extracted from the document."""
 
     layout: LayoutHolder
+    per_page_starting_sentences: list[PerPageStartingSentenceHolder] = Field(
+        default_factory=list
+    )
+
+
+class ChunkHolder(BaseModel):
+    """A class to hold the text extracted from the document after it has been chunked."""
+
+    mark_up: str
+    sections: Optional[list[str]] = Field(default_factory=list)
+    figures: Optional[list[FigureHolder]] = Field(default_factory=list)
+    starting_sentence: Optional[str] = None
+    cleaned_text: Optional[str] = None
+    page_number: Optional[int] = Field(default=None)
