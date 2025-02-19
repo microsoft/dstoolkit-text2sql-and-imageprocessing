@@ -1,6 +1,6 @@
 [project]
 name = "image_processing"
-version = "0.1.0"
+version = "0.2.0"
 description = "Image processing for documents with Document Intelligence and OpenAI"
 readme = "README.md"
 authors = [
