@@ -1,7 +1,5 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-
-
 import pytest
 from mark_up_cleaner import MarkUpCleaner
 from layout_holders import FigureHolder
