@@ -18,7 +18,7 @@ class MarkUpCleaner:
             list: The sections related to text
         """
         # Updated regex pattern to capture markdown headers like ### Header
-        combined_pattern = r"^[#]+\s*(.*?)(?=\n|$)"
+        combined_pattern = r"^\s*[#]+\s*(.*?)(?=\n|$)"
         doc_metadata = re.findall(combined_pattern, text, re.MULTILINE)
         return self.clean_sections(doc_metadata)
 
@@ -61,12 +61,14 @@ class MarkUpCleaner:
             for tag, pattern in tag_patterns.items():
                 try:
                     # Replace the tags using the specific pattern, keeping the content inside the tags
-                    if tag == "header":
+                    if tag in ["header", "figure"]:
                         text = re.sub(
                             pattern, r"\2", text, flags=re.DOTALL | re.MULTILINE
                         )
                     else:
-                        text = re.sub(pattern, r"\1", text, flags=re.DOTALL)
+                        text = re.sub(
+                            pattern, r"\1", text, flags=re.DOTALL | re.MULTILINE
+                        )
                 except re.error as e:
                     logging.error(f"Regex error for tag '{tag}': {e}")
         except Exception as e:
@@ -110,7 +112,7 @@ class MarkUpCleaner:
             # Define specific patterns for each tag
             tag_patterns = {
                 "figurecontent": r"<!-- FigureContent=(.*?)-->",
-                "figure": r"<figure(?:\s+FigureId=\"[^\"]*\")?>(.*?)</figure>",
+                "figure": r"<figure(?:\s+FigureId=(\"[^\"]*\"|'[^']*'))?>(.*?)</figure>",
                 "figures": r"\(figures/\d+\)(.*?)\(figures/\d+\)",
                 "figcaption": r"<figcaption>(.*?)</figcaption>",
                 "header": r"^\s*(#{1,6})\s*(.*?)\s*$",

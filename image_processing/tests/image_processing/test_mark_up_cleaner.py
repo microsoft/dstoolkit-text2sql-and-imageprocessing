@@ -61,7 +61,7 @@ def test_remove_markdown_tags(cleaner):
     """
     tag_patterns = {
         "figurecontent": r"<!-- FigureContent=(.*?)-->",
-        "figure": r"<figure(?:\s+FigureId=\"[^\"]*\")?>(.*?)</figure>",
+        "figure": r"<figure(?:\s+FigureId=(\"[^\"]*\"|'[^']*'))?>(.*?)</figure>",
     }
     cleaned_text = cleaner.remove_markdown_tags(text, tag_patterns)
     assert "Some figure" in cleaned_text
@@ -77,12 +77,18 @@ def test_clean_text_and_extract_metadata(cleaner, sample_text, figures):
     assert result["chunk_sections"] == ["Header 1", "Header 2"]
     assert result["chunk_figures"] == [
         {
-            "figure_id": "12345",
-            "uri": "https://example.com/12345.png",
-            "description": "Figure 1",
+            "FigureId": "12345",
+            "Caption": None,
+            "offset": 0,
+            "length": 8,
+            "PageNumber": None,
+            "Uri": "https://example.com/12345.png",
+            "Description": "Figure 1",
+            "Data": None,
         }
     ]
     assert "chunk_cleaned" in result
+    print(result["chunk_cleaned"])
     assert "FigureId='12345'" not in result["chunk_cleaned"]
 
 
@@ -97,11 +103,15 @@ async def test_clean(cleaner, sample_text, figures):
                     "figure_id": "12345",
                     "uri": "https://example.com/12345.png",
                     "description": "Figure 1",
+                    "offset": 0,
+                    "length": 8,
                 },
                 {
                     "figure_id": "123456789",
                     "uri": "https://example.com/123456789.png",
                     "description": "Figure 2",
+                    "offset": 10,
+                    "length": 8,
                 },
             ],
         },
@@ -112,3 +122,8 @@ async def test_clean(cleaner, sample_text, figures):
     assert result["data"] is not None
     assert result["data"]["chunk_cleaned"]
     assert "errors" not in result or result["errors"] is None
+    assert "chunk_mark_up" in result["data"]
+    assert "chunk_sections" in result["data"]
+    assert "chunk_figures" in result["data"]
+    assert len(result["data"]["chunk_figures"]) == 1
+    assert result["data"]["chunk_figures"][0]["FigureId"] == "12345"

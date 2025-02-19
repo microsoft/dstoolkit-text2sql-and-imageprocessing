@@ -6,7 +6,6 @@ from typing import Optional
 
 
 class FigureHolder(BaseModel):
-
     """A class to hold the figure extracted from the document."""
 
     figure_id: str = Field(..., alias="FigureId")
