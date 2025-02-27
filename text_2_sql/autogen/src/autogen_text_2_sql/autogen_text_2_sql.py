@@ -83,14 +83,7 @@ class AutoGenText2Sql:
         termination = (
             SourceMatchTermination("answer_agent")
             | SourceMatchTermination("answer_with_follow_up_suggestions_agent")
-            # | TextMentionTermination(
-            #     "[]",
-            #     sources=["user_message_rewrite_agent"],
-            # )
-            | TextMentionTermination(
-                "contains_disambiguation_requests",
-                sources=["parallel_query_solving_agent"],
-            )
+            | TextMentionTermination("contains_disambiguation_requests")
             | MaxMessageTermination(5)
         )
         return termination
