@@ -282,7 +282,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                     ),
                 )
 
-                break
+                return
 
         # Final response
         yield Response(
