@@ -17,7 +17,6 @@ from autogen_text_2_sql.inner_autogen_text_2_sql import InnerAutoGenText2Sql
 from aiostream import stream
 from json import JSONDecodeError
 import re
-import os
 from pydantic import BaseModel, Field
 
 
@@ -226,23 +225,12 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                 # Create an instance of the InnerAutoGenText2Sql class
                 inner_autogen_text_2_sql = InnerAutoGenText2Sql(**self.kwargs)
 
-                # Add database connection info to injected parameters
-                query_params = injected_parameters.copy() if injected_parameters else {}
-                if "Text2Sql__Tsql__ConnectionString" in os.environ:
-                    query_params["database_connection_string"] = os.environ[
-                        "Text2Sql__Tsql__ConnectionString"
-                    ]
-                if "Text2Sql__Tsql__Database" in os.environ:
-                    query_params["database_name"] = os.environ[
-                        "Text2Sql__Tsql__Database"
-                    ]
-
                 # Launch tasks for each sub-query
                 inner_solving_generators.append(
                     consume_inner_messages_from_agentic_flow(
                         inner_autogen_text_2_sql.process_user_message(
                             user_message=parallel_message,
-                            injected_parameters=query_params,
+                            injected_parameters=injected_parameters,
                             database_results=filtered_parallel_messages.database_results,
                         ),
                         parallel_message,
@@ -294,7 +282,7 @@ class ParallelQuerySolvingAgent(BaseChatAgent):
                     ),
                 )
 
-                break
+                return
 
         # Final response
         yield Response(

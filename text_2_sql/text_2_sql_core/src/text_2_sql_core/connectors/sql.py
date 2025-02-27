@@ -311,11 +311,22 @@ class SqlConnector(ABC):
                 current_limit = parsed_query.args.get("limit")
                 logging.debug("Current Limit: %s", current_limit)
 
-                if current_limit is None or current_limit.value > self.row_limit:
+                # More defensive check to handle different structures
+                should_add_limit = True
+                if current_limit is not None:
+                    try:
+                        if hasattr(current_limit, "expression") and hasattr(
+                            current_limit.expression, "value"
+                        ):
+                            if current_limit.expression.value <= self.row_limit:
+                                should_add_limit = False
+                    except AttributeError:
+                        logging.warning("Unexpected limit structure: %s", current_limit)
+
+                if should_add_limit:
                     # Create a new LIMIT expression
                     limit_expr = Limit(expression=Literal.number(self.row_limit))
-
-                    # Attach it to the query by setting it on the SELECT expression
+                    # Attach it to the query
                     parsed_query.set("limit", limit_expr)
                     updated_parsed_queries.append(
                         parsed_query.sql(dialect=self.database_engine.value.lower())
