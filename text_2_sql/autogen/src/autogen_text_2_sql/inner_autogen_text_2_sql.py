@@ -44,29 +44,6 @@ class InnerAutoGenText2Sql:
         self.kwargs = kwargs
         self.set_mode()
 
-        # Store original environment variables
-        self.original_db_conn = os.environ.get("Text2Sql__Tsql__ConnectionString")
-        self.original_db_name = os.environ.get("Text2Sql__Tsql__Database")
-
-    def _update_environment(self, injected_parameters: dict = None):
-        """Update environment variables with injected parameters."""
-        if injected_parameters:
-            if "database_connection_string" in injected_parameters:
-                os.environ["Text2Sql__Tsql__ConnectionString"] = injected_parameters[
-                    "database_connection_string"
-                ]
-            if "database_name" in injected_parameters:
-                os.environ["Text2Sql__Tsql__Database"] = injected_parameters[
-                    "database_name"
-                ]
-
-    def _restore_environment(self):
-        """Restore original environment variables."""
-        if self.original_db_conn:
-            os.environ["Text2Sql__Tsql__ConnectionString"] = self.original_db_conn
-        if self.original_db_name:
-            os.environ["Text2Sql__Tsql__Database"] = self.original_db_name
-
     def set_mode(self):
         """Set the mode of the plugin based on the environment variables."""
         self.pre_run_query_cache = (
@@ -195,19 +172,12 @@ class InnerAutoGenText2Sql:
         """
         logging.info("Processing question: %s", user_message)
 
-        # Update environment with injected parameters
-        self._update_environment(injected_parameters)
+        agent_input = {
+            "user_message": user_message,
+            "injected_parameters": injected_parameters,
+        }
 
-        try:
-            agent_input = {
-                "user_message": user_message,
-                "injected_parameters": injected_parameters,
-            }
+        if database_results:
+            agent_input["database_results"] = database_results
 
-            if database_results:
-                agent_input["database_results"] = database_results
-
-            return self.agentic_flow.run_stream(task=json.dumps(agent_input))
-        finally:
-            # Restore original environment
-            self._restore_environment()
+        return self.agentic_flow.run_stream(task=json.dumps(agent_input))
