@@ -15,7 +15,7 @@ class FigureHolder(BaseModel):
     offset: int
     length: int
     page_number: Optional[int] = Field(default=None, alias="PageNumber")
-    uri: str = Field(..., alias="Url")
+    uri: str = Field(..., alias="Uri")
     description: Optional[str] = Field(default="", alias="Description")
     data: Optional[str] = Field(default=None, alias="Data")
 
