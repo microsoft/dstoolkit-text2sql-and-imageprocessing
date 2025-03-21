@@ -24,7 +24,7 @@ from layout_holders import (
     NonPageWiseContentHolder,
     PageNumberTrackingHolder,
 )
-from regex import re
+import re
 
 
 class StorageAccountHelper:
