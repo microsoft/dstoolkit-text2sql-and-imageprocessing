@@ -188,7 +188,6 @@ async def test_semantic_text_chunker_valid(monkeypatch):
     )
 
     headers = {
-        "num_surrounding_sentences": "2",
         "similarity_threshold": "0.9",
         "max_chunk_tokens": "600",
         "min_chunk_tokens": "60",

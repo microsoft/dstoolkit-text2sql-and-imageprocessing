@@ -11,6 +11,8 @@ from layout_analysis import (
     LayoutAnalysis,
 )
 
+from layout_holders import LayoutHolder
+
 
 # --- Dummy classes to simulate ADI results and figures ---
 class DummySpan:
@@ -436,7 +438,7 @@ def test_create_page_wise_content():
     assert layout.page_offsets == 0
 
 
-def test_create_per_page_starting_sentence():
+def test_create_page_number_tracking_holder():
     # Create a LayoutAnalysis instance.
     la = LayoutAnalysis(record_id=200, source="dummy")
 
@@ -449,17 +451,17 @@ def test_create_per_page_starting_sentence():
     dummy_result = DummyResultContent()
     dummy_result.content = "HelloWorld. This is a test sentence."
     # DummyPage creates a page with spans as a list of dictionaries.
-    dummy_result.pages = [DummyPage(0, 10, 1)]
+    dummy_result.pages = [DummyPage(0, 36, 1)]
     la.result = dummy_result
 
-    sentences = la.create_per_page_starting_sentence()
-    assert len(sentences) == 1
-    sentence = sentences[0]
-    assert sentence.page_number == 1
-    assert sentence.starting_sentence == "HelloWorld"
+    page_number_trackers = la.create_page_number_tracking_holder()
+    assert len(page_number_trackers) == 1
+    tracker = page_number_trackers[0]
+    assert tracker.page_number == 1
+    assert tracker.page_content == "HelloWorld. This is a test sentence."
 
 
-def test_create_per_page_starting_sentence_multiple_pages():
+def test_create_page_number_tracking_holder_multiple_pages():
     # Create a LayoutAnalysis instance.
     la = LayoutAnalysis(record_id=300, source="dummy")
 
@@ -479,15 +481,337 @@ def test_create_per_page_starting_sentence_multiple_pages():
     ]
     la.result = dummy_result
 
-    # Call create_per_page_starting_sentence and check results.
-    sentences = la.create_per_page_starting_sentence()
-    assert len(sentences) == 2
+    # Call create_page_number_tracking_holder and check results.
+    page_number_trackers = la.create_page_number_tracking_holder()
+    assert len(page_number_trackers) == 2
 
     # For page 1, the substring is "Page one." -> split on "." gives "Page one"
-    assert sentences[0].page_number == 1
-    assert sentences[0].starting_sentence == "Page one"
+    assert page_number_trackers[0].page_number == 1
+    assert page_number_trackers[0].page_content == "Page one."
 
     # For page 2, the substring is "Page two text and" -> split on "." gives the entire string
-    assert sentences[1].page_number == 2
+    assert page_number_trackers[1].page_number == 2
     # We strip potential leading/trailing spaces for validation.
-    assert sentences[1].starting_sentence.strip() == "Page two text and more content"
+    assert (
+        page_number_trackers[1].page_content.strip()
+        == "Page two text and more content. This is more random content that is on page 2."
+    )
+
+
+# Test for download_figure_image with retry logic
+@pytest.mark.asyncio
+async def test_download_figure_image_with_retry(monkeypatch):
+    """Test the download_figure_image method with retry logic."""
+    la = LayoutAnalysis(record_id=101, source="dummy")
+    la.operation_id = "op101"
+    la.result = DummyResult("content", [], [], model_id="model101")
+
+    # Create a counter to track number of attempts
+    call_count = 0
+
+    # Mock document_intelligence_client.get_analyze_result_figure
+    class MockResponse:
+        def __init__(self):
+            self.chunks = [b"chunk1", b"chunk2"]
+
+        def __aiter__(self):
+            return self
+
+        async def __anext__(self):
+            if not self.chunks:
+                raise StopAsyncIteration
+            return self.chunks.pop(0)
+
+    class MockClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+        async def get_analyze_result_figure(self, model_id, result_id, figure_id):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                # Fail on first attempt
+                raise Exception("Temporary failure")
+            # Succeed on subsequent attempts
+            return MockResponse()
+
+    # Patch get_document_intelligence_client to return our mock
+    async def mock_get_client():
+        return MockClient()
+
+    monkeypatch.setattr(la, "get_document_intelligence_client", mock_get_client)
+
+    # Call the method - should succeed after retry
+    result = await la.download_figure_image("fig1")
+
+    # Check that it was called more than once (at least one retry)
+    assert call_count > 1
+    # Check the result contains both chunks
+    assert result == b"chunk1chunk2"
+
+
+# Test for non-page-wise analysis with figures
+@pytest.mark.asyncio
+async def test_analyse_non_page_wise_with_figures(monkeypatch, dummy_storage_helper):
+    """Test non-page-wise analysis with figures."""
+    source = "https://dummyaccount.blob.core.windows.net/container/path/to/file.txt"
+    la = LayoutAnalysis(
+        page_wise=False, extract_figures=True, record_id=102, source=source
+    )
+    la.extract_file_info()
+
+    monkeypatch.setattr(
+        la, "get_storage_account_helper", AsyncMock(return_value=dummy_storage_helper)
+    )
+    monkeypatch.setattr(
+        dummy_storage_helper,
+        "download_blob_to_temp_dir",
+        AsyncMock(return_value=("/tmp/dummy.txt", {})),
+    )
+
+    # Create a dummy result with content and a figure
+    dummy_page = DummyPage(0, 20, 1)
+    dummy_figure = DummyFigure(
+        "fig102",
+        offset=10,
+        length=5,
+        page_number=1,
+        caption_content="Figure 102 caption",
+    )
+    dummy_result = DummyResult(
+        content="Full document content", pages=[dummy_page], figures=[dummy_figure]
+    )
+
+    async def dummy_analyse_document(file_path):
+        la.result = dummy_result
+        la.operation_id = "op102"
+
+    monkeypatch.setattr(la, "analyse_document", dummy_analyse_document)
+
+    # Mock figure download and upload
+    monkeypatch.setattr(
+        la, "download_figure_image", AsyncMock(return_value=b"figure102_image_data")
+    )
+    monkeypatch.setattr(
+        dummy_storage_helper,
+        "upload_blob",
+        AsyncMock(return_value="http://dummy.url/fig102.png"),
+    )
+
+    result = await la.analyse()
+
+    assert result["recordId"] == 102
+    assert result["data"] is not None
+    # In non-page-wise mode, we should have layout and page_number_tracking_holders
+    assert "layout" in result["data"]
+    assert "page_number_tracking_holders" in result["data"]
+
+    # Verify figure was processed
+    layout = result["data"]["layout"]
+    assert "figures" in layout
+    figures = layout["figures"]
+    assert len(figures) == 1
+    assert figures[0]["figure_id"] == "fig102"
+    assert figures[0]["caption"] == "Figure 102 caption"
+    expected_b64 = base64.b64encode(b"figure102_image_data").decode("utf-8")
+    assert figures[0]["data"] == expected_b64
+
+
+# Test for when extract_figures is False
+@pytest.mark.asyncio
+async def test_analyse_without_extracting_figures(monkeypatch, dummy_storage_helper):
+    """Test analysis when extract_figures is False."""
+    source = "https://dummyaccount.blob.core.windows.net/container/path/to/file.txt"
+    la = LayoutAnalysis(
+        page_wise=True, extract_figures=False, record_id=103, source=source
+    )
+    la.extract_file_info()
+
+    monkeypatch.setattr(
+        la, "get_storage_account_helper", AsyncMock(return_value=dummy_storage_helper)
+    )
+    monkeypatch.setattr(
+        dummy_storage_helper,
+        "download_blob_to_temp_dir",
+        AsyncMock(return_value=("/tmp/dummy.txt", {})),
+    )
+
+    # Create a dummy result with content and a figure
+    dummy_page = DummyPage(0, 10, 1)
+    dummy_figure = DummyFigure(
+        "fig103",
+        offset=5,
+        length=3,
+        page_number=1,
+        caption_content="Figure 103 caption",
+    )
+    dummy_result = DummyResult(
+        content="Page content", pages=[dummy_page], figures=[dummy_figure]
+    )
+
+    async def dummy_analyse_document(file_path):
+        la.result = dummy_result
+        la.operation_id = "op103"
+
+    monkeypatch.setattr(la, "analyse_document", dummy_analyse_document)
+
+    # Add spy on process_figures_from_extracted_content to ensure it's not called
+    process_figures_spy = AsyncMock()
+    monkeypatch.setattr(
+        la, "process_figures_from_extracted_content", process_figures_spy
+    )
+
+    result = await la.analyse()
+
+    # Verify the function was not called
+    process_figures_spy.assert_not_called()
+
+    assert result["recordId"] == 103
+    assert result["data"] is not None
+    # Verify we have page_wise_layout
+    assert "page_wise_layout" in result["data"]
+    layouts = result["data"]["page_wise_layout"]
+    assert len(layouts) == 1
+    # Each layout should have an empty figures list
+    assert layouts[0]["figures"] == []
+
+
+# Test for HTML comment handling in create_page_number_tracking_holder
+def test_create_page_number_tracking_holder_html_comments():
+    """Test HTML comment handling in page content extraction."""
+    la = LayoutAnalysis(record_id=104, source="dummy")
+
+    class DummyResultContent:
+        pass
+
+    dummy_result = DummyResultContent()
+    # Content with HTML comments
+    dummy_result.content = "Before <!-- comment --> After"
+    dummy_result.pages = [DummyPage(0, 29, 1)]  # Full content
+    la.result = dummy_result
+
+    page_number_trackers = la.create_page_number_tracking_holder()
+    assert len(page_number_trackers) == 1
+    # HTML comments should be removed
+    assert page_number_trackers[0].page_content == "Before  After"
+
+
+# Test for figure tag handling in create_page_number_tracking_holder
+def test_create_page_number_tracking_holder_figure_tags():
+    """Test figure tag handling in page content extraction."""
+    la = LayoutAnalysis(record_id=105, source="dummy")
+
+    class DummyResultContent:
+        pass
+
+    dummy_result = DummyResultContent()
+    # Content with figure tags
+    dummy_result.content = "Before <figure>Figure content</figure> After"
+    dummy_result.pages = [DummyPage(0, 44, 1)]  # Full content
+    la.result = dummy_result
+
+    page_number_trackers = la.create_page_number_tracking_holder()
+    assert len(page_number_trackers) == 1
+    # Figure content should be removed
+    assert page_number_trackers[0].page_content == "Before  After"
+
+
+# Test handling of empty content
+def test_create_page_number_tracking_holder_empty_content():
+    """Test handling of empty content in page tracking."""
+    la = LayoutAnalysis(record_id=106, source="dummy")
+
+    class DummyResultContent:
+        pass
+
+    dummy_result = DummyResultContent()
+    # Empty content
+    dummy_result.content = ""
+    dummy_result.pages = [DummyPage(0, 0, 1)]  # Empty content
+    la.result = dummy_result
+
+    page_number_trackers = la.create_page_number_tracking_holder()
+    assert len(page_number_trackers) == 1
+    # Page content should be None for empty content
+    assert page_number_trackers[0].page_content is None
+
+
+# Test for process_layout_analysis with page_wise=True
+@pytest.mark.asyncio
+async def test_process_layout_analysis_page_wise(monkeypatch):
+    """Test process_layout_analysis with page_wise=True."""
+    record = {
+        "recordId": "107",
+        "data": {"source": "https://dummy.blob.core.windows.net/container/blob.pdf"},
+    }
+
+    # Create a mock LayoutAnalysis
+    mock_layout_analysis = AsyncMock()
+    mock_layout_analysis.analyse = AsyncMock(
+        return_value={"recordId": "107", "data": {"result": "success"}}
+    )
+
+    # Mock the LayoutAnalysis constructor
+    def mock_layout_analysis_constructor(*args, **kwargs):
+        # Verify page_wise=True was passed
+        assert kwargs["page_wise"] is True
+        return mock_layout_analysis
+
+    monkeypatch.setattr(
+        "layout_analysis.LayoutAnalysis", mock_layout_analysis_constructor
+    )
+
+    result = await process_layout_analysis(record, page_wise=True)
+
+    # Verify analyse was called
+    mock_layout_analysis.analyse.assert_called_once()
+    assert result["recordId"] == "107"
+    assert result["data"] == {"result": "success"}
+
+
+# Test handling figures without captions
+@pytest.mark.asyncio
+async def test_figure_without_caption(monkeypatch, dummy_storage_helper):
+    """Test handling figures without captions."""
+    source = "https://dummyaccount.blob.core.windows.net/container/path/to/file.txt"
+    la = LayoutAnalysis(
+        page_wise=False, extract_figures=True, record_id=108, source=source
+    )
+    la.extract_file_info()
+
+    monkeypatch.setattr(
+        la, "get_storage_account_helper", AsyncMock(return_value=dummy_storage_helper)
+    )
+    monkeypatch.setattr(
+        dummy_storage_helper,
+        "download_blob_to_temp_dir",
+        AsyncMock(return_value=("/tmp/dummy.txt", {})),
+    )
+
+    # Create a figure without a caption (caption=None)
+    dummy_figure = DummyFigure(
+        "fig108", offset=5, length=3, page_number=1, caption_content=None
+    )
+    dummy_result = DummyResult(
+        content="Content", pages=[DummyPage(0, 7, 1)], figures=[dummy_figure]
+    )
+
+    la.result = dummy_result
+    monkeypatch.setattr(
+        la, "download_figure_image", AsyncMock(return_value=b"figure108_image_data")
+    )
+
+    # Create a minimal layout holder for testing
+    layout_holder = LayoutHolder(content="Test", page_number=1, page_offsets=0)
+
+    # Process the figures
+    await la.process_figures_from_extracted_content(layout_holder)
+
+    # Check that the figure was processed despite having no caption
+    assert len(layout_holder.figures) == 1
+    figure = layout_holder.figures[0]
+    assert figure.figure_id == "fig108"
+    assert figure.caption is None  # Caption should be None

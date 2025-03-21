@@ -283,7 +283,6 @@ class AISearch(ABC):
 
     def get_semantic_chunker_skill(
         self,
-        num_surrounding_sentences: int = 2,
         similarity_threshold: float = 0.8,
         max_chunk_tokens: int = 500,
         min_chunk_tokens: int = 150,
@@ -294,7 +293,6 @@ class AISearch(ABC):
         -----
             context (str): The context of the skill
             source (str): The source of the skill
-            num_surrounding_sentences (int, optional): The number of surrounding sentences. Defaults to 1.
             similarity_threshold (float, optional): The similarity threshold. Defaults to 0.8.
             max_chunk_tokens (int, optional): The maximum number of tokens. Defaults to 200.
 
@@ -314,8 +312,8 @@ class AISearch(ABC):
                 name="content", source="/document/layout_merged_content"
             ),
             InputFieldMappingEntry(
-                name="per_page_starting_sentences",
-                source="/document/per_page_starting_sentences",
+                name="page_number_tracking_holders",
+                source="/document/page_number_tracking_holders",
             ),
         ]
 
@@ -333,7 +331,6 @@ class AISearch(ABC):
             degree_of_parallelism=degree_of_parallelism,
             http_method="POST",
             http_headers={
-                "num_surrounding_sentences": num_surrounding_sentences,
                 "similarity_threshold": similarity_threshold,
                 "max_chunk_tokens": max_chunk_tokens,
                 "min_chunk_tokens": min_chunk_tokens,
@@ -385,8 +382,8 @@ class AISearch(ABC):
             output = [
                 OutputFieldMappingEntry(name="layout", target_name="layout"),
                 OutputFieldMappingEntry(
-                    name="per_page_starting_sentences",
-                    target_name="per_page_starting_sentences",
+                    name="page_number_tracking_holders",
+                    target_name="page_number_tracking_holders",
                 ),
             ]
 
