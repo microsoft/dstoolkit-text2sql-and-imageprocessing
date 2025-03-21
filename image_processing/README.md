@@ -98,7 +98,7 @@ This skill merges the layout output with the figure outputs to create a unified 
 
 ### Semantic Chunker Custom Skill
 
-You can then test the chunking by sending a AI Search JSON format to the `/semantic_text_chunker/ HTTP endpoint. The header controls the different chunking parameters *(num_surrounding_sentences, similarity_threshold, max_chunk_tokens, min_chunk_tokens)*.
+You can then test the chunking by sending a AI Search JSON format to the `/semantic_text_chunker/ HTTP endpoint. The header controls the different chunking parameters *(similarity_threshold, max_chunk_tokens, min_chunk_tokens)*.
 
 ### MarkUp Cleaner Custom Skill
 

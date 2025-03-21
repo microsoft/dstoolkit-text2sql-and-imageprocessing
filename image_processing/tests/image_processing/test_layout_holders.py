@@ -8,7 +8,7 @@ from layout_holders import (
     PageWiseContentHolder,
     NonPageWiseContentHolder,
     ChunkHolder,
-    PerPageStartingSentenceHolder,
+    PageNumberTrackingHolder,
 )
 
 
@@ -74,34 +74,32 @@ def test_chunk_holder_creation():
         mark_up="Sample markup",
         sections=["Section1", "Section2"],
         figures=[],
-        starting_sentence="First sentence",
         cleaned_text="Cleaned text content",
         page_number=1,
     )
     assert chunk.mark_up == "Sample markup"
     assert chunk.sections == ["Section1", "Section2"]
-    assert chunk.starting_sentence == "First sentence"
     assert chunk.cleaned_text == "Cleaned text content"
     assert chunk.page_number == 1
 
 
-def test_per_page_starting_sentence_holder_creation():
-    sentence = PerPageStartingSentenceHolder(
-        page_number=1, starting_sentence="This is the starting sentence."
+def test_per_page_page_content_holder_creation():
+    sentence = PageNumberTrackingHolder(
+        page_number=1, page_content="This is the full content."
     )
     assert sentence.page_number == 1
-    assert sentence.starting_sentence == "This is the starting sentence."
+    assert sentence.page_content == "This is the full content."
 
 
-def test_non_page_wise_content_holder_with_sentences():
+def test_non_page_wise_content_holder_with_page_number_trackers():
     layout = LayoutHolder(content="Full document")
-    sentences = [
-        PerPageStartingSentenceHolder(page_number=1, starting_sentence="Start 1"),
-        PerPageStartingSentenceHolder(page_number=2, starting_sentence="Start 2"),
+    page_number_trackers = [
+        PageNumberTrackingHolder(page_number=1, page_content="Start 1"),
+        PageNumberTrackingHolder(page_number=2, page_content="Start 2"),
     ]
     non_page_holder = NonPageWiseContentHolder(
-        layout=layout, per_page_starting_sentences=sentences
+        layout=layout, page_number_tracking_holders=page_number_trackers
     )
     assert non_page_holder.layout.content == "Full document"
-    assert len(non_page_holder.per_page_starting_sentences) == 2
-    assert non_page_holder.per_page_starting_sentences[0].starting_sentence == "Start 1"
+    assert len(non_page_holder.page_number_tracking_holders) == 2
+    assert non_page_holder.page_number_tracking_holders[0].page_content == "Start 1"

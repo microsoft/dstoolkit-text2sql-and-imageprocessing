@@ -22,8 +22,9 @@ from layout_holders import (
     LayoutHolder,
     PageWiseContentHolder,
     NonPageWiseContentHolder,
-    PerPageStartingSentenceHolder,
+    PageNumberTrackingHolder,
 )
+from regex import re
 
 
 class StorageAccountHelper:
@@ -341,14 +342,14 @@ class LayoutAnalysis:
 
         return page_wise_contents
 
-    def create_per_page_starting_sentence(self) -> list[PerPageStartingSentenceHolder]:
+    def create_page_number_tracking_holder(self) -> list[PageNumberTrackingHolder]:
         """Create a list of the starting sentence of each page so we can assign the starting sentence to the page number.
 
         Returns:
         --------
             list: A list of the starting sentence of each page."""
 
-        per_page_starting_sentences = []
+        page_number_tracking_holders = []
 
         for page in self.result.pages:
             page_content = self.result.content[
@@ -358,22 +359,38 @@ class LayoutAnalysis:
 
             # Remove any leading whitespace/newlines.
             cleaned_content = page_content.lstrip()
-            # If a newline appears before a period, split on newline; otherwise, on period.
-            if "\n" in cleaned_content:
-                first_line = cleaned_content.split("\n", 1)[0]
-            elif "." in cleaned_content:
-                first_line = cleaned_content.split(".", 1)[0]
-            else:
-                first_line = cleaned_content
+            # Strip the html comment but keep the content
+            html_comments_pattern = re.compile(r"<!--.*?-->", re.DOTALL)
+            cleaned_content = html_comments_pattern.sub("", cleaned_content)
 
-            per_page_starting_sentences.append(
-                PerPageStartingSentenceHolder(
+            # Remove anything inside a figure tag
+            cleaned_content = re.sub(
+                "<figure>(.*?)</figure>",
+                "",
+                cleaned_content,
+                flags=re.DOTALL | re.MULTILINE,
+            )
+            logging.info(f"Page Number: {page.page_number}")
+            logging.info(f"Content for Page Detection: {page_content}")
+            logging.info(f"Cleaned Content for Page Detection: {cleaned_content}")
+
+            if len(cleaned_content) == 0:
+                logging.error(
+                    "No content found in the cleaned result for page %s.",
+                    page.page_number,
+                )
+                cleaned_content = None
+            else:
+                cleaned_content = cleaned_content.strip()
+
+            page_number_tracking_holders.append(
+                PageNumberTrackingHolder(
                     page_number=page.page_number,
-                    starting_sentence=first_line.strip(),
+                    page_content=cleaned_content,
                 )
             )
 
-        return per_page_starting_sentences
+        return page_number_tracking_holders
 
     async def get_document_intelligence_client(self) -> DocumentIntelligenceClient:
         """Get the Azure Document Intelligence client.
@@ -522,11 +539,11 @@ class LayoutAnalysis:
                 if self.extract_figures:
                     await self.process_figures_from_extracted_content(text_content)
 
-                per_page_starting_sentences = self.create_per_page_starting_sentence()
+                page_number_tracking_holders = self.create_page_number_tracking_holder()
 
                 output_record = NonPageWiseContentHolder(
                     layout=text_content,
-                    per_page_starting_sentences=per_page_starting_sentences,
+                    page_number_tracking_holders=page_number_tracking_holders,
                 )
 
         except Exception as e:
