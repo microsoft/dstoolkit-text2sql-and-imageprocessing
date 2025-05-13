@@ -1,8 +1,12 @@
 # Text2SQL and Image Processing in AI Search
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/microsoft/dstoolkit-text2sql-and-imageprocessing)
+
 This repo provides sample code for improving RAG applications with rich data sources including SQL Warehouses and documents analysed with Azure Document Intelligence.
 
 It is intended that the plugins and skills provided in this repository, are adapted and added to your new or existing RAG application to improve the response quality.
+
+**Got questions? Use the awesome DeepWiki linked above to see an overview of the code and approaches**.
 
 > [!IMPORTANT]
 >
