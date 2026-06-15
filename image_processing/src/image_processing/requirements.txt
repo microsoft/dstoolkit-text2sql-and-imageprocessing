@@ -70,7 +70,7 @@ pycparser==2.22 ; platform_python_implementation != 'PyPy'
 pydantic==2.10.6
 pydantic-core==2.27.2
 pygments==2.19.1
-pyjwt==2.10.1
+pyjwt==2.13.0
 pymupdf==1.25.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
