@@ -73,7 +73,7 @@ pygments==2.19.1
 pyjwt==2.10.1
 pymupdf==1.25.3
 python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 pytz==2025.1
 pywin32==308 ; sys_platform == 'win32'
 pyyaml==6.0.2
