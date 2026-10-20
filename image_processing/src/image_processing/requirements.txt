@@ -34,7 +34,7 @@ en-core-web-md @ https://github.com/explosion/spacy-models/releases/download/en_
 et-xmlfile==2.0.0
 filelock==3.17.0
 frozenlist==1.5.0
-fsspec==2025.2.0
+fsspec==2026.6.0
 h11==0.14.0
 httpcore==1.0.7
 httpx==0.28.1
