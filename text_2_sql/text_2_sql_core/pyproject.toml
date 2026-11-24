@@ -45,7 +45,7 @@ snowflake = [
 ]
 databricks = [
     "databricks-sql-connector>=3.0.1",
-    "pyarrow>=14.0.2,<17",
+    "pyarrow>=14.0.2,<24",
 ]
 postgres = [
     "psycopg>=3.2.3",
