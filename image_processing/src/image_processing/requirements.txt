@@ -20,7 +20,7 @@ beautifulsoup4==4.13.3
 blis==0.7.11
 bs4==0.0.2
 catalogue==2.0.10
-certifi==2025.1.31
+certifi==2026.10.18
 cffi==1.17.1 ; platform_python_implementation != 'PyPy'
 charset-normalizer==3.4.1
 click==8.1.8
